@@ -1,0 +1,116 @@
+# Kuesify
+
+Platform kuis pendidikan interaktif. Kuesify mendukung pembuatan soal, kuis mandiri, tugas, sesi live realtime, organisasi, dan peran pengguna.
+
+## Tech Stack
+
+- Backend: Laravel 13, PHP 8.3+, MySQL 8, Redis 7.
+- Frontend: Vue 3, TypeScript, Inertia.js, Vite, Tailwind CSS.
+- Realtime: Laravel Reverb dan Laravel Echo.
+- Queue: Laravel Queue dengan Redis.
+- Testing: Pest PHP dan Playwright.
+- AI opsional: Google Gemini untuk draft soal dari materi.
+
+## Prasyarat
+
+- PHP 8.3+ dan Composer.
+- Node.js 20+ dan npm.
+- MySQL 8+ dan Redis 7+ untuk setup native.
+- Docker Desktop opsional, untuk menjalankan MySQL dan Redis dalam container.
+
+## Setup Native
+
+```powershell
+git clone https://github.com/chandra7251/Kuesify.git
+Set-Location Kuesify
+composer install
+npm ci
+Copy-Item .env.example .env
+php artisan key:generate
+```
+
+Atur database lokal di `.env`. Untuk Laragon atau MySQL lokal, pakai host `127.0.0.1`; jangan commit file `.env`.
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=kuesify
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Buat kredensial Reverb lokal yang unik pada `.env`:
+
+```env
+REVERB_APP_ID=kuesify-local
+REVERB_APP_KEY=ganti-dengan-key-acak
+REVERB_APP_SECRET=ganti-dengan-secret-acak
+```
+
+Lalu siapkan aplikasi:
+
+```powershell
+php artisan migrate --seed
+npm run build
+```
+
+Jalankan tiap proses pada terminal terpisah:
+
+```powershell
+php artisan serve --host=127.0.0.1 --port=8000
+npm run dev -- --host 127.0.0.1
+php artisan queue:work redis --tries=3 --timeout=90
+php artisan reverb:start --host=127.0.0.1 --port=8080
+```
+
+Buka `http://127.0.0.1:8000`. Jika port `8080` dipakai aplikasi lain, pindahkan Reverb ke port lain dan samakan `REVERB_PORT`, `REVERB_SERVER_PORT`, serta `VITE_REVERB_PORT`.
+
+## Setup Docker
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Isi nilai acak yang sama untuk `MYSQL_ROOT_PASSWORD` dan `DB_PASSWORD` pada `.env`, lalu jalankan:
+
+```powershell
+docker compose up --build -d
+docker compose exec app php artisan migrate --seed
+```
+
+Service aplikasi tersedia pada `http://127.0.0.1:8000`; Reverb pada port `8080`.
+
+## Email dan AI
+
+- Development memakai `MAIL_MAILER=log`. Email verifikasi disimpan di `storage/logs/laravel.log`, tidak dikirim ke inbox.
+- Untuk email sungguhan, isi konfigurasi SMTP atau provider email pada `.env` sebelum deploy.
+- Isi `GEMINI_API_KEY` pada `.env` jika fitur AI draft soal dipakai.
+
+## Akun Demo
+
+Password semua akun: `password`.
+
+| Role | Email |
+| --- | --- |
+| Siswa / Peserta | `participant@kuesify.test` |
+| Guru / Pengajar | `creator@kuesify.test` |
+| Admin Organisasi | `admin@kuesify.test` |
+| Admin Platform | `superadmin@kuesify.test` |
+
+Guest dapat masuk sesi live memakai PIN dan nama panggilan tanpa akun.
+
+## Test dan Build
+
+```powershell
+npm run lint
+npm run build
+php artisan test
+npx playwright test
+```
+
+## Keamanan Repository
+
+- Jangan commit `.env`, token Gemini, password SMTP, password database, atau kredensial deploy.
+- Gunakan `.env.example` hanya sebagai template tanpa nilai rahasia.
+- Folder dependency, build output, log, hasil test, dump Redis, dan ZIP submission diabaikan oleh Git.
