@@ -5,6 +5,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 const roles = [
     {
@@ -35,6 +36,39 @@ const form = useForm({
     password_confirmation: '',
 });
 
+const roleMenuOpen = ref(false);
+const roleMenu = ref<HTMLElement | null>(null);
+const selectedRole = computed(
+    () => roles.find((role) => role.value === form.role) ?? roles[0],
+);
+
+function selectRole(value: (typeof roles)[number]['value']): void {
+    form.role = value;
+    roleMenuOpen.value = false;
+}
+
+function closeRoleMenu(event: MouseEvent): void {
+    if (!roleMenu.value?.contains(event.target as Node)) {
+        roleMenuOpen.value = false;
+    }
+}
+
+function handleRoleKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+        roleMenuOpen.value = false;
+    }
+}
+
+onMounted(() => {
+    document.addEventListener('click', closeRoleMenu);
+    document.addEventListener('keydown', handleRoleKeydown);
+});
+
+onBeforeUnmount(() => {
+    document.removeEventListener('click', closeRoleMenu);
+    document.removeEventListener('keydown', handleRoleKeydown);
+});
+
 const submit = () => {
     form.post(route('register'), {
         onFinish: () => {
@@ -45,11 +79,11 @@ const submit = () => {
 </script>
 
 <template>
-    <GuestLayout>
+    <GuestLayout content-class="max-w-xl">
         <Head title="Daftar" />
 
         <div>
-            <p class="text-sm font-semibold text-indigo-700">Mulai belajar</p>
+            <p class="text-sm font-semibold text-teal-700">Mulai belajar</p>
             <h1
                 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-950"
             >
@@ -60,40 +94,24 @@ const submit = () => {
             </p>
         </div>
 
-        <form class="mt-7 space-y-5" @submit.prevent="submit">
-            <fieldset>
+        <form class="mt-7 space-y-6" @submit.prevent="submit">
+            <fieldset ref="roleMenu" aria-describedby="role-help">
                 <legend class="text-sm font-semibold text-slate-900">
                     Saya bergabung sebagai
                 </legend>
-                <p class="mt-1 text-xs leading-5 text-slate-500">
+                <p id="role-help" class="mt-1 text-xs leading-5 text-slate-500">
                     Peran bisa diubah oleh admin workspace setelah bergabung.
                 </p>
-                <div class="mt-3 grid gap-2">
-                    <label
-                        v-for="role in roles"
-                        :key="role.value"
-                        class="group flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2"
-                        :class="
-                            form.role === role.value
-                                ? 'border-indigo-600 bg-indigo-50/70'
-                                : 'border-slate-200 bg-white hover:border-indigo-300 hover:bg-slate-50'
-                        "
+                <div class="relative mt-3">
+                    <button
+                        type="button"
+                        class="flex min-h-14 w-full items-center gap-3 rounded-xl border border-teal-600 bg-teal-50/70 px-3 text-left transition hover:bg-teal-50 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+                        aria-haspopup="listbox"
+                        :aria-expanded="roleMenuOpen"
+                        @click.stop="roleMenuOpen = !roleMenuOpen"
                     >
-                        <input
-                            v-model="form.role"
-                            class="sr-only"
-                            type="radio"
-                            name="role"
-                            :value="role.value"
-                            :aria-label="role.title"
-                        />
                         <span
-                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
-                            :class="
-                                form.role === role.value
-                                    ? 'bg-indigo-600 text-white'
-                                    : 'bg-slate-100 text-slate-600 group-hover:bg-indigo-100 group-hover:text-indigo-700'
-                            "
+                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal-600 text-white"
                         >
                             <svg
                                 class="h-5 w-5"
@@ -106,106 +124,153 @@ const submit = () => {
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
-                                    :d="role.icon"
+                                    :d="selectedRole.icon"
                                 />
                             </svg>
                         </span>
                         <span class="min-w-0 flex-1">
-                            <span
-                                class="block text-sm font-bold text-slate-900"
-                                >{{ role.title }}</span
-                            >
-                            <span
-                                class="mt-0.5 block text-xs leading-5 text-slate-600"
-                                >{{ role.description }}</span
-                            >
+                            <span class="block text-sm font-bold text-slate-900">
+                                {{ selectedRole.title }}
+                            </span>
+                            <span class="mt-0.5 block truncate text-xs text-slate-600">
+                                {{ selectedRole.description }}
+                            </span>
                         </span>
-                        <span
-                            class="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border"
-                            :class="
-                                form.role === role.value
-                                    ? 'border-indigo-600 bg-indigo-600'
-                                    : 'border-slate-300 bg-white'
-                            "
+                        <svg
+                            class="h-5 w-5 shrink-0 text-teal-700 transition"
+                            :class="{ 'rotate-180': roleMenuOpen }"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
                             aria-hidden="true"
                         >
-                            <svg
-                                v-if="form.role === role.value"
-                                class="h-2.5 w-2.5 text-white"
-                                viewBox="0 0 12 12"
-                                fill="none"
+                            <path
+                                fill-rule="evenodd"
+                                d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z"
+                                clip-rule="evenodd"
+                            />
+                        </svg>
+                    </button>
+
+                    <div
+                        v-if="roleMenuOpen"
+                        class="absolute inset-x-0 top-full z-20 mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white p-1 shadow-xl shadow-slate-300/40"
+                        role="listbox"
+                        aria-label="Pilih peran"
+                    >
+                        <button
+                            v-for="role in roles"
+                            :key="role.value"
+                            type="button"
+                            class="group flex min-h-14 w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition hover:bg-teal-50 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-inset"
+                            :class="{ 'bg-teal-50': form.role === role.value }"
+                            role="option"
+                            :aria-selected="form.role === role.value"
+                            @click="selectRole(role.value)"
+                        >
+                            <span
+                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 group-hover:bg-teal-100 group-hover:text-teal-700"
+                                :class="{ 'bg-teal-600 text-white': form.role === role.value }"
                             >
-                                <path
-                                    d="m2.5 6 2.2 2.2L9.5 3.5"
+                                <svg
+                                    class="h-4 w-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
                                     stroke="currentColor"
                                     stroke-width="1.8"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        :d="role.icon"
+                                    />
+                                </svg>
+                            </span>
+                            <span class="min-w-0 flex-1">
+                                <span class="block text-sm font-bold text-slate-900">{{ role.title }}</span>
+                                <span class="block truncate text-xs text-slate-600">{{ role.description }}</span>
+                            </span>
+                            <svg
+                                v-if="form.role === role.value"
+                                class="h-5 w-5 shrink-0 text-teal-600"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.86-9.86a.75.75 0 0 0-1.06-1.06L9 10.88 7.2 9.08a.75.75 0 0 0-1.06 1.06l2.33 2.33a.75.75 0 0 0 1.06 0l4.33-4.33Z"
+                                    clip-rule="evenodd"
                                 />
                             </svg>
-                        </span>
-                    </label>
+                        </button>
+                    </div>
                 </div>
                 <InputError class="mt-2" :message="form.errors.role" />
             </fieldset>
 
-            <div>
-                <InputLabel for="name" value="Nama lengkap" />
-                <TextInput
-                    id="name"
-                    v-model="form.name"
-                    type="text"
-                    class="mt-1 block w-full"
-                    required
-                    autofocus
-                    autocomplete="name"
-                />
-                <InputError class="mt-2" :message="form.errors.name" />
-            </div>
+            <div class="border-t border-slate-100 pt-5">
+                <p class="text-sm font-bold text-slate-900">Informasi akun</p>
+                <div class="mt-3 grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <InputLabel for="name" value="Nama lengkap" />
+                        <TextInput
+                            id="name"
+                            v-model="form.name"
+                            type="text"
+                            class="mt-1 block w-full"
+                            required
+                            autofocus
+                            autocomplete="name"
+                        />
+                        <InputError class="mt-1" :message="form.errors.name" />
+                    </div>
 
-            <div>
-                <InputLabel for="email" value="Email" />
-                <TextInput
-                    id="email"
-                    v-model="form.email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    required
-                    autocomplete="username"
-                />
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
+                    <div>
+                        <InputLabel for="email" value="Email" />
+                        <TextInput
+                            id="email"
+                            v-model="form.email"
+                            type="email"
+                            class="mt-1 block w-full"
+                            required
+                            autocomplete="username"
+                        />
+                        <InputError class="mt-1" :message="form.errors.email" />
+                    </div>
 
-            <div>
-                <InputLabel for="password" value="Kata sandi" />
-                <TextInput
-                    id="password"
-                    v-model="form.password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    required
-                    autocomplete="new-password"
-                />
-                <InputError class="mt-2" :message="form.errors.password" />
-            </div>
+                    <div>
+                        <InputLabel for="password" value="Kata sandi" />
+                        <TextInput
+                            id="password"
+                            v-model="form.password"
+                            type="password"
+                            class="mt-1 block w-full"
+                            required
+                            autocomplete="new-password"
+                        />
+                        <InputError class="mt-1" :message="form.errors.password" />
+                    </div>
 
-            <div>
-                <InputLabel
-                    for="password_confirmation"
-                    value="Konfirmasi kata sandi"
-                />
-                <TextInput
-                    id="password_confirmation"
-                    v-model="form.password_confirmation"
-                    type="password"
-                    class="mt-1 block w-full"
-                    required
-                    autocomplete="new-password"
-                />
-                <InputError
-                    class="mt-2"
-                    :message="form.errors.password_confirmation"
-                />
+                    <div>
+                        <InputLabel
+                            for="password_confirmation"
+                            value="Konfirmasi kata sandi"
+                        />
+                        <TextInput
+                            id="password_confirmation"
+                            v-model="form.password_confirmation"
+                            type="password"
+                            class="mt-1 block w-full"
+                            required
+                            autocomplete="new-password"
+                        />
+                        <InputError
+                            class="mt-1"
+                            :message="form.errors.password_confirmation"
+                        />
+                    </div>
+                </div>
             </div>
 
             <p
@@ -220,12 +285,12 @@ const submit = () => {
             >
                 <Link
                     :href="route('login')"
-                    class="text-center text-sm font-semibold text-indigo-700 hover:text-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:text-left"
+                    class="text-center text-sm font-semibold text-teal-700 hover:text-teal-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 sm:text-left"
                 >
                     Sudah punya akun? Masuk
                 </Link>
                 <PrimaryButton
-                    class="justify-center bg-indigo-700 px-5 py-3 text-sm normal-case tracking-normal hover:bg-indigo-800 focus:bg-indigo-800 sm:min-w-32"
+                    class="justify-center bg-teal-600 px-5 py-3 text-sm normal-case tracking-normal hover:bg-teal-700 focus:bg-teal-700 sm:min-w-32"
                     :class="{ 'opacity-60': form.processing }"
                     :disabled="form.processing"
                 >

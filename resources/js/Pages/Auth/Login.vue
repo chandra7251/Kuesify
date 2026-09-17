@@ -32,7 +32,7 @@ const submit = () => {
         <Head title="Log in" />
 
         <div class="mb-7">
-            <p class="text-sm font-semibold text-indigo-700">
+            <p class="text-sm font-semibold text-teal-700">
                 Selamat datang kembali
             </p>
             <h1 class="mt-2 text-3xl font-black tracking-tight text-slate-900">
@@ -90,7 +90,7 @@ const submit = () => {
                 <Link
                     v-if="canResetPassword"
                     :href="route('password.request')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    class="rounded-md text-sm text-slate-600 underline hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
                 >
                     Forgot your password?
                 </Link>
@@ -107,7 +107,7 @@ const submit = () => {
                 Belum punya akun?
                 <Link
                     :href="route('register')"
-                    class="font-semibold text-indigo-700 hover:text-indigo-900"
+                    class="font-semibold text-teal-700 hover:text-teal-900"
                 >
                     Buat akun gratis
                 </Link>
