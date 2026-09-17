@@ -97,9 +97,10 @@ MAIL_FROM_NAME="${APP_NAME}"
 - SMTP tetap dapat digunakan sebagai alternatif dengan mengisi konfigurasi `MAIL_*` pada `.env` sebelum deploy.
 - Fitur AI draft soal menggunakan Google Gemini. Konfigurasikan pada `.env`:
   - `GEMINI_API_KEY`: API key Google Gemini.
-  - `GEMINI_MODEL`: Model Gemini yang dipakai (default: `gemini-2.5-flash`).
+  - `GEMINI_MODEL`: Model Gemini yang dipakai (default: `gemini-flash-lite-latest`).
   - `GEMINI_MONTHLY_GENERATION_QUOTA`: Batas generasi AI bulanan per organisasi (default: `100`).
   - `GEMINI_WEEKLY_CREATOR_QUOTA`: Batas generasi AI mingguan per creator (default: `10`), di-reset otomatis setiap hari Senin.
+  - Teks materi dari berkas PDF dan PowerPoint (`.pptx`) diekstrak otomatis dan dikirim dengan format prompt terstruktur ke Gemini.
 
 ## Akun Demo
 

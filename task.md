@@ -67,13 +67,13 @@ Sumber acceptance: `docs/MVP_SCOPE_COMPETITION.md`.
 
 ## 4. AI materi ke draft soal
 
-- [x] Upload PDF/PPT/PPTX 25 MB, signature check, dan extractor membatasi 50 halaman/slide. Scan antivirus post-MVP.
+- [x] Upload PDF/PPT/PPTX 25 MB, signature check, pembatasan 50 halaman/slide, dan ekstraksi teks materi (PPTX slide XML & PDF text stream) ke `extracted_text`. Scan antivirus post-MVP.
 - [x] Storage record dan extraction retry selesai. Virus scan/cleanup post-MVP.
-- [x] Gemini client, schema JSON, 5/10/20 soal, difficulty, dan tipe soal.
+- [x] Gemini client dengan structured schema prompt, normalisasi respon toleran (*self-healing*), 5/10/20 soal, difficulty, dan tipe soal.
 - [x] Queue retry/backoff maksimal 3.
 - [x] Kuota generation per organisasi/bulan dan per creator/minggu (10/minggu) selesai terintegrasi ke backend & UI. Audit token post-MVP.
 - [x] Review, edit, reject, approval draft wajib sebelum Question Bank.
-- [x] Failure Gemini tampil aman di UI dengan retry owner-only; response `429` dan JSON invalid ditest.
+- [x] Failure Gemini tampil aman di UI dengan retry owner-only; response `429`, `503`, dan JSON invalid ditest.
 
 ## 5. Live Quiz
 
