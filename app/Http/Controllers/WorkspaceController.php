@@ -157,7 +157,18 @@ class WorkspaceController extends Controller
         $materials = Material::with('creator:id,name')->latest()->get();
         $generations = AiGeneration::with(['material:id,original_name', 'drafts'])->latest()->get();
 
-        return Inertia::render('Materials', compact('materials', 'generations'));
+        $weeklyLimit = (int) config('services.gemini.weekly_creator_quota', 10);
+        $weeklyUsed = AiGeneration::where('creator_id', $request->user()->id)
+            ->where('created_at', '>=', now()->startOfWeek())
+            ->count();
+
+        $quota = [
+            'weekly_limit' => $weeklyLimit,
+            'weekly_used' => $weeklyUsed,
+            'weekly_remaining' => max(0, $weeklyLimit - $weeklyUsed),
+        ];
+
+        return Inertia::render('Materials', compact('materials', 'generations', 'quota'));
     }
 
     public function exportReport(Request $request): StreamedResponse

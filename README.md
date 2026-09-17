@@ -84,8 +84,22 @@ Service aplikasi tersedia pada `http://127.0.0.1:8000`; Reverb pada port `8080`.
 ## Email dan AI
 
 - Development memakai `MAIL_MAILER=log`. Email verifikasi disimpan di `storage/logs/laravel.log`, tidak dikirim ke inbox.
-- Untuk email sungguhan, isi konfigurasi SMTP atau provider email pada `.env` sebelum deploy.
-- Isi `GEMINI_API_KEY` pada `.env` jika fitur AI draft soal dipakai.
+- Untuk mengirim email sungguhan lewat Resend, verifikasi domain pengirim di dashboard Resend lalu isi `.env` (jangan commit API key):
+
+```env
+MAIL_MAILER=resend
+RESEND_API_KEY=re_xxxxxxxxx
+MAIL_FROM_ADDRESS="noreply@domain-terverifikasi.example"
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+  Transport Resend (`symfony/resend-mailer`) sudah terpasang. Jalankan `php artisan config:clear` setelah mengubah konfigurasi, kemudian gunakan alur register atau reset password untuk menguji pengiriman.
+- SMTP tetap dapat digunakan sebagai alternatif dengan mengisi konfigurasi `MAIL_*` pada `.env` sebelum deploy.
+- Fitur AI draft soal menggunakan Google Gemini. Konfigurasikan pada `.env`:
+  - `GEMINI_API_KEY`: API key Google Gemini.
+  - `GEMINI_MODEL`: Model Gemini yang dipakai (default: `gemini-2.5-flash`).
+  - `GEMINI_MONTHLY_GENERATION_QUOTA`: Batas generasi AI bulanan per organisasi (default: `100`).
+  - `GEMINI_WEEKLY_CREATOR_QUOTA`: Batas generasi AI mingguan per creator (default: `10`), di-reset otomatis setiap hari Senin.
 
 ## Akun Demo
 
