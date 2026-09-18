@@ -8,7 +8,9 @@ withDefaults(defineProps<{ contentClass?: string }>(), {
 </script>
 
 <template>
-    <div class="min-h-screen bg-[#f4f8fa] text-slate-900 lg:grid lg:grid-cols-2">
+    <div
+        class="min-h-screen bg-[#f4f8fa] text-slate-900 lg:grid lg:grid-cols-2"
+    >
         <section
             class="relative hidden overflow-hidden bg-[#3451b5] px-12 py-10 text-white lg:flex lg:flex-col"
         >

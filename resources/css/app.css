@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-    html { @apply bg-[#f4fbfa]; }
-    body { @apply min-w-[320px] bg-[#f4fbfa] font-sans antialiased; }
+    html { @apply bg-[#f8fafc] max-w-full overflow-x-hidden; }
+    body { @apply min-w-[320px] max-w-full overflow-x-hidden bg-[#f8fafc] font-sans antialiased text-slate-900; }
     button, a { -webkit-tap-highlight-color: transparent; }
 }

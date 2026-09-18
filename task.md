@@ -1,8 +1,21 @@
 # Kuesify MVP Task Tracker
 
-Sumber: `PRD_v2.2_Merged_Draft.md`. Status diperiksa 15 September 2026.
+Sumber: `PRD_v2.2_Merged_Draft.md`. Status diperiksa 18 September 2026.
 
 Legenda: `[x]` selesai dan ada validasi, `[-]` ada fondasi tetapi belum siap dipakai, `[ ]` belum dibuat.
+
+## Standar Desain & Palet Warna (Mockup Reference)
+- **Brand Primary**: `#3154D5` (Sidebar background, top navbar background, tombol aksi utama "Buat Kuis")
+- **Secondary**: `#0AB883` (Header "WORKSPACE" & "Selamat Datang Kembali", active menu pill di sidebar, tombol "Buka Live Quiz", banner "Level Up!", angka stat "Quiz" & "Attempt Saya", badge aksi "C" & "T")
+- **Accent**: `#E6F1F5` (Background kanvas dashboard utama, background badge ikon aksi cepat)
+- **Support Colors (Opsional & Semantik)**:
+  - `#D7A928` (Warm amber/emas untuk label & angka stat "Soal Aktif", status pending/draft)
+  - `#7C869C` (Muted slate/abu untuk teks bantuan, subteks aktivitas, dan border card halus)
+  - `#4B392E` (Deep charcoal/gelap untuk label & angka stat "Live Aktif", serta teks kontras tinggi)
+- **Shadow Standards (Figma Drop Shadow)**:
+  - `shadow-figma`: `0 4px 16px rgba(0, 0, 0, 0.08)` untuk kartu utama (Hero, 4 Stat Cards, Kuis Terbaru, Streak Card)
+  - `shadow-figma-sm`: `0 2px 8px rgba(0, 0, 0, 0.06)` untuk kartu interaktif kecil (Aksi Cepat C & T)
+  - `shadow-figma-hover`: `0 6px 20px rgba(0, 0, 0, 0.12)` untuk efek hover mengambang halus
 
 ## MVP Kompetisi — Baseline 15 September 2026
 

@@ -133,9 +133,9 @@ function grade(attemptId: number, answerId: number): void {
                         class="flex flex-wrap items-center justify-between gap-3"
                     >
                         <div>
-                            <h3 class="font-extrabold">
+                            <p class="font-extrabold text-slate-900">
                                 {{ attempt.quiz.title }}
-                            </h3>
+                            </p>
                             <p
                                 v-if="attempt.participant"
                                 class="text-sm text-slate-500"

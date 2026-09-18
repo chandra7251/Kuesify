@@ -15,6 +15,31 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                brand: {
+                    primary: '#3154D5',
+                    secondary: '#0AB883',
+                    accent: '#E6F1F5',
+                    dark: '#233EA8',
+                    hover: '#2645B8',
+                },
+                support: {
+                    1: '#D7A928',
+                    2: '#7C869C',
+                    3: '#4B392E',
+                },
+                status: {
+                    success: '#0AB883',
+                    warning: '#D7A928',
+                    danger: '#D9656D',
+                },
+            },
+            boxShadow: {
+                'figma': '0 4px 16px rgba(0, 0, 0, 0.08)',
+                'figma-card': '0 4px 14px rgba(0, 0, 0, 0.07)',
+                'figma-sm': '0 2px 8px rgba(0, 0, 0, 0.06)',
+                'figma-hover': '0 6px 20px rgba(0, 0, 0, 0.12)',
+            },
         },
     },
 
