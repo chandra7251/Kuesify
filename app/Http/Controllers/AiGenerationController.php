@@ -22,6 +22,10 @@ class AiGenerationController extends Controller
         $material = Material::findOrFail($material);
         abort_unless($material->status === 'extracted', 422);
         abort_if(AiGeneration::where('created_at', '>=', now()->startOfMonth())->count() >= config('services.gemini.monthly_generation_quota'), 429);
+        $weeklyCreatorCount = AiGeneration::where('creator_id', $request->user()->id)
+            ->where('created_at', '>=', now()->startOfWeek())
+            ->count();
+        abort_if($weeklyCreatorCount >= config('services.gemini.weekly_creator_quota'), 429, 'Batas pembuatan soal mingguan telah tercapai.');
         $data = $request->validate([
             'question_count' => ['required', Rule::in([5, 10, 20])],
             'difficulty' => ['required', Rule::in(['easy', 'medium', 'hard'])],

@@ -23,9 +23,7 @@ const verificationLinkSent = computed(
         <Head title="Verifikasi email" />
 
         <div>
-            <p class="text-sm font-semibold text-teal-700">
-                Satu langkah lagi
-            </p>
+            <p class="text-sm font-semibold text-teal-700">Satu langkah lagi</p>
             <h1
                 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-950"
             >

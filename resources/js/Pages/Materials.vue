@@ -29,10 +29,16 @@ type Material = {
     creator: { name: string };
     created_at?: string;
 };
+type Quota = {
+    weekly_limit: number;
+    weekly_used: number;
+    weekly_remaining: number;
+};
 
 defineProps<{
     materials: Material[];
     generations: Generation[];
+    quota?: Quota;
 }>();
 const uploadForm = useForm({ file: null as File | null });
 const generateForm = useForm({
@@ -154,8 +160,39 @@ function sizeKb(bytes: number): string {
                     </form>
                 </div>
                 <div class="mt-6 sm:mt-0">
-                    <h2 class="font-extrabold">Generate soal AI</h2>
+                    <div
+                        class="flex flex-wrap items-center justify-between gap-2"
+                    >
+                        <h2 class="font-extrabold">Generate soal AI</h2>
+                        <span
+                            v-if="quota"
+                            class="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold"
+                            :class="
+                                quota.weekly_remaining > 0
+                                    ? 'bg-white/20 text-teal-100'
+                                    : 'bg-red-500/20 text-red-200 ring-1 ring-red-400/30'
+                            "
+                        >
+                            Sisa kuota: {{ quota.weekly_remaining }}/{{
+                                quota.weekly_limit
+                            }}
+                            minggu ini
+                        </span>
+                    </div>
                     <div class="mt-5 space-y-3">
+                        <div
+                            v-if="quota && quota.weekly_remaining <= 0"
+                            class="rounded-xl border border-amber-300/30 bg-amber-400/15 p-3 text-xs leading-relaxed text-amber-100"
+                        >
+                            <span class="font-extrabold text-amber-300"
+                                >Batas kuota tercapai:</span
+                            >
+                            Anda telah menggunakan seluruh kuota mingguan ({{
+                                quota.weekly_limit
+                            }}
+                            kali). Kuota akan di-reset otomatis setiap hari
+                            Senin.
+                        </div>
                         <select
                             v-model="generateForm.material_id"
                             class="min-h-11 w-full rounded-xl border-0 text-slate-900"
@@ -212,7 +249,8 @@ function sizeKb(bytes: number): string {
                             class="min-h-11 rounded-xl bg-amber-400 px-5 font-extrabold text-amber-950 disabled:opacity-50"
                             :disabled="
                                 !generateForm.material_id ||
-                                generateForm.types.length === 0
+                                generateForm.types.length === 0 ||
+                                (quota ? quota.weekly_remaining <= 0 : false)
                             "
                             @click="generate"
                         >

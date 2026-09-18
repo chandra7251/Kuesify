@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AttemptAnswer;
 use App\Models\Category;
 use App\Models\LiveSession;
 use App\Models\Organization;
@@ -120,13 +121,32 @@ class WorkspaceController extends Controller
         $attempts = QuizAttempt::whereIn('quiz_id', $quizzes->pluck('id'))->whereIn('status', ['completed', 'pending_review'])->get();
         $total = $attempts->count();
 
+        $allQuestions = $quizzes->flatMap->questions;
+        $questionIds = $allQuestions->pluck('id')->unique()->filter();
+
+        $answerStats = $questionIds->isNotEmpty()
+            ? AttemptAnswer::whereIn('question_id', $questionIds)
+                ->selectRaw('question_id, count(*) as total, sum(case when is_correct = 1 then 1 else 0 end) as correct')
+                ->groupBy('question_id')
+                ->get()
+                ->keyBy('question_id')
+            : collect();
+
         return $this->page('Laporan', 'reports', $quizzes, [], [
             'completionCount' => $total,
             'averageScore' => $total ? round($attempts->avg('score'), 2) : 0,
-            'questions' => $quizzes->flatMap->questions->map(fn (Question $question) => [
-                'id' => $question->id, 'prompt' => $question->prompt, 'points' => $question->points,
-                'correct_rate' => $question->attemptAnswers()->count() ? round($question->attemptAnswers()->where('is_correct', true)->count() / $question->attemptAnswers()->count() * 100, 1) : null,
-            ])->values(),
+            'questions' => $allQuestions->map(function (Question $question) use ($answerStats) {
+                $stat = $answerStats->get($question->id);
+                $totalCount = $stat ? (int) $stat->total : 0;
+                $correctCount = $stat ? (int) $stat->correct : 0;
+
+                return [
+                    'id' => $question->id,
+                    'prompt' => $question->prompt,
+                    'points' => $question->points,
+                    'correct_rate' => $totalCount > 0 ? round(($correctCount / $totalCount) * 100, 1) : null,
+                ];
+            })->values(),
         ]);
     }
 
@@ -157,7 +177,18 @@ class WorkspaceController extends Controller
         $materials = Material::with('creator:id,name')->latest()->get();
         $generations = AiGeneration::with(['material:id,original_name', 'drafts'])->latest()->get();
 
-        return Inertia::render('Materials', compact('materials', 'generations'));
+        $weeklyLimit = (int) config('services.gemini.weekly_creator_quota', 10);
+        $weeklyUsed = AiGeneration::where('creator_id', $request->user()->id)
+            ->where('created_at', '>=', now()->startOfWeek())
+            ->count();
+
+        $quota = [
+            'weekly_limit' => $weeklyLimit,
+            'weekly_used' => $weeklyUsed,
+            'weekly_remaining' => max(0, $weeklyLimit - $weeklyUsed),
+        ];
+
+        return Inertia::render('Materials', compact('materials', 'generations', 'quota'));
     }
 
     public function exportReport(Request $request): StreamedResponse

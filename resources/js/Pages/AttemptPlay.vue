@@ -178,20 +178,23 @@ function submit(): void {
                         :disabled="index === 0"
                         @click="previous"
                     >
-                        Sebelumnya</button
-                    ><button
-                        v-if="index < attempt.quiz.questions.length - 1"
-                        class="min-h-11 rounded-xl bg-slate-900 px-5 font-extrabold text-white"
-                        @click="next"
-                    >
-                        Berikutnya</button
-                    ><button
-                        v-else
-                        class="min-h-11 rounded-xl bg-teal-700 px-5 font-extrabold text-white"
-                        @click="submit"
-                    >
-                        Kumpulkan
+                        Sebelumnya
                     </button>
+                    <div class="flex items-center gap-2">
+                        <button
+                            v-if="index < attempt.quiz.questions.length - 1"
+                            class="min-h-11 rounded-xl bg-slate-900 px-5 font-extrabold text-white"
+                            @click="next"
+                        >
+                            Berikutnya
+                        </button>
+                        <button
+                            class="min-h-11 rounded-xl bg-teal-700 px-5 font-extrabold text-white"
+                            @click="submit"
+                        >
+                            Kumpulkan
+                        </button>
+                    </div>
                 </div>
             </template>
             <section
