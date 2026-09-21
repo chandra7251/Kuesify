@@ -134,12 +134,7 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                     class="grid grid-cols-2 divide-x divide-y divide-slate-200 overflow-hidden rounded-xl border border-slate-200 bg-white sm:grid-cols-4"
                 >
                     <article
-                        v-for="item in [
-                            { label: 'Kuis', value: stats.quizzes },
-                            { label: 'Soal aktif', value: stats.questions },
-                            { label: 'Live aktif', value: stats.liveSessions },
-                            { label: 'Attempt', value: stats.attempts },
-                        ]"
+                        v-for="item in statCards"
                         :key="item.label"
                         class="p-4"
                     >
@@ -147,7 +142,10 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                             {{ item.label }}
                         </p>
                         <p
-                            class="mt-2 text-2xl font-bold tabular-nums text-slate-950"
+                            :class="[
+                                'mt-2 text-2xl font-bold tabular-nums',
+                                item.color,
+                            ]"
                         >
                             {{ item.value }}
                         </p>
@@ -218,7 +216,7 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                         >
                             Buat kuis pertama
                         </Link>
-                    </div> 
+                    </div>
                 </section>
 
                 <section
