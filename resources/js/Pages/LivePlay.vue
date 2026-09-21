@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { useEchoPublic } from '@laravel/echo-vue';
 import QRCode from 'qrcode';
-import { computed, onBeforeUnmount, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref } from 'vue';
 
 interface LiveState {
     id: number;
@@ -61,15 +61,23 @@ function hostAction(name: 'lock' | 'start' | 'next' | 'end'): void {
 
 const hostJoinUrl =
     typeof window !== 'undefined' ? window.location.origin + '/join' : '/join';
+const hostQrDialog = ref<HTMLDialogElement | null>(null);
 const hostQrCanvas = ref<HTMLCanvasElement | null>(null);
 const hostQrVisible = ref(false);
-async function toggleHostQr(): Promise<void> {
-    hostQrVisible.value = !hostQrVisible.value;
-    if (hostQrVisible.value) {
-        await new Promise<void>((resolve) => setTimeout(resolve, 50));
-        if (hostQrCanvas.value)
-            QRCode.toCanvas(hostQrCanvas.value, hostJoinUrl, { width: 180 });
-    }
+async function openHostQr(): Promise<void> {
+    if (!hostQrDialog.value || hostQrDialog.value.open) return;
+
+    hostQrDialog.value.showModal();
+    hostQrVisible.value = true;
+    await nextTick();
+    if (hostQrCanvas.value)
+        await QRCode.toCanvas(hostQrCanvas.value, hostJoinUrl, {
+            width: 240,
+            margin: 1,
+        });
+}
+function closeHostQr(): void {
+    hostQrDialog.value?.close();
 }
 
 const qrCanvas = ref<HTMLCanvasElement | null>(null);
@@ -94,95 +102,263 @@ async function loadQr(): Promise<void> {
 
 <template>
     <Head :title="state.title" />
-    <AuthenticatedLayout v-if="isHost"
-        ><template #header
-            ><h2 class="text-xl font-extrabold text-slate-950">
-                Host: {{ state.title }}
-            </h2></template
-        >
-        <main class="mx-auto max-w-5xl space-y-5 px-4 py-6 sm:px-6">
-            <section class="rounded-3xl bg-orange-700 p-6 text-white">
-                <p class="text-sm font-bold">
-                    PIN
-                    <span class="ml-2 text-2xl tracking-[0.28em]">{{
-                        state.pin
-                    }}</span>
-                </p>
-                <div class="mt-3 flex items-start gap-4">
-                    <div>
-                        <button
-                            class="rounded-lg bg-white/20 px-3 py-2 text-xs font-extrabold"
-                            @click="toggleHostQr"
-                        >
-                            {{
-                                hostQrVisible ? 'Tutup QR' : 'Tampilkan QR Join'
-                            }}
-                        </button>
-                        <div
-                            v-if="hostQrVisible"
-                            class="mt-3 rounded-2xl bg-white p-2"
-                        >
-                            <canvas ref="hostQrCanvas" />
+    <AuthenticatedLayout v-if="isHost">
+        <main class="mx-auto max-w-7xl space-y-5 px-4 py-6 sm:px-6 lg:px-8">
+            <section
+                aria-labelledby="live-session-title"
+                class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+            >
+                <div
+                    class="grid gap-6 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start"
+                >
+                    <div class="min-w-0">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <p
+                                class="text-xs font-bold uppercase tracking-[0.16em] text-teal-700"
+                            >
+                                Sesi live
+                            </p>
+                            <span
+                                class="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-bold capitalize text-teal-800"
+                            >
+                                {{ state.status }}
+                            </span>
                         </div>
+                        <h1
+                            id="live-session-title"
+                            class="mt-2 text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl"
+                        >
+                            {{ state.title }}
+                        </h1>
+                        <p class="mt-2 max-w-xl text-sm text-slate-600">
+                            Bagikan PIN kepada peserta, lalu mulai kuis saat
+                            semua sudah bergabung.
+                        </p>
+                    </div>
+
+                    <div
+                        class="rounded-lg border border-teal-200 bg-teal-50 p-4 lg:min-w-72"
+                    >
+                        <p
+                            class="text-xs font-bold uppercase tracking-[0.14em] text-teal-700"
+                        >
+                            PIN peserta
+                        </p>
+                        <p
+                            class="mt-1 font-mono text-3xl font-extrabold tracking-[0.2em] text-slate-950"
+                        >
+                            {{ state.pin }}
+                        </p>
+                        <button
+                            type="button"
+                            class="mt-4 min-h-11 rounded-lg border border-teal-700 bg-white px-4 text-sm font-bold text-teal-800 transition hover:bg-teal-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                            aria-haspopup="dialog"
+                            :aria-expanded="hostQrVisible"
+                            @click="openHostQr"
+                        >
+                            Tampilkan QR join
+                        </button>
                     </div>
                 </div>
-                <h1 class="mt-4 text-3xl font-extrabold">{{ state.status }}</h1>
-                <div class="mt-6 flex flex-wrap gap-3">
+
+                <div
+                    v-if="state.status !== 'ended'"
+                    class="flex flex-wrap items-center gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:px-6"
+                >
                     <button
                         v-if="state.status === 'lobby'"
-                        class="min-h-11 rounded-xl bg-white px-4 text-sm font-extrabold text-orange-800"
+                        type="button"
+                        class="min-h-11 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
                         @click="hostAction('lock')"
                     >
                         {{
                             state.lobbyLocked ? 'Lobby terkunci' : 'Kunci lobby'
-                        }}</button
-                    ><button
+                        }}
+                    </button>
+                    <button
                         v-if="state.status === 'lobby'"
-                        class="min-h-11 rounded-xl bg-amber-400 px-4 text-sm font-extrabold text-amber-950"
+                        type="button"
+                        class="min-h-11 rounded-lg bg-[#3451b5] px-5 text-sm font-bold text-white transition hover:bg-[#29439d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3451b5]"
                         @click="hostAction('start')"
                     >
-                        Mulai</button
-                    ><button
+                        Mulai kuis
+                    </button>
+                    <button
                         v-if="state.status === 'live'"
-                        class="min-h-11 rounded-xl bg-white px-4 text-sm font-extrabold text-orange-800"
+                        type="button"
+                        class="min-h-11 rounded-lg bg-[#3451b5] px-5 text-sm font-bold text-white transition hover:bg-[#29439d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3451b5]"
                         @click="hostAction('next')"
                     >
-                        Soal berikut</button
-                    ><button
-                        v-if="state.status !== 'ended'"
-                        class="min-h-11 rounded-xl border border-orange-200 px-4 text-sm font-extrabold"
+                        Soal berikutnya
+                    </button>
+                    <button
+                        type="button"
+                        class="min-h-11 rounded-lg px-3 text-sm font-bold text-red-700 transition hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
                         @click="hostAction('end')"
                     >
-                        Akhiri
+                        Akhiri sesi
                     </button>
                 </div>
             </section>
+
             <section class="grid gap-5 lg:grid-cols-2">
-                <div class="rounded-2xl bg-white p-5 shadow-sm">
-                    <h3 class="font-extrabold">Peserta</h3>
-                    <p
-                        v-for="participant in state.participants"
-                        :key="participant.id"
-                        class="mt-3 flex justify-between text-sm"
+                <article
+                    aria-labelledby="participants-title"
+                    class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+                >
+                    <div
+                        class="flex items-center justify-between gap-4 border-b border-slate-200 px-5 py-4"
                     >
-                        <span>{{ participant.alias }}</span
-                        ><strong>{{ participant.score }}</strong>
-                    </p>
-                </div>
-                <div class="rounded-2xl bg-white p-5 shadow-sm">
-                    <h3 class="font-extrabold">Leaderboard</h3>
-                    <p
-                        v-for="(participant, index) in state.leaderboard"
-                        :key="participant.id"
-                        class="mt-3 flex justify-between text-sm"
+                        <div>
+                            <h2
+                                id="participants-title"
+                                class="font-extrabold text-slate-950"
+                            >
+                                Peserta
+                            </h2>
+                            <p class="mt-1 text-sm text-slate-500">
+                                Peserta yang sudah bergabung.
+                            </p>
+                        </div>
+                        <span
+                            class="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-bold tabular-nums text-teal-800"
+                        >
+                            {{ state.participants.length }}
+                        </span>
+                    </div>
+                    <ul
+                        v-if="state.participants.length"
+                        class="divide-y divide-slate-100"
                     >
-                        <span>{{ index + 1 }}. {{ participant.alias }}</span
-                        ><strong>{{ participant.score }}</strong>
+                        <li
+                            v-for="participant in state.participants"
+                            :key="participant.id"
+                            class="flex items-center justify-between gap-4 px-5 py-4 text-sm"
+                        >
+                            <span class="font-semibold text-slate-800">{{
+                                participant.alias
+                            }}</span>
+                            <strong class="tabular-nums text-slate-950"
+                                >{{ participant.score }} poin</strong
+                            >
+                        </li>
+                    </ul>
+                    <p
+                        v-else
+                        class="px-5 py-10 text-center text-sm text-slate-500"
+                    >
+                        Belum ada peserta yang bergabung.
                     </p>
-                </div>
+                </article>
+
+                <article
+                    aria-labelledby="leaderboard-title"
+                    class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+                >
+                    <div class="border-b border-slate-200 px-5 py-4">
+                        <h2
+                            id="leaderboard-title"
+                            class="font-extrabold text-slate-950"
+                        >
+                            Leaderboard
+                        </h2>
+                        <p class="mt-1 text-sm text-slate-500">
+                            Peringkat berdasarkan poin terkini.
+                        </p>
+                    </div>
+                    <ol
+                        v-if="state.leaderboard.length"
+                        class="divide-y divide-slate-100"
+                    >
+                        <li
+                            v-for="(participant, index) in state.leaderboard"
+                            :key="participant.id"
+                            class="flex items-center gap-3 px-5 py-4 text-sm"
+                        >
+                            <span
+                                class="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-slate-100 text-xs font-extrabold tabular-nums text-slate-600"
+                            >
+                                {{ index + 1 }}
+                            </span>
+                            <span
+                                class="min-w-0 flex-1 truncate font-semibold text-slate-800"
+                                >{{ participant.alias }}</span
+                            >
+                            <strong class="tabular-nums text-teal-800"
+                                >{{ participant.score }} poin</strong
+                            >
+                        </li>
+                    </ol>
+                    <p
+                        v-else
+                        class="px-5 py-10 text-center text-sm text-slate-500"
+                    >
+                        Peringkat akan muncul setelah kuis dimulai.
+                    </p>
+                </article>
             </section>
-        </main></AuthenticatedLayout
-    >
+        </main>
+
+        <dialog
+            ref="hostQrDialog"
+            aria-labelledby="host-qr-title"
+            aria-describedby="host-qr-description"
+            class="qr-dialog m-auto w-[calc(100%-2rem)] max-w-sm overflow-hidden rounded-2xl border-0 bg-white p-0 text-slate-950 shadow-2xl backdrop:bg-slate-950/60 backdrop:backdrop-blur-sm"
+            @click.self="closeHostQr"
+            @close="hostQrVisible = false"
+        >
+            <div class="relative p-6 pt-14 text-center sm:p-7 sm:pt-14">
+                <button
+                    type="button"
+                    class="absolute right-3 top-3 grid h-11 w-11 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                    aria-label="Tutup QR code"
+                    @click="closeHostQr"
+                >
+                    <svg
+                        aria-hidden="true"
+                        class="h-5 w-5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                    >
+                        <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                </button>
+
+                <p
+                    class="text-xs font-bold uppercase tracking-[0.16em] text-teal-700"
+                >
+                    Gabung sesi
+                </p>
+                <h2 id="host-qr-title" class="mt-2 text-2xl font-extrabold">
+                    Scan QR code
+                </h2>
+                <p id="host-qr-description" class="mt-2 text-sm text-slate-600">
+                    Arahkan kamera peserta ke kode berikut, lalu masukkan PIN
+                    sesi.
+                </p>
+
+                <div
+                    class="mx-auto mt-5 w-fit rounded-xl border border-slate-200 bg-white p-3 shadow-sm"
+                >
+                    <canvas ref="hostQrCanvas" class="max-w-full" />
+                </div>
+
+                <div class="mt-5 rounded-lg bg-teal-50 px-4 py-3">
+                    <p class="text-xs font-bold uppercase text-teal-700">
+                        PIN peserta
+                    </p>
+                    <p
+                        class="mt-1 font-mono text-2xl font-extrabold tracking-[0.2em] text-slate-950"
+                    >
+                        {{ state.pin }}
+                    </p>
+                </div>
+            </div>
+        </dialog>
+    </AuthenticatedLayout>
     <main v-else class="min-h-screen bg-[#f4fbfa] px-4 py-8">
         <div class="mx-auto max-w-xl">
             <Link href="/join" class="text-sm font-extrabold text-teal-700"
@@ -281,3 +457,33 @@ async function loadQr(): Promise<void> {
         </div>
     </main>
 </template>
+
+<style scoped>
+.qr-dialog[open] {
+    animation: qr-dialog-enter 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.qr-dialog[open]::backdrop {
+    animation: qr-backdrop-enter 180ms ease-out;
+}
+
+@keyframes qr-dialog-enter {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.96);
+    }
+}
+
+@keyframes qr-backdrop-enter {
+    from {
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .qr-dialog[open],
+    .qr-dialog[open]::backdrop {
+        animation: none;
+    }
+}
+</style>

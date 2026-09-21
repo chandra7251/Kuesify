@@ -111,6 +111,7 @@ function closeMobileNav(): void {
         <!-- 1. DESKTOP SIDEBAR: FIXED TO VIEWPORT (Never scrolls with the page!)      -->
         <!-- ========================================================================= -->
         <aside
+            id="desktop-sidebar"
             class="hidden select-none bg-brand-primary text-white shadow-xl transition-all duration-300 ease-in-out lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:flex lg:flex-col"
             :class="desktopSidebarExpanded ? 'lg:w-72' : 'lg:w-20'"
             aria-label="Navigasi samping"
@@ -150,32 +151,46 @@ function closeMobileNav(): void {
                     </div>
                 </div>
 
-                <!-- Collapsed: Single Logo Icon -->
-                <div
-                    v-else
-                    class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white shadow-sm"
-                >
-                    <ApplicationLogo class="h-6 w-6 text-brand-primary" />
-                </div>
-
-                <!-- Toggle Collapse Button in Sidebar Header -->
                 <button
                     v-if="desktopSidebarExpanded"
                     type="button"
-                    class="grid h-8 w-8 place-items-center rounded-lg bg-white/10 text-white transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
-                    title="Sempitkan sidebar"
+                    class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white/10 text-white transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
+                    aria-label="Tutup sidebar"
+                    :aria-expanded="desktopSidebarExpanded"
+                    aria-controls="desktop-sidebar"
                     @click="toggleDesktopSidebar"
                 >
                     <svg
+                        aria-hidden="true"
                         class="h-4 w-4"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
                         stroke-width="2"
                         stroke-linecap="round"
+                        stroke-linejoin="round"
                     >
-                        <path d="M15 19l-7-7 7-7" />
+                        <path d="m15 19-7-7 7-7" />
                     </svg>
+                </button>
+
+                <!-- Collapsed: Single Logo Icon -->
+                <button
+                    v-else
+                    type="button"
+                    class="group relative grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                    aria-label="Buka sidebar"
+                    :aria-expanded="desktopSidebarExpanded"
+                    aria-controls="desktop-sidebar"
+                    @click="toggleDesktopSidebar"
+                >
+                    <ApplicationLogo class="h-6 w-6 text-brand-primary" />
+                    <span
+                        role="tooltip"
+                        class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-slate-950 px-3 py-2 text-xs font-bold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+                    >
+                        Buka sidebar
+                    </span>
                 </button>
             </div>
 
@@ -383,7 +398,7 @@ function closeMobileNav(): void {
                 </div>
 
                 <!-- Collapsed Profile Button -->
-                <div v-else class="flex flex-col items-center gap-2">
+                <div v-else class="flex justify-center">
                     <Link
                         :href="route('profile.edit')"
                         class="grid h-10 w-10 place-items-center rounded-xl bg-white/10 text-white transition hover:bg-white/20"
@@ -394,23 +409,6 @@ function closeMobileNav(): void {
                             class="h-6 w-6 text-emerald-300"
                         />
                     </Link>
-                    <button
-                        type="button"
-                        class="grid h-8 w-8 place-items-center rounded-lg bg-white/10 text-white transition hover:bg-white/20"
-                        title="Perlebar sidebar"
-                        @click="toggleDesktopSidebar"
-                    >
-                        <svg
-                            class="h-4 w-4"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                        >
-                            <path d="M9 5l7 7-7 7" />
-                        </svg>
-                    </button>
                 </div>
             </div>
         </aside>
@@ -429,40 +427,8 @@ function closeMobileNav(): void {
                 <div
                     class="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8"
                 >
-                    <!-- Left Section: Toggle & Workspace Title -->
+                    <!-- Left Section: Mobile Toggle & Workspace Title -->
                     <div class="flex items-center gap-3.5">
-                        <!-- Desktop Sidebar Toggle Button (Expands or Collapses sidebar) -->
-                        <button
-                            type="button"
-                            class="hidden h-10 w-10 place-items-center rounded-xl bg-white/10 text-white transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white lg:grid"
-                            :title="
-                                desktopSidebarExpanded
-                                    ? 'Sempitkan sidebar'
-                                    : 'Perlebar sidebar'
-                            "
-                            :aria-label="
-                                desktopSidebarExpanded
-                                    ? 'Tutup navigasi'
-                                    : 'Buka navigasi'
-                            "
-                            @click="toggleDesktopSidebar"
-                        >
-                            <svg
-                                class="h-5 w-5"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                            >
-                                <path
-                                    v-if="desktopSidebarExpanded"
-                                    d="M15 19l-7-7 7-7"
-                                />
-                                <path v-else d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
-
                         <!-- Mobile Menu Button (< lg) -->
                         <button
                             type="button"
