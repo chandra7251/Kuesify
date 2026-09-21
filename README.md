@@ -11,6 +11,21 @@ Platform kuis pendidikan interaktif. Kuesify mendukung pembuatan soal, kuis mand
 - Testing: Pest PHP dan Playwright.
 - AI opsional: Google Gemini untuk draft soal dari materi.
 
+## Palet Warna & Desain Antarmuka (Mockup Reference)
+
+Tampilan workspace dan antarmuka mengacu pada panduan desain terpadu:
+- **Brand Primary** (`#3154D5`): Sidebar navigasi, top header banner, dan tombol aksi utama ("Buat Kuis").
+- **Secondary** (`#0AB883`): Header "WORKSPACE" & "Selamat Datang Kembali", pill item aktif sidebar ("Dashboard"), tombol live quiz ("Buka Live Quiz"), kartu "Level Up!", indikator statistik ("Quiz", "Attempt Saya"), serta ikon badge aksi ("C", "T").
+- **Accent** (`#E6F1F5`): Latar belakang (canvas background) area dashboard dan container ikon aksi cepat.
+- **Support Colors (Opsional & Semantik)**:
+  - `#D7A928`: Label & angka stat "Soal Aktif", indikator warning/draft.
+  - `#7C869C`: Muted slate untuk subjudul, pembatas visual, dan teks penjelas.
+  - `#4B392E`: Deep charcoal / dark tone untuk label & angka stat "Live Aktif" serta counter kontras tinggi.
+- **Standar Shadow (Figma Drop Shadow)**:
+  - `shadow-figma` (`0 4px 16px rgba(0, 0, 0, 0.08)`): Digunakan pada kartu utama (Hero Card, 4 Stat Cards, Kuis Terbaru, Streak Card, dan Banner Level Up) untuk elevasi lembut khas Figma di atas latar aksen `#E6F1F5`.
+  - `shadow-figma-sm` (`0 2px 8px rgba(0, 0, 0, 0.06)`): Digunakan pada kartu aksi cepat kecil.
+  - `shadow-figma-hover` (`0 6px 20px rgba(0, 0, 0, 0.12)`): Elevasi interaktif saat kursor diarahkan ke kartu.
+
 ## Prasyarat
 
 - PHP 8.3+ dan Composer.
@@ -84,8 +99,23 @@ Service aplikasi tersedia pada `http://127.0.0.1:8000`; Reverb pada port `8080`.
 ## Email dan AI
 
 - Development memakai `MAIL_MAILER=log`. Email verifikasi disimpan di `storage/logs/laravel.log`, tidak dikirim ke inbox.
-- Untuk email sungguhan, isi konfigurasi SMTP atau provider email pada `.env` sebelum deploy.
-- Isi `GEMINI_API_KEY` pada `.env` jika fitur AI draft soal dipakai.
+- Untuk mengirim email sungguhan lewat Resend, verifikasi domain pengirim di dashboard Resend lalu isi `.env` (jangan commit API key):
+
+```env
+MAIL_MAILER=resend
+RESEND_API_KEY=re_xxxxxxxxx
+MAIL_FROM_ADDRESS="noreply@domain-terverifikasi.example"
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+  Transport Resend (`symfony/resend-mailer`) sudah terpasang. Jalankan `php artisan config:clear` setelah mengubah konfigurasi, kemudian gunakan alur register atau reset password untuk menguji pengiriman.
+- SMTP tetap dapat digunakan sebagai alternatif dengan mengisi konfigurasi `MAIL_*` pada `.env` sebelum deploy.
+- Fitur AI draft soal menggunakan Google Gemini. Konfigurasikan pada `.env`:
+  - `GEMINI_API_KEY`: API key Google Gemini.
+  - `GEMINI_MODEL`: Model Gemini yang dipakai (default: `gemini-flash-lite-latest`).
+  - `GEMINI_MONTHLY_GENERATION_QUOTA`: Batas generasi AI bulanan per organisasi (default: `100`).
+  - `GEMINI_WEEKLY_CREATOR_QUOTA`: Batas generasi AI mingguan per creator (default: `10`), di-reset otomatis setiap hari Senin.
+  - Teks materi dari berkas PDF dan PowerPoint (`.pptx`) diekstrak otomatis dan dikirim dengan format prompt terstruktur ke Gemini.
 
 ## Akun Demo
 

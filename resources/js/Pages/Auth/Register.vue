@@ -129,10 +129,14 @@ const submit = () => {
                             </svg>
                         </span>
                         <span class="min-w-0 flex-1">
-                            <span class="block text-sm font-bold text-slate-900">
+                            <span
+                                class="block text-sm font-bold text-slate-900"
+                            >
                                 {{ selectedRole.title }}
                             </span>
-                            <span class="mt-0.5 block truncate text-xs text-slate-600">
+                            <span
+                                class="mt-0.5 block truncate text-xs text-slate-600"
+                            >
                                 {{ selectedRole.description }}
                             </span>
                         </span>
@@ -161,7 +165,7 @@ const submit = () => {
                             v-for="role in roles"
                             :key="role.value"
                             type="button"
-                            class="group flex min-h-14 w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition hover:bg-teal-50 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-inset"
+                            class="group flex min-h-14 w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition hover:bg-teal-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-teal-500"
                             :class="{ 'bg-teal-50': form.role === role.value }"
                             role="option"
                             :aria-selected="form.role === role.value"
@@ -169,7 +173,10 @@ const submit = () => {
                         >
                             <span
                                 class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 group-hover:bg-teal-100 group-hover:text-teal-700"
-                                :class="{ 'bg-teal-600 text-white': form.role === role.value }"
+                                :class="{
+                                    'bg-teal-600 text-white':
+                                        form.role === role.value,
+                                }"
                             >
                                 <svg
                                     class="h-4 w-4"
@@ -187,8 +194,14 @@ const submit = () => {
                                 </svg>
                             </span>
                             <span class="min-w-0 flex-1">
-                                <span class="block text-sm font-bold text-slate-900">{{ role.title }}</span>
-                                <span class="block truncate text-xs text-slate-600">{{ role.description }}</span>
+                                <span
+                                    class="block text-sm font-bold text-slate-900"
+                                    >{{ role.title }}</span
+                                >
+                                <span
+                                    class="block truncate text-xs text-slate-600"
+                                    >{{ role.description }}</span
+                                >
                             </span>
                             <svg
                                 v-if="form.role === role.value"
@@ -249,7 +262,10 @@ const submit = () => {
                             required
                             autocomplete="new-password"
                         />
-                        <InputError class="mt-1" :message="form.errors.password" />
+                        <InputError
+                            class="mt-1"
+                            :message="form.errors.password"
+                        />
                     </div>
 
                     <div>

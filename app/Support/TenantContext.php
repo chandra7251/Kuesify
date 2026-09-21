@@ -18,6 +18,11 @@ class TenantContext
         return $this->organization?->id;
     }
 
+    public function get(): ?Organization
+    {
+        return $this->organization;
+    }
+
     public function clear(): void
     {
         $this->organization = null;

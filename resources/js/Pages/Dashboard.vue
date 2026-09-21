@@ -81,134 +81,129 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
     <Head title="Dashboard" />
 
     <AuthenticatedLayout>
-        <main
-            class="mx-auto max-w-7xl space-y-5 px-4 py-6 sm:px-6 lg:px-8"
-        >
+        <main class="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-6 lg:px-8">
             <section
                 aria-labelledby="dashboard-title"
-                class="rounded-xl border border-slate-200 bg-white p-5 shadow-[0_2px_8px_rgba(15,23,42,0.10)] sm:p-6"
+                class="border-b border-slate-200 pb-6"
             >
-                <p
-                    class="text-xs font-bold uppercase tracking-wider text-teal-700"
-                >
+                <p class="text-sm font-semibold text-teal-700">
                     {{ roleLabel(organization.role) }} · {{ organization.name }}
                 </p>
                 <h1
                     id="dashboard-title"
-                    class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl"
+                    class="mt-2 text-3xl font-bold tracking-tight text-slate-950"
                 >
-                    Belajar Lebih Hidup di {{ organization.name }}.
+                    Selamat datang, {{ $page.props.auth.user.name }}
                 </h1>
-                <p class="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                    Buat soal, jalankan kuis, dan pantau perkembangan peserta
-                    dalam satu ruang kerja.
+                <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                    Kelola soal, siapkan kuis, dan pantau aktivitas belajar dari
+                    satu workspace.
                 </p>
-                <div class="mt-5 flex flex-col gap-3 sm:flex-row">
+                <div class="mt-5 grid gap-3 sm:flex">
                     <Link
                         href="/quizzes"
-                        class="inline-flex min-h-11 items-center justify-center rounded-md bg-[#3451b5] px-4 text-sm font-bold text-white transition hover:bg-[#29439d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3451b5]"
+                        class="inline-flex min-h-11 items-center justify-center rounded-lg bg-teal-700 px-4 text-sm font-semibold text-white transition hover:bg-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
                     >
-                        Buat Kuis
+                        Buat kuis baru
                     </Link>
                     <Link
                         href="/live-sessions"
-                        class="inline-flex min-h-11 items-center justify-center rounded-md border border-[#3451b5] bg-[#2dd4bf] px-4 text-sm font-bold text-slate-900 transition hover:bg-[#5eead4] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3451b5]"
+                        class="inline-flex min-h-11 items-center justify-center rounded-lg border border-teal-700 bg-white px-4 text-sm font-semibold text-teal-800 transition hover:bg-teal-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
                     >
-                        Buka Live Quiz
+                        Mulai sesi live
                     </Link>
                 </div>
             </section>
 
+            <!-- 4 Stat Cards (Mockup Reference) -->
             <section aria-labelledby="workspace-summary">
-                <h2 id="workspace-summary" class="sr-only">
-                    Ringkasan workspace
-                </h2>
-                <dl class="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-                    <div
-                        v-for="item in statCards"
+                <div class="mb-3 flex items-end justify-between gap-4">
+                    <div>
+                        <h2
+                            id="workspace-summary"
+                            class="text-lg font-bold text-slate-950"
+                        >
+                            Ringkasan workspace
+                        </h2>
+                        <p class="mt-1 text-sm text-slate-600">
+                            Aktivitas utama di organisasi ini.
+                        </p>
+                    </div>
+                </div>
+                <div
+                    class="grid grid-cols-2 divide-x divide-y divide-slate-200 overflow-hidden rounded-xl border border-slate-200 bg-white sm:grid-cols-4"
+                >
+                    <article
+                        v-for="item in [
+                            { label: 'Kuis', value: stats.quizzes },
+                            { label: 'Soal aktif', value: stats.questions },
+                            { label: 'Live aktif', value: stats.liveSessions },
+                            { label: 'Attempt', value: stats.attempts },
+                        ]"
                         :key="item.label"
-                        class="rounded-md border border-slate-200 bg-white p-4 shadow-[0_2px_5px_rgba(15,23,42,0.08)]"
+                        class="p-4"
                     >
-                        <dt class="text-xs font-bold" :class="item.color">
+                        <p class="text-sm font-medium text-slate-600">
                             {{ item.label }}
-                        </dt>
-                        <dd
-                            class="mt-1 text-2xl font-extrabold tabular-nums"
-                            :class="item.color"
+                        </p>
+                        <p
+                            class="mt-2 text-2xl font-bold tabular-nums text-slate-950"
                         >
                             {{ item.value }}
-                        </dd>
-                    </div>
-                </dl>
-            </section>
-
-            <section
-                aria-label="Progres level"
-                class="flex items-center justify-between gap-4 rounded-md border border-teal-500 bg-[#2dd4bf] px-5 py-3 text-slate-900 shadow-[0_2px_5px_rgba(15,23,42,0.12)]"
-            >
-                <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider">
-                        Progress
-                    </p>
-                    <p class="font-extrabold">Level {{ stats.level }}</p>
-                </div>
-                <div class="text-right">
-                    <p class="text-xs font-semibold">XP terkumpul</p>
-                    <p class="text-lg font-extrabold tabular-nums">
-                        {{ stats.xp }} XP
-                    </p>
+                        </p>
+                    </article>
                 </div>
             </section>
 
-            <div
-                class="grid items-stretch gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.5fr)]"
-            >
+            <div class="grid gap-6 lg:grid-cols-3">
                 <section
-                    aria-labelledby="recent-quizzes"
-                    class="overflow-hidden rounded-md border border-slate-200 bg-white shadow-[0_2px_7px_rgba(15,23,42,0.09)]"
+                    aria-labelledby="recent-activity"
+                    class="rounded-xl border border-slate-200 bg-white lg:col-span-2"
                 >
                     <div
-                        class="flex items-start justify-between gap-4 border-b border-slate-200 px-4 py-4"
+                        class="flex items-center justify-between gap-4 border-b border-slate-200 px-5 py-4"
                     >
                         <div>
                             <h2
-                                id="recent-quizzes"
-                                class="font-extrabold text-[#4b3f63]"
+                                id="recent-activity"
+                                class="text-lg font-bold text-slate-950"
                             >
-                                Kuis Terbaru
+                                Aktivitas terbaru
                             </h2>
-                            <p class="mt-0.5 text-xs text-slate-500">
-                                Lanjutkan dari aktivitas terakhir
+                            <p class="mt-1 text-sm text-slate-600">
+                                Kuis yang terakhir diperbarui.
                             </p>
                         </div>
                         <Link
                             href="/quizzes"
-                            class="shrink-0 rounded text-xs font-bold text-teal-700 hover:text-teal-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                            class="text-sm font-semibold text-teal-700 hover:text-teal-900"
                         >
                             Lihat semua
                         </Link>
                     </div>
-                    <ul
+
+                    <!-- Quizzes List (clean single-line items like Image 1) -->
+                    <div
                         v-if="recentQuizzes.length"
-                        class="divide-y divide-slate-100"
+                        class="mt-3 divide-y divide-slate-100"
                     >
-                        <li
+                        <div
                             v-for="quiz in recentQuizzes"
                             :key="quiz.id"
-                            class="flex items-center justify-between gap-3 px-4 py-3"
+                            class="flex items-center justify-between gap-4 px-5 py-4"
                         >
                             <div class="min-w-0">
                                 <p
-                                    class="truncate text-sm font-semibold text-slate-800"
+                                    class="truncate font-semibold text-slate-900"
                                 >
                                     {{ quiz.title }}
                                 </p>
-                                <p class="mt-0.5 text-xs text-slate-500">
-                                    {{ formatDate(quiz.updated_at) }}
+                                <p class="mt-1 text-xs text-slate-500">
+                                    Diperbarui {{ quiz.updated_at }}
                                 </p>
                             </div>
                             <span
-                                class="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold capitalize text-slate-600"
+                                class="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600"
                                 >{{ quiz.status }}</span
                             >
                         </li>
@@ -219,93 +214,103 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                         </p>
                         <Link
                             href="/quizzes"
-                            class="mt-2 inline-flex text-sm font-semibold text-teal-700 hover:text-teal-900"
-                            >Buat kuis pertama</Link
+                            class="mt-2 inline-flex text-xs font-bold text-brand-secondary hover:underline"
                         >
+                            Buat kuis pertama
+                        </Link>
                     </div>
                 </section>
 
-                <div class="grid gap-5">
-                    <section aria-labelledby="quick-actions">
-                        <div class="mb-2">
-                            <p
-                                class="text-xs font-semibold uppercase tracking-wider text-slate-500"
-                            >
-                                Aksi Cepat
-                            </p>
-                            <h2
-                                id="quick-actions"
-                                class="text-lg font-extrabold leading-none text-[#4b3f63]"
-                            >
-                                Pilih Aktivitas
-                            </h2>
-                        </div>
-                        <div class="grid gap-2">
-                            <Link
-                                v-for="item in shortcuts"
-                                :key="item.href"
-                                :href="item.href"
-                                class="group flex min-h-14 items-center gap-3 rounded-md border border-slate-200 bg-white px-4 py-2.5 shadow-[0_2px_5px_rgba(15,23,42,0.08)] transition hover:border-teal-300 hover:bg-teal-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
-                            >
-                                <span
-                                    class="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-teal-100 text-xs font-extrabold text-teal-900"
-                                    aria-hidden="true"
-                                >
-                                    {{ item.icon }}
-                                </span>
-                                <span class="min-w-0 flex-1">
-                                    <span
-                                        class="block text-sm font-bold text-slate-800"
-                                    >
-                                        {{ item.title }}
-                                    </span>
-                                    <span
-                                        class="block truncate text-xs text-slate-500"
-                                    >
-                                        {{ item.description }}
-                                    </span>
-                                </span>
-                                <svg
-                                    class="h-5 w-5 shrink-0 text-slate-500 transition group-hover:translate-x-0.5 group-hover:text-teal-700"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    aria-hidden="true"
-                                >
-                                    <path
-                                        d="m9 18 6-6-6-6"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                    />
-                                </svg>
-                            </Link>
-                        </div>
-                    </section>
-
-                    <section
-                        aria-labelledby="streak-title"
-                        class="grid min-h-52 place-items-center rounded-md border border-slate-200 bg-white p-6 text-center shadow-[0_2px_7px_rgba(15,23,42,0.09)]"
+                <section
+                    aria-labelledby="learning-progress"
+                    class="rounded-xl border border-slate-200 bg-white p-5"
+                >
+                    <h2
+                        id="learning-progress"
+                        class="text-lg font-bold text-slate-950"
                     >
+                        Perkembangan belajar
+                    </h2>
+                    <p class="mt-1 text-sm text-slate-600">
+                        Ringkasan progres pribadi.
+                    </p>
+                    <dl class="mt-5 grid grid-cols-3 gap-3 text-center">
                         <div>
-                            <h2
-                                id="streak-title"
-                                class="text-lg font-extrabold text-[#4b3f63]"
-                            >
-                                Streak
-                            </h2>
-                            <p
-                                class="mt-2 text-6xl font-extrabold tabular-nums text-[#4b3f63]"
-                            >
-                                {{ stats.streak }}
-                            </p>
-                            <p class="mt-2 text-xs font-medium text-slate-500">
-                                hari belajar berturut-turut
-                            </p>
+                            <dt class="text-xs font-medium text-slate-500">
+                                XP
+                            </dt>
+                            <dd class="mt-1 text-xl font-bold text-slate-950">
+                                {{ stats.xp }}
+                            </dd>
                         </div>
-                    </section>
-                </div>
+                        <div>
+                            <dt class="text-xs font-medium text-slate-500">
+                                Level
+                            </dt>
+                            <dd class="mt-1 text-xl font-bold text-slate-950">
+                                {{ stats.level }}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-medium text-slate-500">
+                                Streak
+                            </dt>
+                            <dd class="mt-1 text-xl font-bold text-slate-950">
+                                {{ stats.streak }}
+                            </dd>
+                        </div>
+                    </dl>
+                    <Link
+                        href="/attempts"
+                        class="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-slate-300 px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                        >Lihat hasil belajar</Link
+                    >
+                </section>
             </div>
-        </main>
+
+            <section aria-labelledby="quick-actions">
+                <div class="mb-3">
+                    <h2
+                        id="quick-actions"
+                        class="text-lg font-bold text-slate-950"
+                    >
+                        Aksi cepat
+                    </h2>
+                    <p class="mt-1 text-sm text-slate-600">
+                        Pilih tugas yang ingin dikerjakan.
+                    </p>
+                </div>
+                <div class="grid gap-3 md:grid-cols-3">
+                    <Link
+                        v-for="[title, description, href] in shortcuts"
+                        :key="href"
+                        :href="href"
+                        class="group flex min-h-20 items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-teal-300 hover:bg-teal-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                    >
+                        <span>
+                            <span class="block font-semibold text-slate-950">{{
+                                title
+                            }}</span>
+                            <span class="mt-1 block text-sm text-slate-600">{{
+                                description
+                            }}</span>
+                        </span>
+                        <svg
+                            class="h-5 w-5 shrink-0 text-teal-700"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M5 12h14m-6-6 6 6-6 6"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            />
+                        </svg>
+                    </Link>
+                </div>
+            </section>
     </AuthenticatedLayout>
 </template>

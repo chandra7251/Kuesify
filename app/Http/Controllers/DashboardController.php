@@ -33,7 +33,7 @@ class DashboardController extends Controller
                 'attempts' => QuizAttempt::where('participant_id', $request->user()->id)->count(), 'xp' => $progress?->xp ?? 0, 'streak' => $progress?->streak ?? 0,
                 'level' => $progress?->level ?? 1,
             ],
-            'recentQuizzes' => Quiz::latest()->take(5)->get(['id', 'title', 'status', 'updated_at']),
+            'recentQuizzes' => Quiz::latest()->take(8)->get(['id', 'title', 'status', 'updated_at']),
             'badges' => $badges,
         ]);
     }

@@ -24,6 +24,6 @@ class AiGeneration extends Model
 
     public function material(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Material::class);
+        return $this->belongsTo(Material::class)->withoutGlobalScope('organization');
     }
 }

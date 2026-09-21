@@ -6,6 +6,7 @@ return [
         'key' => env('GEMINI_API_KEY'),
         'model' => env('GEMINI_MODEL', 'gemini-2.5-flash'),
         'monthly_generation_quota' => (int) env('GEMINI_MONTHLY_GENERATION_QUOTA', 100),
+        'weekly_creator_quota' => (int) env('GEMINI_WEEKLY_CREATOR_QUOTA', 10),
     ],
 
     /*
