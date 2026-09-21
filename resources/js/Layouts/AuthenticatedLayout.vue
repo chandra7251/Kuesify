@@ -5,6 +5,8 @@ import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import { roleLabel } from '@/utils/roleLabel';
 import type { PageProps } from '@/types';
+import Sidebar from '@/Components/Sidebar.vue';
+import TopNavBar from '@/Components/TopNavBar.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
