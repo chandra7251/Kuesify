@@ -3,10 +3,8 @@ import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import AvatarIcon from '@/Components/AvatarIcon.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
-import { roleLabel } from '@/utils/roleLabel';
 import type { PageProps } from '@/types';
-import Sidebar from '@/Components/Sidebar.vue';
-import TopNavBar from '@/Components/TopNavBar.vue';
+import { roleLabel } from '@/utils/roleLabel';
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
@@ -106,64 +104,112 @@ function closeMobileNav(): void {
 </script>
 
 <template>
-    <div class="min-h-screen w-full max-w-full overflow-x-hidden bg-brand-accent text-slate-900">
+    <div
+        class="min-h-screen w-full max-w-full overflow-x-hidden bg-brand-accent text-slate-900"
+    >
         <!-- ========================================================================= -->
         <!-- 1. DESKTOP SIDEBAR: FIXED TO VIEWPORT (Never scrolls with the page!)      -->
         <!-- ========================================================================= -->
         <aside
-            class="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 bg-brand-primary text-white transition-all duration-300 ease-in-out select-none shadow-xl"
+            id="desktop-sidebar"
+            class="hidden select-none bg-brand-primary text-white shadow-xl transition-all duration-300 ease-in-out lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:flex lg:flex-col"
             :class="desktopSidebarExpanded ? 'lg:w-72' : 'lg:w-20'"
             aria-label="Navigasi samping"
         >
             <!-- Top Header: Logo & Expand/Collapse Toggle -->
             <div
                 class="flex h-16 shrink-0 items-center border-b border-white/10 px-4"
-                :class="desktopSidebarExpanded ? 'justify-between' : 'justify-center'"
+                :class="
+                    desktopSidebarExpanded
+                        ? 'justify-between'
+                        : 'justify-center'
+                "
             >
                 <!-- Expanded: Logo + Name + Organization -->
-                <div v-if="desktopSidebarExpanded" class="flex items-center gap-3 min-w-0">
-                    <div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white shadow-sm">
+                <div
+                    v-if="desktopSidebarExpanded"
+                    class="flex min-w-0 items-center gap-3"
+                >
+                    <div
+                        class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white shadow-sm"
+                    >
                         <ApplicationLogo class="h-6 w-6 text-brand-primary" />
                     </div>
                     <div class="min-w-0 flex-1 truncate">
-                        <span class="text-xl font-black tracking-tight text-white block truncate">Kuesify</span>
-                        <span class="block text-[11px] font-semibold text-blue-200 truncate">
-                            {{ page.props.currentOrganization?.name || 'Ruang Belajar' }}
+                        <span
+                            class="block truncate text-xl font-black tracking-tight text-white"
+                            >Kuesify</span
+                        >
+                        <span
+                            class="block truncate text-[11px] font-semibold text-blue-200"
+                        >
+                            {{
+                                page.props.currentOrganization?.name ||
+                                'Ruang Belajar'
+                            }}
                         </span>
                     </div>
                 </div>
 
-                <!-- Collapsed: Single Logo Icon -->
-                <div v-else class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white shadow-sm">
-                    <ApplicationLogo class="h-6 w-6 text-brand-primary" />
-                </div>
-
-                <!-- Toggle Collapse Button in Sidebar Header -->
                 <button
                     v-if="desktopSidebarExpanded"
                     type="button"
-                    class="grid h-8 w-8 place-items-center rounded-lg bg-white/10 text-white transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
-                    title="Sempitkan sidebar"
+                    class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white/10 text-white transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
+                    aria-label="Tutup sidebar"
+                    :aria-expanded="desktopSidebarExpanded"
+                    aria-controls="desktop-sidebar"
                     @click="toggleDesktopSidebar"
                 >
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                        <path d="M15 19l-7-7 7-7" />
+                    <svg
+                        aria-hidden="true"
+                        class="h-4 w-4"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="m15 19-7-7 7-7" />
                     </svg>
+                </button>
+
+                <!-- Collapsed: Single Logo Icon -->
+                <button
+                    v-else
+                    type="button"
+                    class="group relative grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                    aria-label="Buka sidebar"
+                    :aria-expanded="desktopSidebarExpanded"
+                    aria-controls="desktop-sidebar"
+                    @click="toggleDesktopSidebar"
+                >
+                    <ApplicationLogo class="h-6 w-6 text-brand-primary" />
+                    <span
+                        role="tooltip"
+                        class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-slate-950 px-3 py-2 text-xs font-bold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+                    >
+                        Buka sidebar
+                    </span>
                 </button>
             </div>
 
             <!-- Scrollable Navigation Items Container (Only this scrolls if height is small!) -->
-            <div class="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-1.5 custom-scrollbar">
+            <div
+                class="custom-scrollbar flex-1 space-y-1.5 overflow-y-auto overflow-x-hidden p-3"
+            >
                 <Link
                     v-for="item in navigationItems"
                     :key="item.label"
                     :href="item.href"
-                    class="group flex min-h-11 items-center rounded-xl transition-all duration-150 relative"
+                    class="group relative flex min-h-11 items-center rounded-xl transition-all duration-150"
                     :class="[
-                        desktopSidebarExpanded ? 'px-3.5 gap-3.5' : 'justify-center px-0',
+                        desktopSidebarExpanded
+                            ? 'gap-3.5 px-3.5'
+                            : 'justify-center px-0',
                         isCurrent(item.href)
-                            ? 'bg-brand-secondary text-slate-900 font-bold shadow-md shadow-emerald-950/20'
-                            : 'text-brand-secondary hover:bg-white/10 hover:text-white font-semibold'
+                            ? 'bg-brand-secondary font-bold text-slate-900 shadow-md shadow-emerald-950/20'
+                            : 'font-semibold text-brand-secondary hover:bg-white/10 hover:text-white',
                     ]"
                     :title="!desktopSidebarExpanded ? item.label : undefined"
                 >
@@ -193,7 +239,9 @@ function closeMobileNav(): void {
                         stroke-linecap="round"
                         stroke-linejoin="round"
                     >
-                        <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4" />
+                        <path
+                            d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4"
+                        />
                     </svg>
                     <svg
                         v-else-if="item.icon === 'builder'"
@@ -219,7 +267,9 @@ function closeMobileNav(): void {
                         stroke-linecap="round"
                         stroke-linejoin="round"
                     >
-                        <path d="M4.93 19.07a10 10 0 0 1 0-14.14M2 12h.01M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07M8.46 15.54a5 5 0 0 1 0-7.07M12 12a1 1 0 1 0 0 .01" />
+                        <path
+                            d="M4.93 19.07a10 10 0 0 1 0-14.14M2 12h.01M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07M8.46 15.54a5 5 0 0 1 0-7.07M12 12a1 1 0 1 0 0 .01"
+                        />
                     </svg>
                     <svg
                         v-else-if="item.icon === 'results'"
@@ -231,7 +281,9 @@ function closeMobileNav(): void {
                         stroke-linecap="round"
                         stroke-linejoin="round"
                     >
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <path
+                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                        />
                         <polyline points="14 2 14 8 20 8" />
                         <line x1="16" y1="13" x2="8" y2="13" />
                         <line x1="16" y1="17" x2="8" y2="17" />
@@ -247,7 +299,9 @@ function closeMobileNav(): void {
                         stroke-linecap="round"
                         stroke-linejoin="round"
                     >
-                        <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z" />
+                        <path
+                            d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"
+                        />
                     </svg>
                     <svg
                         v-else-if="item.icon === 'reports'"
@@ -294,7 +348,10 @@ function closeMobileNav(): void {
                     </svg>
 
                     <!-- Text Label (Visible only when Expanded) -->
-                    <span v-if="desktopSidebarExpanded" class="truncate text-sm">
+                    <span
+                        v-if="desktopSidebarExpanded"
+                        class="truncate text-sm"
+                    >
                         {{ item.label }}
                     </span>
                 </Link>
@@ -305,7 +362,9 @@ function closeMobileNav(): void {
                 <!-- Expanded Profile Card -->
                 <div v-if="desktopSidebarExpanded">
                     <div class="flex items-center gap-3 px-2">
-                        <div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-secondary/20 text-brand-secondary">
+                        <div
+                            class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-secondary/20 text-brand-secondary"
+                        >
                             <AvatarIcon
                                 :avatar-key="page.props.auth.user.avatar_key"
                                 class="h-7 w-7 text-emerald-300"
@@ -320,31 +379,36 @@ function closeMobileNav(): void {
                             </p>
                         </div>
                     </div>
-                    <div class="mt-3 flex items-center justify-between px-2 text-xs font-semibold text-blue-200">
-                        <Link :href="route('profile.edit')" class="transition hover:text-white">Settings</Link>
-                        <Link :href="route('logout')" method="post" as="button" class="transition hover:text-rose-300">Logout</Link>
+                    <div
+                        class="mt-3 flex items-center justify-between px-2 text-xs font-semibold text-blue-200"
+                    >
+                        <Link
+                            :href="route('profile.edit')"
+                            class="transition hover:text-white"
+                            >Settings</Link
+                        >
+                        <Link
+                            :href="route('logout')"
+                            method="post"
+                            as="button"
+                            class="transition hover:text-rose-300"
+                            >Logout</Link
+                        >
                     </div>
                 </div>
 
                 <!-- Collapsed Profile Button -->
-                <div v-else class="flex flex-col items-center gap-2">
+                <div v-else class="flex justify-center">
                     <Link
                         :href="route('profile.edit')"
-                        class="grid h-10 w-10 place-items-center rounded-xl bg-white/10 text-white hover:bg-white/20 transition"
+                        class="grid h-10 w-10 place-items-center rounded-xl bg-white/10 text-white transition hover:bg-white/20"
                         title="Profil pengguna"
                     >
-                        <AvatarIcon :avatar-key="page.props.auth.user.avatar_key" class="h-6 w-6 text-emerald-300" />
+                        <AvatarIcon
+                            :avatar-key="page.props.auth.user.avatar_key"
+                            class="h-6 w-6 text-emerald-300"
+                        />
                     </Link>
-                    <button
-                        type="button"
-                        class="grid h-8 w-8 place-items-center rounded-lg bg-white/10 text-white hover:bg-white/20 transition"
-                        title="Perlebar sidebar"
-                        @click="toggleDesktopSidebar"
-                    >
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                            <path d="M9 5l7 7-7 7" />
-                        </svg>
-                    </button>
                 </div>
             </div>
         </aside>
@@ -353,54 +417,64 @@ function closeMobileNav(): void {
         <!-- 2. MAIN VIEWPORT WRAPPER (Offset by sidebar width on desktop)              -->
         <!-- ========================================================================= -->
         <div
-            class="min-h-screen flex flex-col transition-all duration-300 ease-in-out"
+            class="flex min-h-screen flex-col transition-all duration-300 ease-in-out"
             :class="desktopSidebarExpanded ? 'lg:pl-72' : 'lg:pl-20'"
         >
             <!-- TOP NAVBAR: ALWAYS STICKY AT TOP (sticky top-0 z-20) -->
-            <header class="sticky top-0 z-20 w-full border-b border-brand-hover bg-brand-primary text-white shadow-sm">
-                <div class="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-                    <!-- Left Section: Toggle & Workspace Title -->
+            <header
+                class="sticky top-0 z-20 w-full border-b border-brand-hover bg-brand-primary text-white shadow-sm"
+            >
+                <div
+                    class="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8"
+                >
+                    <!-- Left Section: Mobile Toggle & Workspace Title -->
                     <div class="flex items-center gap-3.5">
-                        <!-- Desktop Sidebar Toggle Button (Expands or Collapses sidebar) -->
-                        <button
-                            type="button"
-                            class="hidden lg:grid h-10 w-10 place-items-center rounded-xl bg-white/10 text-white transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
-                            :title="desktopSidebarExpanded ? 'Sempitkan sidebar' : 'Perlebar sidebar'"
-                            :aria-label="desktopSidebarExpanded ? 'Tutup navigasi' : 'Buka navigasi'"
-                            @click="toggleDesktopSidebar"
-                        >
-                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                                <path v-if="desktopSidebarExpanded" d="M15 19l-7-7 7-7" />
-                                <path v-else d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
-
                         <!-- Mobile Menu Button (< lg) -->
                         <button
                             type="button"
-                            class="grid lg:hidden h-10 w-10 place-items-center rounded-xl bg-white/10 text-white hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
+                            class="grid h-10 w-10 place-items-center rounded-xl bg-white/10 text-white hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white lg:hidden"
                             aria-label="Buka navigasi"
                             @click="openMobileNav"
                         >
-                            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <svg
+                                class="h-6 w-6"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                            >
                                 <path d="M4 7h16M4 12h16M4 17h16" />
                             </svg>
                         </button>
 
                         <!-- Brand Logo on mobile -->
-                        <Link :href="route('dashboard')" class="flex items-center gap-2 lg:hidden">
-                            <div class="grid h-8 w-8 place-items-center rounded-lg bg-white shadow-sm">
-                                <ApplicationLogo class="h-5 w-5 text-brand-primary" />
+                        <Link
+                            :href="route('dashboard')"
+                            class="flex items-center gap-2 lg:hidden"
+                        >
+                            <div
+                                class="grid h-8 w-8 place-items-center rounded-lg bg-white shadow-sm"
+                            >
+                                <ApplicationLogo
+                                    class="h-5 w-5 text-brand-primary"
+                                />
                             </div>
-                            <span class="text-base font-black text-white">Kuesify</span>
+                            <span class="text-base font-black text-white"
+                                >Kuesify</span
+                            >
                         </Link>
 
                         <!-- Workspace Info (Mockup Reference) -->
                         <div class="hidden sm:block">
-                            <p class="text-[11px] font-bold uppercase tracking-widest text-brand-secondary">
+                            <p
+                                class="text-[11px] font-bold uppercase tracking-widest text-brand-secondary"
+                            >
                                 WORKSPACE
                             </p>
-                            <h2 class="text-base font-black tracking-tight text-brand-secondary sm:text-lg leading-tight">
+                            <h2
+                                class="text-base font-black leading-tight tracking-tight text-brand-secondary sm:text-lg"
+                            >
                                 Selamat Datang Kembali
                             </h2>
                         </div>
@@ -418,18 +492,37 @@ function closeMobileNav(): void {
                                         aria-label="Avatar pengguna"
                                     >
                                         <AvatarIcon
-                                            :avatar-key="page.props.auth.user.avatar_key"
+                                            :avatar-key="
+                                                page.props.auth.user.avatar_key
+                                            "
                                             class="h-7 w-7 p-1 text-emerald-300"
                                         />
-                                        <span class="max-w-32 truncate">{{ page.props.auth.user.name }}</span>
-                                        <svg class="h-4 w-4 text-blue-200" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                                        <span class="max-w-32 truncate">{{
+                                            page.props.auth.user.name
+                                        }}</span>
+                                        <svg
+                                            class="h-4 w-4 text-blue-200"
+                                            viewBox="0 0 20 20"
+                                            fill="currentColor"
+                                        >
+                                            <path
+                                                fill-rule="evenodd"
+                                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                                clip-rule="evenodd"
+                                            />
                                         </svg>
                                     </button>
                                 </template>
                                 <template #content>
-                                    <DropdownLink :href="route('profile.edit')">Profil</DropdownLink>
-                                    <DropdownLink :href="route('logout')" method="post" as="button">Keluar</DropdownLink>
+                                    <DropdownLink :href="route('profile.edit')"
+                                        >Profil</DropdownLink
+                                    >
+                                    <DropdownLink
+                                        :href="route('logout')"
+                                        method="post"
+                                        as="button"
+                                        >Keluar</DropdownLink
+                                    >
                                 </template>
                             </Dropdown>
                         </div>
@@ -450,7 +543,10 @@ function closeMobileNav(): void {
             </header>
 
             <!-- Custom Subheader Slot (if page provides one) -->
-            <div v-if="$slots.header" class="border-b border-slate-200 bg-white px-4 py-4 sm:px-8">
+            <div
+                v-if="$slots.header"
+                class="border-b border-slate-200 bg-white px-4 py-4 sm:px-8"
+            >
                 <slot name="header" />
             </div>
 
@@ -495,10 +591,16 @@ function closeMobileNav(): void {
                     <!-- Drawer Header -->
                     <div class="flex items-center justify-between px-2 pt-2">
                         <div class="flex items-center gap-3">
-                            <div class="grid h-10 w-10 place-items-center rounded-xl bg-white shadow-sm">
-                                <ApplicationLogo class="h-6 w-6 text-brand-primary" />
+                            <div
+                                class="grid h-10 w-10 place-items-center rounded-xl bg-white shadow-sm"
+                            >
+                                <ApplicationLogo
+                                    class="h-6 w-6 text-brand-primary"
+                                />
                             </div>
-                            <span class="text-xl font-black text-white">Kuesify</span>
+                            <span class="text-xl font-black text-white"
+                                >Kuesify</span
+                            >
                         </div>
                         <button
                             type="button"
@@ -506,7 +608,13 @@ function closeMobileNav(): void {
                             aria-label="Tutup navigasi"
                             @click="closeMobileNav"
                         >
-                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg
+                                class="h-5 w-5"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
                                 <path d="M18 6L6 18M6 6l12 12" />
                             </svg>
                         </button>
@@ -538,9 +646,27 @@ function closeMobileNav(): void {
                                 stroke-linejoin="round"
                             >
                                 <rect width="7" height="7" x="3" y="3" rx="1" />
-                                <rect width="7" height="7" x="14" y="3" rx="1" />
-                                <rect width="7" height="7" x="14" y="14" rx="1" />
-                                <rect width="7" height="7" x="3" y="14" rx="1" />
+                                <rect
+                                    width="7"
+                                    height="7"
+                                    x="14"
+                                    y="3"
+                                    rx="1"
+                                />
+                                <rect
+                                    width="7"
+                                    height="7"
+                                    x="14"
+                                    y="14"
+                                    rx="1"
+                                />
+                                <rect
+                                    width="7"
+                                    height="7"
+                                    x="3"
+                                    y="14"
+                                    rx="1"
+                                />
                             </svg>
                             <svg
                                 v-else-if="item.icon === 'bank'"
@@ -552,7 +678,9 @@ function closeMobileNav(): void {
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                             >
-                                <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4" />
+                                <path
+                                    d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4"
+                                />
                             </svg>
                             <svg
                                 v-else-if="item.icon === 'builder'"
@@ -565,7 +693,9 @@ function closeMobileNav(): void {
                                 stroke-linejoin="round"
                             >
                                 <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
-                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                                <path
+                                    d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"
+                                />
                                 <path d="M12 17h.01" />
                             </svg>
                             <svg
@@ -578,7 +708,9 @@ function closeMobileNav(): void {
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                             >
-                                <path d="M4.93 19.07a10 10 0 0 1 0-14.14M2 12h.01M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07M8.46 15.54a5 5 0 0 1 0-7.07M12 12a1 1 0 1 0 0 .01" />
+                                <path
+                                    d="M4.93 19.07a10 10 0 0 1 0-14.14M2 12h.01M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07M8.46 15.54a5 5 0 0 1 0-7.07M12 12a1 1 0 1 0 0 .01"
+                                />
                             </svg>
                             <svg
                                 v-else-if="item.icon === 'results'"
@@ -590,7 +722,9 @@ function closeMobileNav(): void {
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                             >
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <path
+                                    d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                                />
                                 <polyline points="14 2 14 8 20 8" />
                                 <line x1="16" y1="13" x2="8" y2="13" />
                                 <line x1="16" y1="17" x2="8" y2="17" />
@@ -606,7 +740,9 @@ function closeMobileNav(): void {
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                             >
-                                <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z" />
+                                <path
+                                    d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"
+                                />
                             </svg>
                             <svg
                                 v-else-if="item.icon === 'reports'"
@@ -633,7 +769,9 @@ function closeMobileNav(): void {
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                             >
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                                <path
+                                    d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+                                />
                                 <circle cx="9" cy="7" r="4" />
                                 <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
                                 <path d="M16 3.13a4 4 0 0 1 0 7.75" />
@@ -648,7 +786,9 @@ function closeMobileNav(): void {
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                             >
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                <path
+                                    d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                                />
                                 <polyline points="9 12 11 14 15 10" />
                             </svg>
                             <span class="truncate">{{ item.label }}</span>
@@ -659,17 +799,39 @@ function closeMobileNav(): void {
                 <!-- Bottom Profile in Mobile Drawer -->
                 <div class="border-t border-white/15 pt-4">
                     <div class="flex items-center gap-3 px-2">
-                        <div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-secondary/20 text-brand-secondary">
-                            <AvatarIcon :avatar-key="page.props.auth.user.avatar_key" class="h-7 w-7 text-emerald-300" />
+                        <div
+                            class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-secondary/20 text-brand-secondary"
+                        >
+                            <AvatarIcon
+                                :avatar-key="page.props.auth.user.avatar_key"
+                                class="h-7 w-7 text-emerald-300"
+                            />
                         </div>
                         <div class="min-w-0 flex-1">
-                            <p class="truncate text-sm font-bold text-white">{{ page.props.auth.user.name }}</p>
-                            <p class="truncate text-xs text-blue-200">Role : {{ roleLabel(currentRole) }}</p>
+                            <p class="truncate text-sm font-bold text-white">
+                                {{ page.props.auth.user.name }}
+                            </p>
+                            <p class="truncate text-xs text-blue-200">
+                                Role : {{ roleLabel(currentRole) }}
+                            </p>
                         </div>
                     </div>
-                    <div class="mt-3 flex items-center justify-between px-2 text-xs font-semibold text-blue-200">
-                        <Link :href="route('profile.edit')" class="transition hover:text-white" @click="closeMobileNav">Profil</Link>
-                        <Link :href="route('logout')" method="post" as="button" class="transition hover:text-rose-300">Keluar</Link>
+                    <div
+                        class="mt-3 flex items-center justify-between px-2 text-xs font-semibold text-blue-200"
+                    >
+                        <Link
+                            :href="route('profile.edit')"
+                            class="transition hover:text-white"
+                            @click="closeMobileNav"
+                            >Profil</Link
+                        >
+                        <Link
+                            :href="route('logout')"
+                            method="post"
+                            as="button"
+                            class="transition hover:text-rose-300"
+                            >Keluar</Link
+                        >
                     </div>
                 </div>
             </aside>
@@ -688,7 +850,9 @@ function closeMobileNav(): void {
                 :href="item.href"
                 class="flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-lg px-1 text-center text-[10px] font-semibold text-slate-600 transition"
                 :class="{
-                    'bg-brand-primary text-white': $page.url.startsWith(item.href),
+                    'bg-brand-primary text-white': $page.url.startsWith(
+                        item.href,
+                    ),
                 }"
             >
                 <svg
