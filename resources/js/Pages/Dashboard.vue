@@ -199,26 +199,26 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                                     {{ quiz.title }}
                                 </p>
                                 <p class="mt-1 text-xs text-slate-500">
-                                    Diperbarui {{ quiz.updated_at }}
+                                    Diperbarui {{ formatDate(quiz.updated_at) }}
                                 </p>
                             </div>
                             <span
                                 class="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600"
                                 >{{ quiz.status }}</span
                             >
-                        </li>
-                    </ul>
+                        </div>
+                    </div>
                     <div v-else class="px-5 py-10 text-center">
                         <p class="font-semibold text-slate-900">
                             Belum ada aktivitas kuis.
                         </p>
                         <Link
                             href="/quizzes"
-                            class="mt-2 inline-flex text-xs font-bold text-brand-secondary hover:underline"
+                            class="mt-2 inline-flex text-xs font-bold text-teal-700 hover:underline"
                         >
                             Buat kuis pertama
                         </Link>
-                    </div>
+                    </div> 
                 </section>
 
                 <section
@@ -282,7 +282,7 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                 </div>
                 <div class="grid gap-3 md:grid-cols-3">
                     <Link
-                        v-for="[title, description, href] in shortcuts"
+                        v-for="{ title, description, href } in shortcuts"
                         :key="href"
                         :href="href"
                         class="group flex min-h-20 items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-teal-300 hover:bg-teal-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
@@ -312,5 +312,6 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                     </Link>
                 </div>
             </section>
+        </main>
     </AuthenticatedLayout>
 </template>
