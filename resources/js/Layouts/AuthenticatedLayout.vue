@@ -475,7 +475,8 @@ function closeMobileNav(): void {
                             <h2
                                 class="text-base font-black leading-tight tracking-tight text-brand-secondary sm:text-lg"
                             >
-                                Selamat Datang Kembali
+                                Selamat Datang,
+                                {{ page.props.auth.user.name }}
                             </h2>
                         </div>
                     </div>
