@@ -69,10 +69,9 @@ function upload(): void {
     });
 }
 function generate(): void {
-    generateForm.post(
-        route('ai-generations.store', generateForm.material_id),
-        { preserveScroll: true },
-    );
+    generateForm.post(route('ai-generations.store', generateForm.material_id), {
+        preserveScroll: true,
+    });
 }
 function retry(generationId: number): void {
     router.post(
@@ -133,10 +132,7 @@ function sizeKb(bytes: number): string {
                             diekstrak menjadi sumber soal.
                         </p>
                     </div>
-                    <form
-                        class="space-y-4 p-5 sm:p-6"
-                        @submit.prevent="upload"
-                    >
+                    <form class="space-y-4 p-5 sm:p-6" @submit.prevent="upload">
                         <label
                             for="material-file"
                             class="block text-sm font-bold text-slate-800"
@@ -165,7 +161,9 @@ function sizeKb(bytes: number): string {
                         <button
                             type="submit"
                             class="min-h-11 rounded-lg bg-brand-primary px-5 text-sm font-bold text-white transition hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary disabled:cursor-not-allowed disabled:opacity-50"
-                            :disabled="!uploadForm.file || uploadForm.processing"
+                            :disabled="
+                                !uploadForm.file || uploadForm.processing
+                            "
                         >
                             {{
                                 uploadForm.processing
@@ -231,7 +229,9 @@ function sizeKb(bytes: number): string {
                                 v-model="generateForm.material_id"
                                 class="mt-1.5 min-h-11 w-full rounded-lg border-slate-300 text-sm text-slate-900 focus:border-teal-600 focus:ring-teal-600"
                             >
-                                <option value="">Pilih materi terekstrak</option>
+                                <option value="">
+                                    Pilih materi terekstrak
+                                </option>
                                 <option
                                     v-for="material in extractedMaterials"
                                     :key="material.id"
@@ -348,9 +348,7 @@ function sizeKb(bytes: number): string {
                                 <th class="px-5 py-3 sm:px-6">Nama</th>
                                 <th class="px-4 py-3">Ukuran</th>
                                 <th class="px-4 py-3">Status</th>
-                                <th class="px-5 py-3 sm:px-6">
-                                    Diupload oleh
-                                </th>
+                                <th class="px-5 py-3 sm:px-6">Diupload oleh</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
@@ -379,9 +377,7 @@ function sizeKb(bytes: number): string {
                                         {{ material.status }}
                                     </span>
                                 </td>
-                                <td
-                                    class="px-5 py-4 text-slate-500 sm:px-6"
-                                >
+                                <td class="px-5 py-4 text-slate-500 sm:px-6">
                                     {{ material.creator.name }}
                                 </td>
                             </tr>
