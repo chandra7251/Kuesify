@@ -1,15 +1,28 @@
 <script setup lang="ts">
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import AvatarIcon from '@/Components/AvatarIcon.vue';
+import TopNavBar from '@/Components/TopNavBar.vue';
 import type { PageProps } from '@/types';
 import { roleLabel } from '@/utils/roleLabel';
 import { Link, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 const page = usePage<PageProps>();
 
 // Desktop sidebar starts expanded (w-72), can be collapsed to mini-bar (w-20)
 const desktopSidebarExpanded = ref(true);
+
+onMounted(() => {
+    const savedState = window.localStorage.getItem('kuesify.sidebar-expanded');
+
+    if (savedState !== null) {
+        desktopSidebarExpanded.value = savedState === 'true';
+    }
+});
+
+watch(desktopSidebarExpanded, (expanded) => {
+    window.localStorage.setItem('kuesify.sidebar-expanded', String(expanded));
+});
 // Mobile slide-over drawer state
 const mobileSidebarOpen = ref(false);
 
@@ -178,7 +191,7 @@ function closeMobileNav(): void {
                     aria-controls="desktop-sidebar"
                     @click="toggleDesktopSidebar"
                 >
-                    <ApplicationLogo class="h-6 w-6 text-brand-primary" />
+                    <ApplicationLogo class="h-6 w-6 text-brand-secondary" />
                     <span
                         role="tooltip"
                         class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-white px-3 py-2 text-xs font-bold text-brand-primary opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
@@ -189,9 +202,7 @@ function closeMobileNav(): void {
             </div>
 
             <!-- Scrollable Navigation Items Container (Only this scrolls if height is small!) -->
-            <div
-                class="custom-scrollbar flex-1 space-y-1.5 overflow-y-auto overflow-x-hidden p-3"
-            >
+            <div class="flex-1 space-y-1.5 overflow-visible p-3">
                 <Link
                     v-for="item in navigationItems"
                     :key="item.label"
@@ -348,6 +359,12 @@ function closeMobileNav(): void {
                     >
                         {{ item.label }}
                     </span>
+                    <span
+                        role="tooltip"
+                        class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-white px-3 py-2 text-xs font-bold text-brand-primary opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+                    >
+                        {{ item.label }}
+                    </span>
                 </Link>
             </div>
 
@@ -420,6 +437,12 @@ function closeMobileNav(): void {
                                 d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
                             />
                         </svg>
+                        <span
+                            role="tooltip"
+                            class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-white px-3 py-2 text-xs font-bold text-brand-primary opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+                        >
+                            Settings
+                        </span>
                     </Link>
                     <Link
                         :href="route('logout')"
@@ -441,6 +464,12 @@ function closeMobileNav(): void {
                             <polyline points="16 17 21 12 16 7" />
                             <line x1="21" y1="12" x2="9" y2="12" />
                         </svg>
+                        <span
+                            role="tooltip"
+                            class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-white px-3 py-2 text-xs font-bold text-brand-primary opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+                        >
+                            Logout
+                        </span>
                     </Link>
                 </div>
             </div>
@@ -453,6 +482,8 @@ function closeMobileNav(): void {
             class="flex min-h-screen flex-col transition-all duration-300 ease-in-out"
             :class="desktopSidebarExpanded ? 'lg:pl-72' : 'lg:pl-20'"
         >
+            <TopNavBar />
+
             <!-- Custom Subheader Slot (if page provides one) -->
             <div
                 v-if="$slots.header"

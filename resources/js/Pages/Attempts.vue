@@ -46,30 +46,37 @@ function grade(attemptId: number, answerId: number): void {
 </script>
 
 <template>
-    <Head title="Hasil" />
+    <Head title="Hasil Belajar" />
     <AuthenticatedLayout>
-        <template #header
-            ><div class="flex items-center justify-between gap-4">
-                <div>
-                    <p
-                        class="text-xs font-bold uppercase tracking-[0.18em] text-teal-700"
-                    >
-                        {{
-                            gradebook ? 'Creator workspace' : 'Belajar mandiri'
-                        }}
-                    </p>
-                    <h1 class="mt-1 text-2xl font-extrabold">
-                        {{ gradebook ? 'Gradebook' : 'Kuis saya' }}
-                    </h1>
-                </div>
-                <a
-                    v-if="gradebook"
-                    :href="route('attempts.export')"
-                    class="min-h-11 rounded-xl border border-teal-700 px-4 py-3 text-sm font-extrabold text-teal-800"
-                    >Export CSV</a
-                >
-            </div></template
+        <div
+            class="flex flex-wrap items-center justify-between gap-3 px-4 pt-6 lg:px-8"
         >
+            <Link
+                :href="route('dashboard')"
+                class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-brand-primary px-4 py-3 text-sm font-bold text-brand-primary transition hover:bg-brand-primary hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+            >
+                <svg
+                    aria-hidden="true"
+                    class="h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="m15 18-6-6 6-6" />
+                </svg>
+                Kembali ke Dashboard
+            </Link>
+            <a
+                v-if="gradebook"
+                :href="route('attempts.export')"
+                class="inline-flex min-h-11 items-center rounded-xl bg-brand-primary px-4 py-3 text-sm font-bold text-white transition hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+            >
+                Export CSV
+            </a>
+        </div>
         <main class="mx-auto max-w-6xl space-y-5 px-4 py-6 lg:px-8">
             <section
                 v-if="!gradebook"
@@ -81,7 +88,7 @@ function grade(attemptId: number, answerId: number): void {
                     class="rounded-2xl bg-white p-5 shadow-sm"
                 >
                     <p
-                        class="text-xs font-bold uppercase tracking-wide text-teal-700"
+                        class="text-xs font-bold uppercase tracking-wide text-brand-secondary"
                     >
                         {{ quiz.questions_count }} soal
                     </p>
@@ -99,7 +106,7 @@ function grade(attemptId: number, answerId: number): void {
                         {{ new Date(quiz.deadline_at).toLocaleString('id-ID') }}
                     </p>
                     <button
-                        class="mt-5 min-h-11 w-full rounded-xl bg-teal-700 px-4 font-extrabold text-white"
+                        class="mt-5 min-h-11 w-full rounded-xl bg-brand-primary px-4 font-extrabold text-white"
                         @click="start(quiz.id)"
                     >
                         Mulai quiz
@@ -115,7 +122,7 @@ function grade(attemptId: number, answerId: number): void {
             <section class="rounded-2xl bg-white p-5 shadow-sm">
                 <h2 class="text-lg font-extrabold">
                     {{
-                        gradebook ? 'Semua hasil peserta' : 'Riwayat percobaan'
+                        gradebook ? 'Semua Hasil Peserta' : 'Riwayat percobaan'
                     }}
                 </h2>
                 <div
@@ -197,7 +204,7 @@ function grade(attemptId: number, answerId: number): void {
                                     class="min-h-11 rounded-xl border-slate-200"
                                     placeholder="Feedback"
                                 /><button
-                                    class="min-h-11 rounded-xl bg-teal-700 px-4 font-extrabold text-white"
+                                    class="min-h-11 rounded-xl bg-brand-primary px-4 font-extrabold text-white"
                                 >
                                     Nilai
                                 </button>
