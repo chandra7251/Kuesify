@@ -1,5 +1,5 @@
-import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
+import defaultTheme from 'tailwindcss/defaultTheme';
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -17,8 +17,8 @@ export default {
             },
             colors: {
                 brand: {
-                    primary: '#3154D5',
-                    secondary: '#0AB883',
+                    primary: '#2F45AB',
+                    secondary: '#83BD31',
                     accent: '#E6F1F5',
                     dark: '#233EA8',
                     hover: '#2645B8',
@@ -29,13 +29,13 @@ export default {
                     3: '#4B392E',
                 },
                 status: {
-                    success: '#0AB883',
+                    success: '#83BD31',
                     warning: '#D7A928',
                     danger: '#D9656D',
                 },
             },
             boxShadow: {
-                'figma': '0 4px 16px rgba(0, 0, 0, 0.08)',
+                figma: '0 4px 16px rgba(0, 0, 0, 0.08)',
                 'figma-card': '0 4px 14px rgba(0, 0, 0, 0.07)',
                 'figma-sm': '0 2px 8px rgba(0, 0, 0, 0.06)',
                 'figma-hover': '0 6px 20px rgba(0, 0, 0, 0.12)',

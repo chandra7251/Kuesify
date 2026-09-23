@@ -131,9 +131,9 @@ function closeMobileNav(): void {
                     class="flex min-w-0 items-center gap-3"
                 >
                     <div
-                        class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white shadow-sm"
+                        class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-secondary shadow-sm"
                     >
-                        <ApplicationLogo class="h-6 w-6 text-brand-primary" />
+                        <ApplicationLogo class="h-6 w-6 text-white" />
                     </div>
                     <div class="min-w-0 flex-1 truncate">
                         <span
@@ -141,7 +141,7 @@ function closeMobileNav(): void {
                             >Kuesify</span
                         >
                         <span
-                            class="block truncate text-[11px] font-semibold text-blue-200"
+                            class="block truncate text-[11px] font-semibold text-brand-secondary"
                         >
                             {{
                                 page.props.currentOrganization?.name ||
@@ -187,7 +187,7 @@ function closeMobileNav(): void {
                     <ApplicationLogo class="h-6 w-6 text-brand-primary" />
                     <span
                         role="tooltip"
-                        class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-slate-950 px-3 py-2 text-xs font-bold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+                        class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-white px-3 py-2 text-xs font-bold text-brand-primary opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
                     >
                         Buka sidebar
                     </span>
@@ -208,8 +208,8 @@ function closeMobileNav(): void {
                             ? 'gap-3.5 px-3.5'
                             : 'justify-center px-0',
                         isCurrent(item.href)
-                            ? 'bg-brand-secondary font-bold text-slate-900 shadow-md shadow-emerald-950/20'
-                            : 'font-semibold text-brand-secondary hover:bg-white/10 hover:text-white',
+                            ? 'bg-brand-secondary font-bold text-white shadow-sm'
+                            : 'font-semibold text-white/75 hover:bg-white/10 hover:text-white',
                     ]"
                     :title="!desktopSidebarExpanded ? item.label : undefined"
                 >
@@ -367,20 +367,20 @@ function closeMobileNav(): void {
                         >
                             <AvatarIcon
                                 :avatar-key="page.props.auth.user.avatar_key"
-                                class="h-7 w-7 text-emerald-300"
+                                class="h-7 w-7 text-brand-secondary"
                             />
                         </div>
                         <div class="min-w-0 flex-1 truncate">
                             <p class="truncate text-sm font-bold text-white">
                                 {{ page.props.auth.user.name }}
                             </p>
-                            <p class="truncate text-xs text-blue-200">
+                            <p class="truncate text-xs text-white/70">
                                 Role : {{ roleLabel(currentRole) }}
                             </p>
                         </div>
                     </div>
                     <div
-                        class="mt-3 flex items-center justify-between px-2 text-xs font-semibold text-blue-200"
+                        class="mt-3 flex items-center justify-between px-2 text-xs font-semibold text-white/70"
                     >
                         <Link
                             :href="route('profile.edit')"
@@ -391,7 +391,7 @@ function closeMobileNav(): void {
                             :href="route('logout')"
                             method="post"
                             as="button"
-                            class="transition hover:text-rose-300"
+                            class="transition hover:text-brand-secondary"
                             >Logout</Link
                         >
                     </div>
@@ -406,7 +406,7 @@ function closeMobileNav(): void {
                     >
                         <AvatarIcon
                             :avatar-key="page.props.auth.user.avatar_key"
-                            class="h-6 w-6 text-emerald-300"
+                            class="h-6 w-6 text-brand-secondary"
                         />
                     </Link>
                 </div>
@@ -468,12 +468,12 @@ function closeMobileNav(): void {
                         <!-- Workspace Info (Mockup Reference) -->
                         <div class="hidden sm:block">
                             <p
-                                class="text-[11px] font-bold uppercase tracking-widest text-brand-secondary"
+                                class="text-[11px] font-bold uppercase tracking-widest text-brand-secondary opacity-100"
                             >
                                 WORKSPACE
                             </p>
                             <h2
-                                class="text-base font-black leading-tight tracking-tight text-brand-secondary sm:text-lg"
+                                class="text-base font-black leading-tight tracking-tight text-brand-secondary opacity-100 sm:text-lg"
                             >
                                 Selamat Datang,
                                 {{ page.props.auth.user.name }}
@@ -496,7 +496,7 @@ function closeMobileNav(): void {
                                             :avatar-key="
                                                 page.props.auth.user.avatar_key
                                             "
-                                            class="h-7 w-7 p-1 text-emerald-300"
+                                            class="h-7 w-7 p-1 text-brand-secondary opacity-100"
                                         />
                                         <span class="max-w-32 truncate">{{
                                             page.props.auth.user.name
@@ -570,7 +570,7 @@ function closeMobileNav(): void {
         >
             <div
                 v-if="mobileSidebarOpen"
-                class="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm lg:hidden"
+                class="fixed inset-0 z-40 bg-brand-primary/70 backdrop-blur-sm lg:hidden"
                 @click="closeMobileNav"
             />
         </transition>
@@ -593,11 +593,9 @@ function closeMobileNav(): void {
                     <div class="flex items-center justify-between px-2 pt-2">
                         <div class="flex items-center gap-3">
                             <div
-                                class="grid h-10 w-10 place-items-center rounded-xl bg-white shadow-sm"
+                                class="grid h-10 w-10 place-items-center rounded-xl bg-brand-secondary shadow-sm"
                             >
-                                <ApplicationLogo
-                                    class="h-6 w-6 text-brand-primary"
-                                />
+                                <ApplicationLogo class="h-6 w-6 text-white" />
                             </div>
                             <span class="text-xl font-black text-white"
                                 >Kuesify</span
@@ -630,8 +628,8 @@ function closeMobileNav(): void {
                             class="flex min-h-11 items-center gap-3.5 rounded-xl px-4 py-2.5 text-sm font-semibold transition"
                             :class="
                                 isCurrent(item.href)
-                                    ? 'bg-brand-secondary text-white shadow-md shadow-emerald-950/20'
-                                    : 'text-blue-100 hover:bg-white/10 hover:text-white'
+                                    ? 'bg-brand-secondary text-white shadow-sm'
+                                    : 'text-white/75 hover:bg-white/10 hover:text-white'
                             "
                             @click="closeMobileNav"
                         >
@@ -805,20 +803,20 @@ function closeMobileNav(): void {
                         >
                             <AvatarIcon
                                 :avatar-key="page.props.auth.user.avatar_key"
-                                class="h-7 w-7 text-emerald-300"
+                                class="h-7 w-7 text-brand-secondary"
                             />
                         </div>
                         <div class="min-w-0 flex-1">
                             <p class="truncate text-sm font-bold text-white">
                                 {{ page.props.auth.user.name }}
                             </p>
-                            <p class="truncate text-xs text-blue-200">
+                            <p class="truncate text-xs text-white/70">
                                 Role : {{ roleLabel(currentRole) }}
                             </p>
                         </div>
                     </div>
                     <div
-                        class="mt-3 flex items-center justify-between px-2 text-xs font-semibold text-blue-200"
+                        class="mt-3 flex items-center justify-between px-2 text-xs font-semibold text-white/70"
                     >
                         <Link
                             :href="route('profile.edit')"
@@ -830,7 +828,7 @@ function closeMobileNav(): void {
                             :href="route('logout')"
                             method="post"
                             as="button"
-                            class="transition hover:text-rose-300"
+                            class="transition hover:text-brand-secondary"
                             >Keluar</Link
                         >
                     </div>
