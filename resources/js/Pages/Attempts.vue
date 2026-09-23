@@ -48,34 +48,27 @@ function grade(attemptId: number, answerId: number): void {
 <template>
     <Head title="Hasil Belajar" />
     <AuthenticatedLayout>
-        <div
-            class="flex flex-wrap items-center justify-between gap-3 px-4 pt-6 lg:px-8"
-        >
+        <div class="px-4 pt-6 lg:px-8">
             <Link
                 :href="route('dashboard')"
-                class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-brand-primary px-4 py-3 text-sm font-bold text-brand-primary transition hover:bg-brand-primary hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+                class="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-brand-primary transition hover:border-brand-secondary hover:bg-brand-secondary/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
             >
                 <svg
-                    aria-hidden="true"
                     class="h-4 w-4"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
                     stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    aria-hidden="true"
                 >
-                    <path d="m15 18-6-6 6-6" />
+                    <path
+                        d="m15 18-6-6 6-6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    />
                 </svg>
                 Kembali ke Dashboard
             </Link>
-            <a
-                v-if="gradebook"
-                :href="route('attempts.export')"
-                class="inline-flex min-h-11 items-center rounded-xl bg-brand-primary px-4 py-3 text-sm font-bold text-white transition hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
-            >
-                Export CSV
-            </a>
         </div>
         <main class="mx-auto max-w-6xl space-y-5 px-4 py-6 lg:px-8">
             <section
@@ -118,6 +111,39 @@ function grade(attemptId: number, answerId: number): void {
                 >
                     Belum ada quiz yang dipublikasikan.
                 </p>
+            </section>
+            <section
+                aria-labelledby="results-summary-title"
+                class="overflow-hidden rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-7"
+            >
+                <div class="flex flex-wrap items-center justify-between gap-5">
+                    <div>
+                        <p
+                            class="text-xs font-extrabold uppercase tracking-[0.18em] text-brand-primary"
+                        >
+                            Laporan Hasil
+                        </p>
+                        <h1
+                            id="results-summary-title"
+                            class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl"
+                        >
+                            Laporan Hasil Quiz
+                        </h1>
+                        <p
+                            class="mt-2 max-w-2xl text-sm leading-6 text-slate-600"
+                        >
+                            Tinjau seluruh hasil pengerjaan peserta, pantau
+                            nilai, dan berikan penilaian pada jawaban essay.
+                        </p>
+                    </div>
+                    <a
+                        v-if="gradebook"
+                        :href="route('attempts.export')"
+                        class="inline-flex min-h-11 items-center justify-center rounded-md bg-brand-primary px-4 text-sm font-bold text-white transition hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+                    >
+                        Export CSV
+                    </a>
+                </div>
             </section>
             <section class="rounded-2xl bg-white p-5 shadow-sm">
                 <h2 class="text-lg font-extrabold">
