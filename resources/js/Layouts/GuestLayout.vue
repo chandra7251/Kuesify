@@ -9,7 +9,7 @@ withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
 
 <template>
     <div
-        class="min-h-screen overflow-x-hidden bg-brand-accent text-slate-900 lg:grid lg:h-screen lg:grid-cols-[0.95fr_1.05fr] lg:overflow-hidden"
+        class="min-h-screen overflow-x-hidden bg-brand-primary text-slate-900 lg:grid lg:h-screen lg:grid-cols-[0.95fr_1.05fr] lg:overflow-hidden lg:bg-brand-accent"
     >
         <section
             class="relative hidden min-h-screen overflow-hidden bg-brand-primary px-12 py-10 text-white lg:flex lg:flex-col xl:px-16"
@@ -26,7 +26,7 @@ withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
 
             <Link
                 href="/"
-                class="relative inline-flex w-fit items-center gap-3"
+                class="relative inline-flex w-fit items-center gap-3 text-brand-secondary"
             >
                 <span
                     class="grid h-11 w-11 place-items-center rounded-2xl bg-white shadow-sm"
@@ -81,6 +81,21 @@ withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
                     : 'items-start lg:overflow-y-auto'
             "
         >
+            <Link
+                href="/"
+                class="absolute left-4 top-5 z-10 inline-flex items-center gap-1 sm:left-8 sm:top-10 lg:hidden"
+            >
+                <span
+                    class="grid h-10 w-10 place-items-center"
+                >
+                    <ApplicationLogo class="h-6 w-6 text-brand-secondary" />
+                </span>
+                <span
+                    class="text-lg font-extrabold tracking-tight text-brand-secondary"
+                    >Kuesify</span
+                >
+            </Link>
+
             <div
                 class="pointer-events-none absolute -right-16 top-8 h-40 w-40 rounded-full bg-brand-secondary/10 sm:h-56 sm:w-56"
             />
@@ -89,29 +104,19 @@ withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
                 class="pointer-events-none absolute -bottom-20 -left-20 h-52 w-52 rounded-full bg-brand-primary/10 sm:h-72 sm:w-72"
             />
 
-            <div class="relative w-full" :class="contentClass">
-                <Link
-                    href="/"
-                    class="mx-auto mb-5 inline-flex items-center gap-3 sm:mx-0 sm:mb-6 lg:hidden"
-                >
-                    <span
-                        class="grid h-10 w-10 place-items-center rounded-xl bg-brand-primary shadow-sm"
-                    >
-                        <ApplicationLogo class="h-6 w-6 text-brand-secondary" />
-                    </span>
-                    <span
-                        class="text-lg font-extrabold tracking-tight text-brand-primary"
-                        >Kuesify</span
-                    >
-                </Link>
-
+            <div
+                class="relative w-full"
+                :class="[contentClass, !compact ? 'pt-16 sm:pt-20' : '']"
+            >
                 <div
                     class="rounded-[1.75rem] border border-white/70 bg-white p-5 shadow-figma sm:rounded-[2rem] sm:p-9"
                 >
                     <slot />
                 </div>
 
-                <p class="mt-4 text-center text-xs text-slate-500 sm:mt-5">
+                <p
+                    class="mt-4 text-center text-xs text-brand-secondary/75 sm:mt-5"
+                >
                     Kuesify · Ruang belajar interaktif untuk semua.
                 </p>
             </div>
