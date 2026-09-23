@@ -120,7 +120,7 @@ function sizeKb(bytes: number): string {
                 >
                     <div class="border-b border-slate-200 px-5 py-4 sm:px-6">
                         <p
-                            class="text-xs font-bold uppercase tracking-[0.16em] text-teal-700"
+                            class="text-xs font-bold uppercase tracking-[0.16em] text-[#527A12]"
                         >
                             Langkah 1
                         </p>
@@ -143,7 +143,7 @@ function sizeKb(bytes: number): string {
                             id="material-file"
                             type="file"
                             accept=".pdf,.ppt,.pptx"
-                            class="block min-h-11 w-full rounded-lg border border-slate-300 bg-white text-sm text-slate-600 file:mr-3 file:min-h-11 file:border-0 file:border-r file:border-slate-200 file:bg-teal-50 file:px-4 file:text-sm file:font-bold file:text-teal-800 hover:file:bg-teal-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
+                            class="block min-h-11 w-full rounded-lg border border-slate-300 bg-white text-sm text-slate-600 file:mr-3 file:min-h-11 file:border-0 file:border-r file:border-slate-200 file:bg-brand-secondary/15 file:px-4 file:text-sm file:font-bold file:text-[#527A12] hover:file:bg-brand-secondary/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
                             @change="
                                 (event: Event) => {
                                     uploadForm.file =
@@ -182,7 +182,7 @@ function sizeKb(bytes: number): string {
                     >
                         <div>
                             <p
-                                class="text-xs font-bold uppercase tracking-[0.16em] text-teal-700"
+                                class="text-xs font-bold uppercase tracking-[0.16em] text-[#527A12]"
                             >
                                 Langkah 2
                             </p>
@@ -200,7 +200,7 @@ function sizeKb(bytes: number): string {
                             class="rounded-full px-3 py-1 text-xs font-bold"
                             :class="
                                 quota.weekly_remaining > 0
-                                    ? 'bg-teal-50 text-teal-800'
+                                    ? 'bg-brand-secondary/15 text-[#527A12]'
                                     : 'bg-red-50 text-red-700'
                             "
                         >
@@ -227,7 +227,7 @@ function sizeKb(bytes: number): string {
                             Materi sumber
                             <select
                                 v-model="generateForm.material_id"
-                                class="mt-1.5 min-h-11 w-full rounded-lg border-slate-300 text-sm text-slate-900 focus:border-teal-600 focus:ring-teal-600"
+                                class="mt-1.5 min-h-11 w-full rounded-lg border-slate-300 text-sm text-slate-900 focus:border-brand-secondary focus:ring-brand-secondary"
                             >
                                 <option value="">
                                     Pilih materi terekstrak
@@ -247,7 +247,7 @@ function sizeKb(bytes: number): string {
                                 Jumlah soal
                                 <select
                                     v-model.number="generateForm.question_count"
-                                    class="mt-1.5 min-h-11 w-full rounded-lg border-slate-300 text-sm text-slate-900 focus:border-teal-600 focus:ring-teal-600"
+                                    class="mt-1.5 min-h-11 w-full rounded-lg border-slate-300 text-sm text-slate-900 focus:border-brand-secondary focus:ring-brand-secondary"
                                 >
                                     <option :value="5">5 soal</option>
                                     <option :value="10">10 soal</option>
@@ -258,7 +258,7 @@ function sizeKb(bytes: number): string {
                                 Kesulitan
                                 <select
                                     v-model="generateForm.difficulty"
-                                    class="mt-1.5 min-h-11 w-full rounded-lg border-slate-300 text-sm text-slate-900 focus:border-teal-600 focus:ring-teal-600"
+                                    class="mt-1.5 min-h-11 w-full rounded-lg border-slate-300 text-sm text-slate-900 focus:border-brand-secondary focus:ring-brand-secondary"
                                 >
                                     <option value="easy">Mudah</option>
                                     <option value="medium">Sedang</option>
@@ -275,13 +275,13 @@ function sizeKb(bytes: number): string {
                                 <label
                                     v-for="type in questionTypes"
                                     :key="type.value"
-                                    class="flex min-h-10 cursor-pointer items-center gap-2 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-600 transition hover:border-teal-300 hover:bg-teal-50/60 has-[:checked]:border-teal-400 has-[:checked]:bg-teal-50 has-[:checked]:text-teal-900"
+                                    class="flex min-h-10 cursor-pointer items-center gap-2 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-600 transition hover:border-brand-secondary hover:bg-brand-secondary/10 has-[:checked]:border-brand-secondary has-[:checked]:bg-brand-secondary/15 has-[:checked]:text-[#3F5F0D]"
                                 >
                                     <input
                                         v-model="generateForm.types"
                                         :value="type.value"
                                         type="checkbox"
-                                        class="rounded border-slate-300 text-teal-700 focus:ring-teal-600"
+                                        class="rounded border-slate-300 text-brand-secondary focus:ring-brand-secondary"
                                     />
                                     {{ type.label }}
                                 </label>
@@ -369,7 +369,7 @@ function sizeKb(bytes: number): string {
                                     <span
                                         :class="
                                             material.status === 'extracted'
-                                                ? 'bg-teal-50 text-teal-800'
+                                                ? 'bg-brand-secondary/15 text-[#527A12]'
                                                 : 'bg-slate-100 text-slate-600'
                                         "
                                         class="rounded-full px-2.5 py-1 text-xs font-bold"
@@ -422,7 +422,7 @@ function sizeKb(bytes: number): string {
                         </button>
                         <button
                             type="button"
-                            class="min-h-10 rounded-lg border border-slate-300 px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
+                            class="min-h-10 rounded-lg border border-slate-300 px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
                             :aria-expanded="expandedGen === gen.id"
                             @click="
                                 expandedGen =
@@ -458,18 +458,18 @@ function sizeKb(bytes: number): string {
                         >
                             <textarea
                                 v-model="editDraft.prompt"
-                                class="w-full rounded-lg border-slate-300 text-sm focus:border-teal-600 focus:ring-teal-600"
+                                class="w-full rounded-lg border-slate-300 text-sm focus:border-brand-secondary focus:ring-brand-secondary"
                                 rows="3"
                             />
                             <input
                                 v-model="editDraft.correct_answer"
-                                class="w-full rounded-lg border-slate-300 text-sm focus:border-teal-600 focus:ring-teal-600"
+                                class="w-full rounded-lg border-slate-300 text-sm focus:border-brand-secondary focus:ring-brand-secondary"
                                 placeholder="Jawaban benar"
                             />
                             <input
                                 v-model.number="editDraft.points"
                                 type="number"
-                                class="w-32 rounded-lg border-slate-300 text-sm focus:border-teal-600 focus:ring-teal-600"
+                                class="w-32 rounded-lg border-slate-300 text-sm focus:border-brand-secondary focus:ring-brand-secondary"
                             />
                             <div class="flex gap-2">
                                 <button
@@ -496,7 +496,7 @@ function sizeKb(bytes: number): string {
                                         draft.status === 'pending'
                                             ? 'text-amber-600'
                                             : draft.status === 'approved'
-                                              ? 'text-teal-700'
+                                              ? 'text-[#527A12]'
                                               : 'text-red-600'
                                     "
                                     class="font-bold"

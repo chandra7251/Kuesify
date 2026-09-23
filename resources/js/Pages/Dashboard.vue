@@ -84,7 +84,7 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
             >
                 <section
                     aria-labelledby="dashboard-title"
-                    class="overflow-hidden rounded-2xl bg-[#3154D5] px-5 py-6 text-white shadow-sm sm:px-7 sm:py-7"
+                    class="overflow-hidden rounded-2xl bg-[#3b5fe1] px-5 py-6 text-white shadow-sm sm:px-7 sm:py-7"
                 >
                     <div
                         class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between"

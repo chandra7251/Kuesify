@@ -52,7 +52,7 @@ const selectedQuestions = computed(() =>
         .filter((question): question is Question => Boolean(question)),
 );
 const fieldClass =
-    'mt-1.5 min-h-11 w-full rounded-lg border-slate-300 text-sm shadow-none focus:border-teal-600 focus:ring-teal-600';
+    'mt-1.5 min-h-11 w-full rounded-lg border-slate-300 text-sm shadow-none focus:border-brand-secondary focus:ring-brand-secondary';
 
 function selectQuiz(quiz: Quiz): void {
     selectedQuizId.value = quiz.id;
@@ -132,7 +132,7 @@ function archiveQuiz(): void {
                     >
                         <div>
                             <p
-                                class="text-xs font-extrabold uppercase tracking-[0.16em] text-teal-700"
+                                class="text-xs font-extrabold uppercase tracking-[0.16em] text-[#527A12]"
                             >
                                 Draft baru
                             </p>
@@ -146,7 +146,7 @@ function archiveQuiz(): void {
                         <input
                             id="new-quiz"
                             v-model="createForm.title"
-                            class="mt-4 min-h-11 w-full rounded-lg border-slate-300 text-sm focus:border-teal-600 focus:ring-teal-600"
+                            class="mt-4 min-h-11 w-full rounded-lg border-slate-300 text-sm focus:border-brand-secondary focus:ring-brand-secondary"
                             placeholder="Contoh: Kuis Ekosistem"
                             required
                         />
@@ -188,7 +188,7 @@ function archiveQuiz(): void {
                                 class="group w-full rounded-lg px-3 py-3 text-left transition-colors"
                                 :class="
                                     quiz.id === selectedQuizId
-                                        ? 'bg-teal-50 text-teal-950 ring-1 ring-inset ring-teal-200'
+                                        ? 'bg-brand-secondary/15 text-[#3F5F0D] ring-1 ring-inset ring-brand-secondary/40'
                                         : 'text-slate-700 hover:bg-slate-50 hover:text-slate-950'
                                 "
                                 @click="selectQuiz(quiz)"
@@ -203,7 +203,7 @@ function archiveQuiz(): void {
                                         class="h-1.5 w-1.5 rounded-full"
                                         :class="
                                             quiz.status === 'published'
-                                                ? 'bg-teal-500'
+                                                ? 'bg-brand-secondary'
                                                 : 'bg-amber-400'
                                         "
                                     ></span>
@@ -228,12 +228,12 @@ function archiveQuiz(): void {
                         <div class="min-w-0">
                             <div class="flex flex-wrap items-center gap-2">
                                 <p
-                                    class="text-xs font-extrabold uppercase tracking-[0.16em] text-teal-700"
+                                    class="text-xs font-extrabold uppercase tracking-[0.16em] text-[#527A12]"
                                 >
                                     Quiz aktif
                                 </p>
                                 <span
-                                    class="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-bold text-teal-800"
+                                    class="rounded-full bg-brand-secondary/15 px-2.5 py-1 text-xs font-bold text-[#527A12]"
                                     >{{ selectedQuiz.status }}</span
                                 >
                             </div>
@@ -250,7 +250,7 @@ function archiveQuiz(): void {
                         <div class="flex flex-wrap gap-2">
                             <button
                                 type="button"
-                                class="min-h-11 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
+                                class="min-h-11 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
                                 @click="cloneQuiz"
                             >
                                 Duplikat
@@ -340,7 +340,7 @@ function archiveQuiz(): void {
                                 ><input
                                     v-model="metadata.show_explanations"
                                     type="checkbox"
-                                    class="h-5 w-5 rounded border-slate-300 text-teal-700 focus:ring-teal-600"
+                                    class="h-5 w-5 rounded border-slate-300 text-brand-secondary focus:ring-brand-secondary"
                                 />Tampilkan pembahasan</label
                             >
                         </div>
@@ -371,7 +371,7 @@ function archiveQuiz(): void {
                                 </p>
                             </div>
                             <span
-                                class="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800"
+                                class="rounded-full bg-brand-secondary/15 px-3 py-1 text-xs font-bold text-[#527A12]"
                                 >{{ selectedQuestionIds.length }} dipilih</span
                             >
                         </div>
@@ -397,13 +397,13 @@ function archiveQuiz(): void {
                                     <label
                                         v-for="question in questions"
                                         :key="question.id"
-                                        class="flex cursor-pointer gap-3 rounded-lg border border-slate-200 p-3 transition-colors hover:border-teal-300 hover:bg-teal-50/40 has-[:checked]:border-teal-300 has-[:checked]:bg-teal-50/70"
+                                        class="flex cursor-pointer gap-3 rounded-lg border border-slate-200 p-3 transition-colors hover:border-brand-secondary hover:bg-brand-secondary/10 has-[:checked]:border-brand-secondary has-[:checked]:bg-brand-secondary/15"
                                     >
                                         <input
                                             v-model="selectedQuestionIds"
                                             :value="question.id"
                                             type="checkbox"
-                                            class="mt-0.5 h-5 w-5 shrink-0 rounded border-slate-300 text-teal-700 focus:ring-teal-600"
+                                            class="mt-0.5 h-5 w-5 shrink-0 rounded border-slate-300 text-brand-secondary focus:ring-brand-secondary"
                                         />
                                         <span class="min-w-0">
                                             <span
@@ -466,7 +466,7 @@ function archiveQuiz(): void {
                                         class="flex items-start gap-3 rounded-lg border border-slate-200 bg-white p-3"
                                     >
                                         <span
-                                            class="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-teal-50 text-xs font-extrabold tabular-nums text-teal-800"
+                                            class="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-brand-secondary/15 text-xs font-extrabold tabular-nums text-[#527A12]"
                                             >{{ index + 1 }}</span
                                         >
                                         <div class="min-w-0 flex-1">
@@ -546,7 +546,7 @@ function archiveQuiz(): void {
                                 </div>
                                 <button
                                     type="button"
-                                    class="mt-4 min-h-11 w-full rounded-md bg-teal-700 px-4 text-sm font-bold text-white transition hover:bg-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                    class="mt-4 min-h-11 w-full rounded-md bg-brand-secondary px-4 text-sm font-bold text-[#102449] transition hover:brightness-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary disabled:cursor-not-allowed disabled:opacity-50"
                                     :disabled="selectedQuestionIds.length === 0"
                                     @click="publish"
                                 >

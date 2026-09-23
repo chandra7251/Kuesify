@@ -104,6 +104,27 @@ async function loadQr(): Promise<void> {
     <Head :title="state.title" />
     <AuthenticatedLayout v-if="isHost">
         <main class="mx-auto max-w-7xl space-y-5 px-4 py-6 sm:px-6 lg:px-8">
+            <Link
+                :href="route('live-sessions.index')"
+                class="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-brand-primary transition hover:border-brand-secondary hover:bg-brand-secondary/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
+            >
+                <svg
+                    class="h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="m15 18-6-6 6-6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    />
+                </svg>
+                Kembali ke Live Quiz
+            </Link>
+
             <section
                 aria-labelledby="live-session-title"
                 class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
@@ -114,12 +135,12 @@ async function loadQr(): Promise<void> {
                     <div class="min-w-0">
                         <div class="flex flex-wrap items-center gap-2">
                             <p
-                                class="text-xs font-bold uppercase tracking-[0.16em] text-teal-700"
+                                class="text-xs font-bold uppercase tracking-[0.16em] text-[#527A12]"
                             >
                                 Sesi live
                             </p>
                             <span
-                                class="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-bold capitalize text-teal-800"
+                                class="rounded-full bg-brand-secondary/15 px-2.5 py-1 text-xs font-bold capitalize text-[#527A12]"
                             >
                                 {{ state.status }}
                             </span>
@@ -137,10 +158,10 @@ async function loadQr(): Promise<void> {
                     </div>
 
                     <div
-                        class="rounded-lg border border-teal-200 bg-teal-50 p-4 lg:min-w-72"
+                        class="rounded-lg border border-brand-secondary/40 bg-brand-secondary/10 p-4 lg:min-w-72"
                     >
                         <p
-                            class="text-xs font-bold uppercase tracking-[0.14em] text-teal-700"
+                            class="text-xs font-bold uppercase tracking-[0.14em] text-[#527A12]"
                         >
                             PIN peserta
                         </p>
@@ -151,7 +172,7 @@ async function loadQr(): Promise<void> {
                         </p>
                         <button
                             type="button"
-                            class="mt-4 min-h-11 rounded-lg border border-teal-700 bg-white px-4 text-sm font-bold text-teal-800 transition hover:bg-teal-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                            class="mt-4 min-h-11 rounded-lg border border-brand-secondary bg-white px-4 text-sm font-bold text-[#527A12] transition hover:bg-brand-secondary/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
                             aria-haspopup="dialog"
                             :aria-expanded="hostQrVisible"
                             @click="openHostQr"
@@ -168,7 +189,7 @@ async function loadQr(): Promise<void> {
                     <button
                         v-if="state.status === 'lobby'"
                         type="button"
-                        class="min-h-11 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                        class="min-h-11 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
                         @click="hostAction('lock')"
                     >
                         {{
@@ -221,7 +242,7 @@ async function loadQr(): Promise<void> {
                             </p>
                         </div>
                         <span
-                            class="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-bold tabular-nums text-teal-800"
+                            class="rounded-full bg-brand-secondary/15 px-2.5 py-1 text-xs font-bold tabular-nums text-[#527A12]"
                         >
                             {{ state.participants.length }}
                         </span>
@@ -284,7 +305,7 @@ async function loadQr(): Promise<void> {
                                 class="min-w-0 flex-1 truncate font-semibold text-slate-800"
                                 >{{ participant.alias }}</span
                             >
-                            <strong class="tabular-nums text-teal-800"
+                            <strong class="tabular-nums text-[#527A12]"
                                 >{{ participant.score }} poin</strong
                             >
                         </li>
@@ -310,7 +331,7 @@ async function loadQr(): Promise<void> {
             <div class="relative p-6 pt-14 text-center sm:p-7 sm:pt-14">
                 <button
                     type="button"
-                    class="absolute right-3 top-3 grid h-11 w-11 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                    class="absolute right-3 top-3 grid h-11 w-11 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
                     aria-label="Tutup QR code"
                     @click="closeHostQr"
                 >
@@ -328,7 +349,7 @@ async function loadQr(): Promise<void> {
                 </button>
 
                 <p
-                    class="text-xs font-bold uppercase tracking-[0.16em] text-teal-700"
+                    class="text-xs font-bold uppercase tracking-[0.16em] text-[#527A12]"
                 >
                     Gabung sesi
                 </p>
@@ -346,8 +367,8 @@ async function loadQr(): Promise<void> {
                     <canvas ref="hostQrCanvas" class="max-w-full" />
                 </div>
 
-                <div class="mt-5 rounded-lg bg-teal-50 px-4 py-3">
-                    <p class="text-xs font-bold uppercase text-teal-700">
+                <div class="mt-5 rounded-lg bg-brand-secondary/15 px-4 py-3">
+                    <p class="text-xs font-bold uppercase text-[#527A12]">
                         PIN peserta
                     </p>
                     <p
@@ -361,11 +382,11 @@ async function loadQr(): Promise<void> {
     </AuthenticatedLayout>
     <main v-else class="min-h-screen bg-[#f4fbfa] px-4 py-8">
         <div class="mx-auto max-w-xl">
-            <Link href="/join" class="text-sm font-extrabold text-teal-700"
+            <Link href="/join" class="text-sm font-extrabold text-[#527A12]"
                 >Kuesify Live</Link
             >
             <button
-                class="ml-4 text-sm font-bold text-teal-700 underline"
+                class="ml-4 text-sm font-bold text-[#527A12] underline"
                 @click="loadQr"
             >
                 QR Reconnect
@@ -376,19 +397,24 @@ async function loadQr(): Promise<void> {
             >
                 <canvas ref="qrCanvas" />
             </div>
-            <section class="mt-5 rounded-3xl bg-teal-800 p-6 text-white">
+            <section
+                class="mt-5 rounded-3xl bg-brand-secondary p-6 text-[#102449]"
+            >
                 <p
-                    class="text-sm font-bold uppercase tracking-wide text-teal-100"
+                    class="text-sm font-bold uppercase tracking-wide text-[#102449]/70"
                 >
                     {{ state.status }}
                 </p>
                 <h1 class="mt-2 text-3xl font-extrabold">{{ state.title }}</h1>
-                <p v-if="state.status === 'lobby'" class="mt-3 text-teal-50">
+                <p
+                    v-if="state.status === 'lobby'"
+                    class="mt-3 text-[#102449]/80"
+                >
                     Tunggu host memulai sesi.
                 </p>
                 <p
                     v-else-if="state.status === 'ended'"
-                    class="mt-3 text-teal-50"
+                    class="mt-3 text-[#102449]/80"
                 >
                     Sesi selesai. Lihat podium di bawah.
                 </p>
@@ -401,7 +427,7 @@ async function loadQr(): Promise<void> {
                 class="mt-5 rounded-3xl bg-white p-6 shadow-sm"
             >
                 <p
-                    class="text-xs font-bold uppercase tracking-[0.16em] text-teal-700"
+                    class="text-xs font-bold uppercase tracking-[0.16em] text-[#527A12]"
                 >
                     {{ state.question.type }}
                 </p>
@@ -412,7 +438,7 @@ async function loadQr(): Promise<void> {
                     <button
                         v-for="option in state.question.options"
                         :key="option"
-                        class="min-h-14 rounded-2xl border border-teal-100 px-4 text-left font-bold text-slate-800 transition hover:border-teal-500 hover:bg-teal-50"
+                        class="min-h-14 rounded-2xl border border-brand-secondary/30 px-4 text-left font-bold text-slate-800 transition hover:border-brand-secondary hover:bg-brand-secondary/10"
                         :disabled="answer.processing || secondsLeft === 0"
                         @click="choose(option)"
                     >
@@ -426,10 +452,10 @@ async function loadQr(): Promise<void> {
                 >
                     <input
                         v-model="answer.answer"
-                        class="min-h-12 w-full rounded-xl border-slate-200 text-slate-900 focus:border-teal-600 focus:ring-teal-600"
+                        class="min-h-12 w-full rounded-xl border-slate-200 text-slate-900 focus:border-brand-secondary focus:ring-brand-secondary"
                         placeholder="Ketik jawaban"
                     /><button
-                        class="min-h-12 w-full rounded-xl bg-teal-700 text-sm font-extrabold text-white"
+                        class="min-h-12 w-full rounded-xl bg-brand-secondary text-sm font-extrabold text-[#102449]"
                     >
                         Kirim jawaban
                     </button>
@@ -448,7 +474,7 @@ async function loadQr(): Promise<void> {
                     >
                         <span class="font-bold text-slate-800"
                             >{{ index + 1 }}. {{ participant.alias }}</span
-                        ><strong class="text-teal-800">{{
+                        ><strong class="text-[#527A12]">{{
                             participant.score
                         }}</strong>
                     </li>

@@ -113,7 +113,9 @@ const summarySize = (value: unknown) =>
                         <p
                             class="text-xs font-extrabold uppercase tracking-[0.18em]"
                             :class="
-                                isStyledSection ? 'text-teal-700' : 'opacity-75'
+                                isStyledSection
+                                    ? 'text-[#527A12]'
+                                    : 'opacity-75'
                             "
                         >
                             {{ meta.eyebrow }}
@@ -161,7 +163,7 @@ const summarySize = (value: unknown) =>
             >
                 <!-- Card 1: Total Penyelesaian -->
                 <article
-                    class="min-h-52 rounded-xl border border-t-4 border-slate-200 border-t-[#2dd4bf] bg-white p-5 shadow-[0_2px_6px_rgba(15,23,42,0.08)]"
+                    class="min-h-52 rounded-xl border border-t-4 border-slate-200 border-t-brand-secondary bg-white p-5 shadow-[0_2px_6px_rgba(15,23,42,0.08)]"
                 >
                     <div class="flex items-center justify-between gap-3">
                         <p
@@ -170,7 +172,7 @@ const summarySize = (value: unknown) =>
                             TOTAL SELESAI
                         </p>
                         <span
-                            class="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-extrabold tabular-nums text-teal-800"
+                            class="rounded-full bg-brand-secondary/15 px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#527A12]"
                         >
                             {{ summary.completionCount ?? 0 }}
                         </span>
@@ -242,7 +244,7 @@ const summarySize = (value: unknown) =>
 
                 <!-- Card 2: Rata-rata Skor -->
                 <article
-                    class="min-h-52 rounded-xl border border-t-4 border-slate-200 border-t-[#2dd4bf] bg-white p-5 shadow-[0_2px_6px_rgba(15,23,42,0.08)]"
+                    class="min-h-52 rounded-xl border border-t-4 border-slate-200 border-t-brand-secondary bg-white p-5 shadow-[0_2px_6px_rgba(15,23,42,0.08)]"
                 >
                     <div class="flex items-center justify-between gap-3">
                         <p
@@ -251,7 +253,7 @@ const summarySize = (value: unknown) =>
                             RATA-RATA SKOR
                         </p>
                         <span
-                            class="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-extrabold tabular-nums text-teal-800"
+                            class="rounded-full bg-brand-secondary/15 px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#527A12]"
                         >
                             {{ summary.averageScore ?? 0 }} pts
                         </span>
@@ -329,7 +331,7 @@ const summarySize = (value: unknown) =>
 
                 <!-- Card 3: Analisis Soal -->
                 <article
-                    class="min-h-52 rounded-xl border border-t-4 border-slate-200 border-t-[#2dd4bf] bg-white p-5 shadow-[0_2px_6px_rgba(15,23,42,0.08)] sm:col-span-2 lg:col-span-1"
+                    class="min-h-52 rounded-xl border border-t-4 border-slate-200 border-t-brand-secondary bg-white p-5 shadow-[0_2px_6px_rgba(15,23,42,0.08)] sm:col-span-2 lg:col-span-1"
                 >
                     <div class="flex items-center justify-between gap-3">
                         <p
@@ -338,7 +340,7 @@ const summarySize = (value: unknown) =>
                             ANALISIS SOAL
                         </p>
                         <span
-                            class="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-extrabold tabular-nums text-teal-800"
+                            class="rounded-full bg-brand-secondary/15 px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#527A12]"
                         >
                             {{
                                 Array.isArray(summary.questions)
@@ -368,7 +370,7 @@ const summarySize = (value: unknown) =>
                                 >{{ q.prompt }}</span
                             >
                             <span
-                                class="shrink-0 rounded-full bg-teal-50 px-2 py-0.5 text-[10px] font-bold text-teal-800"
+                                class="shrink-0 rounded-full bg-brand-secondary/15 px-2 py-0.5 text-[10px] font-bold text-[#527A12]"
                             >
                                 {{
                                     q.correct_rate !== null
@@ -424,7 +426,7 @@ const summarySize = (value: unknown) =>
                     class="border bg-white"
                     :class="
                         isQuestions
-                            ? 'min-h-52 rounded-xl border-t-4 border-slate-200 border-t-[#2dd4bf] p-5 shadow-[0_2px_6px_rgba(15,23,42,0.08)]'
+                            ? 'min-h-52 rounded-xl border-t-4 border-slate-200 border-t-brand-secondary p-5 shadow-[0_2px_6px_rgba(15,23,42,0.08)]'
                             : 'rounded-2xl border-slate-100 p-4 shadow-sm'
                     "
                 >
@@ -440,7 +442,7 @@ const summarySize = (value: unknown) =>
                                 typeof value === 'object' &&
                                 value !== null
                             "
-                            class="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-extrabold tabular-nums text-teal-800"
+                            class="rounded-full bg-brand-secondary/15 px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#527A12]"
                         >
                             {{ summarySize(value) }}
                         </span>
@@ -549,8 +551,12 @@ const summarySize = (value: unknown) =>
                         </p>
                     </div>
                     <span
-                        class="rounded-full px-3 py-1 text-xs font-bold text-teal-800"
-                        :class="isStyledSection ? 'bg-teal-100' : 'bg-teal-50'"
+                        class="rounded-full px-3 py-1 text-xs font-bold"
+                        :class="
+                            isStyledSection
+                                ? 'bg-brand-secondary/15 text-[#527A12]'
+                                : 'bg-teal-50 text-teal-800'
+                        "
                         >{{ section }}</span
                     >
                 </div>
@@ -605,7 +611,7 @@ const summarySize = (value: unknown) =>
                             <p
                                 :class="
                                     isStyledSection
-                                        ? 'question-type mt-2 inline-flex shrink-0 rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800 sm:mt-0'
+                                        ? 'question-type mt-2 inline-flex shrink-0 rounded-full bg-brand-secondary/15 px-3 py-1 text-xs font-bold text-[#527A12] sm:mt-0'
                                         : 'mt-1 text-sm text-slate-500'
                                 "
                             >
@@ -636,7 +642,12 @@ const summarySize = (value: unknown) =>
                                         item.questions_count ||
                                         item.members_count)
                                 "
-                                class="text-sm font-bold text-teal-800"
+                                class="text-sm font-bold"
+                                :class="
+                                    isQuestions
+                                        ? 'text-[#527A12]'
+                                        : 'text-teal-800'
+                                "
                             >
                                 {{
                                     item.score ??
@@ -692,7 +703,10 @@ const summarySize = (value: unknown) =>
                     </p>
                     <Link
                         href="/dashboard"
-                        class="mt-4 inline-flex text-xs font-bold text-teal-700 hover:underline"
+                        class="mt-4 inline-flex text-xs font-bold hover:underline"
+                        :class="
+                            isStyledSection ? 'text-[#527A12]' : 'text-teal-700'
+                        "
                     >
                         Kembali ke dashboard
                     </Link>
@@ -704,12 +718,12 @@ const summarySize = (value: unknown) =>
 
 <style scoped>
 .question-row:hover {
-    border-left-color: #2dd4bf;
-    background-color: rgb(240 253 250 / 0.6);
+    border-left-color: #90cb31;
+    background-color: rgb(144 203 49 / 0.08);
 }
 
 .question-row:hover .question-type {
-    background-color: #ccfbf1;
-    color: #134e4a;
+    background-color: rgb(144 203 49 / 0.18);
+    color: #527a12;
 }
 </style>

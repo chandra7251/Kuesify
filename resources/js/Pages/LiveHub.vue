@@ -62,7 +62,7 @@ function openSession(): void {
             <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <!-- Card 1: Status Sesi -->
                 <article
-                    class="min-h-52 rounded-xl border border-t-4 border-slate-200 border-t-[#2dd4bf] bg-white p-5 shadow-[0_2px_6px_rgba(15,23,42,0.08)]"
+                    class="min-h-52 rounded-xl border border-t-4 border-slate-200 border-t-brand-secondary bg-white p-5 shadow-[0_2px_6px_rgba(15,23,42,0.08)]"
                 >
                     <div class="flex items-center justify-between gap-3">
                         <p
@@ -71,7 +71,7 @@ function openSession(): void {
                             STATUS SESI
                         </p>
                         <span
-                            class="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-extrabold tabular-nums text-teal-800"
+                            class="rounded-full bg-brand-secondary/15 px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#527A12]"
                         >
                             {{ sessions.data.length }}
                         </span>
@@ -143,7 +143,7 @@ function openSession(): void {
 
                 <!-- Card 2: Kuis Published -->
                 <article
-                    class="min-h-52 rounded-xl border border-t-4 border-slate-200 border-t-[#2dd4bf] bg-white p-5 shadow-[0_2px_6px_rgba(15,23,42,0.08)]"
+                    class="min-h-52 rounded-xl border border-t-4 border-slate-200 border-t-brand-secondary bg-white p-5 shadow-[0_2px_6px_rgba(15,23,42,0.08)]"
                 >
                     <div class="flex items-center justify-between gap-3">
                         <p
@@ -152,7 +152,7 @@ function openSession(): void {
                             KUIS PUBLISHED
                         </p>
                         <span
-                            class="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-extrabold tabular-nums text-teal-800"
+                            class="rounded-full bg-brand-secondary/15 px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#527A12]"
                         >
                             {{ quizzes.length }}
                         </span>
@@ -172,7 +172,7 @@ function openSession(): void {
                                 >{{ quiz.title }}</span
                             >
                             <span
-                                class="shrink-0 rounded-full bg-teal-50 px-2 py-0.5 text-[10px] font-bold text-teal-800"
+                                class="shrink-0 rounded-full bg-brand-secondary/15 px-2 py-0.5 text-[10px] font-bold text-[#527A12]"
                             >
                                 published
                             </span>
@@ -209,7 +209,7 @@ function openSession(): void {
 
                 <!-- Card 3: Peserta Terdaftar -->
                 <article
-                    class="min-h-52 rounded-xl border border-t-4 border-slate-200 border-t-[#2dd4bf] bg-white p-5 shadow-[0_2px_6px_rgba(15,23,42,0.08)] sm:col-span-2 lg:col-span-1"
+                    class="min-h-52 rounded-xl border border-t-4 border-slate-200 border-t-brand-secondary bg-white p-5 shadow-[0_2px_6px_rgba(15,23,42,0.08)] sm:col-span-2 lg:col-span-1"
                 >
                     <div class="flex items-center justify-between gap-3">
                         <p
@@ -218,7 +218,7 @@ function openSession(): void {
                             PARTISIPASI
                         </p>
                         <span
-                            class="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-extrabold tabular-nums text-teal-800"
+                            class="rounded-full bg-brand-secondary/15 px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#527A12]"
                         >
                             {{ totalParticipantsCount }}
                         </span>
@@ -313,7 +313,7 @@ function openSession(): void {
                         </p>
                     </div>
                     <span
-                        class="rounded-full bg-teal-100 px-3 py-1 text-xs font-bold text-teal-800"
+                        class="rounded-full bg-brand-secondary/15 px-3 py-1 text-xs font-bold text-[#527A12]"
                     >
                         host-control
                     </span>
@@ -427,7 +427,7 @@ function openSession(): void {
                         </p>
                     </div>
                     <span
-                        class="rounded-full bg-teal-100 px-3 py-1 text-xs font-bold text-teal-800"
+                        class="rounded-full bg-brand-secondary/15 px-3 py-1 text-xs font-bold text-[#527A12]"
                     >
                         live-sessions
                     </span>
@@ -468,7 +468,7 @@ function openSession(): void {
                             </div>
 
                             <p
-                                class="mt-2 inline-flex shrink-0 rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-800 sm:mt-0"
+                                class="mt-2 inline-flex shrink-0 rounded-full bg-brand-secondary/15 px-3 py-1 text-xs font-bold text-[#527A12] sm:mt-0"
                             >
                                 {{ session.status }}
                             </p>
