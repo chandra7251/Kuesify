@@ -58,8 +58,9 @@ const sectionMeta: Record<
     },
     admin: {
         eyebrow: 'Platform',
-        description: 'Pantau tenant, kategori, dan kondisi sistem.',
-        tone: 'bg-slate-900 text-white',
+        description:
+            'Pantau organisasi, kategori, dan kesehatan layanan platform.',
+        tone: 'bg-white text-slate-900',
     },
 };
 
@@ -73,7 +74,23 @@ const meta = computed(
 );
 const isQuestions = computed(() => props.section === 'questions');
 const isReports = computed(() => props.section === 'reports');
-const isStyledSection = computed(() => isQuestions.value || isReports.value);
+const isAdmin = computed(() => props.section === 'admin');
+const isStyledSection = computed(
+    () => isQuestions.value || isReports.value || isAdmin.value,
+);
+const adminCategories = computed(
+    () =>
+        (Array.isArray(props.summary.categories)
+            ? props.summary.categories
+            : []) as { id: number; name: string }[],
+);
+const adminHealth = computed(
+    () =>
+        (typeof props.summary.health === 'object' &&
+        props.summary.health !== null
+            ? props.summary.health
+            : {}) as Record<string, unknown>,
+);
 const rows = computed(() =>
     Array.isArray(props.items) ? props.items : props.items.data || [],
 );
@@ -410,9 +427,88 @@ const summarySize = (value: unknown) =>
                 </article>
             </section>
 
-            <!-- General Summary Section untuk section lain (questions, organization, admin) -->
+            <section v-else-if="isAdmin" class="grid gap-4 lg:grid-cols-2">
+                <article
+                    class="rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)] sm:p-6"
+                >
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <p
+                                class="text-xs font-extrabold uppercase tracking-[0.16em] text-white"
+                            >
+                                Kategori
+                            </p>
+                            <h2 class="mt-2 text-xl font-extrabold text-white">
+                                Kategori soal
+                            </h2>
+                        </div>
+                        <span
+                            class="rounded-full bg-brand-secondary px-3 py-1 text-xs font-extrabold text-[#102449]"
+                        >
+                            {{ adminCategories.length }} kategori
+                        </span>
+                    </div>
+                    <div
+                        v-if="adminCategories.length"
+                        class="mt-5 flex flex-wrap gap-2"
+                    >
+                        <span
+                            v-for="category in adminCategories"
+                            :key="category.id"
+                            class="rounded-full bg-white/10 px-3 py-1.5 text-sm font-semibold text-brand-secondary"
+                        >
+                            {{ category.name }}
+                        </span>
+                    </div>
+                    <p v-else class="mt-5 text-sm text-brand-secondary/80">
+                        Belum ada kategori soal.
+                    </p>
+                </article>
+
+                <article
+                    class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
+                >
+                    <div>
+                        <p
+                            class="text-xs font-extrabold uppercase tracking-[0.16em] text-brand-primary"
+                        >
+                            Kesehatan sistem
+                        </p>
+                        <h2 class="mt-2 text-xl font-extrabold text-slate-900">
+                            Status layanan
+                        </h2>
+                    </div>
+                    <dl class="mt-5 divide-y divide-slate-100 text-sm">
+                        <div
+                            v-for="(value, key) in adminHealth"
+                            :key="String(key)"
+                            class="flex items-center justify-between gap-4 py-2.5 first:pt-0 last:pb-0"
+                        >
+                            <dt class="text-slate-500">
+                                {{ String(key).replaceAll('_', ' ') }}
+                            </dt>
+                            <dd
+                                v-if="key === 'reverb_status'"
+                                class="rounded-full px-2.5 py-1 text-xs font-extrabold"
+                                :class="
+                                    value === 'online'
+                                        ? 'bg-emerald-100 text-emerald-800'
+                                        : 'bg-rose-100 text-rose-800'
+                                "
+                            >
+                                {{ value }}
+                            </dd>
+                            <dd v-else class="font-bold text-slate-900">
+                                {{ value ?? '-' }}
+                            </dd>
+                        </div>
+                    </dl>
+                </article>
+            </section>
+
+            <!-- General Summary Section untuk section lain -->
             <section
-                v-else-if="Object.keys(summary).length"
+                v-else-if="!isAdmin && Object.keys(summary).length"
                 class="grid sm:grid-cols-2"
                 :class="
                     isQuestions
@@ -569,10 +665,14 @@ const summarySize = (value: unknown) =>
                 >
                     <div>
                         <h2 class="font-extrabold text-slate-900">
-                            Data workspace
+                            {{ isAdmin ? 'Organisasi' : 'Data workspace' }}
                         </h2>
                         <p class="mt-1 text-sm text-slate-500">
-                            {{ rows.length }} item pada halaman ini.
+                            {{
+                                isAdmin
+                                    ? `${rows.length} organisasi terdaftar.`
+                                    : `${rows.length} item pada halaman ini.`
+                            }}
                         </p>
                     </div>
                     <span
@@ -580,7 +680,7 @@ const summarySize = (value: unknown) =>
                         :class="
                             isStyledSection
                                 ? 'bg-brand-primary/15 text-[#3154D5]'
-                                : 'bg-teal-50 text-teal-800'
+                                : 'bg-brand-primary/15 text-brand-primary'
                         "
                         >{{ section }}</span
                     >
@@ -641,7 +741,11 @@ const summarySize = (value: unknown) =>
                                 "
                             >
                                 {{
-                                    item.type || item.status || 'Data workspace'
+                                    item.type ||
+                                    item.status ||
+                                    (isAdmin
+                                        ? 'Tenant organisasi'
+                                        : 'Data workspace')
                                 }}
                             </p>
                         </div>
