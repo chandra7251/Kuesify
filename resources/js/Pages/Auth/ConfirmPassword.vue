@@ -21,16 +21,21 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Confirm Password" />
+        <Head title="Konfirmasi kata sandi" />
 
-        <div class="mb-4 text-sm text-gray-600">
-            This is a secure area of the application. Please confirm your
-            password before continuing.
+        <div class="mb-7">
+            <p class="text-sm font-semibold text-brand-primary">Area aman</p>
+            <h1 class="mt-2 text-3xl font-black tracking-tight text-slate-900">
+                Konfirmasi kata sandi
+            </h1>
+            <p class="mt-2 text-sm leading-6 text-slate-600">
+                Konfirmasi kata sandimu sebelum melanjutkan ke area ini.
+            </p>
         </div>
 
         <form @submit.prevent="submit">
             <div>
-                <InputLabel for="password" value="Password" />
+                <InputLabel for="password" value="Kata sandi" />
                 <TextInput
                     id="password"
                     type="password"
@@ -43,13 +48,13 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
-            <div class="mt-4 flex justify-end">
+            <div class="mt-6 flex justify-end">
                 <PrimaryButton
-                    class="ms-4"
+                    class="ms-0 w-full justify-center sm:ms-4 sm:w-auto"
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
-                    Confirm
+                    Konfirmasi
                 </PrimaryButton>
             </div>
         </form>

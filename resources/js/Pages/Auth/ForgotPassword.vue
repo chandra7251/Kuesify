@@ -21,15 +21,23 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Forgot Password" />
+        <Head title="Lupa kata sandi" />
 
-        <div class="mb-4 text-sm text-gray-600">
-            Forgot your password? No problem. Just let us know your email
-            address and we will email you a password reset link that will allow
-            you to choose a new one.
+        <div class="mb-7">
+            <p class="text-sm font-semibold text-brand-primary">Bantuan akun</p>
+            <h1 class="mt-2 text-3xl font-black tracking-tight text-slate-900">
+                Lupa kata sandi?
+            </h1>
+            <p class="mt-2 text-sm leading-6 text-slate-600">
+                Masukkan email akunmu. Kami akan mengirim tautan untuk membuat
+                kata sandi baru.
+            </p>
         </div>
 
-        <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
+        <div
+            v-if="status"
+            class="mb-4 rounded-xl border border-brand-secondary/30 bg-brand-secondary/10 px-3 py-2 text-sm font-medium text-brand-primary"
+        >
             {{ status }}
         </div>
 
@@ -50,12 +58,12 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
-            <div class="mt-4 flex items-center justify-end">
+            <div class="mt-6 flex items-center justify-end">
                 <PrimaryButton
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
-                    Email Password Reset Link
+                    Kirim tautan reset
                 </PrimaryButton>
             </div>
         </form>

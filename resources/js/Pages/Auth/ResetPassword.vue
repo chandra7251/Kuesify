@@ -29,7 +29,19 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Reset Password" />
+        <Head title="Atur ulang kata sandi" />
+
+        <div class="mb-7">
+            <p class="text-sm font-semibold text-brand-primary">
+                Keamanan akun
+            </p>
+            <h1 class="mt-2 text-3xl font-black tracking-tight text-slate-900">
+                Buat kata sandi baru
+            </h1>
+            <p class="mt-2 text-sm leading-6 text-slate-600">
+                Gunakan kata sandi baru untuk mengamankan akunmu.
+            </p>
+        </div>
 
         <form @submit.prevent="submit">
             <div>
@@ -49,7 +61,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password" value="Password" />
+                <InputLabel for="password" value="Kata sandi" />
 
                 <TextInput
                     id="password"
@@ -66,7 +78,7 @@ const submit = () => {
             <div class="mt-4">
                 <InputLabel
                     for="password_confirmation"
-                    value="Confirm Password"
+                    value="Konfirmasi kata sandi"
                 />
 
                 <TextInput
@@ -84,12 +96,12 @@ const submit = () => {
                 />
             </div>
 
-            <div class="mt-4 flex items-center justify-end">
+            <div class="mt-6 flex items-center justify-end">
                 <PrimaryButton
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
-                    Reset Password
+                    Atur ulang kata sandi
                 </PrimaryButton>
             </div>
         </form>

@@ -83,7 +83,9 @@ const submit = () => {
         <Head title="Daftar" />
 
         <div>
-            <p class="text-sm font-semibold text-teal-700">Mulai belajar</p>
+            <p class="text-sm font-semibold text-brand-primary">
+                Mulai belajar
+            </p>
             <h1
                 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-950"
             >
@@ -105,13 +107,13 @@ const submit = () => {
                 <div class="relative mt-3">
                     <button
                         type="button"
-                        class="flex min-h-14 w-full items-center gap-3 rounded-xl border border-teal-600 bg-teal-50/70 px-3 text-left transition hover:bg-teal-50 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+                        class="flex min-h-14 w-full items-center gap-3 rounded-xl border border-brand-secondary bg-brand-secondary/10 px-3 text-left transition hover:bg-brand-secondary/10 focus:outline-none focus:ring-2 focus:ring-brand-secondary focus:ring-offset-2"
                         aria-haspopup="listbox"
                         :aria-expanded="roleMenuOpen"
                         @click.stop="roleMenuOpen = !roleMenuOpen"
                     >
                         <span
-                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal-600 text-white"
+                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-primary text-white"
                         >
                             <svg
                                 class="h-5 w-5"
@@ -141,7 +143,7 @@ const submit = () => {
                             </span>
                         </span>
                         <svg
-                            class="h-5 w-5 shrink-0 text-teal-700 transition"
+                            class="h-5 w-5 shrink-0 text-brand-primary transition"
                             :class="{ 'rotate-180': roleMenuOpen }"
                             viewBox="0 0 20 20"
                             fill="currentColor"
@@ -165,16 +167,19 @@ const submit = () => {
                             v-for="role in roles"
                             :key="role.value"
                             type="button"
-                            class="group flex min-h-14 w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition hover:bg-teal-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-teal-500"
-                            :class="{ 'bg-teal-50': form.role === role.value }"
+                            class="group flex min-h-14 w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition hover:bg-brand-secondary/10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-secondary"
+                            :class="{
+                                'bg-brand-secondary/10':
+                                    form.role === role.value,
+                            }"
                             role="option"
                             :aria-selected="form.role === role.value"
                             @click="selectRole(role.value)"
                         >
                             <span
-                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 group-hover:bg-teal-100 group-hover:text-teal-700"
+                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 group-hover:bg-brand-secondary/15 group-hover:text-brand-primary"
                                 :class="{
-                                    'bg-teal-600 text-white':
+                                    'bg-brand-primary text-white':
                                         form.role === role.value,
                                 }"
                             >
@@ -205,7 +210,7 @@ const submit = () => {
                             </span>
                             <svg
                                 v-if="form.role === role.value"
-                                class="h-5 w-5 shrink-0 text-teal-600"
+                                class="h-5 w-5 shrink-0 text-brand-secondary"
                                 viewBox="0 0 20 20"
                                 fill="currentColor"
                                 aria-hidden="true"
@@ -301,12 +306,12 @@ const submit = () => {
             >
                 <Link
                     :href="route('login')"
-                    class="text-center text-sm font-semibold text-teal-700 hover:text-teal-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 sm:text-left"
+                    class="text-center text-sm font-semibold text-brand-primary hover:text-brand-hover focus:outline-none focus:ring-2 focus:ring-brand-secondary focus:ring-offset-2 sm:text-left"
                 >
                     Sudah punya akun? Masuk
                 </Link>
                 <PrimaryButton
-                    class="justify-center bg-teal-600 px-5 py-3 text-sm normal-case tracking-normal hover:bg-teal-700 focus:bg-teal-700 sm:min-w-32"
+                    class="justify-center bg-brand-primary px-5 py-3 text-sm normal-case tracking-normal hover:bg-brand-hover focus:bg-brand-hover sm:min-w-32"
                     :class="{ 'opacity-60': form.processing }"
                     :disabled="form.processing"
                 >

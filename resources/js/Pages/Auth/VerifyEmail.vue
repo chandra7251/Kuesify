@@ -23,7 +23,9 @@ const verificationLinkSent = computed(
         <Head title="Verifikasi email" />
 
         <div>
-            <p class="text-sm font-semibold text-teal-700">Satu langkah lagi</p>
+            <p class="text-sm font-semibold text-brand-primary">
+                Satu langkah lagi
+            </p>
             <h1
                 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-950"
             >
@@ -45,7 +47,7 @@ const verificationLinkSent = computed(
         <form class="mt-7" @submit.prevent="submit">
             <button
                 type="submit"
-                class="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-teal-600 px-4 text-sm font-semibold text-white transition hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 disabled:cursor-not-allowed disabled:opacity-60"
+                class="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-brand-primary px-4 text-sm font-semibold text-white transition hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary disabled:cursor-not-allowed disabled:opacity-60"
                 :disabled="form.processing"
             >
                 Kirim ulang email verifikasi
@@ -57,7 +59,7 @@ const verificationLinkSent = computed(
                     :href="route('logout')"
                     method="post"
                     as="button"
-                    class="font-semibold text-teal-700 hover:text-teal-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+                    class="font-semibold text-brand-primary hover:text-brand-hover focus:outline-none focus:ring-2 focus:ring-brand-secondary focus:ring-offset-2"
                 >
                     Keluar dan daftar lagi
                 </Link>

@@ -29,10 +29,10 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Log in" />
+        <Head title="Masuk" />
 
         <div class="mb-7">
-            <p class="text-sm font-semibold text-teal-700">
+            <p class="text-sm font-semibold text-brand-primary">
                 Selamat datang kembali
             </p>
             <h1 class="mt-2 text-3xl font-black tracking-tight text-slate-900">
@@ -43,7 +43,10 @@ const submit = () => {
             </p>
         </div>
 
-        <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
+        <div
+            v-if="status"
+            class="mb-4 rounded-xl border border-brand-secondary/30 bg-brand-secondary/10 px-3 py-2 text-sm font-medium text-brand-primary"
+        >
             {{ status }}
         </div>
 
@@ -65,7 +68,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password" value="Password" />
+                <InputLabel for="password" value="Kata sandi" />
 
                 <TextInput
                     id="password"
@@ -82,24 +85,27 @@ const submit = () => {
             <div class="mt-4 block">
                 <label class="flex items-center">
                     <Checkbox name="remember" v-model:checked="form.remember" />
-                    <span class="ms-2 text-sm text-gray-600">Remember me</span>
+                    <span class="ms-2 text-sm text-gray-600">Ingat saya</span>
                 </label>
             </div>
 
-            <div class="mt-6 flex items-center justify-between gap-4">
+            <div
+                class="mt-6 flex flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between"
+            >
                 <Link
                     v-if="canResetPassword"
                     :href="route('password.request')"
-                    class="rounded-md text-sm text-slate-600 underline hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+                    class="rounded-md text-sm text-slate-600 underline hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-secondary focus:ring-offset-2"
                 >
-                    Forgot your password?
+                    Lupa kata sandi?
                 </Link>
 
                 <PrimaryButton
+                    class="w-full justify-center sm:w-auto"
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
-                    Log in
+                    Masuk
                 </PrimaryButton>
             </div>
 
@@ -107,7 +113,7 @@ const submit = () => {
                 Belum punya akun?
                 <Link
                     :href="route('register')"
-                    class="font-semibold text-teal-700 hover:text-teal-900"
+                    class="font-semibold text-brand-primary hover:text-brand-hover"
                 >
                     Buat akun gratis
                 </Link>
