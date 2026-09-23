@@ -72,13 +72,13 @@ const mobileNavigation = [
         href: '/questions',
         icon: 'M5 4h14v16H5zM8 8h8M8 12h8M8 16h5',
     },
-    {
-        label: 'Kuis',
-        href: '/quizzes',
-        icon: 'M5 3h14v18H5zM8 8h8M8 12h5M8 16h3',
-    },
     { label: 'Live', href: '/live-sessions', icon: 'M8 5v14l11-7z' },
     { label: 'Hasil', href: '/attempts', icon: 'M5 20V10m7 10V4m7 16v-7' },
+    {
+        label: 'Materi AI',
+        href: '/materials',
+        icon: 'm12 3 1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3Z',
+    },
 ];
 
 function isCurrent(href: string): boolean {
@@ -90,10 +90,6 @@ function isCurrent(href: string): boolean {
 
 function toggleDesktopSidebar(): void {
     desktopSidebarExpanded.value = !desktopSidebarExpanded.value;
-}
-
-function openMobileNav(): void {
-    mobileSidebarOpen.value = true;
 }
 
 function closeMobileNav(): void {
@@ -466,25 +462,6 @@ function closeMobileNav(): void {
                 >
                     <!-- Left Section: Mobile Toggle & Workspace Title -->
                     <div class="flex items-center gap-3.5">
-                        <!-- Mobile Menu Button (< lg) -->
-                        <button
-                            type="button"
-                            class="grid h-10 w-10 place-items-center rounded-xl bg-white/10 text-white hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white lg:hidden"
-                            aria-label="Buka navigasi"
-                            @click="openMobileNav"
-                        >
-                            <svg
-                                class="h-6 w-6"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                            >
-                                <path d="M4 7h16M4 12h16M4 17h16" />
-                            </svg>
-                        </button>
-
                         <!-- Brand Logo on mobile -->
                         <Link
                             :href="route('dashboard')"
@@ -874,16 +851,16 @@ function closeMobileNav(): void {
         <!-- 4. MOBILE BOTTOM BAR (Fixed Bottom for Thumb Access)                       -->
         <!-- ========================================================================= -->
         <nav
-            class="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-slate-200 bg-white px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-lg lg:hidden"
+            class="fixed bottom-4 left-1/2 z-30 grid w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 grid-cols-5 rounded-2xl border border-slate-200 bg-white/95 p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_8px_24px_rgba(15,23,42,0.16)] backdrop-blur lg:hidden"
             aria-label="Navigasi bawah"
         >
             <Link
                 v-for="item in mobileNavigation"
                 :key="item.href"
                 :href="item.href"
-                class="flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-lg px-1 text-center text-[10px] font-semibold text-slate-600 transition"
+                class="flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl px-1 text-center text-[10px] font-semibold text-slate-600 transition"
                 :class="{
-                    'bg-brand-primary text-white': $page.url.startsWith(
+                    'bg-brand-secondary text-[#102449]': $page.url.startsWith(
                         item.href,
                     ),
                 }"
