@@ -858,12 +858,12 @@ function closeMobileNav(): void {
                 v-for="item in mobileNavigation"
                 :key="item.href"
                 :href="item.href"
-                class="flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl px-1 text-center text-[10px] font-semibold text-slate-600 transition"
-                :class="{
-                    'bg-brand-secondary text-[#102449]': $page.url.startsWith(
-                        item.href,
-                    ),
-                }"
+                class="flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl px-1 text-center text-[10px] transition"
+                :class="
+                    $page.url.startsWith(item.href)
+                        ? 'bg-brand-primary font-bold text-brand-secondary'
+                        : 'font-semibold text-slate-600'
+                "
             >
                 <svg
                     class="h-5 w-5"
