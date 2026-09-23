@@ -17,6 +17,9 @@ it('lets organization admin add member and create a group', function () {
 
     $this->assertDatabaseHas('organization_user', ['organization_id' => $organization->id, 'user_id' => $participant->id, 'role' => 'participant']);
     $this->assertDatabaseHas('groups', ['organization_id' => $organization->id, 'name' => 'Kelas XII IPA 1']);
+
+    $response = $this->actingAs($admin)->get(route('organization.index'));
+    $response->assertOk();
 });
 
 it('blocks creator from organization management', function () {

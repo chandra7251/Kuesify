@@ -12,14 +12,20 @@ test('profile page is displayed', function () {
     $response->assertOk();
 });
 
-test('profile information can be updated', function () {
+test('profile avatar and preferences can be updated', function () {
     $user = User::factory()->create();
 
     $response = $this
         ->actingAs($user)
         ->patch('/profile', [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => $user->name,
+            'email' => $user->email,
+            'avatar_key' => 'rocket',
+            'preferences' => [
+                'sound_effects' => false,
+                'leaderboard_privacy' => 'anonymous',
+                'question_font_size' => 'large',
+            ],
         ]);
 
     $response
@@ -27,10 +33,29 @@ test('profile information can be updated', function () {
         ->assertRedirect('/profile');
 
     $user->refresh();
+    expect($user->avatar_key)->toBe('rocket')
+        ->and($user->preferences['sound_effects'])->toBeFalse()
+        ->and($user->preferences['leaderboard_privacy'])->toBe('anonymous')
+        ->and($user->preferences['question_font_size'])->toBe('large');
+});
 
-    $this->assertSame('Test User', $user->name);
-    $this->assertSame('test@example.com', $user->email);
-    $this->assertNull($user->email_verified_at);
+test('changing email unsets verification and redirects to verification notice', function () {
+    $user = User::factory()->create();
+
+    $response = $this
+        ->actingAs($user)
+        ->patch('/profile', [
+            'name' => 'Updated Name',
+            'email' => 'newemail@example.com',
+        ]);
+
+    $response
+        ->assertSessionHasNoErrors()
+        ->assertRedirect(route('verification.notice'));
+
+    $user->refresh();
+    expect($user->email)->toBe('newemail@example.com')
+        ->and($user->email_verified_at)->toBeNull();
 });
 
 test('email verification status is unchanged when the email address is unchanged', function () {

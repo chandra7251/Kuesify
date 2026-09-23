@@ -70,7 +70,13 @@ Route::middleware(['auth', 'organization.context'])->group(function () {
     Route::get('/attempts/{attempt}/play', [QuizAttemptController::class, 'play'])->name('attempts.play');
     Route::get('/organization', [WorkspaceController::class, 'organization'])->name('organization.index');
     Route::get('/reports', [WorkspaceController::class, 'reports'])->name('reports.index');
-    Route::get('/admin', [WorkspaceController::class, 'admin'])->name('platform.admin');
+    Route::get('/admin', [\App\Http\Controllers\PlatformAdminController::class, 'index'])->name('platform.admin');
+    Route::get('/admin/users', [\App\Http\Controllers\PlatformAdminController::class, 'users'])->name('platform.admin.users');
+    Route::post('/admin/categories', [\App\Http\Controllers\PlatformAdminController::class, 'storeCategory'])->name('platform.admin.categories.store');
+    Route::delete('/admin/categories/{category}', [\App\Http\Controllers\PlatformAdminController::class, 'destroyCategory'])->name('platform.admin.categories.destroy');
+    Route::post('/admin/settings/maintenance', [\App\Http\Controllers\PlatformAdminController::class, 'updateMaintenance'])->name('platform.admin.settings.maintenance');
+    Route::post('/admin/settings/ai-config', [\App\Http\Controllers\PlatformAdminController::class, 'updateAiConfig'])->name('platform.admin.settings.ai');
+    Route::post('/admin/settings/audio', [\App\Http\Controllers\PlatformAdminController::class, 'updateAudioSettings'])->name('platform.admin.settings.audio');
     Route::get('/materials', [WorkspaceController::class, 'materials'])->name('materials.index');
     Route::get('/reports/export', [WorkspaceController::class, 'exportReport'])->name('reports.export');
 });

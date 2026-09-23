@@ -46,53 +46,53 @@ const navigationItems = computed(() => {
         ];
     }
 
-    const items = [
+    if (role === 'super_admin') {
+        return [
+            { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
+            { label: 'Platform Admin', href: '/admin', icon: 'admin' },
+            {
+                label: 'Monitoring User',
+                href: '/admin/users',
+                icon: 'organization',
+            },
+            {
+                label: 'Kelola Tenant',
+                href: '/organization',
+                icon: 'organization',
+            },
+            { label: 'Laporan Global', href: '/reports', icon: 'results' },
+        ];
+    }
+
+    if (role === 'organization_admin') {
+        return [
+            { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
+            {
+                label: 'Organisasi & Rombel',
+                href: '/organization',
+                icon: 'organization',
+            },
+            { label: 'Laporan & Nilai', href: '/reports', icon: 'results' },
+            { label: 'Bank Soal', href: '/questions', icon: 'bank' },
+            { label: 'Quiz Builder', href: '/quizzes', icon: 'builder' },
+            { label: 'Live Quiz', href: '/live-sessions', icon: 'live' },
+            { label: 'Materi AI', href: '/materials', icon: 'ai' },
+        ];
+    }
+
+    return [
         { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
         { label: 'Question Bank', href: '/questions', icon: 'bank' },
         { label: 'Quiz Builder', href: '/quizzes', icon: 'builder' },
         { label: 'Live Quiz', href: '/live-sessions', icon: 'live' },
-        { label: 'Hasil', href: '/reports', icon: 'results' },
+        { label: 'Hasil & Analitik', href: '/reports', icon: 'results' },
         { label: 'Materi AI', href: '/materials', icon: 'ai' },
     ];
-
-    if (role === 'organization_admin' || role === 'super_admin') {
-        items.push({
-            label: 'Organisasi',
-            href: '/organization',
-            icon: 'organization',
-        });
-    }
-
-    if (role === 'super_admin') {
-        items.push({
-            label: 'Platform Admin',
-            href: '/admin',
-            icon: 'admin',
-        });
-    }
-
-    return items;
 });
 
-const mobileNavigation = [
-    {
-        label: 'Beranda',
-        href: '/dashboard',
-        icon: 'm3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z',
-    },
-    {
-        label: 'Soal',
-        href: '/questions',
-        icon: 'M5 4h14v16H5zM8 8h8M8 12h8M8 16h5',
-    },
-    { label: 'Live', href: '/live-sessions', icon: 'M8 5v14l11-7z' },
-    { label: 'Hasil', href: '/attempts', icon: 'M5 20V10m7 10V4m7 16v-7' },
-    {
-        label: 'Materi AI',
-        href: '/materials',
-        icon: 'm12 3 1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3Z',
-    },
-];
+const mobileNavigation = computed(() => {
+    return navigationItems.value;
+});
 
 function isCurrent(href: string): boolean {
     if (href === '/dashboard') {
@@ -119,7 +119,7 @@ function closeMobileNav(): void {
         <!-- ========================================================================= -->
         <aside
             id="desktop-sidebar"
-            class="hidden select-none bg-brand-primary text-white shadow-xl transition-all duration-300 ease-in-out lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:flex lg:flex-col"
+            class="hidden select-none overflow-hidden bg-brand-primary text-white shadow-xl transition-all duration-300 ease-in-out lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:flex lg:flex-col"
             :class="desktopSidebarExpanded ? 'lg:w-72' : 'lg:w-20'"
             aria-label="Navigasi samping"
         >
@@ -201,8 +201,10 @@ function closeMobileNav(): void {
                 </button>
             </div>
 
-            <!-- Scrollable Navigation Items Container (Only this scrolls if height is small!) -->
-            <div class="flex-1 space-y-1.5 overflow-visible p-3">
+            <!-- Scrollable Navigation Items Container (Only this scrolls vertically if height is small!) -->
+            <div
+                class="custom-scrollbar min-h-0 flex-1 space-y-1.5 overflow-y-auto overflow-x-hidden p-3"
+            >
                 <Link
                     v-for="item in navigationItems"
                     :key="item.label"
@@ -526,12 +528,14 @@ function closeMobileNav(): void {
         >
             <aside
                 v-if="mobileSidebarOpen"
-                class="fixed inset-y-0 left-0 z-50 flex w-72 flex-col justify-between bg-brand-primary p-4 text-white shadow-2xl lg:hidden"
+                class="fixed inset-y-0 left-0 z-50 flex w-72 flex-col justify-between overflow-hidden bg-brand-primary p-4 text-white shadow-2xl lg:hidden"
                 aria-label="Navigasi mobile drawer"
             >
-                <div class="flex flex-col gap-6">
+                <div class="flex flex-1 flex-col gap-6 overflow-hidden">
                     <!-- Drawer Header -->
-                    <div class="flex items-center justify-between px-2 pt-2">
+                    <div
+                        class="flex shrink-0 items-center justify-between px-2 pt-2"
+                    >
                         <div class="flex items-center gap-3">
                             <div
                                 class="grid h-10 w-10 place-items-center rounded-xl bg-brand-secondary shadow-sm"
@@ -561,7 +565,10 @@ function closeMobileNav(): void {
                     </div>
 
                     <!-- Drawer Nav Links -->
-                    <nav class="flex flex-col gap-1.5" aria-label="Menu drawer">
+                    <nav
+                        class="custom-scrollbar min-h-0 flex-1 space-y-1.5 overflow-y-auto overflow-x-hidden"
+                        aria-label="Menu drawer"
+                    >
                         <Link
                             v-for="item in navigationItems"
                             :key="item.label"
@@ -812,35 +819,147 @@ function closeMobileNav(): void {
         <!-- 4. MOBILE BOTTOM BAR (Fixed Bottom for Thumb Access)                       -->
         <!-- ========================================================================= -->
         <nav
-            class="fixed bottom-4 left-1/2 z-30 grid w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 grid-cols-5 rounded-2xl border border-slate-200 bg-white/95 p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_8px_24px_rgba(15,23,42,0.16)] backdrop-blur lg:hidden"
+            class="fixed bottom-4 left-1/2 z-30 flex w-[calc(100%-1.5rem)] max-w-xl -translate-x-1/2 items-center justify-around overflow-x-auto rounded-2xl border border-slate-200 bg-white/95 p-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_8px_24px_rgba(15,23,42,0.16)] backdrop-blur lg:hidden"
             aria-label="Navigasi bawah"
         >
             <Link
                 v-for="item in mobileNavigation"
-                :key="item.href"
+                :key="item.href + item.label"
                 :href="item.href"
-                class="flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl px-1 text-center text-[10px] transition"
+                class="flex min-h-12 min-w-[50px] flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-1 text-center text-[10px] transition"
                 :class="
-                    $page.url.startsWith(item.href)
-                        ? 'bg-brand-primary font-bold text-brand-secondary'
-                        : 'font-semibold text-slate-600'
+                    isCurrent(item.href)
+                        ? 'bg-brand-primary font-bold text-brand-secondary shadow-sm'
+                        : 'font-semibold text-slate-600 hover:bg-slate-100'
                 "
             >
                 <svg
-                    class="h-5 w-5"
+                    v-if="item.icon === 'dashboard'"
+                    class="h-5 w-5 shrink-0"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    stroke-width="1.8"
-                    aria-hidden="true"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <rect width="7" height="7" x="3" y="3" rx="1" />
+                    <rect width="7" height="7" x="14" y="3" rx="1" />
+                    <rect width="7" height="7" x="14" y="14" rx="1" />
+                    <rect width="7" height="7" x="3" y="14" rx="1" />
+                </svg>
+                <svg
+                    v-else-if="item.icon === 'bank'"
+                    class="h-5 w-5 shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
                 >
                     <path
-                        :d="item.icon"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"
+                    />
+                    <path d="M6 6h10" />
+                    <path d="M6 10h10" />
+                </svg>
+                <svg
+                    v-else-if="item.icon === 'builder'"
+                    class="h-5 w-5 shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path
+                        d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                    />
+                    <path
+                        d="M18.375 2.625a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"
                     />
                 </svg>
-                <span>{{ item.label }}</span>
+                <svg
+                    v-else-if="item.icon === 'live'"
+                    class="h-5 w-5 shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="M4.93 4.93a10 10 0 0 1 14.14 0" />
+                    <path d="M7.76 7.76a6 6 0 0 1 8.48 0" />
+                    <circle cx="12" cy="12" r="2" />
+                    <path d="M12 14v7" />
+                </svg>
+                <svg
+                    v-else-if="item.icon === 'results'"
+                    class="h-5 w-5 shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+                    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+                    <path d="M4 22h16" />
+                    <path
+                        d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"
+                    />
+                    <path
+                        d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"
+                    />
+                    <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+                </svg>
+                <svg
+                    v-else-if="item.icon === 'ai'"
+                    class="h-5 w-5 shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path
+                        d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"
+                    />
+                </svg>
+                <svg
+                    v-else-if="item.icon === 'organization'"
+                    class="h-5 w-5 shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                <svg
+                    v-else-if="item.icon === 'admin'"
+                    class="h-5 w-5 shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <polyline points="9 12 11 14 15 10" />
+                </svg>
+                <span class="max-w-[56px] truncate">{{ item.label }}</span>
             </Link>
         </nav>
     </div>

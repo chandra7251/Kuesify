@@ -85,9 +85,7 @@ withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
                 href="/"
                 class="absolute left-4 top-5 z-10 inline-flex items-center gap-1 sm:left-8 sm:top-10 lg:hidden"
             >
-                <span
-                    class="grid h-10 w-10 place-items-center"
-                >
+                <span class="grid h-10 w-10 place-items-center">
                     <ApplicationLogo class="h-6 w-6 text-brand-secondary" />
                 </span>
                 <span
