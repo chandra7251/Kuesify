@@ -114,7 +114,7 @@ const summarySize = (value: unknown) =>
                             class="text-xs font-extrabold uppercase tracking-[0.18em]"
                             :class="
                                 isStyledSection
-                                    ? 'text-[#527A12]'
+                                    ? 'text-[#3154D5]'
                                     : 'opacity-75'
                             "
                         >
@@ -163,16 +163,16 @@ const summarySize = (value: unknown) =>
             >
                 <!-- Card 1: Total Penyelesaian -->
                 <article
-                    class="min-h-52 rounded-xl border border-t-4 border-slate-200 border-t-brand-secondary bg-white p-5 shadow-[0_2px_6px_rgba(15,23,42,0.08)]"
+                    class="min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]"
                 >
                     <div class="flex items-center justify-between gap-3">
                         <p
-                            class="text-xs font-bold uppercase tracking-wide text-slate-500"
+                            class="text-xs font-bold uppercase tracking-wide text-white"
                         >
                             TOTAL SELESAI
                         </p>
                         <span
-                            class="rounded-full bg-brand-secondary/15 px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#527A12]"
+                            class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#102449]"
                         >
                             {{ summary.completionCount ?? 0 }}
                         </span>
@@ -180,35 +180,35 @@ const summarySize = (value: unknown) =>
 
                     <div
                         v-if="summary.completionCount"
-                        class="mt-3 space-y-2 text-xs text-slate-700"
+                        class="mt-3 space-y-2 text-xs text-brand-secondary"
                     >
                         <div
-                            class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"
+                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
                         >
-                            <span class="font-medium text-slate-500"
+                            <span class="font-medium text-brand-secondary"
                                 >Attempt terkumpul</span
                             >
-                            <span class="font-bold text-slate-900">{{
+                            <span class="font-bold text-brand-secondary">{{
                                 summary.completionCount
                             }}</span>
                         </div>
                         <div
-                            class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"
+                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
                         >
-                            <span class="font-medium text-slate-500"
+                            <span class="font-medium text-brand-secondary"
                                 >Status data</span
                             >
-                            <span class="font-bold text-slate-900"
+                            <span class="font-bold text-brand-secondary"
                                 >Tersedia</span
                             >
                         </div>
                         <div
-                            class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"
+                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
                         >
-                            <span class="font-medium text-slate-500"
+                            <span class="font-medium text-brand-secondary"
                                 >Mode evaluasi</span
                             >
-                            <span class="font-bold text-slate-900"
+                            <span class="font-bold text-brand-secondary"
                                 >Otomatis</span
                             >
                         </div>
@@ -220,7 +220,7 @@ const summarySize = (value: unknown) =>
                     >
                         <div>
                             <svg
-                                class="mx-auto h-8 w-8 text-slate-300"
+                                class="mx-auto h-8 w-8 text-brand-secondary"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -234,7 +234,7 @@ const summarySize = (value: unknown) =>
                                 />
                             </svg>
                             <p
-                                class="mt-2 text-sm font-semibold text-slate-500"
+                                class="mt-2 text-sm font-semibold text-brand-secondary/70"
                             >
                                 Belum ada data
                             </p>
@@ -244,16 +244,16 @@ const summarySize = (value: unknown) =>
 
                 <!-- Card 2: Rata-rata Skor -->
                 <article
-                    class="min-h-52 rounded-xl border border-t-4 border-slate-200 border-t-brand-secondary bg-white p-5 shadow-[0_2px_6px_rgba(15,23,42,0.08)]"
+                    class="min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)] sm:col-span-2 lg:col-span-1"
                 >
                     <div class="flex items-center justify-between gap-3">
                         <p
-                            class="text-xs font-bold uppercase tracking-wide text-slate-500"
+                            class="text-xs font-bold uppercase tracking-wide text-white"
                         >
                             RATA-RATA SKOR
                         </p>
                         <span
-                            class="rounded-full bg-brand-secondary/15 px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#527A12]"
+                            class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#102449]"
                         >
                             {{ summary.averageScore ?? 0 }} pts
                         </span>
@@ -261,25 +261,25 @@ const summarySize = (value: unknown) =>
 
                     <div
                         v-if="summary.completionCount"
-                        class="mt-3 space-y-2 text-xs text-slate-700"
+                        class="mt-3 space-y-2 text-xs text-brand-secondary"
                     >
                         <div
-                            class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"
+                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
                         >
-                            <span class="font-medium text-slate-500"
+                            <span class="font-medium text-brand-secondary"
                                 >Rata-rata kelas</span
                             >
-                            <span class="font-bold text-slate-900"
+                            <span class="font-bold text-brand-secondary"
                                 >{{ summary.averageScore }} / 100</span
                             >
                         </div>
                         <div
-                            class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"
+                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
                         >
-                            <span class="font-medium text-slate-500"
+                            <span class="font-medium text-brand-secondary"
                                 >Penguasaan materi</span
                             >
-                            <span class="font-bold text-slate-900">
+                            <span class="font-bold text-brand-secondary">
                                 {{
                                     Number(summary.averageScore) >= 75
                                         ? 'Optimal'
@@ -290,12 +290,12 @@ const summarySize = (value: unknown) =>
                             </span>
                         </div>
                         <div
-                            class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"
+                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
                         >
-                            <span class="font-medium text-slate-500"
+                            <span class="font-medium text-brand-secondary"
                                 >Kuis diuji</span
                             >
-                            <span class="font-bold text-slate-900"
+                            <span class="font-bold text-brand-secondary"
                                 >{{ rows.length }} kuis</span
                             >
                         </div>
@@ -307,7 +307,7 @@ const summarySize = (value: unknown) =>
                     >
                         <div>
                             <svg
-                                class="mx-auto h-8 w-8 text-slate-300"
+                                class="mx-auto h-8 w-8 text-brand-secondary"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -321,7 +321,7 @@ const summarySize = (value: unknown) =>
                                 />
                             </svg>
                             <p
-                                class="mt-2 text-sm font-semibold text-slate-500"
+                                class="mt-2 text-sm font-semibold text-brand-secondary/70"
                             >
                                 Belum ada data
                             </p>
@@ -331,16 +331,16 @@ const summarySize = (value: unknown) =>
 
                 <!-- Card 3: Analisis Soal -->
                 <article
-                    class="min-h-52 rounded-xl border border-t-4 border-slate-200 border-t-brand-secondary bg-white p-5 shadow-[0_2px_6px_rgba(15,23,42,0.08)] sm:col-span-2 lg:col-span-1"
+                    class="min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)] sm:col-span-2 lg:col-span-1"
                 >
                     <div class="flex items-center justify-between gap-3">
                         <p
-                            class="text-xs font-bold uppercase tracking-wide text-slate-500"
+                            class="text-xs font-bold uppercase tracking-wide text-white"
                         >
                             ANALISIS SOAL
                         </p>
                         <span
-                            class="rounded-full bg-brand-secondary/15 px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#527A12]"
+                            class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#102449]"
                         >
                             {{
                                 Array.isArray(summary.questions)
@@ -355,7 +355,7 @@ const summarySize = (value: unknown) =>
                             Array.isArray(summary.questions) &&
                             summary.questions.length
                         "
-                        class="mt-3 space-y-2 text-xs text-slate-700"
+                        class="mt-3 space-y-2 text-xs text-brand-secondary"
                     >
                         <div
                             v-for="q in (summary.questions as any[]).slice(
@@ -363,14 +363,14 @@ const summarySize = (value: unknown) =>
                                 3,
                             )"
                             :key="q.id"
-                            class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"
+                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
                         >
                             <span
-                                class="truncate pr-2 font-medium text-slate-700"
+                                class="truncate pr-2 font-medium text-brand-secondary"
                                 >{{ q.prompt }}</span
                             >
                             <span
-                                class="shrink-0 rounded-full bg-brand-secondary/15 px-2 py-0.5 text-[10px] font-bold text-[#527A12]"
+                                class="shrink-0 rounded-full bg-brand-secondary px-2 py-0.5 text-[10px] font-bold text-[#102449]"
                             >
                                 {{
                                     q.correct_rate !== null
@@ -387,7 +387,7 @@ const summarySize = (value: unknown) =>
                     >
                         <div>
                             <svg
-                                class="mx-auto h-8 w-8 text-slate-300"
+                                class="mx-auto h-8 w-8 text-brand-secondary"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -401,7 +401,7 @@ const summarySize = (value: unknown) =>
                                 />
                             </svg>
                             <p
-                                class="mt-2 text-sm font-semibold text-slate-500"
+                                class="mt-2 text-sm font-semibold text-brand-secondary/70"
                             >
                                 Belum ada data
                             </p>
@@ -423,16 +423,19 @@ const summarySize = (value: unknown) =>
                 <article
                     v-for="(value, key) in summary"
                     :key="String(key)"
-                    class="border bg-white"
+                    class="border"
                     :class="
                         isQuestions
-                            ? 'min-h-52 rounded-xl border-t-4 border-slate-200 border-t-brand-secondary p-5 shadow-[0_2px_6px_rgba(15,23,42,0.08)]'
-                            : 'rounded-2xl border-slate-100 p-4 shadow-sm'
+                            ? 'min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]'
+                            : 'rounded-2xl border-slate-100 bg-white p-4 shadow-sm'
                     "
                 >
                     <div class="flex items-center justify-between gap-3">
                         <p
-                            class="text-xs font-bold uppercase tracking-wide text-slate-500"
+                            class="text-xs font-bold uppercase tracking-wide"
+                            :class="
+                                isQuestions ? 'text-white' : 'text-slate-500'
+                            "
                         >
                             {{ String(key).replaceAll('_', ' ') }}
                         </p>
@@ -442,7 +445,7 @@ const summarySize = (value: unknown) =>
                                 typeof value === 'object' &&
                                 value !== null
                             "
-                            class="rounded-full bg-brand-secondary/15 px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#527A12]"
+                            class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#102449]"
                         >
                             {{ summarySize(value) }}
                         </span>
@@ -453,8 +456,12 @@ const summarySize = (value: unknown) =>
                             value !== null &&
                             (!isQuestions || summarySize(value))
                         "
-                        class="mt-3 text-xs text-slate-700"
-                        :class="isQuestions ? 'space-y-2' : 'space-y-1.5'"
+                        class="mt-3 text-xs"
+                        :class="
+                            isQuestions
+                                ? 'space-y-2 text-brand-secondary'
+                                : 'space-y-1.5 text-slate-700'
+                        "
                     >
                         <div
                             v-for="(subVal, subKey) in value as Record<
@@ -465,13 +472,19 @@ const summarySize = (value: unknown) =>
                             class="flex items-center justify-between"
                             :class="
                                 isQuestions
-                                    ? 'rounded-lg bg-slate-50 px-3 py-2'
+                                    ? 'rounded-lg bg-white/10 px-3 py-2'
                                     : 'border-b border-slate-50 py-0.5 last:border-none'
                             "
                         >
-                            <span class="font-medium text-slate-500">{{
-                                String(subKey).replaceAll('_', ' ')
-                            }}</span>
+                            <span
+                                class="font-medium"
+                                :class="
+                                    isQuestions
+                                        ? 'text-brand-secondary'
+                                        : 'text-slate-500'
+                                "
+                                >{{ String(subKey).replaceAll('_', ' ') }}</span
+                            >
                             <span
                                 v-if="subKey === 'reverb_status'"
                                 :class="
@@ -483,9 +496,16 @@ const summarySize = (value: unknown) =>
                             >
                                 {{ subVal }}
                             </span>
-                            <span v-else class="font-bold text-slate-900">{{
-                                String(subVal ?? '-')
-                            }}</span>
+                            <span
+                                v-else
+                                class="font-bold"
+                                :class="
+                                    isQuestions
+                                        ? 'text-brand-secondary'
+                                        : 'text-slate-900'
+                                "
+                                >{{ String(subVal ?? '-') }}</span
+                            >
                         </div>
                     </div>
                     <div
@@ -498,7 +518,7 @@ const summarySize = (value: unknown) =>
                     >
                         <div>
                             <svg
-                                class="mx-auto h-8 w-8 text-slate-300"
+                                class="mx-auto h-8 w-8 text-brand-secondary/100"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -512,7 +532,7 @@ const summarySize = (value: unknown) =>
                                 />
                             </svg>
                             <p
-                                class="mt-2 text-sm font-semibold text-slate-500"
+                                class="mt-2 text-sm font-semibold text-brand-secondary/70"
                             >
                                 Belum ada data
                             </p>
@@ -520,7 +540,12 @@ const summarySize = (value: unknown) =>
                     </div>
                     <p
                         v-else
-                        class="mt-3 break-words text-2xl font-extrabold text-slate-900"
+                        class="mt-3 break-words text-2xl font-extrabold"
+                        :class="
+                            isQuestions
+                                ? 'text-brand-secondary'
+                                : 'text-slate-900'
+                        "
                     >
                         {{ value }}
                     </p>
@@ -554,7 +579,7 @@ const summarySize = (value: unknown) =>
                         class="rounded-full px-3 py-1 text-xs font-bold"
                         :class="
                             isStyledSection
-                                ? 'bg-brand-secondary/15 text-[#527A12]'
+                                ? 'bg-brand-primary/15 text-[#3154D5]'
                                 : 'bg-teal-50 text-teal-800'
                         "
                         >{{ section }}</span
@@ -611,7 +636,7 @@ const summarySize = (value: unknown) =>
                             <p
                                 :class="
                                     isStyledSection
-                                        ? 'question-type mt-2 inline-flex shrink-0 rounded-full bg-brand-secondary/15 px-3 py-1 text-xs font-bold text-[#527A12] sm:mt-0'
+                                        ? 'question-type mt-2 inline-flex shrink-0 rounded-full bg-brand-primary/15 px-3 py-1 text-xs font-bold text-[#3154D5] sm:mt-0'
                                         : 'mt-1 text-sm text-slate-500'
                                 "
                             >
@@ -645,7 +670,7 @@ const summarySize = (value: unknown) =>
                                 class="text-sm font-bold"
                                 :class="
                                     isQuestions
-                                        ? 'text-[#527A12]'
+                                        ? 'text-[#3154D5]'
                                         : 'text-teal-800'
                                 "
                             >
@@ -692,7 +717,9 @@ const summarySize = (value: unknown) =>
                             />
                         </svg>
                     </div>
-                    <h3 class="mt-4 font-extrabold text-slate-900">
+                    <h3
+                        class="mt-2 text-sm font-semibold text-brand-secondary/70"
+                    >
                         Belum ada data
                     </h3>
                     <p
@@ -705,7 +732,7 @@ const summarySize = (value: unknown) =>
                         href="/dashboard"
                         class="mt-4 inline-flex text-xs font-bold hover:underline"
                         :class="
-                            isStyledSection ? 'text-[#527A12]' : 'text-teal-700'
+                            isStyledSection ? 'text-[#3154D5]' : 'text-teal-700'
                         "
                     >
                         Kembali ke dashboard

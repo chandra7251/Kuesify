@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import AvatarIcon from '@/Components/AvatarIcon.vue';
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownLink from '@/Components/DropdownLink.vue';
 import type { PageProps } from '@/types';
 import { roleLabel } from '@/utils/roleLabel';
 import { Link, usePage } from '@inertiajs/vue3';
@@ -131,13 +129,13 @@ function closeMobileNav(): void {
                     class="flex min-w-0 items-center gap-3"
                 >
                     <div
-                        class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-secondary shadow-sm"
+                        class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white shadow-sm"
                     >
-                        <ApplicationLogo class="h-6 w-6 text-white" />
+                        <ApplicationLogo class="h-6 w-6 text-brand-secondary" />
                     </div>
                     <div class="min-w-0 flex-1 truncate">
                         <span
-                            class="block truncate text-xl font-black tracking-tight text-white"
+                            class="block truncate text-xl font-black tracking-tight text-brand-secondary"
                             >Kuesify</span
                         >
                         <span
@@ -357,57 +355,96 @@ function closeMobileNav(): void {
                 </Link>
             </div>
 
-            <!-- Bottom Profile Section -->
+            <!-- Bottom Sidebar Actions -->
             <div class="shrink-0 border-t border-white/10 p-3">
-                <!-- Expanded Profile Card -->
-                <div v-if="desktopSidebarExpanded">
-                    <div class="flex items-center gap-3 px-2">
-                        <div
-                            class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-secondary/20 text-brand-secondary"
-                        >
-                            <AvatarIcon
-                                :avatar-key="page.props.auth.user.avatar_key"
-                                class="h-7 w-7 text-brand-secondary"
-                            />
-                        </div>
-                        <div class="min-w-0 flex-1 truncate">
-                            <p class="truncate text-sm font-bold text-white">
-                                {{ page.props.auth.user.name }}
-                            </p>
-                            <p class="truncate text-xs text-white/70">
-                                Role : {{ roleLabel(currentRole) }}
-                            </p>
-                        </div>
-                    </div>
-                    <div
-                        class="mt-3 flex items-center justify-between px-2 text-xs font-semibold text-white/70"
-                    >
-                        <Link
-                            :href="route('profile.edit')"
-                            class="transition hover:text-white"
-                            >Settings</Link
-                        >
-                        <Link
-                            :href="route('logout')"
-                            method="post"
-                            as="button"
-                            class="transition hover:text-brand-secondary"
-                            >Logout</Link
-                        >
-                    </div>
-                </div>
-
-                <!-- Collapsed Profile Button -->
-                <div v-else class="flex justify-center">
+                <!-- Expanded: Setting + Logout buttons -->
+                <div v-if="desktopSidebarExpanded" class="flex flex-col gap-1">
+                    <!-- Settings -->
                     <Link
                         :href="route('profile.edit')"
-                        class="grid h-10 w-10 place-items-center rounded-xl bg-white/10 text-white transition hover:bg-white/20"
-                        title="Profil pengguna"
+                        class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-white/80 transition hover:bg-white/10 hover:text-brand-secondary"
                     >
-                        <AvatarIcon
-                            :avatar-key="page.props.auth.user.avatar_key"
-                            class="h-6 w-6 text-brand-secondary"
-                        />
+                        <svg
+                            class="h-5 w-5 shrink-0"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <path d="M12 20h9" />
+                            <path
+                                d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+                            />
+                        </svg>
+                        <span>Settings</span>
+                    </Link>
+                    <!-- Logout -->
+                    <Link
+                        :href="route('logout')"
+                        method="post"
+                        as="button"
+                        class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-white/80 transition hover:bg-white/10 hover:text-brand-secondary"
+                    >
+                        <svg
+                            class="h-5 w-5 shrink-0"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg>
+                        <span>Logout</span>
+                    </Link>
+                </div>
+                <!-- Collapsed: Icon only -->
+                <div v-else class="flex flex-col items-center gap-1">
+                    <Link
+                        :href="route('profile.edit')"
+                        class="grid h-10 w-10 place-items-center rounded-lg text-white/80 transition hover:bg-white/10 hover:text-brand-secondary"
+                        title="Settings"
+                    >
+                        <svg
+                            class="h-5 w-5"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <path d="M12 20h9" />
+                            <path
+                                d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+                            />
+                        </svg>
+                    </Link>
+                    <Link
+                        :href="route('logout')"
+                        method="post"
+                        as="button"
+                        class="grid h-10 w-10 place-items-center rounded-lg text-white/80 transition hover:bg-white/10 hover:text-brand-secondary"
+                        title="Logout"
+                    >
+                        <svg
+                            class="h-5 w-5"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg>
                     </Link>
                 </div>
             </div>
@@ -467,78 +504,44 @@ function closeMobileNav(): void {
 
                         <!-- Workspace Info (Mockup Reference) -->
                         <div class="hidden sm:block">
-                            <p
-                                class="text-[11px] font-bold uppercase tracking-widest text-brand-secondary "
+                            <h2
+                                class="text-base font-bold uppercase tracking-widest text-brand-secondary sm:text-lg"
                             >
                                 WORKSPACE
-                            </p>
-                            <h2
+                            </h2>
+                            <!-- <h2
                                 class="text-base font-black leading-tight tracking-tight text-brand-secondary  sm:text-lg"
                             >
                                 Selamat Datang,
                                 {{ page.props.auth.user.name }}
-                            </h2>
+                            </h2> -->
                         </div>
                     </div>
 
-                    <!-- Right Section: User Actions & Profile -->
-                    <div class="flex items-center gap-2 sm:gap-3">
-                        <!-- Desktop User Dropdown -->
-                        <div class="hidden sm:block">
-                            <Dropdown align="right" width="48">
-                                <template #trigger>
-                                    <button
-                                        type="button"
-                                        class="flex min-h-11 items-center gap-2.5 rounded-xl border border-white/20 bg-white/10 px-3 py-1 text-sm font-semibold text-white transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
-                                        aria-label="Avatar pengguna"
-                                    >
-                                        <AvatarIcon
-                                            :avatar-key="
-                                                page.props.auth.user.avatar_key
-                                            "
-                                            class="h-7 w-7 p-1 text-brand-secondary "
-                                        />
-                                        <span class="max-w-32 truncate">{{
-                                            page.props.auth.user.name
-                                        }}</span>
-                                        <svg
-                                            class="h-4 w-4 text-blue-200"
-                                            viewBox="0 0 20 20"
-                                            fill="currentColor"
-                                        >
-                                            <path
-                                                fill-rule="evenodd"
-                                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                                                clip-rule="evenodd"
-                                            />
-                                        </svg>
-                                    </button>
-                                </template>
-                                <template #content>
-                                    <DropdownLink :href="route('profile.edit')"
-                                        >Profil</DropdownLink
-                                    >
-                                    <DropdownLink
-                                        :href="route('logout')"
-                                        method="post"
-                                        as="button"
-                                        >Keluar</DropdownLink
-                                    >
-                                </template>
-                            </Dropdown>
+                    <!-- Right Section: Profile Info -->
+                    <div class="flex items-center gap-3">
+                        <!-- Nama & Role (Desktop) -->
+                        <div class="hidden flex-col items-end sm:flex">
+                            <p
+                                class="text-sm font-bold leading-tight text-white"
+                            >
+                                {{ page.props.auth.user.name }}
+                            </p>
+                            <p
+                                class="text-[11px] font-semibold leading-tight text-brand-secondary"
+                            >
+                                {{ roleLabel(currentRole) }}
+                            </p>
                         </div>
-
-                        <!-- Mobile Avatar Link -->
-                        <Link
-                            :href="route('profile.edit')"
-                            class="grid h-10 w-10 place-items-center rounded-xl bg-white/10 text-white sm:hidden"
-                            aria-label="Profil pengguna"
+                        <!-- Avatar Circle -->
+                        <div
+                            class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-secondary/20 ring-2 ring-brand-secondary/40"
                         >
                             <AvatarIcon
                                 :avatar-key="page.props.auth.user.avatar_key"
-                                class="h-6 w-6 text-white"
+                                class="h-6 w-6 text-brand-secondary"
                             />
-                        </Link>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -795,43 +798,74 @@ function closeMobileNav(): void {
                     </nav>
                 </div>
 
-                <!-- Bottom Profile in Mobile Drawer -->
+                <!-- Bottom Actions in Mobile Drawer -->
                 <div class="border-t border-white/15 pt-4">
-                    <div class="flex items-center gap-3 px-2">
+                    <!-- Profile Info -->
+                    <div class="flex items-center gap-3 px-2 pb-3">
                         <div
-                            class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-secondary/20 text-brand-secondary"
+                            class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-secondary/20 ring-2 ring-brand-secondary/40"
                         >
                             <AvatarIcon
                                 :avatar-key="page.props.auth.user.avatar_key"
-                                class="h-7 w-7 text-brand-secondary"
+                                class="h-6 w-6 text-brand-secondary"
                             />
                         </div>
                         <div class="min-w-0 flex-1">
                             <p class="truncate text-sm font-bold text-white">
                                 {{ page.props.auth.user.name }}
                             </p>
-                            <p class="truncate text-xs text-white/70">
-                                Role : {{ roleLabel(currentRole) }}
+                            <p
+                                class="truncate text-[11px] font-semibold text-brand-secondary"
+                            >
+                                {{ roleLabel(currentRole) }}
                             </p>
                         </div>
                     </div>
-                    <div
-                        class="mt-3 flex items-center justify-between px-2 text-xs font-semibold text-white/70"
+                    <!-- Settings -->
+                    <Link
+                        :href="route('profile.edit')"
+                        class="grid h-10 w-10 place-items-center rounded-lg text-white/80 transition hover:bg-white/10 hover:text-brand-secondary"
+                        @click="closeMobileNav"
                     >
-                        <Link
-                            :href="route('profile.edit')"
-                            class="transition hover:text-white"
-                            @click="closeMobileNav"
-                            >Profil</Link
+                        <svg
+                            class="h-5 w-5 shrink-0"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
                         >
-                        <Link
-                            :href="route('logout')"
-                            method="post"
-                            as="button"
-                            class="transition hover:text-brand-secondary"
-                            >Keluar</Link
+                            <path d="M12 20h9" />
+                            <path
+                                d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+                            />
+                        </svg>
+                        <span>Settings</span>
+                    </Link>
+                    <!-- Logout -->
+                    <Link
+                        :href="route('logout')"
+                        method="post"
+                        as="button"
+                        class="grid h-10 w-10 place-items-center rounded-lg text-white/80 transition hover:bg-white/10 hover:text-brand-secondary"
+                        @click="closeMobileNav"
+                    >
+                        <svg
+                            class="h-5 w-5 shrink-0"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
                         >
-                    </div>
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg>
+                        <span>Keluar</span>
+                    </Link>
                 </div>
             </aside>
         </transition>

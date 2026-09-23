@@ -58,244 +58,6 @@ function openSession(): void {
 
     <AuthenticatedLayout>
         <main class="mx-auto max-w-7xl space-y-5 px-4 py-6 sm:px-6 lg:px-8">
-            <!-- 3 Stat Cards (Persis dengan Card Types, Categories, Tags Question Bank) -->
-            <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <!-- Card 1: Status Sesi -->
-                <article
-                    class="min-h-52 rounded-xl border border-t-4 border-slate-200 border-t-brand-secondary bg-white p-5 shadow-[0_2px_6px_rgba(15,23,42,0.08)]"
-                >
-                    <div class="flex items-center justify-between gap-3">
-                        <p
-                            class="text-xs font-bold uppercase tracking-wide text-slate-500"
-                        >
-                            STATUS SESI
-                        </p>
-                        <span
-                            class="rounded-full bg-brand-secondary/15 px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#527A12]"
-                        >
-                            {{ sessions.data.length }}
-                        </span>
-                    </div>
-
-                    <div
-                        v-if="sessions.data.length"
-                        class="mt-3 space-y-2 text-xs text-slate-700"
-                    >
-                        <div
-                            class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"
-                        >
-                            <span class="font-medium text-slate-500"
-                                >Lobby</span
-                            >
-                            <span class="font-bold text-slate-900">{{
-                                lobbyCount
-                            }}</span>
-                        </div>
-                        <div
-                            class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"
-                        >
-                            <span class="font-medium text-slate-500"
-                                >Sedang berlangsung</span
-                            >
-                            <span class="font-bold text-slate-900">{{
-                                liveCount
-                            }}</span>
-                        </div>
-                        <div
-                            class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"
-                        >
-                            <span class="font-medium text-slate-500"
-                                >Selesai</span
-                            >
-                            <span class="font-bold text-slate-900">{{
-                                endedCount
-                            }}</span>
-                        </div>
-                    </div>
-
-                    <div
-                        v-else
-                        class="grid min-h-32 place-items-center text-center"
-                    >
-                        <div>
-                            <svg
-                                class="mx-auto h-8 w-8 text-slate-300"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1.7"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    d="M5 7h14v12H5zM8 4h8v3M9 12h6"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
-                            <p
-                                class="mt-2 text-sm font-semibold text-slate-500"
-                            >
-                                Belum ada data
-                            </p>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Card 2: Kuis Published -->
-                <article
-                    class="min-h-52 rounded-xl border border-t-4 border-slate-200 border-t-brand-secondary bg-white p-5 shadow-[0_2px_6px_rgba(15,23,42,0.08)]"
-                >
-                    <div class="flex items-center justify-between gap-3">
-                        <p
-                            class="text-xs font-bold uppercase tracking-wide text-slate-500"
-                        >
-                            KUIS PUBLISHED
-                        </p>
-                        <span
-                            class="rounded-full bg-brand-secondary/15 px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#527A12]"
-                        >
-                            {{ quizzes.length }}
-                        </span>
-                    </div>
-
-                    <div
-                        v-if="quizzes.length"
-                        class="mt-3 space-y-2 text-xs text-slate-700"
-                    >
-                        <div
-                            v-for="quiz in quizzes.slice(0, 3)"
-                            :key="quiz.id"
-                            class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"
-                        >
-                            <span
-                                class="truncate pr-2 font-medium text-slate-700"
-                                >{{ quiz.title }}</span
-                            >
-                            <span
-                                class="shrink-0 rounded-full bg-brand-secondary/15 px-2 py-0.5 text-[10px] font-bold text-[#527A12]"
-                            >
-                                published
-                            </span>
-                        </div>
-                    </div>
-
-                    <div
-                        v-else
-                        class="grid min-h-32 place-items-center text-center"
-                    >
-                        <div>
-                            <svg
-                                class="mx-auto h-8 w-8 text-slate-300"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1.7"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    d="M5 7h14v12H5zM8 4h8v3M9 12h6"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
-                            <p
-                                class="mt-2 text-sm font-semibold text-slate-500"
-                            >
-                                Belum ada data
-                            </p>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Card 3: Peserta Terdaftar -->
-                <article
-                    class="min-h-52 rounded-xl border border-t-4 border-slate-200 border-t-brand-secondary bg-white p-5 shadow-[0_2px_6px_rgba(15,23,42,0.08)] sm:col-span-2 lg:col-span-1"
-                >
-                    <div class="flex items-center justify-between gap-3">
-                        <p
-                            class="text-xs font-bold uppercase tracking-wide text-slate-500"
-                        >
-                            PARTISIPASI
-                        </p>
-                        <span
-                            class="rounded-full bg-brand-secondary/15 px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#527A12]"
-                        >
-                            {{ totalParticipantsCount }}
-                        </span>
-                    </div>
-
-                    <div
-                        v-if="sessions.data.length"
-                        class="mt-3 space-y-2 text-xs text-slate-700"
-                    >
-                        <div
-                            class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"
-                        >
-                            <span class="font-medium text-slate-500"
-                                >Total peserta</span
-                            >
-                            <span class="font-bold text-slate-900">{{
-                                totalParticipantsCount
-                            }}</span>
-                        </div>
-                        <div
-                            class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"
-                        >
-                            <span class="font-medium text-slate-500"
-                                >Rata-rata / sesi</span
-                            >
-                            <span class="font-bold text-slate-900">
-                                {{
-                                    sessions.data.length
-                                        ? Math.round(
-                                              totalParticipantsCount /
-                                                  sessions.data.length,
-                                          )
-                                        : 0
-                                }}
-                            </span>
-                        </div>
-                        <div
-                            class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"
-                        >
-                            <span class="font-medium text-slate-500"
-                                >Akses gabung</span
-                            >
-                            <span class="font-bold text-slate-900"
-                                >PIN 6 digit</span
-                            >
-                        </div>
-                    </div>
-
-                    <div
-                        v-else
-                        class="grid min-h-32 place-items-center text-center"
-                    >
-                        <div>
-                            <svg
-                                class="mx-auto h-8 w-8 text-slate-300"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1.7"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    d="M5 7h14v12H5zM8 4h8v3M9 12h6"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
-                            <p
-                                class="mt-2 text-sm font-semibold text-slate-500"
-                            >
-                                Belum ada data
-                            </p>
-                        </div>
-                    </div>
-                </article>
-            </section>
-
             <!-- Card Host Control: Buka Sesi Baru (Style Card Question Bank) -->
             <section
                 class="rounded-xl border border-slate-200 bg-white p-6 shadow-[0_2px_7px_rgba(15,23,42,0.09)] sm:p-7"
@@ -409,6 +171,238 @@ function openSession(): void {
                         </button>
                     </div>
                 </form>
+            </section>
+
+            <!-- 3 Stat Cards (Persis dengan Card Types, Categories, Tags Question Bank) -->
+            <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <!-- Card 1: Status Sesi -->
+                <article
+                    class="min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]"
+                >
+                    <div class="flex items-center justify-between gap-3">
+                        <p
+                            class="text-xs font-bold uppercase tracking-wide text-white"
+                        >
+                            STATUS SESI
+                        </p>
+                        <span
+                            class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#102449]"
+                        >
+                            {{ sessions.data.length }}
+                        </span>
+                    </div>
+                    <div
+                        v-if="sessions.data.length"
+                        class="mt-3 space-y-2 text-xs text-brand-secondary"
+                    >
+                        <div
+                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
+                        >
+                            <span class="font-medium text-brand-secondary"
+                                >Lobby</span
+                            >
+                            <span class="font-bold text-brand-secondary">{{
+                                lobbyCount
+                            }}</span>
+                        </div>
+                        <div
+                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
+                        >
+                            <span class="font-medium text-brand-secondary"
+                                >Sedang berlangsung</span
+                            >
+                            <span class="font-bold text-brand-secondary">{{
+                                liveCount
+                            }}</span>
+                        </div>
+                        <div
+                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
+                        >
+                            <span class="font-medium text-brand-secondary"
+                                >Selesai</span
+                            >
+                            <span class="font-bold text-brand-secondary">{{
+                                endedCount
+                            }}</span>
+                        </div>
+                    </div>
+                    <div
+                        v-else
+                        class="grid min-h-32 place-items-center text-center"
+                    >
+                        <div>
+                            <svg
+                                class="mx-auto h-8 w-8 text-brand-secondary/100"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.7"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    d="M5 7h14v12H5zM8 4h8v3M9 12h6"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                            <p
+                                class="mt-2 text-sm font-semibold text-brand-secondary/70"
+                            >
+                                Belum ada data
+                            </p>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Card 2: Kuis Published -->
+                <article
+                    class="min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]"
+                >
+                    <div class="flex items-center justify-between gap-3">
+                        <p
+                            class="text-xs font-bold uppercase tracking-wide text-white"
+                        >
+                            KUIS PUBLISHED
+                        </p>
+                        <span
+                            class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#102449]"
+                        >
+                            {{ quizzes.length }}
+                        </span>
+                    </div>
+                    <div
+                        v-if="quizzes.length"
+                        class="mt-3 space-y-2 text-xs text-brand-secondary"
+                    >
+                        <div
+                            v-for="quiz in quizzes.slice(0, 3)"
+                            :key="quiz.id"
+                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
+                        >
+                            <span
+                                class="truncate pr-2 font-medium text-brand-secondary"
+                                >{{ quiz.title }}</span
+                            >
+                            <span
+                                class="shrink-0 rounded-full bg-brand-secondary px-2 py-0.5 text-[10px] font-bold text-[#102449]"
+                            >
+                                published
+                            </span>
+                        </div>
+                    </div>
+                    <div
+                        v-else
+                        class="grid min-h-32 place-items-center text-center"
+                    >
+                        <div>
+                            <svg
+                                class="mx-auto h-8 w-8 text-brand-secondary/100"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.7"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    d="M5 7h14v12H5zM8 4h8v3M9 12h6"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                            <p
+                                class="mt-2 text-sm font-semibold text-brand-secondary/70"
+                            >
+                                Belum ada data
+                            </p>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Card 3: Partisipasi -->
+                <article
+                    class="min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)] sm:col-span-2 lg:col-span-1"
+                >
+                    <div class="flex items-center justify-between gap-3">
+                        <p
+                            class="text-xs font-bold uppercase tracking-wide text-white"
+                        >
+                            PARTISIPASI
+                        </p>
+                        <span
+                            class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#102449]"
+                        >
+                            {{ totalParticipantsCount }}
+                        </span>
+                    </div>
+                    <div
+                        v-if="sessions.data.length"
+                        class="mt-3 space-y-2 text-xs text-brand-secondary"
+                    >
+                        <div
+                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
+                        >
+                            <span class="font-medium text-brand-secondary"
+                                >Total peserta</span
+                            >
+                            <span class="font-bold text-brand-secondary">{{
+                                totalParticipantsCount
+                            }}</span>
+                        </div>
+                        <div
+                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
+                        >
+                            <span class="font-medium text-brand-secondary"
+                                >Rata-rata / sesi</span
+                            >
+                            <span class="font-bold text-brand-secondary">
+                                {{
+                                    sessions.data.length
+                                        ? Math.round(
+                                              totalParticipantsCount /
+                                                  sessions.data.length,
+                                          )
+                                        : 0
+                                }}
+                            </span>
+                        </div>
+                        <div
+                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
+                        >
+                            <span class="font-medium text-brand-secondary"
+                                >Akses gabung</span
+                            >
+                            <span class="font-bold text-brand-secondary"
+                                >PIN 6 digit</span
+                            >
+                        </div>
+                    </div>
+                    <div
+                        v-else
+                        class="grid min-h-32 place-items-center text-center"
+                    >
+                        <div>
+                            <svg
+                                class="mx-auto h-8 w-8 text-brand-secondary/100"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.7"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    d="M5 7h14v12H5zM8 4h8v3M9 12h6"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                            <p
+                                class="mt-2 text-sm font-semibold text-brand-secondary/70"
+                            >
+                                Belum ada data
+                            </p>
+                        </div>
+                    </div>
+                </article>
             </section>
 
             <!-- Card Sesi Terbaru (Persis dengan Card Data Workspace Question Bank) -->

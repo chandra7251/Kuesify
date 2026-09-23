@@ -122,7 +122,7 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                             </Link>
                             <Link
                                 href="/live-sessions"
-                                class="inline-flex min-h-11 items-center justify-center rounded-lg border border-white/50 px-5 text-sm font-semibold text-white transition hover:border-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                                class="inline-flex min-h-11 items-center justify-center rounded-lg border border-brand-secondary px-5 text-sm font-semibold text-brand-secondary transition hover:brand-secondary hover:bg-brand-secondary/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
                             >
                                 Mulai sesi live
                             </Link>
