@@ -31,6 +31,14 @@ class HandleInertiaRequests extends Middleware
     {
         $tenant = app(\App\Support\TenantContext::class)->get();
         $user = $request->user();
+
+        if (! $tenant && $user) {
+            $tenant = $user->organizations()
+                ->whereKey($request->session()->get('organization_id'))
+                ->wherePivot('is_active', true)
+                ->first();
+        }
+
         $currentOrganization = null;
 
         if ($tenant && $user) {
