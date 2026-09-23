@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import TopNavBar from '@/Components/TopNavBar.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { roleLabel } from '@/utils/roleLabel';
 import { Head, Link } from '@inertiajs/vue3';
@@ -78,6 +79,7 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
     <Head title="Dashboard" />
 
     <AuthenticatedLayout>
+        <TopNavBar />
         <div class="min-h-[calc(100vh-4rem)] bg-[#E6F1F5]">
             <main
                 class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8"
@@ -122,7 +124,7 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                             </Link>
                             <Link
                                 href="/live-sessions"
-                                class="inline-flex min-h-11 items-center justify-center rounded-lg border border-brand-secondary px-5 text-sm font-semibold text-brand-secondary transition hover:brand-secondary hover:bg-brand-secondary/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
+                                class="hover:brand-secondary inline-flex min-h-11 items-center justify-center rounded-lg border border-brand-secondary px-5 text-sm font-semibold text-brand-secondary transition hover:bg-brand-secondary/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
                             >
                                 Mulai sesi live
                             </Link>
