@@ -4,7 +4,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 
 defineProps<{
     status?: string;
@@ -58,7 +58,13 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
-            <div class="mt-6 flex items-center justify-end">
+            <div class="mt-6 flex items-center justify-between gap-3">
+                <Link
+                    :href="route('login')"
+                    class="text-xs font-semibold text-brand-primary transition hover:text-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
+                >
+                    ← Kembali
+                </Link>
                 <PrimaryButton
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"

@@ -9,7 +9,7 @@ withDefaults(defineProps<{ contentClass?: string }>(), {
 
 <template>
     <div
-        class="min-h-screen bg-brand-accent text-slate-900 lg:grid lg:grid-cols-[0.95fr_1.05fr]"
+        class="min-h-screen overflow-x-hidden bg-brand-accent text-slate-900 lg:grid lg:grid-cols-[0.95fr_1.05fr]"
     >
         <section
             class="relative hidden overflow-hidden bg-brand-primary px-12 py-10 text-white lg:flex lg:flex-col xl:px-16"
@@ -74,12 +74,20 @@ withDefaults(defineProps<{ contentClass?: string }>(), {
         </section>
 
         <main
-            class="flex min-h-screen items-center justify-center px-4 py-6 sm:px-8 sm:py-10"
+            class="relative flex min-h-screen items-start justify-center px-4 py-5 sm:px-8 sm:py-10 lg:items-center"
         >
-            <div class="w-full" :class="contentClass">
+            <div
+                class="pointer-events-none absolute -right-16 top-8 h-40 w-40 rounded-full bg-brand-secondary/10 sm:h-56 sm:w-56"
+            />
+
+            <div
+                class="pointer-events-none absolute -bottom-20 -left-20 h-52 w-52 rounded-full bg-brand-primary/10 sm:h-72 sm:w-72"
+            />
+
+            <div class="relative w-full" :class="contentClass">
                 <Link
                     href="/"
-                    class="mb-6 inline-flex items-center gap-3 lg:hidden"
+                    class="mx-auto mb-5 inline-flex items-center gap-3 sm:mx-0 sm:mb-6 lg:hidden"
                 >
                     <span
                         class="grid h-10 w-10 place-items-center rounded-xl bg-brand-primary shadow-sm"
@@ -93,12 +101,12 @@ withDefaults(defineProps<{ contentClass?: string }>(), {
                 </Link>
 
                 <div
-                    class="rounded-[2rem] border border-white/70 bg-white p-6 shadow-figma sm:p-9"
+                    class="rounded-[1.75rem] border border-white/70 bg-white p-5 shadow-figma sm:rounded-[2rem] sm:p-9"
                 >
                     <slot />
                 </div>
 
-                <p class="mt-5 text-center text-xs text-slate-500">
+                <p class="mt-4 text-center text-xs text-slate-500 sm:mt-5">
                     Kuesify · Ruang belajar interaktif untuk semua.
                 </p>
             </div>
