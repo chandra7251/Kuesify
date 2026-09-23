@@ -2,17 +2,17 @@
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { Link } from '@inertiajs/vue3';
 
-withDefaults(defineProps<{ contentClass?: string }>(), {
+withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
     contentClass: 'max-w-md',
 });
 </script>
 
 <template>
     <div
-        class="min-h-screen overflow-x-hidden bg-brand-accent text-slate-900 lg:grid lg:grid-cols-[0.95fr_1.05fr]"
+        class="min-h-screen overflow-x-hidden bg-brand-accent text-slate-900 lg:grid lg:h-screen lg:grid-cols-[0.95fr_1.05fr] lg:overflow-hidden"
     >
         <section
-            class="relative hidden overflow-hidden bg-brand-primary px-12 py-10 text-white lg:flex lg:flex-col xl:px-16"
+            class="relative hidden min-h-screen overflow-hidden bg-brand-primary px-12 py-10 text-white lg:flex lg:flex-col xl:px-16"
         >
             <div
                 class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand-secondary/20"
@@ -74,7 +74,12 @@ withDefaults(defineProps<{ contentClass?: string }>(), {
         </section>
 
         <main
-            class="relative flex min-h-screen items-start justify-center px-4 py-5 sm:px-8 sm:py-10 lg:items-center"
+            class="auth-scroll relative flex min-h-screen justify-center px-4 py-5 sm:px-8 sm:py-10 lg:h-screen lg:min-h-0 lg:items-center"
+            :class="
+                compact
+                    ? 'items-center overflow-hidden'
+                    : 'items-start lg:overflow-y-auto'
+            "
         >
             <div
                 class="pointer-events-none absolute -right-16 top-8 h-40 w-40 rounded-full bg-brand-secondary/10 sm:h-56 sm:w-56"
@@ -113,3 +118,14 @@ withDefaults(defineProps<{ contentClass?: string }>(), {
         </main>
     </div>
 </template>
+
+<style scoped>
+.auth-scroll {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.auth-scroll::-webkit-scrollbar {
+    display: none;
+}
+</style>

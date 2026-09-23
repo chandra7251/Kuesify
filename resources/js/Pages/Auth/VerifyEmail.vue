@@ -19,7 +19,7 @@ const verificationLinkSent = computed(
 </script>
 
 <template>
-    <GuestLayout>
+    <GuestLayout compact>
         <Head title="Verifikasi email" />
 
         <div>

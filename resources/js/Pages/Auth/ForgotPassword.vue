@@ -20,7 +20,7 @@ const submit = () => {
 </script>
 
 <template>
-    <GuestLayout>
+    <GuestLayout compact>
         <Head title="Lupa kata sandi" />
 
         <div class="mb-7">
