@@ -468,12 +468,12 @@ function closeMobileNav(): void {
                         <!-- Workspace Info (Mockup Reference) -->
                         <div class="hidden sm:block">
                             <p
-                                class="text-[11px] font-bold uppercase tracking-widest text-brand-secondary opacity-100"
+                                class="text-[11px] font-bold uppercase tracking-widest text-brand-secondary "
                             >
                                 WORKSPACE
                             </p>
                             <h2
-                                class="text-base font-black leading-tight tracking-tight text-brand-secondary opacity-100 sm:text-lg"
+                                class="text-base font-black leading-tight tracking-tight text-brand-secondary  sm:text-lg"
                             >
                                 Selamat Datang,
                                 {{ page.props.auth.user.name }}
@@ -496,7 +496,7 @@ function closeMobileNav(): void {
                                             :avatar-key="
                                                 page.props.auth.user.avatar_key
                                             "
-                                            class="h-7 w-7 p-1 text-brand-secondary opacity-100"
+                                            class="h-7 w-7 p-1 text-brand-secondary "
                                         />
                                         <span class="max-w-32 truncate">{{
                                             page.props.auth.user.name

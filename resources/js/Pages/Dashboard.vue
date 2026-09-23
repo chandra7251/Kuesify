@@ -33,7 +33,7 @@ const statCards = computed(() => [
     {
         label: 'Soal Aktif',
         value: props.stats.questions,
-        color: 'text-[#0A8A65]',
+        color: 'text-[#527A12]',
     },
     {
         label: 'Live Aktif',
@@ -43,7 +43,7 @@ const statCards = computed(() => [
     {
         label: 'Attempt Saya',
         value: props.stats.attempts,
-        color: 'text-[#0A8A65]',
+        color: 'text-[#527A12]',
     },
 ]);
 
@@ -94,7 +94,7 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                                 class="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-white/80"
                             >
                                 <span
-                                    class="h-2 w-2 rounded-full bg-[#0AB883]"
+                                    class="h-2 w-2 rounded-full bg-brand-secondary"
                                     aria-hidden="true"
                                 ></span>
                                 {{ roleLabel(organization.role) }} ·
@@ -116,7 +116,7 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                         <div class="grid shrink-0 gap-3 sm:flex">
                             <Link
                                 href="/quizzes"
-                                class="inline-flex min-h-11 items-center justify-center rounded-lg bg-[#0AB883] px-5 text-sm font-bold text-[#102449] transition hover:bg-[#19C995] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                                class="inline-flex min-h-11 items-center justify-center rounded-lg bg-brand-secondary px-5 text-sm font-bold text-[#ffffff] transition hover:brightness-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                             >
                                 Buat kuis baru
                             </Link>
@@ -158,7 +158,7 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                                     'mb-4 h-1 w-8 rounded-full',
                                     index % 2 === 0
                                         ? 'bg-[#3154D5]'
-                                        : 'bg-[#0AB883]',
+                                        : 'bg-brand-secondary',
                                 ]"
                                 aria-hidden="true"
                             ></div>
@@ -225,7 +225,7 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                                     </p>
                                 </div>
                                 <span
-                                    class="shrink-0 rounded-full bg-[#E1F8F1] px-2.5 py-1 text-xs font-semibold text-[#08785A]"
+                                    class="shrink-0 rounded-full bg-brand-secondary/15 px-2.5 py-1 text-xs font-semibold text-[#527A12]"
                                     >{{ quiz.status }}</span
                                 >
                             </div>
@@ -274,7 +274,7 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                                     Level
                                 </dt>
                                 <dd
-                                    class="mt-1 text-xl font-bold text-[#0A8A65]"
+                                    class="mt-1 text-xl font-bold text-[#527A12]"
                                 >
                                     {{ stats.level }}
                                 </dd>
@@ -315,7 +315,7 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                             v-for="{ title, description, href } in shortcuts"
                             :key="href"
                             :href="href"
-                            class="group flex min-h-20 items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-[#0AB883] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3154D5] motion-reduce:hover:translate-y-0"
+                            class="group flex min-h-20 items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3154D5] motion-reduce:hover:translate-y-0"
                         >
                             <span>
                                 <span
@@ -328,7 +328,7 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                                 >
                             </span>
                             <svg
-                                class="h-5 w-5 shrink-0 text-[#3154D5] transition group-hover:translate-x-0.5 group-hover:text-[#0A8A65] motion-reduce:transform-none"
+                                class="h-5 w-5 shrink-0 text-[#3154D5] transition group-hover:translate-x-0.5 group-hover:text-[#527A12] motion-reduce:transform-none"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"

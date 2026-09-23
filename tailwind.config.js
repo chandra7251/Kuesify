@@ -18,7 +18,7 @@ export default {
             colors: {
                 brand: {
                     primary: '#2F45AB',
-                    secondary: '#83BD31',
+                    secondary: '#90CB31',
                     accent: '#E6F1F5',
                     dark: '#233EA8',
                     hover: '#2645B8',
@@ -29,7 +29,7 @@ export default {
                     3: '#4B392E',
                 },
                 status: {
-                    success: '#83BD31',
+                    success: '#90CB31',
                     warning: '#D7A928',
                     danger: '#D9656D',
                 },
