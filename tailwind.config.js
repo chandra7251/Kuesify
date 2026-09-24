@@ -19,6 +19,7 @@ export default {
                 brand: {
                     primary: '#3154D5',
                     secondary: '#90CB31',
+                    lime: '#A8D83D',
                     accent: '#E6F1F5',
                     dark: '#233EA8',
                     hover: '#2645B8',

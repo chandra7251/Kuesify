@@ -18,7 +18,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const avatars: Record<string, AvatarDefinition> = {
     book: {
-        color: '#0f766e',
+        color: '#3154D5',
         path: 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20v3H6.5A2.5 2.5 0 0 1 4 17.5V5a2 2 0 0 1 2-2h14v14H6.5A2.5 2.5 0 0 0 4 19.5ZM8 7h8m-8 4h6',
     },
     cap: {

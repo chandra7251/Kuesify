@@ -109,7 +109,7 @@ class WorkspaceController extends Controller
         $this->requireAdmin($request);
         $organization = $this->activeOrganization();
 
-        return $this->page('Organisasi', 'organization', $organization->members()->select('users.id', 'users.name', 'users.email', 'organization_user.role', 'organization_user.is_active')->paginate(20), [], [
+        return $this->page('Organisasi', 'organization', $organization->members()->wherePivot('role', '!=', 'super_admin')->select('users.id', 'users.name', 'users.email', 'organization_user.role', 'organization_user.is_active')->paginate(20), [], [
             'groups' => $organization->groups()->orderBy('name')->get(['id', 'name']),
         ]);
     }
@@ -117,6 +117,34 @@ class WorkspaceController extends Controller
     public function reports(Request $request): InertiaResponse
     {
         abort_unless($this->canCreate($request), 403);
+        $isSuperAdmin = $this->isSuperAdmin($request);
+
+        if ($isSuperAdmin) {
+            $allOrgs = Organization::withCount(['members'])->latest()->get();
+            $globalAttempts = QuizAttempt::withoutGlobalScopes()->whereIn('status', ['completed', 'pending_review'])->get();
+            $totalGlobal = $globalAttempts->count();
+            $globalQuizzes = Quiz::withoutGlobalScopes()->count();
+
+            return $this->page('Laporan Global', 'reports', $allOrgs->map(function ($org) {
+                return [
+                    'id' => $org->id,
+                    'title' => $org->name,
+                    'prompt' => $org->name,
+                    'name' => $org->name,
+                    'members_count' => $org->members_count,
+                    'timezone' => $org->timezone,
+                    'questions_count' => Quiz::withoutGlobalScopes()->where('organization_id', $org->id)->count(),
+                    'type' => 'Tenant Terdaftar',
+                ];
+            }), [], [
+                'completionCount' => $totalGlobal,
+                'averageScore' => $totalGlobal ? round($globalAttempts->avg('score'), 2) : 0,
+                'totalOrganizations' => $allOrgs->count(),
+                'totalQuizzes' => $globalQuizzes,
+                'isGlobal' => true,
+            ]);
+        }
+
         $quizzes = Quiz::withCount('questions')->with(['questions:id,type,prompt,points'])->latest()->get();
         $attempts = QuizAttempt::whereIn('quiz_id', $quizzes->pluck('id'))->whereIn('status', ['completed', 'pending_review'])->get();
         $total = $attempts->count();
@@ -132,7 +160,7 @@ class WorkspaceController extends Controller
                 ->keyBy('question_id')
             : collect();
 
-        return $this->page('Laporan', 'reports', $quizzes, [], [
+        return $this->page('Laporan Hasil', 'reports', $quizzes, [], [
             'completionCount' => $total,
             'averageScore' => $total ? round($attempts->avg('score'), 2) : 0,
             'questions' => $allQuestions->map(function (Question $question) use ($answerStats) {
@@ -156,13 +184,38 @@ class WorkspaceController extends Controller
 
         $reverbHealth = app(\App\Services\ReverbHealthService::class)->check();
 
+        $totalAttemptsMonth = QuizAttempt::withoutGlobalScopes()->where('created_at', '>=', now()->startOfMonth())->count();
+        $aiGenerationsMonth = AiGeneration::withoutGlobalScopes()->where('created_at', '>=', now()->startOfMonth())->count();
+        $aiFailures = AiGeneration::withoutGlobalScopes()->where('status', 'failed')->count();
+
         return $this->page('Platform Admin', 'admin', Organization::withCount('members')->latest()->paginate(20), [], [
             'categories' => Category::orderBy('name')->get(['id', 'name']),
             'health' => array_merge([
                 'queued_jobs' => \DB::table('jobs')->count(),
                 'failed_jobs' => \DB::table('failed_jobs')->count(),
-                'ai_failures' => \App\Models\AiGeneration::withoutGlobalScopes()->where('status', 'failed')->count(),
+                'ai_failures' => $aiFailures,
             ], $reverbHealth),
+            'maintenance' => [
+                'status' => 'Sistem Normal (Aktif)',
+                'jadwal_rutin' => 'Setiap Minggu, 02:00 - 04:00 WIB',
+                'mode' => 'Live Production',
+            ],
+            'ai_config' => [
+                'weekly_creator_limit' => (int) config('services.gemini.weekly_creator_quota', 10),
+                'generasi_bulan_ini' => $aiGenerationsMonth,
+                'ai_model' => 'Gemini 2.5 Flash',
+            ],
+            'audio_settings' => [
+                'bgm_lobby' => 'Arcade Retro 8-bit (Default)',
+                'sfx_correct' => 'Crystal Chime High',
+                'sfx_wrong' => 'Muted Buzzer Low',
+                'default_volume' => '70%',
+            ],
+            'monthly_stats' => [
+                'total_organizations' => Organization::count(),
+                'total_users' => \App\Models\User::count(),
+                'total_attempts_month' => $totalAttemptsMonth,
+            ],
         ]);
     }
 
