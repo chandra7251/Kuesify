@@ -11,7 +11,7 @@ const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
 
 <template>
     <Head title="Kuesify — Belajar jadi hidup" />
-    <main class="overflow-hidden bg-[#f7f7f2] text-[#122a35]">
+    <main class="overflow-hidden bg-brand-accent text-brand-primary">
         <section
             class="relative isolate overflow-hidden px-5 pb-20 pt-5 sm:px-8 lg:px-12"
         >
@@ -19,16 +19,16 @@ const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
                 class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
             >
                 <div
-                    class="absolute -left-40 -top-48 h-[35rem] w-[35rem] rounded-full border border-[#91dfc0]"
+                    class="absolute -left-40 -top-48 h-[35rem] w-[35rem] rounded-full border border-brand-secondary/30"
                 ></div>
                 <div
-                    class="absolute -left-20 -top-24 h-[28rem] w-[28rem] rounded-full border border-[#91dfc0]"
+                    class="absolute -left-20 -top-24 h-[28rem] w-[28rem] rounded-full border border-brand-secondary/30"
                 ></div>
                 <div
-                    class="absolute right-[-12rem] top-20 h-[28rem] w-[28rem] rounded-full bg-[#d7f7e6]"
+                    class="absolute right-[-12rem] top-20 h-[28rem] w-[28rem] rounded-full bg-brand-secondary/10"
                 ></div>
                 <div
-                    class="absolute left-1/4 top-20 h-72 w-72 rounded-full bg-[#ffe486] opacity-60 blur-3xl"
+                    class="absolute left-1/4 top-20 h-72 w-72 rounded-full bg-brand-secondary/20 opacity-60 blur-3xl"
                 ></div>
             </div>
 
@@ -38,20 +38,20 @@ const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
             >
                 <Link
                     href="/"
-                    class="flex items-center gap-2 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#16775a]"
+                    class="flex items-center gap-2 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-primary"
                 >
-                    <ApplicationLogo class="h-10 w-10 text-[#16775a]" />
+                    <ApplicationLogo class="h-10 w-10 text-brand-secondary" />
                     <span class="text-xl font-black tracking-tight"
                         >kuesify</span
                     >
                 </Link>
                 <div
-                    class="hidden items-center gap-7 text-sm font-bold text-[#31515d] md:flex"
+                    class="hidden items-center gap-7 text-sm font-bold text-brand-primary/80 md:flex"
                 >
-                    <a href="#fitur" class="hover:text-[#16775a]">Fitur</a
-                    ><a href="#cara-kerja" class="hover:text-[#16775a]"
+                    <a href="#fitur" class="hover:text-brand-primary">Fitur</a
+                    ><a href="#cara-kerja" class="hover:text-brand-primary"
                         >Cara kerja</a
-                    ><a href="#untuk-siapa" class="hover:text-[#16775a]"
+                    ><a href="#untuk-siapa" class="hover:text-brand-primary"
                         >Untuk siapa</a
                     >
                 </div>
@@ -65,7 +65,7 @@ const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
                     <Link
                         v-if="canRegister"
                         href="/register"
-                        class="min-h-11 rounded-xl bg-[#16775a] px-4 py-3 text-sm font-extrabold text-white shadow-[0_7px_0_#0d503e] transition hover:-translate-y-0.5 active:translate-y-1 active:shadow-none sm:px-5"
+                        class="min-h-11 rounded-xl bg-brand-primary px-4 py-3 text-sm font-extrabold text-white shadow-figma transition hover:-translate-y-0.5 active:translate-y-1 active:shadow-none sm:px-5"
                         >Mulai gratis</Link
                     >
                 </div>
@@ -76,23 +76,23 @@ const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
             >
                 <div class="max-w-2xl">
                     <p
-                        class="inline-flex items-center gap-2 rounded-full border border-[#8ad6b8] bg-white/75 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-[#126649]"
+                        class="inline-flex items-center gap-2 rounded-full border border-brand-secondary/60 bg-white/75 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-brand-primary"
                     >
                         <span
-                            class="h-2 w-2 animate-pulse rounded-full bg-[#f36f56]"
+                            class="h-2 w-2 animate-pulse rounded-full bg-brand-secondary"
                         ></span>
                         Kuis yang bikin kelas ikut hidup
                     </p>
                     <h1
                         class="mt-6 text-5xl font-black leading-[0.96] tracking-[-0.065em] sm:text-6xl lg:text-7xl"
                     >
-                        Bukan cuma jawab soal.<br /><span class="text-[#16775a]"
+                        Bukan cuma jawab soal.<br /><span class="text-brand-primary"
                             >Rasakan</span
                         >
                         proses belajarnya.
                     </h1>
                     <p
-                        class="mt-6 max-w-xl text-lg leading-8 text-[#49636d] sm:text-xl"
+                        class="mt-6 max-w-xl text-lg leading-8 text-brand-primary/75 sm:text-xl"
                     >
                         Kuesify menyatukan quiz live, latihan mandiri, dan
                         materi interaktif untuk kelas yang lebih aktif dari awal
@@ -102,75 +102,79 @@ const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
                         <Link
                             v-if="canRegister"
                             href="/register"
-                            class="min-h-13 rounded-2xl bg-[#f36f56] px-6 py-4 text-sm font-black text-white shadow-[0_8px_0_#cc483b] transition hover:-translate-y-0.5 active:translate-y-1 active:shadow-none"
+                            class="min-h-13 rounded-2xl bg-brand-secondary px-6 py-4 text-sm font-black text-white shadow-figma transition hover:-translate-y-0.5 active:translate-y-1 active:shadow-none"
                             >Buat quiz pertama →</Link
                         >
                         <Link
                             href="/join"
-                            class="min-h-13 rounded-2xl border-2 border-[#b7d5c6] bg-white/80 px-6 py-4 text-sm font-black text-[#16775a] hover:border-[#16775a]"
+                            class="min-h-13 rounded-2xl bg-brand-primary px-6 py-4 text-sm font-black text-white transition hover:bg-brand-hover"
                             >Masuk dengan PIN</Link
                         >
                     </div>
-                    <div
-                        class="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-[#49636d]"
-                    >
-                        <span>✓ Tidak perlu kartu kredit</span
-                        ><span>⚡ Siap untuk kelas live</span>
+                    <div class="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-brand-primary/75">
+                        <span class="inline-flex items-center gap-2">
+                            <svg class="h-4 w-4 text-brand-secondary" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M5 12.5 9.5 17 19 7.5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            Kuis interaktif untuk kelas
+                        </span>
+                        <span class="inline-flex items-center gap-2">
+                            <svg class="h-4 w-4 text-brand-secondary" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M4 17V7m0 10 4-4 3 3 5-6 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            Hasil belajar langsung terlihat
+                        </span>
                     </div>
                 </div>
 
-                <div class="relative mx-auto w-full max-w-xl">
-                    <div
-                        class="absolute -left-8 top-12 hidden rotate-[-7deg] rounded-2xl bg-[#f5c453] px-4 py-3 text-sm font-black text-[#574000] shadow-lg sm:block"
+                <div class="relative mx-auto w-full max-w-xl">                    <div
+                        class="absolute -left-8 top-12 hidden rotate-[-7deg] rounded-2xl bg-brand-lime px-4 py-3 text-sm font-black text-brand-primary shadow-lg sm:block"
                     >
                         +100 XP
                     </div>
                     <div
-                        class="absolute -right-3 bottom-8 z-10 hidden rotate-[7deg] rounded-2xl bg-[#f36f56] px-4 py-3 text-sm font-black text-white shadow-lg sm:block"
+                        class="absolute -right-3 bottom-8 z-10 hidden rotate-[7deg] rounded-2xl bg-brand-lime px-4 py-3 text-sm font-black text-brand-primary shadow-lg sm:block"
                     >
                         🔥 3 hari streak
                     </div>
                     <article
-                        class="rounded-[2rem] border-[7px] border-white bg-[#123845] p-5 shadow-[0_28px_60px_rgba(18,42,53,0.24)] sm:p-7"
+                        class="rounded-[2rem] border-[7px] border-white bg-brand-primary p-5 shadow-figma-hover sm:p-7"
                     >
                         <div
                             class="flex items-center justify-between text-white"
                         >
                             <div class="flex items-center gap-3">
                                 <span
-                                    class="grid h-10 w-10 place-items-center rounded-xl bg-[#f5c453] text-lg text-[#734d00]"
+                                    class="grid h-10 w-10 place-items-center rounded-xl bg-brand-secondary text-lg text-brand-primary"
                                     >✦</span
                                 >
                                 <div>
-                                    <p class="text-xs font-bold text-[#aad7cc]">
+                                    <p class="text-xs font-bold text-brand-secondary/70">
                                         LIVE QUIZ
                                     </p>
                                     <p class="font-black">Ekosistem kelas 8</p>
                                 </div>
                             </div>
-                            <span
-                                class="rounded-full bg-white/10 px-3 py-2 text-xs font-black"
-                                >00:24</span
-                            >
+
                         </div>
                         <div
-                            class="mt-7 rounded-[1.5rem] bg-[#fdfdf9] p-5 sm:p-7"
+                            class="mt-7 rounded-[1.5rem] bg-white p-5 sm:p-7"
                         >
                             <div
                                 class="flex items-center justify-between gap-4"
                             >
                                 <p
-                                    class="text-xs font-black uppercase tracking-[0.14em] text-[#16775a]"
+                                    class="text-xs font-black uppercase tracking-[0.14em] text-brand-primary"
                                 >
                                     Soal 3 dari 10
                                 </p>
                                 <span
-                                    class="rounded-full bg-[#e4f6ed] px-3 py-1 text-xs font-black text-[#16775a]"
+                                    class="rounded-full bg-brand-secondary/10 px-3 py-1 text-xs font-black text-brand-primary"
                                     >100 poin</span
                                 >
                             </div>
                             <h2
-                                class="mt-5 text-2xl font-black leading-tight tracking-[-0.035em] text-[#19333e] sm:text-3xl"
+                                class="mt-5 text-2xl font-black leading-tight tracking-[-0.035em] text-brand-primary sm:text-3xl"
                             >
                                 Makhluk hidup yang membuat makanan sendiri
                                 disebut?
@@ -182,36 +186,32 @@ const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
                                     class="min-h-14 rounded-2xl border-2 px-4 text-left text-sm font-black transition"
                                     :class="
                                         answer === choice
-                                            ? 'border-[#16775a] bg-[#daf6e8] text-[#126649]'
-                                            : 'border-[#e5ece8] bg-white text-[#34515b] hover:-translate-y-0.5 hover:border-[#8ed4ba]'
+                                            ? 'border-brand-primary bg-brand-secondary/20 text-brand-primary'
+                                            : 'border-brand-primary/15 bg-white text-brand-primary/80 hover:-translate-y-0.5 hover:border-brand-secondary/60'
                                     "
                                     @click="answer = choice"
                                 >
                                     <span
-                                        class="mr-3 inline-grid h-7 w-7 place-items-center rounded-lg bg-[#eff4f1] text-xs text-[#6b858c]"
-                                        >{{
-                                            String.fromCharCode(65 + index)
-                                        }}</span
+                                        class="mr-3 inline-grid h-7 w-7 place-items-center rounded-lg text-xs"
+                                        :class="answer === choice ? 'bg-brand-primary text-brand-secondary' : 'bg-brand-accent text-brand-primary/60'"
+                                    >{{
+                                        String.fromCharCode(65 + index)
+                                    }}</span
                                     >{{ choice }}
                                 </button>
                             </div>
                             <p
                                 v-if="answer"
-                                class="mt-4 text-sm font-bold text-[#16775a]"
+                                class="mt-4 text-sm font-bold text-brand-primary"
                             >
-                                Jawaban tersimpan. Lanjut sebelum timer habis.
+                                Pilihanmu sudah tercatat.
                             </p>
                         </div>
                         <div
                             class="mt-5 flex items-center justify-between rounded-2xl bg-white/10 px-4 py-3 text-sm text-white"
                         >
-                            <span class="font-bold"
-                                >Peserta aktif
-                                <strong class="text-[#f5c453]">34</strong></span
-                            ><span class="font-bold"
-                                >Rani
-                                <span class="text-[#f5c453]">1.920</span></span
-                            >
+                            <span class="font-bold">Peserta aktif <strong class="text-brand-secondary">34</strong></span>
+                            <span class="font-bold">Rani <span class="text-brand-secondary">1.920</span></span>
                         </div>
                     </article>
                 </div>
@@ -220,87 +220,51 @@ const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
 
         <section
             id="fitur"
-            class="bg-[#123845] px-5 py-20 text-white sm:px-8 lg:px-12"
+            class="relative overflow-hidden bg-brand-primary px-5 py-20 text-white sm:px-8 lg:px-12 lg:py-24"
         >
-            <div class="mx-auto max-w-7xl">
-                <div class="max-w-2xl">
-                    <p
-                        class="text-xs font-black uppercase tracking-[0.18em] text-[#8ee2bf]"
-                    >
-                        Satu platform, tiga mode
-                    </p>
-                    <h2
-                        class="mt-4 text-4xl font-black tracking-[-0.05em] sm:text-5xl"
-                    >
-                        Pilih cara belajar. Tetap terasa seru.
-                    </h2>
+            <div class="pointer-events-none absolute -right-28 top-12 h-72 w-72 rounded-full bg-brand-secondary/10" />
+            <div class="pointer-events-none absolute -bottom-40 left-1/3 h-80 w-80 rounded-full border border-white/10" />
+
+            <div class="relative mx-auto max-w-7xl">
+                <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+                    <div class="max-w-2xl">
+                        <p class="text-xs font-black uppercase tracking-[0.18em] text-brand-lime">Satu platform, tiga mode</p>
+                        <h2 class="mt-4 text-4xl font-black leading-[1.02] tracking-[-0.055em] sm:text-5xl">Belajar aktif, dengan cara yang terasa pas.</h2>
+                    </div>
+                    <p class="max-w-sm text-base leading-7 text-white/65">Pilih pengalaman belajar yang sesuai dengan energi kelas, waktu peserta, dan materi yang sudah tersedia.</p>
                 </div>
-                <div class="mt-12 grid gap-5 md:grid-cols-3">
-                    <article
-                        class="rounded-[1.75rem] bg-[#1b4b59] p-6 transition hover:-translate-y-1"
-                    >
-                        <span
-                            class="grid h-12 w-12 place-items-center rounded-2xl bg-[#f5c453] text-2xl text-[#704a00]"
-                            >⚡</span
-                        >
-                        <h3 class="mt-8 text-2xl font-black">Live Quiz</h3>
-                        <p class="mt-3 leading-7 text-[#c3ded8]">
-                            Host buka room, peserta masuk pakai PIN, skor dan
-                            leaderboard bergerak realtime.
-                        </p>
-                        <Link
-                            href="/join"
-                            class="mt-7 inline-block text-sm font-black text-[#8ee2bf]"
-                            >Masuk room →</Link
-                        >
+
+                <div class="mt-12 grid gap-4 md:grid-cols-3">
+                    <article class="group rounded-3xl bg-brand-dark p-6 transition duration-300 hover:-translate-y-1 hover:shadow-figma-hover sm:p-7">
+                        <div class="flex items-center justify-between"><span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-lime text-sm font-black text-brand-primary">01</span><span class="text-xs font-black uppercase tracking-[0.16em] text-brand-lime">Realtime</span></div>
+                        <h3 class="mt-12 text-2xl font-black tracking-[-0.03em]">Live Quiz</h3>
+                        <p class="mt-3 min-h-14 text-sm leading-6 text-white/65">Buka room, bagikan PIN, dan lihat kelas merespons soal secara langsung.</p>
+                        <div class="mt-8 flex items-center justify-between border-t border-white/10 pt-4"><span class="text-xs font-bold text-white/50">34 peserta aktif</span><Link href="/join" class="text-sm font-black text-brand-lime">Masuk room <span aria-hidden="true">→</span></Link></div>
                     </article>
-                    <article
-                        class="rounded-[1.75rem] bg-[#276574] p-6 transition hover:-translate-y-1"
-                    >
-                        <span
-                            class="grid h-12 w-12 place-items-center rounded-2xl bg-[#d8f4e6] text-2xl text-[#16775a]"
-                            >◎</span
-                        >
-                        <h3 class="mt-8 text-2xl font-black">Self-Paced</h3>
-                        <p class="mt-3 leading-7 text-[#d3e7e2]">
-                            Latihan sesuai ritme peserta, deadline jelas, hasil
-                            objektif langsung terlihat.
-                        </p>
-                        <Link
-                            href="/register"
-                            class="mt-7 inline-block text-sm font-black text-[#b7f5d4]"
-                            >Mulai latihan →</Link
-                        >
+
+                    <article class="group rounded-3xl border border-white/15 bg-white/10 p-6 transition duration-300 hover:-translate-y-1 hover:bg-white/15 hover:shadow-figma-hover sm:p-7">
+                        <div class="flex items-center justify-between"><span class="grid h-10 w-10 place-items-center rounded-xl border border-brand-lime/60 text-sm font-black text-brand-lime">02</span><span class="text-xs font-black uppercase tracking-[0.16em] text-white/55">Mandiri</span></div>
+                        <h3 class="mt-12 text-2xl font-black tracking-[-0.03em]">Self-Paced</h3>
+                        <p class="mt-3 min-h-14 text-sm leading-6 text-white/65">Susun latihan dengan deadline jelas dan biarkan peserta belajar sesuai tempo.</p>
+                        <div class="mt-8 flex items-center justify-between border-t border-white/10 pt-4"><span class="text-xs font-bold text-white/50">Progress terukur</span><Link href="/register" class="text-sm font-black text-brand-lime">Mulai latihan <span aria-hidden="true">→</span></Link></div>
                     </article>
-                    <article
-                        class="rounded-[1.75rem] bg-[#f5c453] p-6 text-[#3a351c] transition hover:-translate-y-1"
-                    >
-                        <span
-                            class="grid h-12 w-12 place-items-center rounded-2xl bg-white/70 text-2xl text-[#d85e49]"
-                            >✦</span
-                        >
-                        <h3 class="mt-8 text-2xl font-black">Materi ke Soal</h3>
-                        <p class="mt-3 leading-7 text-[#5d532b]">
-                            Unggah PDF atau PPTX, buat draft soal AI, lalu
-                            review sebelum dipakai.
-                        </p>
-                        <Link
-                            href="/materials"
-                            class="mt-7 inline-block text-sm font-black text-[#684d00]"
-                            >Lihat materi AI →</Link
-                        >
+
+                    <article class="group rounded-3xl bg-brand-lime p-6 text-brand-primary transition duration-300 hover:-translate-y-1 hover:shadow-figma-hover sm:p-7">
+                        <div class="flex items-center justify-between"><span class="grid h-10 w-10 place-items-center rounded-xl bg-white/70 text-sm font-black">03</span><span class="text-xs font-black uppercase tracking-[0.16em] text-brand-primary/65">Berbantuan AI</span></div>
+                        <h3 class="mt-12 text-2xl font-black tracking-[-0.03em]">Materi ke Soal</h3>
+                        <p class="mt-3 min-h-14 text-sm leading-6 text-brand-primary/70">Mulai dari PDF atau PPTX, buat draft soal, lalu review sebelum dibagikan.</p>
+                        <div class="mt-8 flex items-center justify-between border-t border-brand-primary/15 pt-4"><span class="text-xs font-bold text-brand-primary/60">Dari file jadi kuis</span><Link href="/materials" class="text-sm font-black text-brand-primary">Lihat materi <span aria-hidden="true">→</span></Link></div>
                     </article>
                 </div>
             </div>
         </section>
-
         <section id="cara-kerja" class="px-5 py-20 sm:px-8 lg:px-12">
             <div
                 class="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.8fr_1.2fr]"
             >
                 <div>
                     <p
-                        class="text-xs font-black uppercase tracking-[0.18em] text-[#16775a]"
+                        class="text-xs font-black uppercase tracking-[0.18em] text-brand-primary"
                     >
                         Dari materi sampai podium
                     </p>
@@ -309,7 +273,7 @@ const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
                     >
                         Tidak perlu pindah-pindah aplikasi.
                     </h2>
-                    <p class="mt-5 max-w-md text-lg leading-8 text-[#587078]">
+                    <p class="mt-5 max-w-md text-lg leading-8 text-brand-primary/70">
                         Creator menyusun soal. Peserta belajar. Semua hasil
                         kembali ke satu workspace yang rapi.
                     </p>
@@ -321,23 +285,23 @@ const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
                                 '01',
                                 'Buat atau impor soal',
                                 'Tulis sendiri, import CSV/XLSX, atau mulai dari materi.',
-                                'bg-[#d8f4e6] text-[#16775a]',
+                                'bg-brand-secondary/15 text-brand-primary',
                             ],
                             [
                                 '02',
                                 'Jalankan live atau bagikan latihan',
                                 'PIN enam digit untuk sesi live. Deadline untuk tugas mandiri.',
-                                'bg-[#fff0bd] text-[#a56a00]',
+                                'bg-brand-secondary/20 text-brand-primary',
                             ],
                             [
                                 '03',
                                 'Pantau hasil dan beri feedback',
                                 'Nilai otomatis, essay manual, score, progress, dan gradebook.',
-                                'bg-[#ffdcd4] text-[#d9533b]',
+                                'bg-brand-secondary/20 text-brand-primary',
                             ],
                         ]"
                         :key="number"
-                        class="grid gap-4 rounded-3xl border border-[#dce9e1] bg-white p-5 sm:grid-cols-[3.5rem_1fr] sm:items-center"
+                        class="grid gap-4 rounded-3xl border border-brand-primary/15 bg-white p-5 sm:grid-cols-[3.5rem_1fr] sm:items-center"
                     >
                         <span
                             class="grid h-14 w-14 place-items-center rounded-2xl text-xl font-black"
@@ -346,7 +310,7 @@ const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
                         >
                         <div>
                             <h3 class="text-xl font-black">{{ title }}</h3>
-                            <p class="mt-1 text-[#617980]">{{ copy }}</p>
+                            <p class="mt-1 text-brand-primary/65">{{ copy }}</p>
                         </div>
                     </li>
                 </ol>
@@ -355,23 +319,23 @@ const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
 
         <section id="untuk-siapa" class="px-5 pb-20 sm:px-8 lg:px-12">
             <div
-                class="mx-auto max-w-7xl rounded-[2rem] bg-[#e4f6ed] p-8 sm:p-12"
+                class="mx-auto max-w-7xl rounded-[2rem] bg-brand-secondary/10 p-8 sm:p-12"
             >
                 <div class="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
                     <div>
                         <p
-                            class="text-xs font-black uppercase tracking-[0.18em] text-[#16775a]"
+                            class="text-xs font-black uppercase tracking-[0.18em] text-brand-primary"
                         >
                             Untuk kelas yang ingin bergerak
                         </p>
                         <h2
-                            class="mt-4 max-w-3xl text-4xl font-black tracking-[-0.05em] text-[#123845] sm:text-5xl"
+                            class="mt-4 max-w-3xl text-4xl font-black tracking-[-0.05em] text-brand-primary sm:text-5xl"
                         >
                             Satu layar untuk creator. Satu PIN untuk seluruh
                             kelas.
                         </h2>
                         <p
-                            class="mt-5 max-w-2xl text-lg leading-8 text-[#49636d]"
+                            class="mt-5 max-w-2xl text-lg leading-8 text-brand-primary/75"
                         >
                             Dipakai untuk pembelajaran, bimbingan belajar, acara
                             komunitas, dan demo kompetisi yang perlu terasa
@@ -382,11 +346,11 @@ const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
                         <Link
                             v-if="canRegister"
                             href="/register"
-                            class="min-h-13 rounded-2xl bg-[#16775a] px-6 py-4 text-sm font-black text-white shadow-[0_8px_0_#0d503e]"
+                            class="min-h-13 rounded-2xl bg-brand-primary px-6 py-4 text-sm font-black text-white shadow-figma"
                             >Buat akun gratis</Link
                         ><Link
                             href="/join"
-                            class="min-h-13 rounded-2xl border-2 border-[#8ebfa9] bg-white px-6 py-4 text-sm font-black text-[#16775a]"
+                            class="min-h-13 rounded-2xl border-2 border-brand-primary/35 bg-white px-6 py-4 text-sm font-black text-brand-primary"
                             >Punya PIN? Masuk</Link
                         >
                     </div>
@@ -394,22 +358,34 @@ const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
             </div>
         </section>
 
-        <footer class="border-t border-[#dbe7df] px-5 py-8 sm:px-8 lg:px-12">
+        <footer class="border-t border-brand-primary/15 px-5 py-8 sm:px-8 lg:px-12">
             <div
-                class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 text-sm text-[#617980]"
+                class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 text-sm text-brand-primary/65"
             >
-                <div class="flex items-center gap-2 font-black text-[#183944]">
-                    <ApplicationLogo class="h-7 w-7 text-[#16775a]" /> kuesify
+                <div class="flex items-center gap-2 font-black text-brand-primary">
+                    <ApplicationLogo class="h-7 w-7 text-brand-secondary" /> kuesify
                 </div>
                 <p>
                     Platform edukasi interaktif untuk belajar yang lebih hidup.
                 </p>
                 <Link
                     href="/login"
-                    class="font-bold text-[#16775a] hover:underline"
+                    class="font-bold text-brand-primary hover:underline"
                     >Masuk →</Link
                 >
             </div>
         </footer>
     </main>
 </template>
+
+<style>
+html {
+    scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}
+</style>
