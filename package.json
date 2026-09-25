@@ -38,6 +38,7 @@
         "vue-tsc": "^2.0.24"
     },
     "dependencies": {
+        "chart.js": "^4.5.1",
         "qrcode": "^1.5.4"
     }
 }

@@ -156,13 +156,20 @@ class WorkspaceController extends Controller
 
         $reverbHealth = app(\App\Services\ReverbHealthService::class)->check();
 
-        return $this->page('Platform Admin', 'admin', Organization::withCount('members')->latest()->paginate(20), [], [
-            'categories' => Category::orderBy('name')->get(['id', 'name']),
-            'health' => array_merge([
-                'queued_jobs' => \DB::table('jobs')->count(),
-                'failed_jobs' => \DB::table('failed_jobs')->count(),
-                'ai_failures' => \App\Models\AiGeneration::withoutGlobalScopes()->where('status', 'failed')->count(),
-            ], $reverbHealth),
+        // v2.3 — render halaman terpisah superadmin/platform.vue (legacy Workspace section admin pensiun)
+        return Inertia::render('superadmin/platform', [
+            'title' => 'Platform Admin',
+            'section' => 'admin',
+            'items' => Organization::withCount('members')->latest()->paginate(20),
+            'filters' => [],
+            'summary' => [
+                'categories' => Category::orderBy('name')->get(['id', 'name']),
+                'health' => array_merge([
+                    'queued_jobs' => \DB::table('jobs')->count(),
+                    'failed_jobs' => \DB::table('failed_jobs')->count(),
+                    'ai_failures' => \App\Models\AiGeneration::withoutGlobalScopes()->where('status', 'failed')->count(),
+                ], $reverbHealth),
+            ],
         ]);
     }
 

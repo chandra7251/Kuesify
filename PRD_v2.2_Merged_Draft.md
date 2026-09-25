@@ -1,10 +1,11 @@
 # Product Requirements Document - Platform Edukasi Interaktif
 
-**Versi:** 2.2 Draft Gabungan  
-**Status:** Perlu review sebelum implementasi  
+**Versi:** 2.3 Draft Sinkron Front-End (26 Sep 2026)
+**Status:** Siap implementasi — sinkron dengan `FRONT-END.md` + `DESIGN.md` + `tailwind.config.js`
 **Baseline:** `PRD_Platform_Edukasi_Interaktif.pdf` v2.0
+**Perubahan dari 2.2:** Pemisahan halaman & dashboard **per-role** (tidak lagi generic), Front-End First Rule, dan governance sinkron PRD ↔ task.md
 
-Dokumen ini mempertahankan domain lengkap dari PDF dan memasukkan klarifikasi yang telah dibahas. Keputusan yang belum disetujui dipisahkan sebagai *Open Decisions*.
+> **Aturan wajib sebelum membuat tampilan apa pun (FRONT-END.md §0 & DESIGN.md §0):** Baca dan pahami seluruh root project — `README.md`, `DESIGN.md`, `FRONT-END.md`, `task.md`, `SUBMISSION.md`, `package.json`, `composer.json`, `tailwind.config.js`, `routes/web.php`, `resources/js/Layouts/AuthenticatedLayout.vue`, serta 2–3 file komponen/page terdekat. Laporkan audit singkat (stack, struktur relevan, komponen reusable, risiko/konflik, file minimum yang akan disentuh) **sebelum menulis kode**. Konvensi yang sudah berjalan menang atas asumsi pribadi. Jangan menambah dependency/abstraksi baru jika solusi sudah ada.
 
 ---
 
@@ -22,6 +23,8 @@ Nilai produk:
 Nama produk: **Kuesify**.
 
 Scope implementasi kompetisi yang berlaku ada di `docs/MVP_SCOPE_COMPETITION.md`. Dokumen ini mempertahankan visi produk penuh; file scope kompetisi menjadi batas acceptance MVP.
+
+---
 
 ## 2. Scope MVP
 
@@ -66,6 +69,20 @@ Scope implementasi kompetisi yang berlaku ada di `docs/MVP_SCOPE_COMPETITION.md`
 Frontend memakai **Vue 3 + TypeScript + Inertia 3 + Tailwind CSS**. Inertia menjaga Laravel sebagai modular monolith; aplikasi tidak perlu REST API terpisah untuk halaman web. Laravel Echo menerima event Reverb, sedangkan Vue menangani lobby, timer, drag-and-drop builder, leaderboard, feedback skor, dan dashboard interaktif.
 
 Pinia tidak menjadi dependency wajib awal. Tambahkan hanya bila state lintas halaman atau lintas komponen tidak dapat ditangani oleh props, composables, dan Inertia page props.
+
+**Sumber kebenaran desain (sinkron 26 Sep 2026):**
+
+- Warna & shadow dari `tailwind.config.js` adalah kebenaran — bukan nilai lama di dokumen lain.
+  - `brand.primary: #3154D5` — sidebar, top navbar, tombol aksi utama.
+  - `brand.secondary: #90CB31` — highlight aktif, badge, indikator, focus state.
+  - `brand.accent: #E6F1F5` — canvas/latar halaman.
+  - `brand.dark: #233EA8`, `brand.hover: #2645B8`.
+  - `shadow-figma: 0 4px 16px rgba(0,0,0,0.08)`, `shadow-figma-sm`, `shadow-figma-hover`.
+  - Jangan menghidupkan kembali teal lama `teal-*` / `emerald-*` / `#0AB883` di halaman yang sudah dimigrasi (FRONT-END.md §4).
+- Layout acuan: `resources/js/Layouts/AuthenticatedLayout.vue` (sidebar collapse, TopNavBar, mobile drawer).
+- Ikon: satu set konsisten (saat ini Font Awesome 6 / SVG inline di AuthenticatedLayout) — jangan campur gaya acak.
+- Workflow wajib per FRONT-END.md §5: pahami request → telusuri route/page/layout/props → gunakan ulang pola terdekat → perubahan minimum → pertahankan permission/route/responsive → mobile-first + a11y → verifikasi `prettier` + `eslint` + `vue-tsc --noEmit` + `npm run build` (+ `php artisan test` bila sentuh backend).
+- Checklist Anti-AI-Slop DESIGN.md §6 wajib lolos sebelum dianggap selesai.
 
 ---
 
@@ -188,29 +205,78 @@ Pinia tidak menjadi dependency wajib awal. Tambahkan hanya bila state lintas hal
 - Creator dan Org Admin ekspor CSV/XLSX sesuai scope tenant.
 - Super Admin moderasi kuis publik, tenant, kategori global, quota Gemini, latency AI, dan traffic Reverb.
 
+### FR-10 Front-End Governance (baru 26 Sep 2026)
+
+- Setiap pembuatan/perubahan tampilan wajib melewati audit FRONT-END.md §0 sebelum koding.
+- Dashboard dan halaman elemen **wajib terpisah per role** (lihat §6). Tidak boleh menumpuk semua role dalam satu `Dashboard.vue` atau satu `Workspace.vue` dengan `v-if="role"` yang membuat jomplang.
+- Semua halaman per-role memakai `AuthenticatedLayout.vue` + token `tailwind.config.js` yang sama — sidebar/nav konsisten, hanya konten yang berbeda per role.
+- Verifikasi visual: cek 2–3 file existing terdekat (mis. `Dashboard.vue`, `Workspace.vue`, `QuizBuilder.vue`, `LiveHub.vue`) untuk meniru gaya import, props typing, spacing, radius `rounded-2xl`, shadow `shadow-figma`, dan a11y.
+- Validasi wajib lolos: `npx prettier --write <file>` + `npx eslint <file>` + `npx vue-tsc --noEmit` + `npm run build`. Backend kritis: `php artisan test`.
+
 ---
 
-## 6. Required Pages / UI
+## 6. Required Pages / UI — Terpisah Per Role (sinkron FRONT-END.md 26 Sep 2026)
 
-### Public / Peserta
+> **Prinsip baru:** Satu role = satu direktori Pages + satu dashboard + navigasi yang relevan. Menghindari jomplang visual & permission bocor. Route lama tetap didukung selama masa migrasi, tetapi halaman baru adalah sumber kebenaran.
+
+### Public / Guest (tanpa login)
 
 - `/`, `/explore`, `/join`, `/login`, `/register`
-- `/live/{sessionCode}`, `/quiz/{slug}/play`, `/quiz/{slug}/result`
-- `/dashboard/student`, `/profile`
+- `/live/{sessionCode}` (guest play), `/quiz/{slug}/play`, `/quiz/{slug}/result` (jika ada)
 
-### Creator
+### Peserta (participant)
 
-- `/creator/dashboard`, `/creator/quizzes`, `/creator/quizzes/create`
-- `/creator/quizzes/{id}/builder`, `/creator/quizzes/ai-generate`, `/creator/quizzes/{id}/ai-review`
-- `/creator/question-bank`, `/creator/sessions/{id}/host`, `/creator/quizzes/{id}/analytics`
+| Route (doc) | Route aktual saat ini | Page tujuan (per-role) | Keterangan |
+|---|---|---|---|
+| `/dashboard` (participant) | `GET /dashboard` → `DashboardController` | `resources/js/Pages/participant/dashboard.vue` | XP, streak, level, badge, attempt saya, kuis tersedia |
+| `/quiz/{slug}/play`, `/quiz/{slug}/result` | `GET /attempts/{attempt}/play` | `Pages/AttemptPlay.vue` | Player self-paced |
+| `/attempts` (read-own) | `GET /attempts` | `Pages/Attempts.vue` (mode participant) | Riwayat sendiri |
+| `/live/join` | `GET /join` | `Pages/LiveJoin.vue` | Join via PIN |
+| `/live/{id}/play` | `GET /live-sessions/{session}/play` | `Pages/LivePlay.vue` | Live participant view |
+| `/profile` | `GET /profile` | `Pages/Profile/Edit.vue` | Semua role |
+
+### Creator (guru/trainer)
+
+| Route (doc) | Route aktual | Page tujuan (per-role) | Keterangan |
+|---|---|---|---|
+| `/creator/dashboard` | `GET /dashboard` | `creator/dashboard.vue` | Ringkasan kuis/soal/live miliknya, aktivitas terbaru |
+| `/creator/question-bank` | `GET /questions` | `creator/question-bank.vue` | Bank soal tenant-scoped |
+| `/creator/quizzes` + builder | `GET /quizzes` | `Pages/QuizBuilder.vue` | CRUD kuis, reorder, publish |
+| `/creator/quizzes/ai-generate` | `GET /materials` | `Pages/Materials.vue` | Upload + AI draft |
+| `/creator/sessions/{id}/host` | `GET /live-sessions` + `/live-sessions/{id}/play` | `Pages/LiveHub.vue` / `Pages/LivePlay.vue` (host mode) | Host control |
+| `/creator/quizzes/{id}/analytics` | `GET /reports` | `creator/reports.vue` | Analitik & gradebook |
+| `/attempts` (gradebook) | `GET /attempts` | `Pages/Attempts.vue` (mode creator) | Nilai & ekspor CSV |
 
 ### Organization Admin
 
-- `/org/dashboard`, `/org/members`, `/org/groups`, `/org/question-bank`, `/org/reports`, `/org/settings`
+| Route (doc) | Route aktual | Page tujuan (per-role) | Keterangan |
+|---|---|---|---|
+| `/org/dashboard` | `GET /dashboard` | `admin/dashboard.vue` | Ringkasan tenant, member, grup, laporan |
+| `/org/members` | `GET /organization` | `admin/members.vue` | Invite/disable member |
+| `/org/groups` | `GET /organization` (+ groups) | `admin/groups.vue` | Kelas/jurusan |
+| `/org/question-bank` | `GET /questions` | `admin/question-bank.vue` | Bank bersama (read) |
+| `/org/reports` | `GET /reports` | `admin/reports.vue` | Laporan tenant |
+| `/org/settings` | `GET /organization` | `admin/settings.vue` | Pengaturan tenant |
 
 ### Platform Super Admin
 
-- `/admin/login`, `/admin/dashboard`, `/admin/tenants`, `/admin/moderation`, `/admin/ai-monitoring`, `/admin/categories`
+| Route (doc) | Route aktual | Page tujuan (per-role) | Keterangan |
+|---|---|---|---|
+| `/admin/dashboard` | `GET /dashboard` (super_admin) | `superadmin/dashboard.vue` | Metrik global, chart volume, distribusi role, top org |
+| `/admin/tenants` | `GET /admin` → `WorkspaceController@admin` | `superadmin/tenants.vue` | CRUD tenant |
+| `/admin/categories` | via `WorkspaceController@admin` | `superadmin/categories.vue` | Kategori global |
+| `/admin/moderation` | — | `superadmin/moderation.vue` | Moderasi kuis publik (post-MVP queue) |
+| `/admin/ai-monitoring` | `GET /admin` (health) | `superadmin/ai-monitoring.vue` | Quota Gemini, latency, failed jobs |
+| `/admin/health` | `GET /admin` | `superadmin/platform.vue` | Reverb, jobs, audio |
+
+> **Catatan migrasi:** `resources/js/Pages/Dashboard.vue` (umum) dan `resources/js/Pages/Workspace.vue` (multi-section via prop `section`) adalah **legacy**. Target refactor 2.3 adalah memecahnya menjadi direktori per-role di atas. `DashboardController` dan `WorkspaceController` akan melakukan branching per `organization.role` dan Inertia render ke page per-role yang sesuai, sambil mempertahankan route lama agar tidak breaking. Navigasi di `AuthenticatedLayout.vue` sudah memisahkan `navigationItems` per role — halaman baru tinggal mengikuti pola tersebut.
+
+**Aturan desain untuk semua halaman baru:**
+
+- Latar halaman `bg-brand-accent (#E6F1F5)`, kartu `bg-white rounded-2xl border border-slate-200 shadow-figma`, tombol utama `bg-brand-primary text-white`, aksen `bg-brand-secondary`.
+- Ikon konsisten (SVG inline atau Font Awesome 6 — jangan campur gaya acak), radius, spacing, dan tipografi mengikuti file referensi terdekat.
+- Mobile-first, thumb-zone, WCAG 2.1 AA dasar, keyboard navigation, empty/loading/error state.
+- Tidak ada dekorasi berlebihan / gradient acak / shadow berat (Anti-AI-Slop).
 
 ---
 
@@ -257,6 +323,7 @@ Pinia tidak menjadi dependency wajib awal. Tambahkan hanya bila state lintas hal
 - Queue AI melalui Horizon dengan retry/backoff dan status gagal yang terlihat pengguna.
 - Rate limit ditetapkan dari hasil load test dan quota Gemini; angka final belum disetujui.
 - Mobile-first, thumb-zone, WCAG 2.1 AA dasar, keyboard navigation, dan error message jelas.
+- **Kualitas Front-End:** Setiap halaman baru wajib lolos checklist DESIGN.md §6 (tidak ada nama generik, tidak ada import mati, nesting ≤4–5 level, tidak ada hardcode warna/spacing berulang, copy sesuai tema edukasi, tidak ada layout SaaS generik tanpa adaptasi, tidak ada duplikasi komponen, a11y dasar, tidak ada over-engineering).
 
 ---
 
@@ -273,6 +340,7 @@ Pinia tidak menjadi dependency wajib awal. Tambahkan hanya bila state lintas hal
 9. Creator/Org Admin dapat ekspor data sesuai tenant scope.
 10. Tenant A tidak dapat membaca atau menulis data tenant B.
 11. Load test membuktikan target realtime yang disetujui tim.
+12. **(Baru 2.3)** Setiap role memiliki dashboard & halaman terpisah yang konsisten (tidak jomplang) — diverifikasi dengan audit `FRONT-END.md` + visual check per role, serta `npm run build` + `php artisan test` hijau.
 
 ---
 
@@ -285,6 +353,7 @@ Pinia tidak menjadi dependency wajib awal. Tambahkan hanya bila state lintas hal
 | Antivirus upload | Tanpa scanner lokal atau ClamAV deployment | Infrastruktur. |
 | Rate limits | Berdasarkan load test/quota | UX, biaya AI, abuse protection. |
 | Timezone streak/deadline | User atau organisasi | Konsistensi aturan belajar. |
+| Pemisahan file per-role | Direktori `participant/*` + `creator/*` + `admin/*` + `superadmin/*` vs single file + `v-if` | **Diputuskan 26 Sep: pisah per-role (opsi 1).** Single file dengan `v-if` menyebabkan jomplang & sulit maintain — ditolak. |
 
 ---
 
@@ -297,3 +366,13 @@ Pinia tidak menjadi dependency wajib awal. Tambahkan hanya bila state lintas hal
 - Role dan alasan akses diperjelas dengan matriks akses.
 - Semua alur PDF penting dipertahankan: Required Pages, lobby, host control, speed scoring, AI grounded generation, deadline, gradebook, database rules, dan `quiz_sessions`.
 - Audio/video, ClamAV, upload 50 MB, serta angka rate limit tidak dijadikan requirement final tanpa persetujuan.
+- **26 Sep 2026 — v2.3:** Menambahkan **FR-10 Front-End Governance**, **§6 terpisah per-role** (Participant/Creator/OrgAdmin/SuperAdmin) dengan tabel route→page tujuan, aturan **Front-End First** (audit wajib `FRONT-END.md`/`DESIGN.md`/`tailwind.config.js`/`AuthenticatedLayout.vue`), dan penegasan **dashboard & elemen page terpisah per role** agar tidak jomplang. Sumber kebenaran warna diselaraskan ke `tailwind.config.js` (`#3154D5`/`#90CB31`/`#E6F1F5`).
+
+---
+
+## 12. Cara Cek yang Belum Selesai (Governance — wajib dibaca)
+
+1. **Single source of truth:** `PRD_v2.2_Merged_Draft.md` (v2.3) adalah acuan. `task.md` adalah cermin eksekusi — keduanya harus sinkron setiap kali ada perubahan.
+2. **Selalu cek task yang belum:** `grep -n "\[ \]\|\[-]" task.md` — setiap `[ ]` dan `[-]` adalah utang yang harus ditutup atau dijadwalkan.
+3. **Setelah mengubah PRD, ubah task.md di commit yang sama.** Jangan biarkan PRD maju sementara task.md tertinggal (penyebab jomplang yang lalu).
+4. **Sebelum koding UI, baca ulang `FRONT-END.md` §0–§5 dan `DESIGN.md` §0–§7.** Jika ragu, telusuri 2–3 file existing terdekat sebelum memutuskan pola.

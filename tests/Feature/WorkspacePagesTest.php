@@ -43,7 +43,7 @@ it('lets creator open reports but blocks participant and super admin opens platf
     $this->get(route('platform.admin'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('Workspace')
+            ->component('superadmin/platform')
             ->has('summary.health.reverb_status')
             ->has('summary.health.reverb_host')
         );

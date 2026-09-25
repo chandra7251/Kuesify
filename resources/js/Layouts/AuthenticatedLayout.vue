@@ -95,10 +95,12 @@ const mobileNavigation = [
 ];
 
 function isCurrent(href: string): boolean {
-    if (href === '/dashboard') {
-        return page.url === '/dashboard';
+    const path = page.url.split('?')[0].split('#')[0].replace(/\/+$/, '') || '/';
+    const target = href.replace(/\/+$/, '') || '/';
+    if (target === '/dashboard') {
+        return path === '/dashboard';
     }
-    return page.url.startsWith(href);
+    return path === target || path.startsWith(target + '/');
 }
 
 function toggleDesktopSidebar(): void {
