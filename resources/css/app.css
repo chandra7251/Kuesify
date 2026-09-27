@@ -3,7 +3,81 @@
 @tailwind utilities;
 
 @layer base {
-    html { @apply bg-[#f8fafc] max-w-full overflow-x-hidden; }
-    body { @apply min-w-[320px] max-w-full overflow-x-hidden bg-[#f8fafc] font-sans antialiased text-slate-900; }
-    button, a { -webkit-tap-highlight-color: transparent; }
+    :focus-visible { outline: 2px solid #95d82d; outline-offset: 2px; }
+    html { @apply bg-[#f8fafc] max-w-full overflow-x-hidden; color-scheme: light; }
+    body { @apply min-w-[320px] max-w-full overflow-x-hidden bg-[#f8fafc] font-sans antialiased text-slate-900; overscroll-behavior-x: none; }
+    button, a { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+}
+
+
+@layer base {
+    html.dark-mode { color-scheme: dark; }
+    html.dark-mode,
+    html.dark-mode body { background: #0f172a; }
+    html.dark-mode body { color: #e2e8f0; }
+}
+@layer components {
+    html.dark-mode .bg-brand-accent,
+    html.dark-mode .bg-slate-50,
+    html.dark-mode .bg-white {
+        background-color: #0f172a !important;
+    }
+
+    html.dark-mode .bg-white\/95 {
+        background-color: rgb(15 23 42 / 0.94) !important;
+    }
+
+    html.dark-mode .text-slate-900,
+    html.dark-mode .text-slate-950,
+    html.dark-mode .text-brand-dark {
+        color: #f8fafc !important;
+    }
+
+    html.dark-mode .text-slate-700,
+    html.dark-mode .text-slate-600,
+    html.dark-mode .text-slate-500 {
+        color: #cbd5e1 !important;
+    }
+
+    html.dark-mode .border-slate-200,
+    html.dark-mode .border-slate-100 {
+        border-color: rgb(51 65 85 / 0.9) !important;
+    }
+
+    html.dark-mode .shadow-sm,
+    html.dark-mode .shadow-xl,
+    html.dark-mode .shadow-\[0_8px_24px_rgba\(15\,23\,42\,0\.16\)\] {
+        box-shadow: 0 18px 48px rgb(0 0 0 / 0.32) !important;
+    }
+
+    html.dark-mode .dark-ui-toggle,
+    html.dark-mode .mobile-bottom-nav {
+        border-color: rgb(71 85 105 / 0.95) !important;
+        background-color: rgb(15 23 42 / 0.94) !important;
+        color: #e2e8f0 !important;
+    }
+
+    html.dark-mode .mobile-bottom-nav a:not(.bg-brand-primary) {
+        color: #cbd5e1 !important;
+    }
+
+    html.dark-mode .mobile-bottom-nav a.bg-brand-primary {
+        color: #9bdc28 !important;
+    }
+
+    html.dark-mode .mobile-bottom-nav a[aria-current="page"] {
+        --tw-ring-offset-color: #0f172a;
+    }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\TenantContext;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -29,7 +30,7 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        $tenant = app(\App\Support\TenantContext::class)->get();
+        $tenant = app(TenantContext::class)->get();
         $user = $request->user();
 
         if (! $tenant && $user) {
@@ -55,6 +56,11 @@ class HandleInertiaRequests extends Middleware
                 'user' => $user,
             ],
             'currentOrganization' => $currentOrganization,
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
+                'status' => fn () => $request->session()->get('status'),
+            ],
         ];
     }
 }

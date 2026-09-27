@@ -4,17 +4,19 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 const props = withDefaults(
     defineProps<{
         show?: boolean;
-        maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+        maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl";
         closeable?: boolean;
+        title?: string;
     }>(),
     {
         show: false,
-        maxWidth: '2xl',
+        maxWidth: "2xl",
         closeable: true,
+        title: "",
     },
 );
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(["close", "focusin", "focusout"]);
 const dialog = ref();
 const showSlot = ref(props.show);
 
@@ -22,12 +24,12 @@ watch(
     () => props.show,
     () => {
         if (props.show) {
-            document.body.style.overflow = 'hidden';
+            document.body.style.overflow = "hidden";
             showSlot.value = true;
 
             dialog.value?.showModal();
         } else {
-            document.body.style.overflow = '';
+            document.body.style.overflow = "";
 
             setTimeout(() => {
                 dialog.value?.close();
@@ -39,12 +41,12 @@ watch(
 
 const close = () => {
     if (props.closeable) {
-        emit('close');
+        emit("close");
     }
 };
 
 const closeOnEscape = (e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
         e.preventDefault();
 
         if (props.show) {
@@ -53,27 +55,29 @@ const closeOnEscape = (e: KeyboardEvent) => {
     }
 };
 
-onMounted(() => document.addEventListener('keydown', closeOnEscape));
+onMounted(() => document.addEventListener("keydown", closeOnEscape));
 
 onUnmounted(() => {
-    document.removeEventListener('keydown', closeOnEscape);
+    document.removeEventListener("keydown", closeOnEscape);
 
-    document.body.style.overflow = '';
+    document.body.style.overflow = "";
 });
 
 const maxWidthClass = computed(() => {
     return {
-        sm: 'sm:max-w-sm',
-        md: 'sm:max-w-md',
-        lg: 'sm:max-w-lg',
-        xl: 'sm:max-w-xl',
-        '2xl': 'sm:max-w-2xl',
+        sm: "sm:max-w-sm",
+        md: "sm:max-w-md",
+        lg: "sm:max-w-lg",
+        xl: "sm:max-w-xl",
+        "2xl": "sm:max-w-2xl",
     }[props.maxWidth];
 });
 </script>
 
 <template>
     <dialog
+        aria-modal="true"
+        role="dialog"
         class="z-50 m-0 min-h-full min-w-full overflow-y-auto bg-transparent backdrop:bg-transparent"
         ref="dialog"
     >
@@ -91,6 +95,7 @@ const maxWidthClass = computed(() => {
             >
                 <div
                     v-show="show"
+                    aria-hidden="true"
                     class="fixed inset-0 transform transition-all"
                     @click="close"
                 >
@@ -108,9 +113,17 @@ const maxWidthClass = computed(() => {
             >
                 <div
                     v-show="show"
+                    :inert="!show"
+                    role="document"
+                    aria-labelledby="modal-title"
+                    aria-describedby="modal-description"
+                    tabindex="-1"
                     class="mb-6 transform overflow-hidden rounded-lg bg-white shadow-xl transition-all sm:mx-auto sm:w-full"
                     :class="maxWidthClass"
+                    @focusin="$emit('focusin')"
+                    @focusout="$emit('focusout')"
                 >
+                    <h2 id="modal-title" class="sr-only">{{ title }}</h2>
                     <slot v-if="showSlot" />
                 </div>
             </Transition>

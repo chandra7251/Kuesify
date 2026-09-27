@@ -36,6 +36,10 @@ const grades = reactive<Record<number, { points: number; feedback: string }>>(
 function start(quizId: number): void {
     useForm({}).post(route('attempts.store', quizId));
 }
+function exportHref(format: 'csv' | 'xlsx'): string {
+    return route('attempts.export', { format });
+}
+
 function grade(attemptId: number, answerId: number): void {
     const value = grades[answerId];
     if (!value) return;
@@ -136,13 +140,16 @@ function grade(attemptId: number, answerId: number): void {
                             nilai, dan berikan penilaian pada jawaban essay.
                         </p>
                     </div>
-                    <a
-                        v-if="gradebook"
-                        :href="route('attempts.export')"
-                        class="inline-flex min-h-11 items-center justify-center rounded-md bg-brand-primary px-4 text-sm font-bold text-white transition hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
-                    >
-                        Export CSV
-                    </a>
+                    <div v-if="gradebook" class="flex flex-wrap gap-2">
+                        <a
+                            v-for="format in ['csv', 'xlsx'] as const"
+                            :key="format"
+                            :href="exportHref(format)"
+                            class="inline-flex min-h-11 items-center justify-center rounded-md bg-brand-primary px-4 text-sm font-bold uppercase text-white transition hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+                        >
+                            Export {{ format }}
+                        </a>
+                    </div>
                 </div>
             </section>
             <section class="rounded-2xl bg-white p-5 shadow-sm">

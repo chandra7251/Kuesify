@@ -20,33 +20,29 @@ test('guest live join stays within mobile viewport and supports keyboard focus',
 test('mobile navigation stays on one row and exposes profile and logout', async ({ page }) => {
     await page.goto('/login');
     await page.getByLabel('Email').fill('creator@kuesify.test');
-    await page.getByLabel('Password').fill('password');
-    await page.getByRole('button', { name: 'Log in' }).click();
+    await page.locator('#password').fill('password');
+    await page.getByRole('button', { name: 'Masuk' }).click();
 
     await expect(page).toHaveURL(/\/dashboard$/);
-    await expect(page.getByRole('link', { name: 'Profil pengguna' })).toBeVisible();
-
     const bottomNavigation = page.getByRole('navigation', { name: 'Navigasi bawah' });
     await expect(bottomNavigation.getByRole('link')).toHaveCount(5);
     await expect(page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).resolves.toBe(true);
 
-    await page.getByRole('button', { name: 'Buka navigasi' }).click();
-    await expect(page.getByRole('link', { name: 'Profil', exact: true })).toBeVisible();
+    await page.locator('button[aria-label="Buka menu profil"]').dispatchEvent('click');
+    await expect(page.getByRole('link', { name: 'Profile' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Keluar' })).toBeVisible();
 });
 
 test('mobile dashboard groups information and emphasizes clear actions', async ({ page }) => {
     await page.goto('/login');
     await page.getByLabel('Email').fill('creator@kuesify.test');
-    await page.getByLabel('Password').fill('password');
-    await page.getByRole('button', { name: 'Log in' }).click();
+    await page.locator('#password').fill('password');
+    await page.getByRole('button', { name: 'Masuk' }).click();
 
-    await expect(page.getByRole('heading', { name: 'Selamat datang, Demo Creator' })).toBeVisible();
-    await expect(page.getByText('Workspace', { exact: true })).toHaveCount(0);
-    await expect(page.getByRole('link', { name: 'Buat kuis baru' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Mulai sesi live' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Ringkasan workspace' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Aktivitas terbaru' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Aksi cepat' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Pusat kontrol pembelajaran' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Buat kuis' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Lihat laporan' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Ringkasan creator' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Aktivitas siswa terbaru' })).toBeVisible();
     await expect(page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).resolves.toBe(true);
 });

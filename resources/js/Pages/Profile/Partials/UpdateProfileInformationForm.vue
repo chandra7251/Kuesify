@@ -6,8 +6,8 @@ import TextInput from '@/Components/TextInput.vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
 
 defineProps<{
-    mustVerifyEmail?: Boolean;
-    status?: String;
+    mustVerifyEmail?: boolean | undefined;
+    status?: string | undefined;
 }>();
 
 const user = usePage().props.auth.user;

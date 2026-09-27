@@ -40,6 +40,15 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit');
     }
 
+    public function locale(Request $request): RedirectResponse
+    {
+        $data = $request->validate(['locale' => ['required', 'in:id,en']]);
+        $request->user()->update(['locale' => $data['locale']]);
+        app()->setLocale($data['locale']);
+
+        return back();
+    }
+
     /**
      * Delete the user's account.
      */

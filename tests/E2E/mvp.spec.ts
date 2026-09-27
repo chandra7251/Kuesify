@@ -6,8 +6,8 @@ const participant = { email: 'participant@kuesify.test', password: 'password' };
 async function login(page: Page, account: typeof creator): Promise<void> {
     await page.goto('/login');
     await page.getByLabel('Email').fill(account.email);
-    await page.getByLabel('Password').fill(account.password);
-    await page.getByRole('button', { name: 'Log in' }).click();
+    await page.locator('#password').fill(account.password);
+    await page.getByRole('button', { name: 'Masuk' }).click();
     await expect(page).toHaveURL(/\/dashboard$/);
 }
 
@@ -34,7 +34,7 @@ test('creator publishes quiz, participant completes self-paced quiz, guest follo
     const participantPage = await participantContext.newPage();
     await login(participantPage, participant);
     await participantPage.goto('/attempts');
-    await participantPage.getByRole('heading', { name: title }).locator('..').getByRole('button', { name: 'Mulai quiz' }).click();
+    await participantPage.locator('article').filter({ has: participantPage.getByRole('heading', { name: title }) }).getByRole('button', { name: 'Mulai quiz' }).click();
     await expect(participantPage).toHaveURL(/\/attempts\/\d+\/play$/);
     await participantPage.getByRole('button').filter({ hasText: /Produsen|true|false/ }).first().click();
     await participantPage.getByRole('button', { name: 'Kumpulkan' }).click();
@@ -44,7 +44,7 @@ test('creator publishes quiz, participant completes self-paced quiz, guest follo
     await page.locator('select').first().selectOption({ label: 'Kuis Pemanasan' });
     await page.getByRole('button', { name: 'Buka lobby' }).click();
     await expect(page).toHaveURL(/\/live-sessions\/\d+\/play$/);
-    const pin = (await page.locator('p').filter({ hasText: 'PIN' }).first().textContent())?.replace(/\D/g, '');
+    const pin = (await page.locator('p').filter({ hasText: /^\d{6}$/ }).first().textContent())?.replace(/\D/g, '');
     expect(pin).toMatch(/^\d{6}$/);
 
     const guestContext = await browser.newContext();
@@ -56,12 +56,12 @@ test('creator publishes quiz, participant completes self-paced quiz, guest follo
     await expect(guestPage).toHaveURL(/\/live-sessions\/\d+\/play$/);
     await expect(guestPage.getByText('Tunggu host memulai sesi.')).toBeVisible();
 
-    await page.getByRole('button', { name: 'Mulai' }).click();
+    await page.getByRole('button', { name: 'Mulai kuis' }).click();
     await expect(guestPage.getByText('Makhluk hidup yang membuat makanan sendiri disebut?')).toBeVisible({ timeout: 10_000 });
     await guestPage.getByRole('button', { name: 'Produsen' }).click();
-    await page.getByRole('button', { name: 'Soal berikut' }).click();
+    await page.getByRole('button', { name: 'Soal berikutnya' }).click();
     await expect(guestPage.getByText('Air menguap karena panas matahari.')).toBeVisible({ timeout: 10_000 });
-    await page.getByRole('button', { name: 'Akhiri' }).click();
+    await page.getByRole('button', { name: 'Akhiri sesi' }).click();
     await expect(guestPage.getByText('Sesi selesai. Lihat podium di bawah.')).toBeVisible({ timeout: 10_000 });
 
     await guestContext.close();

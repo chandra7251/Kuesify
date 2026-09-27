@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { useEchoPublic } from '@laravel/echo-vue';
 import QRCode from 'qrcode';
-import { computed, nextTick, onBeforeUnmount, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 
 interface LiveState {
     id: number;
@@ -30,7 +30,11 @@ const now = ref(Date.now());
 const clock = window.setInterval(() => {
     now.value = Date.now();
 }, 1000);
-onBeforeUnmount(() => window.clearInterval(clock));
+onMounted(() => window.addEventListener('keydown', handleShortcut));
+onBeforeUnmount(() => {
+    window.clearInterval(clock);
+    window.removeEventListener('keydown', handleShortcut);
+});
 useEchoPublic<LiveState>(
     `live-session.${props.session.broadcastToken}`,
     '.live.session.updated',
@@ -39,6 +43,10 @@ useEchoPublic<LiveState>(
         answer.reset();
     },
 );
+const selectedOptionIndex = computed(() =>
+    state.value.question?.options?.findIndex((option) => option === answer.answer) ?? -1,
+);
+
 const secondsLeft = computed(() => {
     if (!state.value.questionStartedAt) return state.value.questionDuration;
     return Math.max(
@@ -52,8 +60,30 @@ const secondsLeft = computed(() => {
     );
 });
 function choose(value: string): void {
+    if (answer.processing || secondsLeft.value === 0) return;
     answer.answer = value;
     answer.post(route('live-sessions.answers.store', state.value.id));
+}
+function moveOption(delta: number): void {
+    const options = state.value.question?.options;
+    if (!options?.length || state.value.status !== 'live') return;
+    const nextIndex =
+        (selectedOptionIndex.value + delta + options.length) % options.length;
+    answer.answer = options[nextIndex];
+}
+function handleShortcut(event: KeyboardEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (props.isHost || target?.tagName === 'INPUT') return;
+    if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        moveOption(1);
+    } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        moveOption(-1);
+    } else if (event.key === 'Enter' && answer.answer) {
+        event.preventDefault();
+        choose(answer.answer);
+    }
 }
 function hostAction(name: 'lock' | 'start' | 'next' | 'end'): void {
     useForm({}).post(route(`live-sessions.${name}`, state.value.id));
@@ -438,7 +468,12 @@ async function loadQr(): Promise<void> {
                     <button
                         v-for="option in state.question.options"
                         :key="option"
-                        class="min-h-14 rounded-2xl border border-brand-secondary/30 px-4 text-left font-bold text-slate-800 transition hover:border-brand-secondary hover:bg-brand-secondary/10"
+                        class="min-h-14 rounded-2xl border px-4 text-left font-bold text-slate-800 transition hover:border-brand-secondary hover:bg-brand-secondary/10"
+                        :class="
+                            answer.answer === option
+                                ? 'border-brand-secondary bg-brand-secondary/10'
+                                : 'border-brand-secondary/30'
+                        "
                         :disabled="answer.processing || secondsLeft === 0"
                         @click="choose(option)"
                     >

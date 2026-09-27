@@ -7,8 +7,8 @@ interface AvatarDefinition {
 }
 
 interface Props {
-    avatarKey?: string | null;
-    label?: string;
+    avatarKey?: string | null | undefined;
+    label?: string | undefined;
 }
 
 const props = withDefaults(defineProps<Props>(), {

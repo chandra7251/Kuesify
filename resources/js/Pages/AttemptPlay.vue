@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 type Question = {
     id: number;
@@ -10,6 +10,7 @@ type Question = {
     options: string[] | null;
     points: number;
     explanation?: string | null;
+    hint?: string | null;
 };
 type Answer = {
     id: number;
@@ -34,6 +35,7 @@ const props = defineProps<{
     };
 }>();
 const index = ref(0);
+const showHint = ref(false);
 const answer = useForm({ answer: props.attempt.answers[0]?.answer ?? '' });
 const question = computed(() => props.attempt.quiz.questions[index.value]);
 const existing = computed(() =>
@@ -42,6 +44,49 @@ const existing = computed(() =>
     ),
 );
 const finished = computed(() => props.attempt.status !== 'in_progress');
+const currentOptionIndex = computed(() =>
+    question.value.options?.findIndex((option) => option === answer.answer) ?? -1,
+);
+
+function answerFor(questionId: number): Answer | undefined {
+    return props.attempt.answers.find((item) => item.question_id === questionId);
+}
+
+function answerState(questionId: number): string {
+    const item = answerFor(questionId);
+    if (!item || item.is_correct === null) return 'border-slate-200';
+    return item.is_correct
+        ? 'border-status-success bg-green-50'
+        : 'border-status-danger bg-red-50';
+}
+
+function moveOption(delta: number): void {
+    if (!question.value.options?.length) return;
+    const nextIndex =
+        (currentOptionIndex.value + delta + question.value.options.length) %
+        question.value.options.length;
+    answer.answer = question.value.options[nextIndex];
+}
+
+function handleShortcut(event: KeyboardEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (target?.tagName === 'TEXTAREA' || target?.tagName === 'INPUT') return;
+
+    if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        moveOption(1);
+    } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        moveOption(-1);
+    } else if (event.key === 'Enter') {
+        event.preventDefault();
+        if (finished.value) return;
+        question.value.options ? save() : submit();
+    }
+}
+
+onMounted(() => window.addEventListener('keydown', handleShortcut));
+onUnmounted(() => window.removeEventListener('keydown', handleShortcut));
 
 function choose(value: string): void {
     answer.answer = value;
@@ -56,6 +101,7 @@ function save(): void {
 function next(): void {
     if (index.value < props.attempt.quiz.questions.length - 1) {
         index.value += 1;
+        showHint.value = false;
         answer.answer =
             props.attempt.answers.find(
                 (item) => item.question_id === question.value.id,
@@ -65,6 +111,7 @@ function next(): void {
 function previous(): void {
     if (index.value > 0) {
         index.value -= 1;
+        showHint.value = false;
         answer.answer =
             props.attempt.answers.find(
                 (item) => item.question_id === question.value.id,
@@ -132,6 +179,20 @@ function submit(): void {
                     <h1 class="mt-3 text-2xl font-extrabold text-slate-900">
                         {{ question.prompt }}
                     </h1>
+                    <button
+                        v-if="question.hint"
+                        type="button"
+                        class="mt-3 rounded-full bg-teal-50 px-3 py-1 text-xs font-extrabold text-teal-800"
+                        @click="showHint = !showHint"
+                    >
+                        {{ showHint ? 'Sembunyikan hint' : 'Lihat hint' }}
+                    </button>
+                    <p
+                        v-if="showHint && question.hint"
+                        class="mt-2 rounded-xl bg-teal-50 p-3 text-sm font-semibold text-teal-900"
+                    >
+                        {{ question.hint }}
+                    </p>
                     <div v-if="question.options" class="mt-6 grid gap-3">
                         <button
                             v-for="option in question.options"
@@ -206,7 +267,12 @@ function submit(): void {
                     :key="item.id"
                     class="rounded-2xl bg-white p-5 shadow-sm"
                 >
-                    <p class="font-extrabold">{{ item.prompt }}</p>
+                    <p
+                        class="rounded-xl border p-3 font-extrabold"
+                        :class="answerState(item.id)"
+                    >
+                        {{ item.prompt }}
+                    </p>
                     <p class="mt-2 text-sm">
                         Jawaban:
                         {{
@@ -219,7 +285,7 @@ function submit(): void {
                         v-if="item.explanation"
                         class="mt-2 text-sm text-slate-600"
                     >
-                        {{ item.explanation }}
+                        Pembahasan: {{ item.explanation }}
                     </p>
                 </article>
             </section>

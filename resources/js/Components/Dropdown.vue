@@ -14,14 +14,22 @@ const props = withDefaults(
     },
 );
 
+const emit = defineEmits(['open', 'close']);
+
 const closeOnEscape = (e: KeyboardEvent) => {
     if (open.value && e.key === 'Escape') {
         open.value = false;
+        emit('close');
     }
 };
 
 onMounted(() => document.addEventListener('keydown', closeOnEscape));
-onUnmounted(() => document.removeEventListener('keydown', closeOnEscape));
+onUnmounted(() => {
+    document.removeEventListener('keydown', closeOnEscape);
+    if (open.value) {
+        open.value = false;
+    }
+});
 
 const widthClass = computed(() => {
     return {
@@ -40,11 +48,72 @@ const alignmentClasses = computed(() => {
 });
 
 const open = ref(false);
+
+const toggle = () => {
+    open.value = !open.value;
+    if (open.value) {
+        emit('open');
+    } else {
+        emit('close');
+    }
+};
+
+const close = () => {
+    if (open.value) {
+        open.value = false;
+        emit('close');
+    }
+};
+
+const triggerRef = ref<HTMLElement | null>(null);
+
+const onTriggerKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggle();
+    } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (!open.value) {
+            toggle();
+        }
+    }
+};
+
+const onContentKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+        close();
+        triggerRef.value?.focus();
+    } else if (e.key === 'Tab') {
+        close();
+    }
+};
+
+onMounted(() => {
+    if (triggerRef.value) {
+        triggerRef.value.addEventListener('keydown', onTriggerKeyDown);
+    }
+});
+
+onUnmounted(() => {
+    if (triggerRef.value) {
+        triggerRef.value.removeEventListener('keydown', onTriggerKeyDown);
+    }
+});
 </script>
 
 <template>
-    <div class="relative">
-        <div @click="open = !open">
+    <div class="relative" role="presentation">
+        <div
+            ref="triggerRef"
+            @click="toggle"
+            @keydown="onTriggerKeyDown"
+            role="button"
+            aria-haspopup="true"
+            aria-controls="dropdown-content"
+            :aria-expanded="open"
+            tabindex="0"
+            class="cursor-pointer"
+        >
             <slot name="trigger" />
         </div>
 
@@ -52,7 +121,8 @@ const open = ref(false);
         <div
             v-show="open"
             class="fixed inset-0 z-40"
-            @click="open = false"
+            @click="close"
+            tabindex="-1"
         ></div>
 
         <Transition
@@ -65,14 +135,20 @@ const open = ref(false);
         >
             <div
                 v-show="open"
+                id="dropdown-content"
                 class="absolute z-50 mt-2 rounded-md shadow-lg"
                 :class="[widthClass, alignmentClasses]"
                 style="display: none"
-                @click="open = false"
+                @click="close"
+                role="menu"
+                aria-orientation="vertical"
+                tabindex="-1"
+                @keydown="onContentKeyDown"
             >
                 <div
                     class="rounded-md ring-1 ring-black ring-opacity-5"
                     :class="contentClasses"
+                    role="presentation"
                 >
                     <slot name="content" />
                 </div>

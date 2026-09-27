@@ -78,7 +78,7 @@ const currentRole = computed(
                         <template #trigger>
                             <button
                                 type="button"
-                                class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-secondary/20 ring-2 ring-brand-secondary/40 transition hover:bg-brand-secondary/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
+                                class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-secondary/20 ring-2 ring-brand-secondary/40 transition hover:bg-brand-secondary/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
                                 aria-label="Buka menu profil"
                             >
                                 <AvatarIcon

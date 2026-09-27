@@ -83,3 +83,14 @@ test('correct password must be provided to delete account', function () {
 
     $this->assertNotNull($user->fresh());
 });
+
+test('user locale preference can be updated', function () {
+    $user = User::factory()->create(['locale' => 'id']);
+
+    $this->actingAs($user)
+        ->patch(route('profile.locale'), ['locale' => 'en'])
+        ->assertSessionHasNoErrors()
+        ->assertRedirect();
+
+    $this->assertSame('en', $user->refresh()->locale);
+});

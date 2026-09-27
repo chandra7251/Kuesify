@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import QuizListSkeleton from '@/Components/QuizListSkeleton.vue';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
 type Question = {
@@ -8,7 +9,7 @@ type Question = {
     prompt: string;
     type: string;
     points: number;
-    category?: { name: string } | null;
+    category?: { name: string; theme_key?: string | null } | null;
 };
 type Quiz = {
     id: number;
@@ -17,19 +18,29 @@ type Quiz = {
     status: string;
     visibility: string;
     category_id?: number | null;
+    category?: { name: string; theme_key?: string | null } | null;
     max_attempts?: number | null;
     deadline_at?: string | null;
     show_explanations: boolean;
     questions: Question[];
     questions_count: number;
+    collaborators?: { id: number; name: string }[];
 };
 
 const props = defineProps<{
     quizzes: Quiz[];
     questions: Question[];
     categories: { id: number; name: string }[];
+    members: { id: number; name: string; role: string }[];
+    filters?: { search?: string; status?: string; category?: number | string };
 }>();
 const createForm = useForm({ title: '' });
+const loadingQuizzes = ref(false);
+const filters = ref({
+    search: props.filters?.search ?? '',
+    status: props.filters?.status ?? '',
+    category: props.filters?.category ? String(props.filters.category) : '',
+});
 const selectedQuizId = ref<number | null>(props.quizzes[0]?.id ?? null);
 const selectedQuestionIds = ref<number[]>([]);
 const metadata = useForm({
@@ -46,6 +57,11 @@ const selectedQuiz = computed(
     () =>
         props.quizzes.find((quiz) => quiz.id === selectedQuizId.value) ?? null,
 );
+const themeClass = computed(() => {
+    const theme = selectedQuiz.value?.category?.theme_key;
+    return theme === 'ocean' ? 'ring-2 ring-sky-200' : theme === 'forest' ? 'ring-2 ring-emerald-200' : theme === 'sunset' ? 'ring-2 ring-orange-200' : '';
+});
+
 const selectedQuestions = computed(() =>
     selectedQuestionIds.value
         .map((id) => props.questions.find((question) => question.id === id))
@@ -67,6 +83,20 @@ function selectQuiz(quiz: Quiz): void {
 }
 
 if (selectedQuiz.value) selectQuiz(selectedQuiz.value);
+
+function applyFilters(): void {
+    loadingQuizzes.value = true;
+    router.get(route('quizzes.index'), {
+        search: filters.value.search || undefined,
+        status: filters.value.status || undefined,
+        category: filters.value.category || undefined,
+    }, { preserveState: true, replace: true, onFinish: () => { loadingQuizzes.value = false; } });
+}
+
+function clearFilters(): void {
+    filters.value = { search: '', status: '', category: '' };
+    applyFilters();
+}
 
 function createQuiz(): void {
     createForm.post(route('quizzes.store'), {
@@ -110,6 +140,16 @@ function cloneQuiz(): void {
     useForm({}).post(route('quizzes.clone', selectedQuiz.value.id), {
         preserveScroll: true,
     });
+}
+
+function addCollaborator(userId: string): void {
+    if (!selectedQuiz.value || !userId) return;
+    useForm({ user_id: Number(userId) }).post(route('quizzes.collaborators.store', selectedQuiz.value.id), { preserveScroll: true });
+}
+
+function removeCollaborator(userId: number): void {
+    if (!selectedQuiz.value) return;
+    useForm({}).delete(route('quizzes.collaborators.destroy', [selectedQuiz.value.id, userId]), { preserveScroll: true });
 }
 
 function archiveQuiz(): void {
@@ -167,6 +207,26 @@ function archiveQuiz(): void {
                     <section
                         class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
                     >
+                        <form class="space-y-2 border-b border-slate-100 p-3" @submit.prevent="applyFilters">
+                            <label class="sr-only" for="quiz-search">Cari quiz</label>
+                            <input id="quiz-search" v-model="filters.search" class="min-h-10 w-full rounded-lg border-slate-300 text-sm" placeholder="Cari quiz" />
+                            <select v-model="filters.status" class="min-h-10 w-full rounded-lg border-slate-300 text-sm" aria-label="Filter status">
+                                <option value="">Semua status</option>
+                                <option value="draft">Draft</option>
+                                <option value="pending_moderation">Menunggu moderasi</option>
+                                <option value="published">Published</option>
+                                <option value="rejected">Ditolak</option>
+                                <option value="archived">Diarsipkan</option>
+                            </select>
+                            <select v-model="filters.category" class="min-h-10 w-full rounded-lg border-slate-300 text-sm" aria-label="Filter kategori">
+                                <option value="">Semua kategori</option>
+                                <option v-for="category in categories" :key="category.id" :value="String(category.id)">{{ category.name }}</option>
+                            </select>
+                            <div class="flex gap-2">
+                                <button type="submit" class="min-h-9 flex-1 rounded-lg bg-brand-primary px-3 text-xs font-bold text-white">Terapkan</button>
+                                <button type="button" class="min-h-9 rounded-lg border border-slate-300 px-3 text-xs font-bold text-slate-700" @click="clearFilters">Reset</button>
+                            </div>
+                        </form>
                         <div
                             class="flex items-center justify-between border-b border-slate-100 px-4 py-3"
                         >
@@ -180,7 +240,8 @@ function archiveQuiz(): void {
                                 >{{ quizzes.length }}</span
                             >
                         </div>
-                        <div class="space-y-1 p-2">
+                        <div v-if="loadingQuizzes" class="p-2"><QuizListSkeleton :count="3" /></div>
+                        <div v-else class="space-y-1 p-2">
                             <button
                                 v-for="quiz in quizzes"
                                 :key="quiz.id"
@@ -221,7 +282,7 @@ function archiveQuiz(): void {
                     </section>
                 </aside>
 
-                <section v-if="selectedQuiz" class="min-w-0 space-y-5">
+                <section v-if="selectedQuiz" class="min-w-0 space-y-5" :class="themeClass">
                     <header
                         class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
                     >
@@ -264,6 +325,18 @@ function archiveQuiz(): void {
                             </button>
                         </div>
                     </header>
+
+                    <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <h2 class="font-extrabold text-slate-950">Co-creator</h2>
+                        <p class="mt-1 text-sm text-slate-500">Tambahkan creator organisasi untuk mengedit quiz ini.</p>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <select class="min-h-10 rounded-lg border-slate-300 text-sm" aria-label="Pilih co-creator" @change="addCollaborator(($event.target as HTMLSelectElement).value)">
+                                <option value="">Tambah co-creator</option>
+                                <option v-for="member in members.filter((item) => item.role === 'creator')" :key="member.id" :value="member.id">{{ member.name }}</option>
+                            </select>
+                            <span v-for="collaborator in selectedQuiz.collaborators ?? []" :key="collaborator.id" class="rounded-full bg-brand-secondary px-3 py-2 text-xs font-bold">{{ collaborator.name }} <button type="button" class="ml-1" @click="removeCollaborator(collaborator.id)">×</button></span>
+                        </div>
+                    </section>
 
                     <form
                         class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"

@@ -15,6 +15,7 @@ const props = defineProps<{
         attempts: number;
     };
     recentQuizzes: { id: number; title: string; status: string; updated_at: string }[];
+    classPerformance: { completed: number; averageScore: number };
 }>();
 
 const statCards = computed(() => [
@@ -58,6 +59,11 @@ const fmt = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', y
                         <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ c.label }}</p>
                         <p class="mt-1 text-2xl font-black tabular-nums text-slate-900">{{ c.value }}</p>
                     </article>
+                </section>
+
+                <section class="grid gap-3 sm:grid-cols-2">
+                    <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-figma"><p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Quiz selesai</p><p class="mt-1 text-3xl font-black text-slate-900">{{ classPerformance.completed }}</p></article>
+                    <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-figma"><p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Rata-rata kelas</p><p class="mt-1 text-3xl font-black text-slate-900">{{ classPerformance.averageScore }}<span class="text-base"> / 100</span></p></article>
                 </section>
 
                 <div class="grid gap-6 lg:grid-cols-3">

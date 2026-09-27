@@ -3,8 +3,8 @@ import { test, expect } from '@playwright/test';
 test('super admin views system health with live reverb status', async ({ page }) => {
     await page.goto('/login');
     await page.getByLabel('Email').fill('superadmin@kuesify.test');
-    await page.getByLabel('Password').fill('password');
-    await page.getByRole('button', { name: 'Log in' }).click();
+    await page.locator('#password').fill('password');
+    await page.getByRole('button', { name: 'Masuk' }).click();
     await expect(page).toHaveURL(/\/dashboard$/);
     await expect(page.getByText(/Admin Platform/)).toBeVisible();
 

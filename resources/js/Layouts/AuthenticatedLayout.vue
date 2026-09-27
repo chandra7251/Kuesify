@@ -25,6 +25,21 @@ watch(desktopSidebarExpanded, (expanded) => {
 });
 // Mobile slide-over drawer state
 const mobileSidebarOpen = ref(false);
+const darkMode = ref(false);
+
+onMounted(() => {
+    const savedTheme = window.localStorage.getItem('kuesify.dark-mode');
+    darkMode.value = savedTheme === null
+        ? window.matchMedia('(prefers-color-scheme: dark)').matches
+        : savedTheme === 'true';
+    document.documentElement.classList.toggle('dark-mode', darkMode.value);
+});
+
+function toggleDarkMode(): void {
+    darkMode.value = !darkMode.value;
+    window.localStorage.setItem('kuesify.dark-mode', String(darkMode.value));
+    document.documentElement.classList.toggle('dark-mode', darkMode.value);
+}
 
 const currentRole = computed(() => {
     return (
@@ -49,9 +64,11 @@ const navigationItems = computed(() => {
     const items = [
         { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
         { label: 'Question Bank', href: '/questions', icon: 'bank' },
+        { label: 'Creator Bank', href: '/creator/question-bank', icon: 'bank' },
         { label: 'Quiz Builder', href: '/quizzes', icon: 'builder' },
         { label: 'Live Quiz', href: '/live-sessions', icon: 'live' },
         { label: 'Hasil', href: '/reports', icon: 'results' },
+        { label: 'Notifikasi', href: '/notifications', icon: 'results' },
         { label: 'Materi AI', href: '/materials', icon: 'ai' },
     ];
 
@@ -61,6 +78,9 @@ const navigationItems = computed(() => {
             href: '/organization',
             icon: 'organization',
         });
+        items.push({ label: 'Anggota', href: '/admin/members', icon: 'organization' });
+        items.push({ label: 'Group', href: '/admin/groups', icon: 'organization' });
+        items.push({ label: 'Pengaturan Org', href: '/admin/settings', icon: 'organization' });
     }
 
     if (role === 'super_admin') {
@@ -69,6 +89,10 @@ const navigationItems = computed(() => {
             href: '/admin',
             icon: 'admin',
         });
+        items.push({ label: 'Moderasi', href: '/admin/moderation', icon: 'admin' });
+        items.push({ label: 'Tenants', href: '/superadmin/tenants', icon: 'admin' });
+        items.push({ label: 'Kategori', href: '/superadmin/categories', icon: 'admin' });
+        items.push({ label: 'AI Monitoring', href: '/superadmin/ai-monitoring', icon: 'admin' });
     }
 
     return items;
@@ -495,7 +519,7 @@ function closeMobileNav(): void {
             </div>
 
             <!-- Main Body: Scrolls naturally while Sidebar & Navbar stay completely pinned! -->
-            <main class="flex-1 pb-24 lg:pb-12">
+            <main class="flex-1 pb-36 lg:pb-12">
                 <slot />
             </main>
         </div>
@@ -810,21 +834,31 @@ function closeMobileNav(): void {
             </aside>
         </transition>
 
+        <button
+            type="button"
+            class="fixed right-24 top-3 z-30 min-h-11 rounded-full border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary dark-ui-toggle lg:right-4 lg:top-4 lg:z-40"
+            :aria-label="darkMode ? 'Aktifkan mode terang' : 'Aktifkan mode gelap'"
+            @click="toggleDarkMode"
+        >
+            {{ darkMode ? 'Mode terang' : 'Mode gelap' }}
+        </button>
+
         <!-- ========================================================================= -->
         <!-- 4. MOBILE BOTTOM BAR (Fixed Bottom for Thumb Access)                       -->
         <!-- ========================================================================= -->
         <nav
-            class="fixed bottom-4 left-1/2 z-30 grid w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 grid-cols-5 rounded-2xl border border-slate-200 bg-white/95 p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_8px_24px_rgba(15,23,42,0.16)] backdrop-blur lg:hidden"
+            class="fixed bottom-4 left-1/2 z-30 grid w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 grid-cols-5 rounded-2xl border border-slate-200 bg-white/95 p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_8px_24px_rgba(15,23,42,0.16)] backdrop-blur lg:hidden mobile-bottom-nav"
             aria-label="Navigasi bawah"
         >
             <Link
                 v-for="item in mobileNavigation"
                 :key="item.href"
                 :href="item.href"
-                class="flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl px-1 text-center text-[10px] transition"
+                :aria-current="$page.url.startsWith(item.href) ? 'page' : undefined"
+                class="flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl px-1 text-center text-[11px] leading-none transition"
                 :class="
                     $page.url.startsWith(item.href)
-                        ? 'bg-brand-primary font-bold text-brand-secondary'
+                        ? 'bg-brand-primary font-bold text-brand-secondary ring-2 ring-brand-secondary/70 ring-offset-2 ring-offset-white'
                         : 'font-semibold text-slate-600'
                 "
             >
