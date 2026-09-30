@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['organization_id', 'creator_id', 'category_id', 'type', 'prompt', 'options', 'correct_answer', 'explanation', 'points'])]
+#[Fillable(['organization_id', 'creator_id', 'category_id', 'type', 'prompt', 'options', 'correct_answer', 'explanation', 'hint', 'points'])]
 class Question extends Model
 {
     use BelongsToTenant;

@@ -7,6 +7,12 @@ defineProps<{ canLogin: boolean; canRegister: boolean }>();
 
 const answer = ref<string | null>(null);
 const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
+const featureIndex = ref(0);
+
+const scrollFeatures = (direction: number) => {
+    const nextIndex = Math.max(0, Math.min(2, featureIndex.value + direction));
+    featureIndex.value = nextIndex;
+};
 </script>
 
 <template>
@@ -32,26 +38,27 @@ const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
                 ></div>
             </div>
 
-            <nav
-                class="mx-auto flex max-w-7xl items-center justify-between gap-4"
+            <div class="-mx-5 -mt-5 bg-brand-primary px-5 py-4 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12">
+                <nav
+                    class="mx-auto flex max-w-7xl items-center justify-between gap-4"
                 aria-label="Navigasi utama"
             >
                 <Link
                     href="/"
-                    class="flex items-center gap-2 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-primary"
+                    class="flex items-center gap-2 rounded-xl text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-secondary"
                 >
                     <ApplicationLogo class="h-10 w-10 text-brand-secondary" />
-                    <span class="text-xl font-black tracking-tight"
+                    <span class="text-xl font-black tracking-tight text-brand-secondary"
                         >kuesify</span
                     >
                 </Link>
                 <div
-                    class="hidden items-center gap-7 text-sm font-bold text-brand-primary/80 md:flex"
+                    class="hidden items-center gap-7 text-sm font-bold text-white/80 md:flex"
                 >
-                    <a href="#fitur" class="hover:text-brand-primary">Fitur</a
-                    ><a href="#cara-kerja" class="hover:text-brand-primary"
+                    <a href="#fitur" class="hover:text-brand-secondary">Fitur</a
+                    ><a href="#cara-kerja" class="hover:text-brand-secondary"
                         >Cara kerja</a
-                    ><a href="#untuk-siapa" class="hover:text-brand-primary"
+                    ><a href="#untuk-siapa" class="hover:text-brand-secondary"
                         >Untuk siapa</a
                     >
                 </div>
@@ -59,30 +66,23 @@ const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
                     <Link
                         v-if="canLogin"
                         href="/login"
-                        class="min-h-11 rounded-xl px-3 py-3 text-sm font-extrabold hover:bg-white/60 sm:px-4"
+                        class="min-h-11 rounded-xl px-3 py-3 text-sm font-extrabold text-brand-secondary hover:bg-white/10 sm:px-4"
                         >Masuk</Link
                     >
                     <Link
                         v-if="canRegister"
                         href="/register"
-                        class="min-h-11 rounded-xl bg-brand-primary px-4 py-3 text-sm font-extrabold text-white shadow-figma transition hover:-translate-y-0.5 active:translate-y-1 active:shadow-none sm:px-5"
+                        class="min-h-11 rounded-xl bg-brand-secondary px-4 py-3 text-sm font-extrabold text-white shadow-figma transition hover:-translate-y-0.5 active:translate-y-1 active:shadow-none sm:px-5"
                         >Mulai gratis</Link
                     >
                 </div>
-            </nav>
+                </nav>
+            </div>
 
             <div
                 class="mx-auto grid max-w-7xl items-center gap-12 pt-16 lg:grid-cols-[1.02fr_0.98fr] lg:pb-10 lg:pt-24"
             >
                 <div class="max-w-2xl">
-                    <p
-                        class="inline-flex items-center gap-2 rounded-full border border-brand-secondary/60 bg-white/75 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-brand-primary"
-                    >
-                        <span
-                            class="h-2 w-2 animate-pulse rounded-full bg-brand-secondary"
-                        ></span>
-                        Kuis yang bikin kelas ikut hidup
-                    </p>
                     <h1
                         class="mt-6 text-5xl font-black leading-[0.96] tracking-[-0.065em] sm:text-6xl lg:text-7xl"
                     >
@@ -127,137 +127,94 @@ const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
                     </div>
                 </div>
 
-                <div class="relative mx-auto w-full max-w-xl">                    <div
-                        class="absolute -left-8 top-12 hidden rotate-[-7deg] rounded-2xl bg-brand-lime px-4 py-3 text-sm font-black text-brand-primary shadow-lg sm:block"
-                    >
-                        +100 XP
-                    </div>
-                    <div
-                        class="absolute -right-3 bottom-8 z-10 hidden rotate-[7deg] rounded-2xl bg-brand-lime px-4 py-3 text-sm font-black text-brand-primary shadow-lg sm:block"
-                    >
-                        🔥 3 hari streak
-                    </div>
-                    <article
-                        class="rounded-[2rem] border-[7px] border-white bg-brand-primary p-5 shadow-figma-hover sm:p-7"
-                    >
-                        <div
-                            class="flex items-center justify-between text-white"
-                        >
-                            <div class="flex items-center gap-3">
-                                <span
-                                    class="grid h-10 w-10 place-items-center rounded-xl bg-brand-secondary text-lg text-brand-primary"
-                                    >✦</span
-                                >
-                                <div>
-                                    <p class="text-xs font-bold text-brand-secondary/70">
-                                        LIVE QUIZ
-                                    </p>
-                                    <p class="font-black">Ekosistem kelas 8</p>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div
-                            class="mt-7 rounded-[1.5rem] bg-white p-5 sm:p-7"
-                        >
-                            <div
-                                class="flex items-center justify-between gap-4"
-                            >
-                                <p
-                                    class="text-xs font-black uppercase tracking-[0.14em] text-brand-primary"
-                                >
-                                    Soal 3 dari 10
-                                </p>
-                                <span
-                                    class="rounded-full bg-brand-secondary/10 px-3 py-1 text-xs font-black text-brand-primary"
-                                    >100 poin</span
-                                >
-                            </div>
-                            <h2
-                                class="mt-5 text-2xl font-black leading-tight tracking-[-0.035em] text-brand-primary sm:text-3xl"
-                            >
-                                Makhluk hidup yang membuat makanan sendiri
-                                disebut?
-                            </h2>
-                            <div class="mt-6 grid gap-3 sm:grid-cols-2">
-                                <button
-                                    v-for="(choice, index) in answers"
-                                    :key="choice"
-                                    class="min-h-14 rounded-2xl border-2 px-4 text-left text-sm font-black transition"
-                                    :class="
-                                        answer === choice
-                                            ? 'border-brand-primary bg-brand-secondary/20 text-brand-primary'
-                                            : 'border-brand-primary/15 bg-white text-brand-primary/80 hover:-translate-y-0.5 hover:border-brand-secondary/60'
-                                    "
-                                    @click="answer = choice"
-                                >
-                                    <span
-                                        class="mr-3 inline-grid h-7 w-7 place-items-center rounded-lg text-xs"
-                                        :class="answer === choice ? 'bg-brand-primary text-brand-secondary' : 'bg-brand-accent text-brand-primary/60'"
-                                    >{{
-                                        String.fromCharCode(65 + index)
-                                    }}</span
-                                    >{{ choice }}
-                                </button>
-                            </div>
-                            <p
-                                v-if="answer"
-                                class="mt-4 text-sm font-bold text-brand-primary"
-                            >
-                                Pilihanmu sudah tercatat.
-                            </p>
-                        </div>
-                        <div
-                            class="mt-5 flex items-center justify-between rounded-2xl bg-white/10 px-4 py-3 text-sm text-white"
-                        >
-                            <span class="font-bold">Peserta aktif <strong class="text-brand-secondary">34</strong></span>
-                            <span class="font-bold">Rani <span class="text-brand-secondary">1.920</span></span>
-                        </div>
-                    </article>
+                <div class="relative mx-auto flex w-full max-w-2xl items-center justify-center self-center lg:justify-end">
+                    <div class="pointer-events-none absolute bottom-8 right-4 h-64 w-64 rounded-full bg-brand-secondary/10 blur-3xl sm:h-80 sm:w-80" />
+                    <img
+                        src="/images/learning-characters.png"
+                        alt="Dua siswa belajar bersama menggunakan laptop"
+                        class="relative z-10 w-full max-w-2xl object-contain object-bottom drop-shadow-[0_22px_26px_rgba(35,62,168,0.16)]"
+                    />
                 </div>
             </div>
         </section>
 
         <section
             id="fitur"
-            class="relative overflow-hidden bg-brand-primary px-5 py-20 text-white sm:px-8 lg:px-12 lg:py-24"
+            class="relative overflow-hidden bg-brand-primary px-5 py-20 text-white sm:px-8 lg:px-12 lg:pb-20 lg:pt-30"
         >
-            <div class="pointer-events-none absolute -right-28 top-12 h-72 w-72 rounded-full bg-brand-secondary/10" />
-            <div class="pointer-events-none absolute -bottom-40 left-1/3 h-80 w-80 rounded-full border border-white/10" />
+            <div class="pointer-events-none absolute -left-32 bottom-0 h-96 w-96 rounded-full bg-brand-secondary/10" />
+            <div class="pointer-events-none absolute -right-32 top-10 h-80 w-80 rounded-full border border-white/10" />
 
-            <div class="relative mx-auto max-w-7xl">
-                <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-                    <div class="max-w-2xl">
-                        <p class="text-xs font-black uppercase tracking-[0.18em] text-brand-lime">Satu platform, tiga mode</p>
-                        <h2 class="mt-4 text-4xl font-black leading-[1.02] tracking-[-0.055em] sm:text-5xl">Belajar aktif, dengan cara yang terasa pas.</h2>
-                    </div>
-                    <p class="max-w-sm text-base leading-7 text-white/65">Pilih pengalaman belajar yang sesuai dengan energi kelas, waktu peserta, dan materi yang sudah tersedia.</p>
+            <div class="relative mx-auto my-auto grid max-w-9xl translate-x-8 items-start gap-18 md:grid-cols-[0.78fr_1.22fr] md:gap-16">
+                <div class="relative order-2 mx-120 flex w-full max-w-md items-end justify-center md:order-1 md:justify-start">
+                    <div class="pointer-events-none absolute bottom-8 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-brand-secondary/15 blur-3xl" />
+                    <img
+                        src="/images/study-character-female.png"
+                        alt="Siswa belajar menggunakan laptop"
+                        class="relative z-10 w-full object-contain object-bottom drop-shadow-[0_22px_26px_rgba(35,62,168,0.24)]"
+                    />
                 </div>
 
-                <div class="mt-12 grid gap-4 md:grid-cols-3">
-                    <article class="group rounded-3xl bg-brand-dark p-6 transition duration-300 hover:-translate-y-1 hover:shadow-figma-hover sm:p-7">
-                        <div class="flex items-center justify-between"><span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-lime text-sm font-black text-brand-primary">01</span><span class="text-xs font-black uppercase tracking-[0.16em] text-brand-lime">Realtime</span></div>
-                        <h3 class="mt-12 text-2xl font-black tracking-[-0.03em]">Live Quiz</h3>
-                        <p class="mt-3 min-h-14 text-sm leading-6 text-white/65">Buka room, bagikan PIN, dan lihat kelas merespons soal secara langsung.</p>
-                        <div class="mt-8 flex items-center justify-between border-t border-white/10 pt-4"><span class="text-xs font-bold text-white/50">34 peserta aktif</span><Link href="/join" class="text-sm font-black text-brand-lime">Masuk room <span aria-hidden="true">→</span></Link></div>
-                    </article>
+                <div class="order-1 min-w-0 md:order-2">
+                    <p class="text-xs font-black uppercase tracking-[0.18em] text-brand-lime">Satu platform, tiga mode</p>
+                    <h2 class="mt-4 max-w-2xl text-4xl font-black leading-[1.02] tracking-[-0.055em] sm:text-5xl">
+                        Belajar aktif, dengan cara yang terasa pas.
+                    </h2>
+                    <p class="mt-5 max-w-xl text-base leading-7 text-white/70">
+                        Pilih pengalaman belajar yang sesuai dengan energi kelas, waktu peserta, dan materi yang sudah tersedia.
+                    </p>
 
-                    <article class="group rounded-3xl border border-white/15 bg-white/10 p-6 transition duration-300 hover:-translate-y-1 hover:bg-white/15 hover:shadow-figma-hover sm:p-7">
-                        <div class="flex items-center justify-between"><span class="grid h-10 w-10 place-items-center rounded-xl border border-brand-lime/60 text-sm font-black text-brand-lime">02</span><span class="text-xs font-black uppercase tracking-[0.16em] text-white/55">Mandiri</span></div>
-                        <h3 class="mt-12 text-2xl font-black tracking-[-0.03em]">Self-Paced</h3>
-                        <p class="mt-3 min-h-14 text-sm leading-6 text-white/65">Susun latihan dengan deadline jelas dan biarkan peserta belajar sesuai tempo.</p>
-                        <div class="mt-8 flex items-center justify-between border-t border-white/10 pt-4"><span class="text-xs font-bold text-white/50">Progress terukur</span><Link href="/register" class="text-sm font-black text-brand-lime">Mulai latihan <span aria-hidden="true">→</span></Link></div>
-                    </article>
-
-                    <article class="group rounded-3xl bg-brand-lime p-6 text-brand-primary transition duration-300 hover:-translate-y-1 hover:shadow-figma-hover sm:p-7">
-                        <div class="flex items-center justify-between"><span class="grid h-10 w-10 place-items-center rounded-xl bg-white/70 text-sm font-black">03</span><span class="text-xs font-black uppercase tracking-[0.16em] text-brand-primary/65">Berbantuan AI</span></div>
-                        <h3 class="mt-12 text-2xl font-black tracking-[-0.03em]">Materi ke Soal</h3>
-                        <p class="mt-3 min-h-14 text-sm leading-6 text-brand-primary/70">Mulai dari PDF atau PPTX, buat draft soal, lalu review sebelum dibagikan.</p>
-                        <div class="mt-8 flex items-center justify-between border-t border-brand-primary/15 pt-4"><span class="text-xs font-bold text-brand-primary/60">Dari file jadi kuis</span><Link href="/materials" class="text-sm font-black text-brand-primary">Lihat materi <span aria-hidden="true">→</span></Link></div>
-                    </article>
+                                        <div class="relative mx-auto mt-9 h-[23rem] w-full max-w-[54rem]">
+                        <button
+                            type="button"
+                            class="feature-nav-prev absolute left-2 top-1/2 z-30 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white text-xl font-black text-brand-primary shadow-figma transition hover:bg-brand-secondary"
+                            aria-label="Mode sebelumnya"
+                            @click="scrollFeatures(-1)"
+                        >
+                            ‹
+                        </button>
+                        <div class="feature-card-stage">
+                            <article :class="['feature-card', featureIndex === 0 ? 'feature-card-active z-20 border-brand-secondary bg-brand-lime text-brand-primary shadow-figma' : featureIndex === 1 ? 'feature-card-prev z-10 border-white/15 bg-brand-surface text-brand-secondary' : 'feature-card-hidden z-0 border-white/15 bg-brand-surface text-brand-secondary']">
+                                <div class="flex items-center justify-between">
+                                    <span class="grid h-10 w-10 place-items-center rounded-xl bg-white/70 text-sm font-black">01</span>
+                                    <span class="text-xs font-black uppercase tracking-[0.16em] text-inherit">Realtime</span>
+                                </div>
+                                <h3 class="mt-12 text-2xl font-black tracking-[-0.03em]">Live Quiz</h3>
+                                <p class="mt-3 text-sm leading-6 text-inherit">Buka room, bagikan PIN, dan lihat kelas merespons soal secara langsung.</p>
+                                <Link href="/join" class="mt-8 inline-block text-sm font-black text-inherit">Masuk room <span aria-hidden="true">→</span></Link>
+                            </article>
+                            <article :class="['feature-card', featureIndex === 1 ? 'feature-card-active z-20 border-brand-secondary bg-brand-lime text-brand-primary shadow-figma' : featureIndex === 0 ? 'feature-card-next z-10 border-white/15 bg-brand-surface text-brand-secondary' : 'feature-card-prev z-10 border-white/15 bg-brand-surface text-brand-secondary']">
+                                <div class="flex items-center justify-between">
+                                    <span class="grid h-10 w-10 place-items-center rounded-xl border border-brand-secondary/60 text-sm font-black text-inherit">02</span>
+                                    <span class="text-xs font-black uppercase tracking-[0.16em] text-inherit">Mandiri</span>
+                                </div>
+                                <h3 class="mt-12 text-2xl font-black tracking-[-0.03em]">Self-Paced</h3>
+                                <p class="mt-3 text-sm leading-6 text-inherit">Susun latihan dengan deadline jelas dan biarkan peserta belajar sesuai tempo.</p>
+                                <Link href="/register" class="mt-8 inline-block text-sm font-black text-inherit">Mulai latihan <span aria-hidden="true">→</span></Link>
+                            </article>
+                            <article :class="['feature-card', featureIndex === 2 ? 'feature-card-active z-20 border-brand-secondary bg-brand-lime text-brand-primary shadow-figma' : featureIndex === 1 ? 'feature-card-next z-10 border-white/15 bg-brand-surface text-brand-secondary' : 'feature-card-hidden z-0 border-white/15 bg-brand-surface text-brand-secondary']">
+                                <div class="flex items-center justify-between">
+                                    <span class="grid h-10 w-10 place-items-center rounded-xl border border-brand-secondary/60 text-sm font-black text-inherit">03</span>
+                                    <span class="text-xs font-black uppercase tracking-[0.16em] text-inherit">Berbantuan AI</span>
+                                </div>
+                                <h3 class="mt-12 text-2xl font-black tracking-[-0.03em]">Materi ke Soal</h3>
+                                <p class="mt-3 text-sm leading-6 text-inherit">Mulai dari PDF atau PPTX, buat draft soal, lalu review sebelum dibagikan.</p>
+                                <Link href="/materials" class="mt-8 inline-block text-sm font-black text-inherit">Lihat materi <span aria-hidden="true">→</span></Link>
+                            </article>
+                        </div>
+                        <button
+                            type="button"
+                            class="feature-nav-next absolute right-2 top-1/2 z-30 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white text-xl font-black text-brand-primary shadow-figma transition hover:bg-brand-secondary"
+                            aria-label="Mode berikutnya"
+                            @click="scrollFeatures(1)"
+                        >
+                            ›
+                        </button>
+                    </div>                    <p class="mt-2 text-xs font-bold text-white/45"></p>
                 </div>
             </div>
         </section>
+
         <section id="cara-kerja" class="px-5 py-20 sm:px-8 lg:px-12">
             <div
                 class="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.8fr_1.2fr]"
@@ -268,11 +225,11 @@ const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
                     >
                         Dari materi sampai podium
                     </p>
-                    <h2
+                    <h2x
                         class="mt-4 text-4xl font-black tracking-[-0.05em] sm:text-5xl"
                     >
                         Tidak perlu pindah-pindah aplikasi.
-                    </h2>
+                    </h2x>
                     <p class="mt-5 max-w-md text-lg leading-8 text-brand-primary/70">
                         Creator menyusun soal. Peserta belajar. Semua hasil
                         kembali ke satu workspace yang rapi.
@@ -386,6 +343,91 @@ html {
 @media (prefers-reduced-motion: reduce) {
     html {
         scroll-behavior: auto;
+    }
+}
+</style>
+<style>
+
+
+.feature-copy {
+    padding-inline-start: max(0rem, calc(50% - 10rem));
+}
+
+@media (max-width: 767px) {
+    .feature-copy {
+        padding-inline-start: 0;
+    }
+}
+.feature-card-stage {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+}
+
+.feature-card {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: min(76vw, 20rem);
+    height: 22rem;
+    border-radius: 1.5rem;
+    border-width: 1px;
+    padding: 1.5rem;
+    transition: transform 450ms ease, opacity 300ms ease;
+}
+
+.feature-card-active {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+}
+
+@media (min-width: 1024px) {
+    .feature-nav-prev {
+        left: calc(50% - 12rem);
+    }
+
+    .feature-nav-next {
+        right: calc(50% - 12rem);
+    }
+}
+.feature-card-prev {
+    transform: translateX(calc(-50% - 10rem)) rotate(-10deg) scale(0.92);
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+.feature-card-next {
+    transform: translateX(calc(-50% + 10rem)) rotate(10deg) scale(0.92);
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+.feature-card-hidden {
+    transform: translateX(-50%) scale(0.86);
+    opacity: 0;
+    pointer-events: none;
+}
+
+@media (max-width: 639px) {
+    .feature-card {
+        width: min(76vw, 20rem);
+    }
+
+@media (min-width: 1024px) {
+    .feature-nav-prev {
+        left: calc(50% - 12rem);
+    }
+
+    .feature-nav-next {
+        right: calc(50% - 12rem);
+    }
+}
+.feature-card-prev {
+        transform: translateX(calc(-50% - 7rem)) rotate(-8deg) scale(0.9);
+    }
+
+    .feature-card-next {
+        transform: translateX(calc(-50% + 7rem)) rotate(8deg) scale(0.9);
     }
 }
 </style>

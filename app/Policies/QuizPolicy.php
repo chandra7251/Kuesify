@@ -22,6 +22,6 @@ class QuizPolicy
         $organizationId = app(TenantContext::class)->id();
         $role = $organizationId ? $user->organizations()->whereKey($organizationId)->value('organization_user.role') : null;
 
-        return $this->create($user) && ($quiz->creator_id === $user->id || in_array($role, [OrganizationRole::OrganizationAdmin->value, OrganizationRole::SuperAdmin->value], true));
+        return $this->create($user) && ($quiz->creator_id === $user->id || $quiz->collaborators()->whereKey($user)->exists() || in_array($role, [OrganizationRole::OrganizationAdmin->value, OrganizationRole::SuperAdmin->value], true));
     }
 }

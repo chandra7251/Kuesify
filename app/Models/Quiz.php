@@ -44,13 +44,18 @@ class Quiz extends Model
         return $this->belongsToMany(Question::class, 'quiz_question')->withPivot('position')->orderBy('quiz_question.position');
     }
 
+    public function collaborators(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'quiz_collaborator')->withTimestamps();
+    }
+
     public function publish(): void
     {
         if (! $this->questions()->exists()) {
             throw new DomainException('A quiz needs at least one question before publication.');
         }
 
-        $this->update(['status' => 'published']);
+        $this->update(['status' => $this->visibility === 'public' ? 'pending_moderation' : 'published']);
     }
 
     public function isEligibleForLiveSession(): bool

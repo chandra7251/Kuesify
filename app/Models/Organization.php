@@ -20,9 +20,10 @@ class Organization extends Model
         return $this->belongsToMany(User::class)->withPivot('role', 'is_active')->withTimestamps();
     }
 
+    /** Alias for withCount('users') — used by super-admin aggregates. */
     public function users(): BelongsToMany
     {
-        return $this->members();
+        return $this->belongsToMany(User::class, 'organization_user')->withPivot('role', 'is_active')->withTimestamps();
     }
 
     public function groups(): HasMany

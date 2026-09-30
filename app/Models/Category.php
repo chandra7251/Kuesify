@@ -5,7 +5,5 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['name', 'slug'])]
-class Category extends Model
-{
-}
+#[Fillable(['name', 'slug', 'theme_key'])]
+class Category extends Model {}

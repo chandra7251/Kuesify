@@ -1,7 +1,9 @@
 <?php
 
 use App\Models\Organization;
+use App\Models\Tag;
 use App\Models\User;
+use App\Support\TenantContext;
 use Illuminate\Http\UploadedFile;
 
 function creatorInOrganization(): array
@@ -35,10 +37,11 @@ it('stores a validated reusable question in active organization', function () {
         'options' => ['Jakarta', 'Bandung'],
         'correct_answer' => 'Jakarta',
         'points' => 1000,
+        'hint' => 'Pulau Jawa.',
         'tags' => ['Geografi'],
     ])->assertRedirect()->assertSessionHasNoErrors();
 
-    $this->assertDatabaseHas('questions', ['organization_id' => $organization->id, 'prompt' => 'Ibu kota Indonesia?']);
+    $this->assertDatabaseHas('questions', ['organization_id' => $organization->id, 'prompt' => 'Ibu kota Indonesia?', 'hint' => 'Pulau Jawa.']);
     $this->assertDatabaseHas('tags', ['organization_id' => $organization->id, 'name' => 'Geografi']);
 });
 
@@ -66,4 +69,25 @@ it('imports all valid CSV rows transactionally into active organization', functi
 
     $this->assertDatabaseHas('questions', ['organization_id' => $organization->id, 'prompt' => 'Ibu kota?', 'points' => 500]);
     $this->assertDatabaseHas('tags', ['organization_id' => $organization->id, 'name' => 'geografi']);
+});
+
+it('searches tags inside the active tenant only', function () {
+    $first = Organization::factory()->create();
+    $second = Organization::factory()->create();
+    $creator = User::factory()->create();
+    $first->members()->attach($creator, ['role' => 'creator']);
+    $second->members()->attach($creator, ['role' => 'creator']);
+
+    app(TenantContext::class)->set($first);
+    Tag::create(['organization_id' => $first->id, 'name' => 'Geografi']);
+    app(TenantContext::class)->set($second);
+    Tag::create(['organization_id' => $second->id, 'name' => 'Biologi']);
+    app(TenantContext::class)->clear();
+
+    $this->actingAs($creator)->post(route('organizations.switch', $first));
+
+    $this->getJson(route('questions.tags', ['q' => 'geo']))
+        ->assertOk()
+        ->assertJsonPath('data.0.name', 'Geografi')
+        ->assertJsonMissing(['name' => 'Biologi']);
 });

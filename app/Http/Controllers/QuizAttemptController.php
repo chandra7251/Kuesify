@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AttemptAnswer;
 use App\Models\Question;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
-use App\Models\AttemptAnswer;
+use App\Notifications\AttemptGraded;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -20,6 +22,30 @@ class QuizAttemptController extends Controller
         $attempt = QuizAttempt::start($quiz, $request->user());
 
         return redirect()->route('attempts.play', $attempt);
+    }
+
+    public function study(Request $request, int $quiz): JsonResponse|Response
+    {
+        $quiz = Quiz::with('questions')->where('status', 'published')->findOrFail($quiz);
+        abort_unless($quiz->deadline_at?->isPast(), 403);
+
+        $payload = [
+            'id' => $quiz->id,
+            'title' => $quiz->title,
+            'flashcards' => $quiz->questions->map(fn (Question $question) => [
+                'id' => $question->id,
+                'prompt' => $question->prompt,
+                'answer' => $question->correct_answer,
+                'explanation' => $question->explanation,
+                'hint' => $question->hint,
+            ])->values(),
+        ];
+
+        if (! $request->expectsJson()) {
+            return Inertia::render('StudyMode', ['quiz' => $payload]);
+        }
+
+        return response()->json(['quiz' => $payload]);
     }
 
     public function play(Request $request, int $attempt): Response
@@ -47,6 +73,7 @@ class QuizAttemptController extends Controller
                         'options' => $question->options,
                         'points' => $question->points,
                         'explanation' => $question->explanation,
+                        'hint' => $question->hint,
                     ]),
                 ],
                 'answers' => $attempt->answers->map(fn (AttemptAnswer $answer) => [
@@ -89,6 +116,8 @@ class QuizAttemptController extends Controller
         $answer = $attempt->answers()->findOrFail($answer);
         $data = $request->validate(['points' => ['required', 'integer', 'min:0'], 'feedback' => ['nullable', 'string', 'max:4000']]);
         $attempt->gradeEssay($answer, $data['points'], $data['feedback'] ?? null);
+        $attempt->loadMissing(['participant', 'quiz']);
+        $attempt->participant->notify(new AttemptGraded($attempt));
 
         return back();
     }

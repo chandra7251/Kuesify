@@ -1,8 +1,10 @@
 <?php
 
+use App\Models\AttemptAnswer;
 use App\Models\Organization;
 use App\Models\Question;
 use App\Models\Quiz;
+use App\Models\QuizAttempt;
 use App\Models\User;
 use App\Support\TenantContext;
 
@@ -19,6 +21,11 @@ it('shows a tenant-scoped question bank and exports only active organization que
     $this->actingAs($creator)->post(route('organizations.switch', $organization));
     $this->get(route('questions.index'))->assertOk()->assertInertia(fn ($page) => $page->component('Workspace')->has('items.data', 1));
     $this->get(route('questions.export'))->assertOk()->assertHeader('content-type', 'text/csv; charset=UTF-8');
+    $xlsx = $this->get(route('questions.export', ['format' => 'xlsx']))
+        ->assertOk()
+        ->assertHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+    expect($xlsx->streamedContent())->toStartWith('PK')->toContain('xl/worksheets/sheet1.xml', 'Visible');
 });
 
 it('lets creator open reports but blocks participant and super admin opens platform admin', function () {
@@ -43,7 +50,7 @@ it('lets creator open reports but blocks participant and super admin opens platf
     $this->get(route('platform.admin'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('Workspace')
+            ->component('superadmin/platform')
             ->has('summary.health.reverb_status')
             ->has('summary.health.reverb_host')
         );
@@ -68,7 +75,7 @@ it('renders reports correctly with questions and attempt statistics', function (
     ]);
     $quiz->questions()->attach($question->id, ['position' => 1]);
 
-    $attempt = \App\Models\QuizAttempt::create([
+    $attempt = QuizAttempt::create([
         'organization_id' => $organization->id,
         'quiz_id' => $quiz->id,
         'participant_id' => $participant->id,
@@ -78,7 +85,7 @@ it('renders reports correctly with questions and attempt statistics', function (
         'completed_at' => now(),
     ]);
 
-    \App\Models\AttemptAnswer::create([
+    AttemptAnswer::create([
         'quiz_attempt_id' => $attempt->id,
         'question_id' => $question->id,
         'answer' => 'true',
@@ -97,4 +104,3 @@ it('renders reports correctly with questions and attempt statistics', function (
             ->where('summary.questions.0.correct_rate', 100)
         );
 });
-

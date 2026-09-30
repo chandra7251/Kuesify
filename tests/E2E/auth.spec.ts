@@ -6,8 +6,8 @@ test('visitor opens login page from homepage', async ({ page }) => {
 
     await expect(page).toHaveURL(/\/login$/);
     await expect(page.getByLabel('Email')).toBeVisible();
-    await expect(page.getByLabel('Password')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Log in' })).toBeVisible();
+    await expect(page.locator('#password')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Masuk' })).toBeVisible();
 });
 
 test('login presents Kuesify experience without horizontal overflow', async ({ page }) => {
@@ -26,7 +26,8 @@ test('new user chooses an avatar before opening dashboard', async ({ page }) => 
     await page.goto('/register');
     await page.getByLabel('Nama lengkap').fill('Avatar E2E');
     await page.getByLabel('Email').fill(email);
-    await page.getByText('Guru / Pengajar', { exact: true }).click();
+    await page.getByRole('button', { name: /Siswa \/ Peserta/ }).click();
+    await page.getByRole('option', { name: /Guru \/ Pengajar/ }).click();
     await page.getByLabel('Kata sandi', { exact: true }).fill('password');
     await page.getByLabel('Konfirmasi kata sandi').fill('password');
     await page.getByRole('button', { name: 'Buat akun' }).click();
