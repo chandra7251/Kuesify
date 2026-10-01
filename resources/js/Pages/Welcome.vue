@@ -195,6 +195,12 @@ const scrollFeatures = (direction: number) => {
                         >
                         proses belajarnya.
                     </h1>
+                    <!-- Ilustrasi Mobile Hero -->
+                    <img
+                        src="/images/learning-characters.png"
+                        alt="Dua siswa belajar bersama menggunakan laptop"
+                        class="mx-auto mt-6 w-full max-w-sm object-contain drop-shadow-[0_22px_26px_rgba(35,62,168,0.16)] lg:hidden"
+                    />
                     <p
                         class="mt-6 max-w-xl text-lg leading-8 text-brand-primary/75 sm:text-xl"
                     >
@@ -256,7 +262,7 @@ const scrollFeatures = (direction: number) => {
                 </div>
 
                 <div
-                    class="relative mx-auto flex w-full max-w-2xl items-center justify-center self-center lg:justify-end"
+                    class="relative mx-auto hidden w-full max-w-2xl items-center justify-center self-center lg:flex lg:justify-end"
                 >
                     <div
                         class="pointer-events-none absolute bottom-8 right-4 h-64 w-64 rounded-full bg-brand-secondary/10 blur-3xl sm:h-80 sm:w-80"
@@ -311,7 +317,7 @@ const scrollFeatures = (direction: number) => {
                         <img
                             src="/images/study-character-female.png"
                             alt="Siswa belajar menggunakan laptop"
-                            class="mx-auto mt-6 w-48 object-contain object-center drop-shadow-[0_22px_26px_rgba(35,62,168,0.24)] lg:hidden"
+                            class="mx-auto mt-6 w-64 object-contain object-center drop-shadow-[0_22px_26px_rgba(35,62,168,0.24)] lg:hidden"
                         />
                         <p
                             class="mt-5 max-w-lg text-base leading-7 text-white/70"
