@@ -57,7 +57,7 @@ const scrollFeatures = (direction: number) => {
 
 <template>
     <Head title="Kuesify — Belajar jadi hidup" />
-    <main class="overflow-hidden bg-brand-accent text-brand-primary">
+    <main class="bg-brand-accent text-brand-primary">
         <section
             class="relative isolate overflow-hidden px-5 pb-20 pt-5 sm:px-8 lg:px-12"
         >
@@ -488,7 +488,7 @@ const scrollFeatures = (direction: number) => {
 
         <section
             id="peran"
-            class="relative overflow-hidden bg-brand-primary px-5 py-20 text-white sm:px-8 lg:px-12 lg:py-24"
+            class="relative bg-brand-primary px-5 py-20 text-white sm:px-8 lg:px-12 lg:py-24"
         >
             <div
                 class="pointer-events-none absolute -left-40 bottom-0 h-96 w-96 rounded-full bg-white/5"
@@ -532,9 +532,9 @@ const scrollFeatures = (direction: number) => {
                     </div>
                 </div>
                 <div
-                    class="mt-16 grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20"
+                    class="mt-16 grid items-center gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-12"
                 >
-                    <div class="max-w-xl">
+                    <div class="max-w-xl lg:-translate-x-8">
                         <p
                             class="text-xs font-black uppercase tracking-[0.18em] text-brand-lime"
                         >
@@ -571,19 +571,19 @@ const scrollFeatures = (direction: number) => {
                         <img
                             src="/images/role-laptop-mockup.png"
                             alt="Laptop workspace Kuesify"
-                            class="relative z-10 w-[80rem] -translate-y-8 object-contain drop-shadow-[0_24px_30px_rgba(12,27,92,0.28)]"
+                            class="relative right-[1%] z-10 w-[44rem] -translate-y-8 object-contain drop-shadow-[0_24px_30px_rgba(12,27,92,0.28)]"
                         />
                         <img
                             v-if="roleIndex === 0 || roleIndex === 2"
                             src="/images/role-character-female.png"
                             alt="Guru berdiri di samping workspace"
-                            class="absolute bottom-0 left-[-3%] z-20 w-[38%] -translate-y-4 object-contain"
+                            class="absolute bottom-0 left-[-9%] z-30 w-[13rem] -translate-y-20 object-contain"
                         />
                         <img
                             v-if="roleIndex === 1 || roleIndex === 2"
                             src="/images/role-character-male.png"
                             alt="Pengajar berdiri di samping workspace"
-                            class="absolute bottom-0 right-[-3%] z-20 w-[42%] -translate-y-4 object-contain"
+                            class="absolute bottom-0 right-[-9%] z-20 w-[14rem] -translate-y-20 object-contain"
                         />
                     </div>
                 </div>
@@ -591,36 +591,45 @@ const scrollFeatures = (direction: number) => {
         </section>
         <section id="untuk-siapa" class="px-5 pb-20 sm:px-8 lg:px-12">
             <div
-                class="mx-auto max-w-7xl rounded-[2rem] bg-brand-secondary/10 p-8 sm:p-12"
+                class="mx-auto grid max-w-7xl items-center gap-10 overflow-hidden rounded-[2rem] bg-brand-secondary/10 p-8 sm:p-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 lg:p-14"
             >
-                <div class="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
-                    <div>
-                        <p
-                            class="text-xs font-black uppercase tracking-[0.18em] text-brand-primary"
-                        >
-                            Untuk kelas yang ingin bergerak
-                        </p>
-                        <h2
-                            class="mt-4 max-w-3xl text-4xl font-black tracking-[-0.05em] text-brand-primary sm:text-5xl"
-                        >
-                            Satu layar untuk creator. Satu PIN untuk seluruh
-                            kelas.
-                        </h2>
-                        <p
-                            class="mt-5 max-w-2xl text-lg leading-8 text-brand-primary/75"
-                        >
-                            Dipakai untuk pembelajaran, bimbingan belajar, acara
-                            komunitas, dan demo kompetisi yang perlu terasa
-                            hidup.
-                        </p>
-                    </div>
-                    <div class="flex flex-wrap gap-3">
+                <div
+                    class="relative flex min-h-[18rem] items-end justify-center lg:min-h-[24rem]"
+                >
+                    <div
+                        class="pointer-events-none absolute bottom-0 h-64 w-64 rounded-full bg-brand-secondary/15 blur-3xl"
+                    />
+                    <img
+                        src="/images/role-section-characters.png"
+                        alt="Siswa dan guru menggunakan Kuesify bersama"
+                        class="relative z-10 max-h-[24rem] w-full object-contain drop-shadow-[0_20px_24px_rgba(49,62,168,0.16)]"
+                    />
+                </div>
+                <div>
+                    <p
+                        class="text-xs font-black uppercase tracking-[0.18em] text-brand-primary"
+                    >
+                        Untuk kelas yang ingin bergerak
+                    </p>
+                    <h2
+                        class="mt-4 max-w-3xl text-4xl font-black leading-[1.02] tracking-[-0.05em] text-brand-primary sm:text-5xl"
+                    >
+                        Satu layar untuk creator. Satu PIN untuk seluruh kelas.
+                    </h2>
+                    <p
+                        class="mt-5 max-w-2xl text-lg leading-8 text-brand-primary/75"
+                    >
+                        Dipakai untuk pembelajaran, bimbingan belajar, acara
+                        komunitas, dan demo kompetisi yang perlu terasa hidup.
+                    </p>
+                    <div class="mt-8 flex flex-wrap gap-3">
                         <Link
                             v-if="canRegister"
                             href="/register"
                             class="min-h-13 rounded-2xl bg-brand-primary px-6 py-4 text-sm font-black text-white shadow-figma"
                             >Buat akun gratis</Link
-                        ><Link
+                        >
+                        <Link
                             href="/join"
                             class="min-h-13 rounded-2xl border-2 border-brand-primary/35 bg-white px-6 py-4 text-sm font-black text-brand-primary"
                             >Punya PIN? Masuk</Link
