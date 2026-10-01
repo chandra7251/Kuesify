@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppIcon from '@/Components/AppIcon.vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import AvatarIcon from '@/Components/AvatarIcon.vue';
 import TopNavBar from '@/Components/TopNavBar.vue';
@@ -28,17 +29,33 @@ const mobileSidebarOpen = ref(false);
 const darkMode = ref(false);
 
 onMounted(() => {
-    const savedTheme = window.localStorage.getItem('kuesify.dark-mode');
-    darkMode.value = savedTheme === null
-        ? window.matchMedia('(prefers-color-scheme: dark)').matches
-        : savedTheme === 'true';
+    let savedTheme: string | null = null;
+
+    try {
+        savedTheme = window.localStorage.getItem('kuesify.dark-mode');
+    } catch {
+        savedTheme = null;
+    }
+
+    darkMode.value =
+        savedTheme === null
+            ? window.matchMedia('(prefers-color-scheme: dark)').matches
+            : savedTheme === 'true';
     document.documentElement.classList.toggle('dark-mode', darkMode.value);
 });
 
 function toggleDarkMode(): void {
     darkMode.value = !darkMode.value;
-    window.localStorage.setItem('kuesify.dark-mode', String(darkMode.value));
     document.documentElement.classList.toggle('dark-mode', darkMode.value);
+
+    try {
+        window.localStorage.setItem(
+            'kuesify.dark-mode',
+            String(darkMode.value),
+        );
+    } catch {
+        // Keep visual preference active when storage is unavailable.
+    }
 }
 
 const currentRole = computed(() => {
@@ -55,7 +72,13 @@ const navigationItems = computed(() => {
     if (role === 'participant') {
         return [
             { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
-            { label: 'Kuis Mandiri', href: '/attempts', icon: 'results' },
+            {
+                label: 'Katalog Kuis',
+                href: '/participant/quizzes',
+                icon: 'catalog',
+            },
+            { label: 'Materi', href: '/participant/materials', icon: 'ai' },
+            { label: 'Lencana', href: '/participant/badges', icon: 'badge' },
             { label: 'Gabung Live', href: '/join', icon: 'live' },
             { label: 'Hasil Belajar', href: '/attempts', icon: 'results' },
         ];
@@ -64,11 +87,15 @@ const navigationItems = computed(() => {
     const items = [
         { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
         { label: 'Question Bank', href: '/questions', icon: 'bank' },
-        { label: 'Creator Bank', href: '/creator/question-bank', icon: 'bank' },
+        {
+            label: 'Creator Bank',
+            href: '/creator/question-bank',
+            icon: 'creatorBank',
+        },
         { label: 'Quiz Builder', href: '/quizzes', icon: 'builder' },
         { label: 'Live Quiz', href: '/live-sessions', icon: 'live' },
         { label: 'Hasil', href: '/reports', icon: 'results' },
-        { label: 'Notifikasi', href: '/notifications', icon: 'results' },
+        { label: 'Notifikasi', href: '/notifications', icon: 'notifications' },
         { label: 'Materi AI', href: '/materials', icon: 'ai' },
     ];
 
@@ -78,48 +105,105 @@ const navigationItems = computed(() => {
             href: '/organization',
             icon: 'organization',
         });
-        items.push({ label: 'Anggota', href: '/admin/members', icon: 'organization' });
-        items.push({ label: 'Group', href: '/admin/groups', icon: 'organization' });
-        items.push({ label: 'Pengaturan Org', href: '/admin/settings', icon: 'organization' });
+        items.push({
+            label: 'Anggota',
+            href: '/admin/members',
+            icon: 'members',
+        });
+        items.push({
+            label: 'Group',
+            href: '/admin/groups',
+            icon: 'groups',
+        });
+        items.push({
+            label: 'Pengaturan Org',
+            href: '/admin/settings',
+            icon: 'settings',
+        });
     }
 
     if (role === 'super_admin') {
         items.push({
             label: 'Platform Admin',
             href: '/admin',
-            icon: 'admin',
+            icon: 'platform',
         });
-        items.push({ label: 'Moderasi', href: '/admin/moderation', icon: 'admin' });
-        items.push({ label: 'Tenants', href: '/superadmin/tenants', icon: 'admin' });
-        items.push({ label: 'Kategori', href: '/superadmin/categories', icon: 'admin' });
-        items.push({ label: 'AI Monitoring', href: '/superadmin/ai-monitoring', icon: 'admin' });
+        items.push({
+            label: 'Moderasi',
+            href: '/admin/moderation',
+            icon: 'moderation',
+        });
+        items.push({
+            label: 'Tenants',
+            href: '/superadmin/tenants',
+            icon: 'tenants',
+        });
+        items.push({
+            label: 'Kategori',
+            href: '/superadmin/categories',
+            icon: 'categories',
+        });
+        items.push({
+            label: 'AI Monitoring',
+            href: '/superadmin/ai-monitoring',
+            icon: 'monitoring',
+        });
     }
 
     return items;
 });
 
-const mobileNavigation = [
-    {
-        label: 'Beranda',
-        href: '/dashboard',
-        icon: 'm3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z',
-    },
-    {
-        label: 'Soal',
-        href: '/questions',
-        icon: 'M5 4h14v16H5zM8 8h8M8 12h8M8 16h5',
-    },
-    { label: 'Live', href: '/live-sessions', icon: 'M8 5v14l11-7z' },
-    { label: 'Hasil', href: '/attempts', icon: 'M5 20V10m7 10V4m7 16v-7' },
-    {
-        label: 'Materi AI',
-        href: '/materials',
-        icon: 'm12 3 1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3Z',
-    },
-];
+const mobileNavigation = computed(() => {
+    const base = [
+        {
+            label: 'Beranda',
+            href: '/dashboard',
+            icon: 'm3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z',
+        },
+    ];
+
+    if (currentRole.value === 'participant') {
+        return [
+            ...base,
+            {
+                label: 'Kuis',
+                href: '/participant/quizzes',
+                icon: 'M5 4h14v16H5zM8 8h8M8 12h8M8 16h5',
+            },
+            {
+                label: 'Materi',
+                href: '/participant/materials',
+                icon: 'm12 3 1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3Z',
+            },
+            { label: 'Gabung', href: '/join', icon: 'M8 5v14l11-7z' },
+            {
+                label: 'Hasil',
+                href: '/attempts',
+                icon: 'M5 20V10m7 10V4m7 16v-7',
+            },
+        ];
+    }
+
+    return [
+        ...base,
+        {
+            label: 'Soal',
+            href: '/questions',
+            icon: 'M5 4h14v16H5zM8 8h8M8 12h8M8 16h5',
+        },
+        { label: 'Live', href: '/live-sessions', icon: 'M8 5v14l11-7z' },
+        { label: 'Hasil', href: '/attempts', icon: 'M5 20V10m7 10V4m7 16v-7' },
+        {
+            label: 'Materi AI',
+            href: '/materials',
+            icon: 'm12 3 1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3Z',
+        },
+    ];
+});
 
 function isCurrent(href: string): boolean {
-    const path = page.url.split('?')[0].split('#')[0].replace(/\/+$/, '') || '/';
+    const path =
+        page.url.split('?')[0].split('#')[0].replace(/\/+$/, '') || '/';
     const target = href.replace(/\/+$/, '') || '/';
     if (target === '/dashboard') {
         return path === '/dashboard';
@@ -166,7 +250,7 @@ function closeMobileNav(): void {
                     <div
                         class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white shadow-sm"
                     >
-                        <ApplicationLogo class="h-6 w-6 text-brand-secondary" />
+                        <ApplicationLogo class="h-8 w-8 text-brand-secondary" />
                     </div>
                     <div class="min-w-0 flex-1 truncate">
                         <span
@@ -244,139 +328,11 @@ function closeMobileNav(): void {
                     ]"
                     :title="!desktopSidebarExpanded ? item.label : undefined"
                 >
-                    <!-- Navigation Icons -->
-                    <svg
-                        v-if="item.icon === 'dashboard'"
+                    <AppIcon
+                        :name="item.icon"
                         class="h-5 w-5 shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <rect width="7" height="7" x="3" y="3" rx="1" />
-                        <rect width="7" height="7" x="14" y="3" rx="1" />
-                        <rect width="7" height="7" x="14" y="14" rx="1" />
-                        <rect width="7" height="7" x="3" y="14" rx="1" />
-                    </svg>
-                    <svg
-                        v-else-if="item.icon === 'bank'"
-                        class="h-5 w-5 shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path
-                            d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4"
-                        />
-                    </svg>
-                    <svg
-                        v-else-if="item.icon === 'builder'"
-                        class="h-5 w-5 shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                        <path d="M12 17h.01" />
-                    </svg>
-                    <svg
-                        v-else-if="item.icon === 'live'"
-                        class="h-5 w-5 shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path
-                            d="M4.93 19.07a10 10 0 0 1 0-14.14M2 12h.01M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07M8.46 15.54a5 5 0 0 1 0-7.07M12 12a1 1 0 1 0 0 .01"
-                        />
-                    </svg>
-                    <svg
-                        v-else-if="item.icon === 'results'"
-                        class="h-5 w-5 shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path
-                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
-                        />
-                        <polyline points="14 2 14 8 20 8" />
-                        <line x1="16" y1="13" x2="8" y2="13" />
-                        <line x1="16" y1="17" x2="8" y2="17" />
-                        <polyline points="10 9 9 9 8 9" />
-                    </svg>
-                    <svg
-                        v-else-if="item.icon === 'ai'"
-                        class="h-5 w-5 shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path
-                            d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"
-                        />
-                    </svg>
-                    <svg
-                        v-else-if="item.icon === 'reports'"
-                        class="h-5 w-5 shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path d="M3 3v18h18" />
-                        <path d="M18 17V9" />
-                        <path d="M13 17V5" />
-                        <path d="M8 17v-3" />
-                    </svg>
-                    <svg
-                        v-else-if="item.icon === 'organization'"
-                        class="h-5 w-5 shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                        <circle cx="9" cy="7" r="4" />
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                    </svg>
-                    <svg
-                        v-else-if="item.icon === 'admin'"
-                        class="h-5 w-5 shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                        <polyline points="9 12 11 14 15 10" />
-                    </svg>
+                        :stroke-width="2"
+                    />
 
                     <!-- Text Label (Visible only when Expanded) -->
                     <span
@@ -391,6 +347,42 @@ function closeMobileNav(): void {
                     >
                         {{ item.label }}
                     </span>
+                </Link>
+            </div>
+
+            <!-- Middle Helpful Study Widget (Visible when expanded) -->
+            <div
+                v-if="desktopSidebarExpanded"
+                class="mx-3 mb-3 mt-auto rounded-2xl border border-white/15 bg-white/10 p-3.5 backdrop-blur-sm transition-all"
+            >
+                <div class="flex items-center gap-3">
+                    <img
+                        src="/assets/kuesify/characters/image-14.svg"
+                        alt="Maskot Kuesify"
+                        class="h-10 w-10 shrink-0 object-contain animate-float-gentle drop-shadow"
+                    />
+                    <div class="min-w-0">
+                        <p class="truncate text-xs font-black text-white">
+                            {{ currentRole === 'participant' ? 'Siap Kuis Live?' : 'Ruang Creator' }}
+                        </p>
+                        <p class="truncate text-[11px] text-brand-secondary font-semibold">
+                            {{ currentRole === 'participant' ? 'Masuk pakai PIN ruang' : 'Kelola kuis & materi' }}
+                        </p>
+                    </div>
+                </div>
+                <Link
+                    v-if="currentRole === 'participant'"
+                    href="/join"
+                    class="btn-shimmer mt-3 flex items-center justify-center gap-1.5 rounded-xl bg-brand-secondary px-3 py-2 text-center text-xs font-black text-brand-dark shadow-sm transition hover:brightness-105 active:scale-95"
+                >
+                    <span>⚡ Gabung via PIN</span>
+                </Link>
+                <Link
+                    v-else
+                    href="/quizzes"
+                    class="btn-shimmer mt-3 flex items-center justify-center gap-1.5 rounded-xl bg-brand-secondary px-3 py-2 text-center text-xs font-black text-brand-dark shadow-sm transition hover:brightness-105 active:scale-95"
+                >
+                    <span>+ Buat Kuis Baru</span>
                 </Link>
             </div>
 
@@ -508,7 +500,7 @@ function closeMobileNav(): void {
             class="flex min-h-screen flex-col transition-all duration-300 ease-in-out"
             :class="desktopSidebarExpanded ? 'lg:pl-72' : 'lg:pl-20'"
         >
-            <TopNavBar />
+            <TopNavBar :dark-mode="darkMode" />
 
             <!-- Custom Subheader Slot (if page provides one) -->
             <div
@@ -520,7 +512,11 @@ function closeMobileNav(): void {
 
             <!-- Main Body: Scrolls naturally while Sidebar & Navbar stay completely pinned! -->
             <main class="flex-1 pb-36 lg:pb-12">
-                <slot />
+                <Transition name="page" mode="out-in">
+                    <div :key="$page.url" class="page-content">
+                        <slot />
+                    </div>
+                </Transition>
             </main>
         </div>
 
@@ -562,7 +558,7 @@ function closeMobileNav(): void {
                             <div
                                 class="grid h-10 w-10 place-items-center rounded-xl bg-brand-secondary shadow-sm"
                             >
-                                <ApplicationLogo class="h-6 w-6 text-white" />
+                                <ApplicationLogo class="h-8 w-8 text-white" />
                             </div>
                             <span class="text-xl font-black text-white"
                                 >Kuesify</span
@@ -834,27 +830,20 @@ function closeMobileNav(): void {
             </aside>
         </transition>
 
-        <button
-            type="button"
-            class="hidden fixed right-24 top-3 z-30 min-h-11 rounded-full border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary dark-ui-toggle lg:right-4 lg:top-4 lg:z-40"
-            :aria-label="darkMode ? 'Aktifkan mode terang' : 'Aktifkan mode gelap'"
-            @click="toggleDarkMode"
-        >
-            {{ darkMode ? 'Mode terang' : 'Mode gelap' }}
-        </button>
-
         <!-- ========================================================================= -->
         <!-- 4. MOBILE BOTTOM BAR (Fixed Bottom for Thumb Access)                       -->
         <!-- ========================================================================= -->
         <nav
-            class="fixed bottom-4 left-1/2 z-30 grid w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 grid-cols-5 rounded-2xl border border-slate-200 bg-white/95 p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_8px_24px_rgba(15,23,42,0.16)] backdrop-blur lg:hidden mobile-bottom-nav"
+            class="mobile-bottom-nav fixed bottom-4 left-1/2 z-30 grid w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 grid-cols-5 rounded-2xl border border-slate-200 bg-white/95 p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_8px_24px_rgba(15,23,42,0.16)] backdrop-blur lg:hidden"
             aria-label="Navigasi bawah"
         >
             <Link
                 v-for="item in mobileNavigation"
                 :key="item.href"
                 :href="item.href"
-                :aria-current="$page.url.startsWith(item.href) ? 'page' : undefined"
+                :aria-current="
+                    $page.url.startsWith(item.href) ? 'page' : undefined
+                "
                 class="flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl px-1 text-center text-[11px] leading-none transition"
                 :class="
                     $page.url.startsWith(item.href)
@@ -879,6 +868,7 @@ function closeMobileNav(): void {
                 <span>{{ item.label }}</span>
             </Link>
         </nav>
+
     </div>
 </template>
 
@@ -897,4 +887,25 @@ function closeMobileNav(): void {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.4);
 }
+
+.page-enter-active,
+.page-leave-active {
+    transition:
+        opacity 240ms ease,
+        transform 240ms ease;
+}
+
+.page-enter-from,
+.page-leave-to {
+    opacity: 0;
+    transform: translateY(8px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .page-enter-active,
+    .page-leave-active {
+        transition: none;
+    }
+}
 </style>
+

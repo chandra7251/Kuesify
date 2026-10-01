@@ -1,169 +1,333 @@
 <script setup lang="ts">
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { nextTick, onMounted, onUnmounted, ref } from 'vue';
+
+gsap.registerPlugin(ScrollTrigger);
 
 defineProps<{ canLogin: boolean; canRegister: boolean }>();
 
 const answer = ref<string | null>(null);
 const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
-const featureIndex = ref(0);
-const roleIndex = ref(2);
-const mobileMenuOpen = ref(false);
-const roleDetails = [
-    {
-        label: 'RUANG BELAJAR PERSONAL',
-        title: 'Belajar lebih terarah sesuai ritmemu.',
-        copy: 'Ikuti kuis, latihan, dan materi dalam satu alur belajar yang mudah dipantau.',
-        points: [
-            'Mengikuti kuis live dan latihan mandiri',
-            'Melihat nilai, progress, dan feedback',
-            'Mengulang materi sesuai kebutuhan',
-        ],
-        image: '/images/study-character-male.png',
-        alt: 'Siswa belajar menggunakan tablet',
-    },
-    {
-        label: 'WORKSPACE PENGAJAR',
-        title: 'Buat pengalaman belajar yang terasa hidup.',
-        copy: 'Susun soal, jalankan sesi live, dan lihat respons kelas tanpa berpindah platform.',
-        points: [
-            'Membuat dan mengimpor soal',
-            'Menjalankan kuis live dengan PIN',
-            'Menilai jawaban dan memberi feedback',
-        ],
-        image: '/images/role-character-female.png',
-        alt: 'Guru mengajar menggunakan laptop',
-    },
-    {
-        label: 'RUANG KENDALI ORGANISASI',
-        title: 'Jaga seluruh aktivitas belajar tetap teratur.',
-        copy: 'Kelola anggota, grup, pengaturan, dan aktivitas pembelajaran organisasi dengan kontrol yang jelas.',
-        points: [
-            'Mengelola anggota dan grup',
-            'Mengatur akses organisasi',
-            'Memantau aktivitas pembelajaran',
-            'Meninjau ringkasan penggunaan organisasi',
-        ],
-        image: '/images/role-laptop-mockup.png',
-        alt: 'Dashboard organisasi Kuesify',
-    },
-] as const;
+const activeSection = ref('');
+const isScrolled = ref(false);
+const landingRoot = ref<HTMLElement | null>(null);
+let motionContext: gsap.Context | null = null;
+let motionMedia: gsap.MatchMedia | null = null;
+let pointerCleanup: (() => void) | null = null;
+const interactionCleanups: Array<() => void> = [];
 
-const scrollFeatures = (direction: number) => {
-    const nextIndex = Math.max(0, Math.min(2, featureIndex.value + direction));
-    featureIndex.value = nextIndex;
+const selectAnswer = async (choice: string) => {
+    answer.value = choice;
+    await nextTick();
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const feedback = landingRoot.value?.querySelector<HTMLElement>(
+        '[data-answer-feedback]',
+    );
+    if (feedback) {
+        gsap.fromTo(
+            feedback,
+            { autoAlpha: 0, y: 8, scale: 0.96 },
+            {
+                autoAlpha: 1,
+                y: 0,
+                scale: 1,
+                duration: 0.35,
+                ease: 'back.out(1.4)',
+            },
+        );
+    }
+
+    const mascot =
+        landingRoot.value?.querySelector<HTMLElement>('[data-mascot-hero]');
+    if (mascot) {
+        gsap.timeline()
+            .to(mascot, {
+                scale: 1.12,
+                rotation: 6,
+                duration: 0.16,
+                ease: 'power2.out',
+            })
+            .to(mascot, {
+                scale: 1,
+                rotation: 0,
+                duration: 0.55,
+                ease: 'elastic.out(1, 0.35)',
+            });
+    }
 };
+
+onMounted(() => {
+    if (!landingRoot.value) return;
+
+    const handleScroll = () => {
+        isScrolled.value = window.scrollY > 24;
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    interactionCleanups.push(() => window.removeEventListener('scroll', handleScroll));
+
+    motionMedia = gsap.matchMedia();
+    motionMedia.add('(prefers-reduced-motion: no-preference)', () => {
+        motionContext = gsap.context(() => {
+            const timeline = gsap.timeline({
+                defaults: { ease: 'power3.out' },
+            });
+            const heroItems =
+                gsap.utils.toArray<HTMLElement>('[data-hero-item]');
+            const sections = gsap.utils.toArray<HTMLElement>(
+                '[data-reveal-section]',
+            );
+            const featureCards = gsap.utils.toArray<HTMLElement>(
+                '[data-feature-card]',
+            );
+            const processSteps = gsap.utils.toArray<HTMLElement>(
+                '[data-process-step]',
+            );
+            const floaters = gsap.utils.toArray<HTMLElement>('[data-float]');
+            const ambientBlobs = gsap.utils.toArray<HTMLElement>(
+                '[data-ambient-blob]',
+            );
+            const mascots = gsap.utils.toArray<HTMLElement>('[data-mascot]');
+            const orbit = landingRoot.value?.querySelector('[data-orbit]');
+            const quizPreview = landingRoot.value?.querySelector<HTMLElement>(
+                '[data-quiz-preview]',
+            );
+
+            timeline.from(heroItems, {
+                autoAlpha: 0,
+                y: 28,
+                duration: 0.55,
+                stagger: 0.09,
+            });
+            timeline.from(
+                '[data-hero-actions]',
+                { autoAlpha: 0, y: 18, duration: 0.45 },
+                '-=0.2',
+            );
+            timeline.from(
+                '[data-hero-meta]',
+                { autoAlpha: 0, y: 12, duration: 0.4 },
+                '-=0.25',
+            );
+            timeline.from(
+                '[data-hero-preview]',
+                { autoAlpha: 0, y: 24, scale: 0.96, duration: 0.65 },
+                '-=0.38',
+            );
+            if (orbit)
+                gsap.to(orbit, {
+                    rotation: 360,
+                    duration: 42,
+                    repeat: -1,
+                    ease: 'none',
+                });
+            ambientBlobs.forEach((blob, index) => {
+                gsap.to(blob, {
+                    x: index % 2 ? 18 : -14,
+                    y: index % 2 ? -12 : 16,
+                    duration: 7 + index * 1.5,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: 'sine.inOut',
+                    delay: index * 0.35,
+                });
+            });
+            floaters.forEach((floater, index) => {
+                gsap.to(floater, {
+                    y: index % 2 ? 9 : -9,
+                    rotation: index % 2 ? 4 : -4,
+                    duration: 2.8 + index * 0.4,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: 'sine.inOut',
+                    delay: index * 0.3,
+                });
+            });
+            if (quizPreview) {
+                gsap.to(quizPreview, {
+                    y: -7,
+                    duration: 3.4,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: 'sine.inOut',
+                });
+            }
+            if (mascots.length) {
+                timeline.from(
+                    '[data-hero-mascot]',
+                    {
+                        autoAlpha: 0,
+                        y: 42,
+                        scale: 0.72,
+                        rotation: -10,
+                        duration: 0.75,
+                        ease: 'back.out(1.6)',
+                    },
+                    '-=0.45',
+                );
+                mascots.forEach((mascot, index) => {
+                    gsap.to(mascot, {
+                        y: index ? -7 : -11,
+                        rotation: index ? -3 : 3,
+                        duration: index ? 2.8 : 2.5,
+                        repeat: -1,
+                        yoyo: true,
+                        ease: 'sine.inOut',
+                        delay: index ? 0.45 : 1.25,
+                    });
+                });
+            }
+            if (featureCards.length) {
+                gsap.from(featureCards, {
+                    autoAlpha: 0,
+                    y: 30,
+                    duration: 0.55,
+                    stagger: 0.1,
+                    ease: 'power2.out',
+                    scrollTrigger: {
+                        trigger: featureCards[0],
+                        start: 'top 82%',
+                        once: true,
+                    },
+                });
+                featureCards.forEach((card) => {
+                    const lift = () =>
+                        gsap.to(card, {
+                            y: -8,
+                            rotationY: 1.5,
+                            duration: 0.25,
+                            ease: 'power2.out',
+                        });
+                    const settle = () =>
+                        gsap.to(card, {
+                            y: 0,
+                            rotationY: 0,
+                            duration: 0.35,
+                            ease: 'power2.out',
+                        });
+                    card.addEventListener('pointerenter', lift);
+                    card.addEventListener('pointerleave', settle);
+                    interactionCleanups.push(() => {
+                        card.removeEventListener('pointerenter', lift);
+                        card.removeEventListener('pointerleave', settle);
+                    });
+                });
+            }
+            if (processSteps.length) {
+                gsap.from(processSteps, {
+                    autoAlpha: 0,
+                    x: 24,
+                    duration: 0.55,
+                    stagger: 0.12,
+                    ease: 'power3.out',
+                    scrollTrigger: {
+                        trigger: processSteps[0],
+                        start: 'top 82%',
+                        once: true,
+                    },
+                });
+            }
+            sections.forEach((section) => {
+                gsap.from(section, {
+                    autoAlpha: 0,
+                    y: 26,
+                    duration: 0.6,
+                    ease: 'power2.out',
+                    scrollTrigger: {
+                        trigger: section,
+                        start: 'top 84%',
+                        once: true,
+                    },
+                });
+                ScrollTrigger.create({
+                    trigger: section,
+                    start: 'top 55%',
+                    end: 'bottom 45%',
+                    onEnter: () => {
+                        activeSection.value = section.id;
+                    },
+                    onEnterBack: () => {
+                        activeSection.value = section.id;
+                    },
+                });
+            });
+
+            if (quizPreview && window.matchMedia('(pointer: fine)').matches) {
+                const xTo = gsap.quickTo(quizPreview, 'rotationY', {
+                    duration: 0.45,
+                    ease: 'power3.out',
+                });
+                const yTo = gsap.quickTo(quizPreview, 'rotationX', {
+                    duration: 0.45,
+                    ease: 'power3.out',
+                });
+                const handlePointerMove = (event: Event) => {
+                    const pointerEvent = event as PointerEvent;
+                    const bounds = quizPreview.getBoundingClientRect();
+                    const x = gsap.utils.mapRange(
+                        bounds.left,
+                        bounds.right,
+                        -4,
+                        4,
+                        pointerEvent.clientX,
+                    );
+                    const y = gsap.utils.mapRange(
+                        bounds.top,
+                        bounds.bottom,
+                        3,
+                        -3,
+                        pointerEvent.clientY,
+                    );
+                    xTo(x);
+                    yTo(y);
+                };
+                const resetPointer = () => {
+                    xTo(0);
+                    yTo(0);
+                };
+                quizPreview.addEventListener(
+                    'pointermove',
+                    handlePointerMove as EventListener,
+                );
+                quizPreview.addEventListener('pointerleave', resetPointer);
+                pointerCleanup = () => {
+                    quizPreview.removeEventListener(
+                        'pointermove',
+                        handlePointerMove as EventListener,
+                    );
+                    quizPreview.removeEventListener(
+                        'pointerleave',
+                        resetPointer,
+                    );
+                };
+            }
+
+            return () => motionContext?.revert();
+        }, landingRoot.value ?? undefined);
+    });
+});
+
+onUnmounted(() => {
+    pointerCleanup?.();
+    interactionCleanups.splice(0).forEach((cleanup) => cleanup());
+    motionMedia?.revert();
+    motionContext?.revert();
+});
 </script>
 
 <template>
     <Head title="Kuesify — Belajar jadi hidup" />
-    <main class="bg-brand-accent text-brand-primary">
-        <div
-            class="fixed inset-x-0 top-0 z-[9999] bg-brand-primary px-3 py-3 shadow-lg sm:px-8 sm:py-4 lg:px-12"
-        >
-            <nav
-                class="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-4"
-                aria-label="Navigasi utama"
-            >
-                <Link
-                    href="/"
-                    class="flex items-center gap-2 rounded-xl text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-secondary"
-                >
-                    <ApplicationLogo
-                        class="h-9 w-9 text-brand-secondary sm:h-10 sm:w-10"
-                    />
-                    <span
-                        class="text-lg font-black tracking-tight text-brand-secondary sm:text-xl"
-                        >kuesify</span
-                    >
-                </Link>
-                <div
-                    class="hidden items-center gap-7 text-sm font-bold text-white/80 md:flex"
-                >
-                    <a href="#fitur" class="hover:text-brand-secondary">Fitur</a
-                    ><a href="#cara-kerja" class="hover:text-brand-secondary"
-                        >Cara kerja</a
-                    ><a href="#untuk-siapa" class="hover:text-brand-secondary"
-                        >Untuk siapa</a
-                    >
-                </div>
-                <div class="hidden items-center gap-2 sm:gap-4 md:flex">
-                    <Link
-                        v-if="canLogin"
-                        href="/login"
-                        class="inline-flex min-h-10 items-center justify-center rounded-xl bg-brand-primary px-3 py-2 text-xs font-extrabold leading-none text-white transition hover:bg-brand-hover sm:min-h-11 sm:px-4 sm:py-3 sm:text-sm"
-                        >Masuk</Link
-                    >
-                    <Link
-                        v-if="canRegister"
-                        href="/register"
-                        class="inline-flex min-h-10 items-center justify-center rounded-xl bg-brand-secondary px-3.5 py-2 text-xs font-extrabold leading-none text-brand-primary shadow-figma transition hover:-translate-y-0.5 active:translate-y-1 active:shadow-none sm:min-h-11 sm:px-5 sm:py-3 sm:text-sm"
-                        >Mulai gratis</Link
-                    >
-                </div>
-                <button
-                    type="button"
-                    class="grid h-10 w-10 place-items-center rounded-xl bg-brand-secondary text-brand-primary shadow-figma md:hidden"
-                    :aria-expanded="mobileMenuOpen"
-                    aria-label="Buka menu navigasi"
-                    @click="mobileMenuOpen = !mobileMenuOpen"
-                >
-                    <span class="sr-only">Menu</span>
-                    <span class="flex w-5 flex-col gap-1">
-                        <span
-                            class="h-0.5 w-full rounded-full bg-brand-primary"
-                        />
-                        <span
-                            class="h-0.5 w-full rounded-full bg-brand-primary"
-                        />
-                        <span
-                            class="h-0.5 w-full rounded-full bg-brand-primary"
-                        />
-                    </span>
-                </button>
-            </nav>
-            <div
-                v-if="mobileMenuOpen"
-                class="mt-3 grid gap-0 text-sm font-bold text-white md:hidden"
-            >
-                <a
-                    href="#fitur"
-                    class="border-b border-white/15 px-3 py-3 text-white hover:bg-white/10"
-                    @click="mobileMenuOpen = false"
-                    >Fitur</a
-                >
-                <a
-                    href="#cara-kerja"
-                    class="border-b border-white/15 px-3 py-3 text-white hover:bg-white/10"
-                    @click="mobileMenuOpen = false"
-                    >Cara kerja</a
-                >
-                <a
-                    href="#untuk-siapa"
-                    class="border-b border-white/15 px-3 py-3 text-white hover:bg-white/10"
-                    @click="mobileMenuOpen = false"
-                    >Untuk siapa</a
-                >
-                <div class="grid grid-cols-2 gap-2 border-0 pt-3">
-                    <Link
-                        v-if="canLogin"
-                        href="/login"
-                        class="rounded-xl bg-brand-primary px-3 py-3 text-center text-white ring-2 ring-white/20 hover:bg-brand-hover"
-                        >Masuk</Link
-                    >
-                    <Link
-                        v-if="canRegister"
-                        href="/register"
-                        class="rounded-xl bg-brand-secondary px-3 py-3 text-center font-extrabold text-brand-primary hover:bg-brand-lime"
-                        >Mulai gratis</Link
-                    >
-                </div>
-            </div>
-        </div>
-
+    <main
+        ref="landingRoot"
+        class="overflow-hidden bg-brand-accent text-slate-900"
+    >
         <section
-            class="relative isolate min-h-0 overflow-hidden px-5 pb-20 pt-5 sm:px-8 lg:min-h-[42rem] lg:px-12"
+            data-reveal-section
+            class="relative isolate overflow-hidden px-5 pb-20 pt-5 sm:px-8 lg:px-12"
         >
             <div
                 class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
@@ -175,18 +339,95 @@ const scrollFeatures = (direction: number) => {
                     class="absolute -left-20 -top-24 h-[28rem] w-[28rem] rounded-full border border-brand-secondary/30"
                 ></div>
                 <div
-                    class="absolute right-[-12rem] top-20 h-[28rem] w-[28rem] rounded-full bg-brand-secondary/10"
+                    data-ambient-blob
+                    class="absolute right-[-12rem] top-20 h-[28rem] w-[28rem] rounded-full bg-brand-secondary/20"
                 ></div>
                 <div
-                    class="absolute left-1/4 top-20 h-72 w-72 rounded-full bg-brand-secondary/20 opacity-60 blur-3xl"
+                    data-ambient-blob
+                    class="absolute left-1/4 top-20 h-72 w-72 rounded-full bg-support-1/40 opacity-60 blur-3xl"
                 ></div>
             </div>
 
+            <nav
+                data-site-nav
+                :class="[
+                'sticky top-3 z-30 mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-2xl px-4 py-3 transition-all duration-300 md:top-5',
+                isScrolled
+                    ? 'border border-slate-200/80 bg-white/85 shadow-[0_8px_30px_rgb(0,0,0,0.06)] backdrop-blur-md'
+                    : 'bg-transparent'
+            ]"
+                aria-label="Navigasi utama"
+            >
+                <Link
+                    href="/"
+                    class="flex items-center gap-2 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-primary"
+                >
+                    <ApplicationLogo class="h-10 w-10 text-brand-primary" />
+                    <span class="text-xl font-black tracking-tight"
+                        >kuesify</span
+                    >
+                </Link>
+                <div
+                    class="hidden items-center gap-7 text-sm font-bold text-slate-600 md:flex"
+                >
+                    <a
+                        href="#fitur"
+                        :class="
+                            activeSection === 'fitur'
+                                ? 'text-brand-primary'
+                                : 'hover:text-brand-primary'
+                        "
+                        >Fitur</a
+                    ><a
+                        href="#cara-kerja"
+                        :class="
+                            activeSection === 'cara-kerja'
+                                ? 'text-brand-primary'
+                                : 'hover:text-brand-primary'
+                        "
+                        >Cara kerja</a
+                    ><a
+                        href="#untuk-siapa"
+                        :class="
+                            activeSection === 'untuk-siapa'
+                                ? 'text-brand-primary'
+                                : 'hover:text-brand-primary'
+                        "
+                        >Untuk siapa</a
+                    >
+                </div>
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <Link
+                        v-if="canLogin"
+                        href="/login"
+                        class="min-h-11 rounded-xl px-3 py-3 text-sm font-extrabold hover:bg-white/60 sm:px-4"
+                        >Masuk</Link
+                    >
+                    <Link
+                        v-if="canRegister"
+                        href="/register"
+                        class="min-h-11 rounded-xl bg-brand-primary px-4 py-3 text-sm font-extrabold text-white shadow-[0_7px_0_#233EA8] transition hover:-translate-y-0.5 active:translate-y-1 active:shadow-none sm:px-5"
+                        >Mulai gratis</Link
+                    >
+                </div>
+            </nav>
+
             <div
+                data-reveal-section
                 class="mx-auto grid max-w-7xl items-center gap-12 pt-16 lg:grid-cols-[1.02fr_0.98fr] lg:pb-10 lg:pt-24"
             >
                 <div class="max-w-2xl">
+                    <p
+                        data-hero-item
+                        class="inline-flex items-center gap-2 rounded-full border border-brand-secondary/40 bg-white/75 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-brand-dark"
+                    >
+                        <span
+                            class="h-2 w-2 animate-pulse rounded-full bg-brand-primary"
+                        ></span>
+                        Kuis yang bikin kelas ikut hidup
+                    </p>
                     <h1
+                        data-hero-item
                         class="mt-6 text-5xl font-black leading-[0.96] tracking-[-0.065em] sm:text-6xl lg:text-7xl"
                     >
                         Bukan cuma jawab soal.<br /><span
@@ -195,308 +436,243 @@ const scrollFeatures = (direction: number) => {
                         >
                         proses belajarnya.
                     </h1>
-                    <!-- Ilustrasi Mobile Hero -->
-                    <img
-                        src="/images/learning-characters.png"
-                        alt="Dua siswa belajar bersama menggunakan laptop"
-                        class="mx-auto mt-6 w-full max-w-sm object-contain drop-shadow-[0_22px_26px_rgba(35,62,168,0.16)] lg:hidden"
-                    />
                     <p
-                        class="mt-6 max-w-xl text-lg leading-8 text-brand-primary/75 sm:text-xl"
+                        data-hero-item
+                        class="mt-6 max-w-xl text-lg leading-8 text-slate-600 sm:text-xl"
                     >
                         Kuesify menyatukan quiz live, latihan mandiri, dan
                         materi interaktif untuk kelas yang lebih aktif dari awal
                         sampai akhir.
                     </p>
-                    <div class="mt-8 flex flex-wrap gap-3">
+                    <div data-hero-actions class="mt-8 flex flex-wrap gap-3">
                         <Link
                             v-if="canRegister"
                             href="/register"
-                            class="min-h-13 rounded-2xl bg-brand-secondary px-6 py-4 text-sm font-black text-white shadow-figma transition hover:-translate-y-0.5 active:translate-y-1 active:shadow-none"
+                            class="min-h-13 rounded-2xl bg-brand-primary px-6 py-4 text-sm font-black text-white shadow-[0_8px_0_#233EA8] transition hover:-translate-y-0.5 active:translate-y-1 active:shadow-none"
                             >Buat quiz pertama →</Link
                         >
                         <Link
                             href="/join"
-                            class="min-h-13 rounded-2xl bg-brand-primary px-6 py-4 text-sm font-black text-white transition hover:bg-brand-hover"
+                            class="min-h-13 rounded-2xl border-2 border-brand-primary/30 bg-white/80 px-6 py-4 text-sm font-black text-brand-primary hover:border-brand-primary"
                             >Masuk dengan PIN</Link
                         >
                     </div>
                     <div
-                        class="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-brand-primary/75"
+                        data-hero-meta
+                        class="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-slate-600"
                     >
-                        <span class="inline-flex items-center gap-2">
-                            <svg
-                                class="h-4 w-4 text-brand-secondary"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    d="M5 12.5 9.5 17 19 7.5"
-                                    stroke="currentColor"
-                                    stroke-width="2.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
-                            Kuis interaktif untuk kelas
-                        </span>
-                        <span class="inline-flex items-center gap-2">
-                            <svg
-                                class="h-4 w-4 text-brand-secondary"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    d="M4 17V7m0 10 4-4 3 3 5-6 4 4"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
-                            Hasil belajar langsung terlihat
-                        </span>
+                        <span>✓ Tidak perlu kartu kredit</span
+                        ><span>⚡ Siap untuk kelas live</span>
                     </div>
                 </div>
 
                 <div
-                    class="relative mx-auto hidden w-full max-w-2xl items-center justify-center self-center lg:flex lg:justify-end"
+                    data-hero-preview
+                    class="relative mx-auto w-full max-w-xl [perspective:1000px]"
                 >
                     <div
-                        class="pointer-events-none absolute bottom-8 right-4 h-64 w-64 rounded-full bg-brand-secondary/10 blur-3xl sm:h-80 sm:w-80"
-                    />
-                    <img
-                        src="/images/learning-characters.png"
-                        alt="Dua siswa belajar bersama menggunakan laptop"
-                        class="relative z-10 w-full max-w-2xl object-contain object-bottom drop-shadow-[0_22px_26px_rgba(35,62,168,0.16)]"
-                    />
-                </div>
-            </div>
-        </section>
-
-        <section
-            id="fitur"
-            class="relative min-h-0 overflow-hidden bg-brand-primary px-5 py-20 text-white sm:px-8 lg:min-h-[42rem] lg:px-12 lg:py-24"
-        >
-            <div
-                class="pointer-events-none absolute -left-32 bottom-0 h-96 w-96 rounded-full bg-brand-secondary/10"
-            />
-            <div
-                class="pointer-events-none absolute -right-32 top-10 h-80 w-80 rounded-full border border-white/10"
-            />
-
-            <div class="relative mx-auto my-auto max-w-7xl">
-                <!-- Desktop: grid 2 kolom (ilustrasi + teks), Mobile: stack -->
-                <div
-                    class="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12"
-                >
-                    <!-- Ilustrasi Kiri (Desktop), Atas (Mobile) -->
-                    <div class="hidden items-center justify-center lg:flex">
+                        data-hero-mascot
+                        class="pointer-events-none absolute -bottom-10 -left-16 z-20 hidden w-32 will-change-transform sm:block lg:-left-20 lg:w-40"
+                    >
                         <img
-                            src="/images/study-character-female.png"
-                            alt="Siswa belajar menggunakan laptop"
-                            class="w-full max-w-md object-contain object-center drop-shadow-[0_22px_26px_rgba(35,62,168,0.24)] lg:-translate-x-10 lg:translate-y-16"
+                            data-mascot
+                            src="/assets/kuesify/characters/image-14.svg"
+                            alt="Karakter siswa Kuesify sedang belajar"
+                            class="w-full drop-shadow-[0_18px_18px_rgba(35,62,168,0.18)]"
                         />
                     </div>
-
-                    <!-- Konten Teks Kanan (Desktop), Bawah (Mobile) -->
-                    <div class="min-w-0">
-                        <p
-                            class="text-xs font-black uppercase tracking-[0.18em] text-brand-lime"
+                    <div
+                        data-float
+                        class="absolute -left-8 top-12 hidden rotate-[-7deg] rounded-2xl bg-support-1 px-4 py-3 text-sm font-black text-slate-900 shadow-lg sm:block"
+                    >
+                        +100 XP
+                    </div>
+                    <div
+                        data-float
+                        class="absolute -right-3 bottom-8 z-10 hidden rotate-[7deg] rounded-2xl bg-brand-primary px-4 py-3 text-sm font-black text-white shadow-lg sm:block"
+                    >
+                        🔥 3 hari streak
+                    </div>
+                    <article
+                        data-quiz-preview
+                        class="rounded-[2rem] border-[7px] border-white bg-brand-dark p-5 shadow-[0_28px_60px_rgba(18,42,53,0.24)] will-change-transform sm:p-7"
+                    >
+                        <div
+                            class="flex items-center justify-between text-white"
                         >
-                            Satu platform, tiga mode
-                        </p>
-                        <h2
-                            class="mt-4 max-w-xl text-3xl font-black leading-[1.05] tracking-[-0.045em] sm:text-4xl lg:text-5xl lg:leading-[1.02] lg:tracking-[-0.055em]"
-                        >
-                            Belajar aktif, dengan cara yang terasa pas.
-                        </h2>
-                        <!-- Ilustrasi Mobile (hidden di desktop) -->
-                        <img
-                            src="/images/study-character-female.png"
-                            alt="Siswa belajar menggunakan laptop"
-                            class="mx-auto mt-6 w-64 object-contain object-center drop-shadow-[0_22px_26px_rgba(35,62,168,0.24)] lg:hidden"
-                        />
-                        <p
-                            class="mt-5 max-w-lg text-base leading-7 text-white/70"
-                        >
-                            Pilih pengalaman belajar yang sesuai dengan energi
-                            kelas, waktu peserta, dan materi yang sudah
-                            tersedia.
-                        </p>
-
-                        <!-- Carousel Mode Cards -->
-                        <!-- Carousel Mode Cards -->
-                        <div class="mt-8 lg:mt-12">
-                            <div
-                                class="relative mx-auto h-[23rem] w-full max-w-[54rem]"
-                            >
-                                <button
-                                    v-if="featureIndex > 0"
-                                    type="button"
-                                    class="feature-nav-prev absolute left-2 top-1/2 z-30 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white text-xl font-black text-brand-primary shadow-figma transition hover:bg-brand-secondary"
-                                    aria-label="Mode sebelumnya"
-                                    @click="scrollFeatures(-1)"
+                            <div class="flex items-center gap-3">
+                                <span
+                                    class="grid h-10 w-10 place-items-center rounded-xl bg-support-1 text-lg text-slate-900"
+                                    >✦</span
                                 >
-                                    ‹
-                                </button>
-                                <div class="feature-card-stage">
-                                    <article
-                                        :class="[
-                                            'feature-card',
-                                            featureIndex === 0
-                                                ? 'feature-card-active z-20 border-brand-secondary bg-brand-lime text-brand-primary shadow-figma'
-                                                : featureIndex === 1
-                                                  ? 'feature-card-prev bg-brand-surface z-10 border-white/15 text-brand-secondary'
-                                                  : 'feature-card-hidden bg-brand-surface z-0 border-white/15 text-brand-secondary',
-                                        ]"
+                                <div>
+                                    <p
+                                        class="text-xs font-bold text-brand-secondary/70"
                                     >
-                                        <div
-                                            class="flex items-center justify-between"
-                                        >
-                                            <span
-                                                class="grid h-10 w-10 place-items-center rounded-xl bg-white/70 text-sm font-black"
-                                                >01</span
-                                            >
-                                            <span
-                                                class="text-xs font-black uppercase tracking-[0.16em] text-inherit"
-                                                >Realtime</span
-                                            >
-                                        </div>
-                                        <h3
-                                            class="mt-12 text-2xl font-black tracking-[-0.03em]"
-                                        >
-                                            Live Quiz
-                                        </h3>
-                                        <p
-                                            class="mt-3 text-sm leading-6 text-inherit"
-                                        >
-                                            Buka room, bagikan PIN, dan lihat
-                                            kelas merespons soal secara
-                                            langsung.
-                                        </p>
-                                        <Link
-                                            href="/join"
-                                            class="mt-8 inline-block text-sm font-black text-inherit"
-                                            >Masuk room
-                                            <span aria-hidden="true"
-                                                >→</span
-                                            ></Link
-                                        >
-                                    </article>
-                                    <article
-                                        :class="[
-                                            'feature-card',
-                                            featureIndex === 1
-                                                ? 'feature-card-active z-20 border-brand-secondary bg-brand-lime text-brand-primary shadow-figma'
-                                                : featureIndex === 0
-                                                  ? 'feature-card-next bg-brand-surface z-10 border-white/15 text-brand-secondary'
-                                                  : 'feature-card-prev bg-brand-surface z-10 border-white/15 text-brand-secondary',
-                                        ]"
-                                    >
-                                        <div
-                                            class="flex items-center justify-between"
-                                        >
-                                            <span
-                                                class="grid h-10 w-10 place-items-center rounded-xl border border-brand-secondary/60 text-sm font-black text-inherit"
-                                                >02</span
-                                            >
-                                            <span
-                                                class="text-xs font-black uppercase tracking-[0.16em] text-inherit"
-                                                >Mandiri</span
-                                            >
-                                        </div>
-                                        <h3
-                                            class="mt-12 text-2xl font-black tracking-[-0.03em]"
-                                        >
-                                            Self-Paced
-                                        </h3>
-                                        <p
-                                            class="mt-3 text-sm leading-6 text-inherit"
-                                        >
-                                            Susun latihan dengan deadline jelas
-                                            dan biarkan peserta belajar sesuai
-                                            tempo.
-                                        </p>
-                                        <Link
-                                            href="/register"
-                                            class="mt-8 inline-block text-sm font-black text-inherit"
-                                            >Mulai latihan
-                                            <span aria-hidden="true"
-                                                >→</span
-                                            ></Link
-                                        >
-                                    </article>
-                                    <article
-                                        :class="[
-                                            'feature-card',
-                                            featureIndex === 2
-                                                ? 'feature-card-active z-20 border-brand-secondary bg-brand-lime text-brand-primary shadow-figma'
-                                                : featureIndex === 1
-                                                  ? 'feature-card-next bg-brand-surface z-10 border-white/15 text-brand-secondary'
-                                                  : 'feature-card-hidden bg-brand-surface z-0 border-white/15 text-brand-secondary',
-                                        ]"
-                                    >
-                                        <div
-                                            class="flex items-center justify-between"
-                                        >
-                                            <span
-                                                class="grid h-10 w-10 place-items-center rounded-xl border border-brand-secondary/60 text-sm font-black text-inherit"
-                                                >03</span
-                                            >
-                                            <span
-                                                class="text-xs font-black uppercase tracking-[0.16em] text-inherit"
-                                                >Berbantuan AI</span
-                                            >
-                                        </div>
-                                        <h3
-                                            class="mt-12 text-2xl font-black tracking-[-0.03em]"
-                                        >
-                                            Materi ke Soal
-                                        </h3>
-                                        <p
-                                            class="mt-3 text-sm leading-6 text-inherit"
-                                        >
-                                            Mulai dari PDF atau PPTX, buat draft
-                                            soal, lalu review sebelum dibagikan.
-                                        </p>
-                                        <Link
-                                            href="/materials"
-                                            class="mt-8 inline-block text-sm font-black text-inherit"
-                                            >Lihat materi
-                                            <span aria-hidden="true"
-                                                >→</span
-                                            ></Link
-                                        >
-                                    </article>
+                                        LIVE QUIZ
+                                    </p>
+                                    <p class="font-black">Ekosistem kelas 8</p>
+                                    <span class="inline-flex items-center gap-1.5 rounded-full bg-brand-secondary/20 px-2 py-0.5 text-[10px] font-extrabold text-brand-secondary">
+                                        <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-secondary"></span>
+                                        Simulasi Live (Klik Pilihan)
+                                    </span>
                                 </div>
-                                <button
-                                    v-if="featureIndex < 2"
-                                    type="button"
-                                    class="feature-nav-next absolute right-2 top-1/2 z-30 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white text-xl font-black text-brand-primary shadow-figma transition hover:bg-brand-secondary"
-                                    aria-label="Mode berikutnya"
-                                    @click="scrollFeatures(1)"
+                            </div>
+                            <span
+                                class="rounded-full bg-white/10 px-3 py-2 text-xs font-black"
+                                >00:24</span
+                            >
+                        </div>
+                        <div class="mt-7 rounded-[1.5rem] bg-white p-5 sm:p-7">
+                            <div
+                                class="flex items-center justify-between gap-4"
+                            >
+                                <p
+                                    class="text-xs font-black uppercase tracking-[0.14em] text-brand-primary"
                                 >
-                                    ›
+                                    Soal 3 dari 10
+                                </p>
+                                <span
+                                    class="rounded-full bg-brand-accent px-3 py-1 text-xs font-black text-brand-primary"
+                                    >100 poin</span
+                                >
+                            </div>
+                            <h2
+                                class="mt-5 text-2xl font-black leading-tight tracking-[-0.035em] text-slate-900 sm:text-3xl"
+                            >
+                                Makhluk hidup yang membuat makanan sendiri
+                                disebut?
+                            </h2>
+                            <div class="mt-6 grid gap-3 sm:grid-cols-2">
+                                <button
+                                    v-for="(choice, index) in answers"
+                                    :key="choice"
+                                    class="min-h-14 rounded-2xl border-2 px-4 text-left text-sm font-black transition"
+                                    :class="
+                                        answer === choice
+                                            ? 'border-brand-primary bg-brand-secondary/15 text-brand-dark'
+                                            : 'border-slate-200 bg-white text-slate-700 hover:-translate-y-0.5 hover:border-brand-secondary'
+                                    "
+                                    data-answer-choice
+                                    @click="selectAnswer(choice)"
+                                >
+                                    <span
+                                        class="mr-3 inline-grid h-7 w-7 place-items-center rounded-lg bg-brand-accent text-xs text-slate-500"
+                                        >{{
+                                            String.fromCharCode(65 + index)
+                                        }}</span
+                                    >{{ choice }}
                                 </button>
                             </div>
+                            <p
+                                v-if="answer"
+                                data-answer-feedback
+                                class="mt-4 text-sm font-bold text-brand-primary"
+                            >
+                                Jawaban tersimpan. Lanjut sebelum timer habis.
+                            </p>
                         </div>
-                    </div>
+                        <div
+                            class="mt-5 flex items-center justify-between rounded-2xl bg-white/10 px-4 py-3 text-sm text-white"
+                        >
+                            <span class="font-bold"
+                                >Peserta aktif
+                                <strong class="text-support-1">34</strong></span
+                            ><span class="font-bold"
+                                >Rani
+                                <span class="text-support-1">1.920</span></span
+                            >
+                        </div>
+                    </article>
                 </div>
             </div>
         </section>
 
         <section
+            data-reveal-section
+            id="fitur"
+            class="bg-brand-dark px-5 py-20 text-white sm:px-8 lg:px-12"
+        >
+            <div class="mx-auto max-w-7xl">
+                <div class="max-w-2xl">
+                    <p
+                        class="text-xs font-black uppercase tracking-[0.18em] text-brand-secondary"
+                    >
+                        Satu platform, tiga mode
+                    </p>
+                    <h2
+                        class="mt-4 text-4xl font-black tracking-[-0.05em] sm:text-5xl"
+                    >
+                        Pilih cara belajar. Tetap terasa seru.
+                    </h2>
+                </div>
+                <div class="mt-12 grid gap-5 md:grid-cols-3">
+                    <article
+                        data-feature-card
+                        class="rounded-[1.75rem] bg-brand-dark p-6 transition hover:-translate-y-1"
+                    >
+                        <span
+                            class="grid h-12 w-12 place-items-center rounded-2xl bg-support-1 text-2xl text-slate-900"
+                            >⚡</span
+                        >
+                        <h3 class="mt-8 text-2xl font-black">Live Quiz</h3>
+                        <p class="mt-3 leading-7 text-white/75">
+                            Host buka room, peserta masuk pakai PIN, skor dan
+                            leaderboard bergerak realtime.
+                        </p>
+                        <Link
+                            href="/join"
+                            class="mt-7 inline-block text-sm font-black text-brand-secondary"
+                            >Masuk room →</Link
+                        >
+                    </article>
+                    <article
+                        class="rounded-[1.75rem] bg-brand-primary p-6 transition hover:-translate-y-1"
+                    >
+                        <span
+                            class="grid h-12 w-12 place-items-center rounded-2xl bg-brand-secondary/20 text-2xl text-brand-primary"
+                            >◎</span
+                        >
+                        <h3 class="mt-8 text-2xl font-black">Self-Paced</h3>
+                        <p class="mt-3 leading-7 text-white/75">
+                            Latihan sesuai ritme peserta, deadline jelas, hasil
+                            objektif langsung terlihat.
+                        </p>
+                        <Link
+                            href="/register"
+                            class="mt-7 inline-block text-sm font-black text-brand-secondary"
+                            >Mulai latihan →</Link
+                        >
+                    </article>
+                    <article
+                        class="rounded-[1.75rem] bg-support-1 p-6 text-slate-900 transition hover:-translate-y-1"
+                    >
+                        <span
+                            class="grid h-12 w-12 place-items-center rounded-2xl bg-white/70 text-2xl text-status-danger"
+                            >✦</span
+                        >
+                        <h3 class="mt-8 text-2xl font-black">Materi ke Soal</h3>
+                        <p class="mt-3 leading-7 text-slate-700">
+                            Unggah PDF atau PPTX, buat draft soal AI, lalu
+                            review sebelum dipakai.
+                        </p>
+                        <Link
+                            href="/materials"
+                            class="mt-7 inline-block text-sm font-black text-slate-700"
+                            >Lihat materi AI →</Link
+                        >
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section
+            data-reveal-section
             id="cara-kerja"
-            class="relative min-h-0 overflow-hidden px-5 py-20 sm:px-8 lg:min-h-[42rem] lg:px-12 lg:py-24"
+            class="px-5 py-20 sm:px-8 lg:px-12"
         >
             <div
-                class="pointer-events-none absolute -right-24 top-10 h-96 w-96 rounded-full border border-brand-secondary/20"
-            />
-            <div
-                class="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16"
+                class="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.8fr_1.2fr]"
             >
                 <div>
                     <p
@@ -505,278 +681,101 @@ const scrollFeatures = (direction: number) => {
                         Dari materi sampai podium
                     </p>
                     <h2
-                        class="mt-4 max-w-2xl text-4xl font-black leading-[1.02] tracking-[-0.055em] text-brand-primary sm:text-5xl lg:text-6xl"
+                        class="mt-4 text-4xl font-black tracking-[-0.05em] sm:text-5xl"
                     >
                         Tidak perlu pindah-pindah aplikasi.
                     </h2>
-                    <div class="mt-6 flex justify-center lg:hidden">
-                        <img
-                            src="/images/study-character-male.png"
-                            alt="Siswa belajar menggunakan tablet"
-                            class="w-full max-w-[14rem] object-contain"
-                        />
-                    </div>
-                    <p
-                        class="mt-5 max-w-xl text-lg leading-8 text-brand-primary/70"
-                    >
+                    <p class="mt-5 max-w-md text-lg leading-8 text-slate-500">
                         Creator menyusun soal. Peserta belajar. Semua hasil
                         kembali ke satu workspace yang rapi.
                     </p>
-                    <ol class="mt-10 space-y-4">
-                        <li
-                            v-for="[icon, title, copy] in [
-                                [
-                                    'M12 5.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM5.5 20a6.5 6.5 0 0 1 13 0',
-                                    'Siswa/Peserta',
-                                    'Ikuti kuis live, kerjakan latihan mandiri, dan lihat progres belajar.',
-                                ],
-                                [
-                                    'M4 20h4L19 9l-4-4L4 16v4ZM14.5 6.5l3 3',
-                                    'Guru/Pengajar',
-                                    'Buat soal, jalankan sesi live, bagikan latihan, dan beri feedback.',
-                                ],
-                                [
-                                    'M4 20h16M6 20V5h12v15M9 9h.01M12 9h.01M15 9h.01M9 13h.01M12 13h.01M15 13h.01M9 17h.01M12 17h.01M15 17h.01',
-                                    'Admin Organisasi',
-                                    'Kelola anggota, ruang belajar, dan aktivitas pembelajaran organisasi.',
-                                ],
-                            ]"
-                            :key="title"
-                            class="grid gap-4 rounded-3xl bg-brand-primary p-5 text-white shadow-figma sm:grid-cols-[4.5rem_1fr] sm:items-center sm:p-6"
+                </div>
+                <ol class="space-y-4">
+                    <li
+                        v-for="[number, title, copy, color] in [
+                            [
+                                '01',
+                                'Buat atau impor soal',
+                                'Tulis sendiri, import CSV/XLSX, atau mulai dari materi.',
+                                'bg-brand-secondary/20 text-brand-primary',
+                            ],
+                            [
+                                '02',
+                                'Jalankan live atau bagikan latihan',
+                                'PIN enam digit untuk sesi live. Deadline untuk tugas mandiri.',
+                                'bg-support-1/20 text-support-1',
+                            ],
+                            [
+                                '03',
+                                'Pantau hasil dan beri feedback',
+                                'Nilai otomatis, essay manual, score, progress, dan gradebook.',
+                                'bg-status-danger/15 text-status-danger',
+                            ],
+                        ]"
+                        :key="number"
+                        data-process-step
+                        class="grid gap-4 rounded-3xl border border-slate-200 bg-white p-5 sm:grid-cols-[3.5rem_1fr] sm:items-center"
+                    >
+                        <span
+                            class="grid h-14 w-14 place-items-center rounded-2xl text-xl font-black"
+                            :class="color"
+                            >{{ number }}</span
                         >
-                            <span
-                                class="grid h-14 w-14 place-items-center rounded-2xl bg-brand-lime text-brand-primary"
-                            >
-                                <svg
-                                    class="h-7 w-7"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    aria-hidden="true"
-                                >
-                                    <path
-                                        :d="icon"
-                                        stroke="currentColor"
-                                        stroke-width="1.8"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                    />
-                                </svg>
-                            </span>
-                            <div>
-                                <h3 class="text-xl font-black">{{ title }}</h3>
-                                <p class="mt-1 text-white/75">{{ copy }}</p>
-                            </div>
-                        </li>
-                    </ol>
-                </div>
-                <div
-                    class="relative hidden items-center justify-center lg:flex lg:justify-end"
-                >
-                    <div
-                        class="pointer-events-none absolute bottom-8 right-8 h-72 w-72 rounded-full bg-brand-secondary/10 blur-3xl sm:h-96 sm:w-96"
-                    />
-                    <img
-                        src="/images/study-character-male.png"
-                        alt="Siswa belajar menggunakan tablet"
-                        class="relative z-10 w-full max-w-md object-contain drop-shadow-[0_22px_26px_rgba(35,62,168,0.16)]"
-                    />
-                </div>
+                        <div>
+                            <h3 class="text-xl font-black">{{ title }}</h3>
+                            <p class="mt-1 text-slate-500">{{ copy }}</p>
+                        </div>
+                    </li>
+                </ol>
             </div>
         </section>
 
         <section
-            id="peran"
-            class="relative min-h-0 bg-brand-primary px-5 py-20 text-white sm:px-8 lg:min-h-[32rem] lg:px-12 lg:py-24"
-        >
-            <div
-                class="pointer-events-none absolute left-[-12rem] top-1/3 h-[30rem] w-[30rem] rounded-full border border-brand-secondary/15"
-            />
-            <div
-                class="pointer-events-none absolute right-[-10rem] top-[-8rem] h-[28rem] w-[28rem] rounded-full bg-brand-secondary/10 blur-3xl"
-            />
-            <div
-                class="pointer-events-none absolute left-1/3 top-24 h-40 w-40 rounded-full border border-white/10"
-            />
-            <div
-                class="pointer-events-none absolute bottom-[-10rem] right-1/4 h-[26rem] w-[26rem] rounded-full bg-white/5 blur-3xl"
-            />
-            <div
-                class="pointer-events-none absolute bottom-20 left-1/2 h-24 w-24 rounded-full border border-brand-secondary/20"
-            />
-            <div
-                class="pointer-events-none absolute -left-40 bottom-0 h-96 w-96 rounded-full bg-white/5"
-            />
-            <div
-                class="pointer-events-none absolute -right-28 top-0 h-80 w-80 rounded-full border border-white/10"
-            />
-            <div class="relative mx-auto max-w-7xl">
-                <div class="mx-auto max-w-3xl text-center">
-                    <p
-                        class="text-xs font-black uppercase tracking-[0.18em] text-brand-lime"
-                    >
-                        Satu platform untuk semua peran
-                    </p>
-                    <h2
-                        class="mt-4 text-4xl font-black leading-[1.02] tracking-[-0.055em] sm:text-5xl lg:text-6xl"
-                    >
-                        Semua punya ruang untuk menjalankan perannya.
-                    </h2>
-                    <div
-                        class="mt-8 grid grid-cols-3 rounded-2xl border border-white/20 bg-white/10 p-1"
-                    >
-                        <button
-                            v-for="(role, index) in [
-                                'Siswa & Peserta',
-                                'Guru & Pengajar',
-                                'Admin Organisasi',
-                            ]"
-                            :key="role"
-                            type="button"
-                            class="min-w-0 whitespace-normal rounded-xl px-1 py-3 text-[11px] font-black leading-tight transition sm:px-4 sm:text-base"
-                            :class="
-                                roleIndex === index
-                                    ? 'bg-brand-lime text-brand-primary'
-                                    : 'text-white/75 hover:bg-white/10 hover:text-white'
-                            "
-                            @click="roleIndex = index"
-                        >
-                            {{ role }}
-                        </button>
-                    </div>
-                </div>
-                <div
-                    class="mt-0 grid items-center gap-3 lg:mt-16 lg:grid-cols-[0.8fr_1.2fr] lg:gap-12"
-                >
-                    <div class="order-2 max-w-xl lg:order-1 lg:-translate-x-8">
-                        <p
-                            class="text-xs font-black uppercase tracking-[0.18em] text-brand-lime"
-                        >
-                            {{ roleDetails[roleIndex].label }}
-                        </p>
-                        <h3
-                            class="mt-5 text-4xl font-black leading-[1.04] tracking-[-0.05em] sm:text-5xl"
-                        >
-                            {{ roleDetails[roleIndex].title }}
-                        </h3>
-                        <p class="mt-6 text-lg leading-8 text-white/70">
-                            {{ roleDetails[roleIndex].copy }}
-                        </p>
-                        <ul class="mt-8 space-y-4">
-                            <li
-                                v-for="point in roleDetails[roleIndex].points"
-                                :key="point"
-                                class="flex items-start gap-3 text-base text-white/90"
-                            >
-                                <span
-                                    class="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand-lime text-sm font-black text-brand-primary"
-                                    >✓</span
-                                >
-                                <span>{{ point }}</span>
-                            </li>
-                        </ul>
-                    </div>
-                    <div
-                        class="relative order-1 flex min-h-[19rem] items-center justify-center sm:min-h-[30rem] lg:order-2 lg:min-h-[36rem]"
-                    >
-                        <div
-                            class="pointer-events-none absolute inset-8 rounded-[3rem] bg-white/10 blur-3xl"
-                        />
-                        <img
-                            src="/images/role-laptop-mockup.png"
-                            alt="Laptop workspace Kuesify"
-                            class="relative right-0 z-10 w-[20rem] object-contain drop-shadow-[0_24px_30px_rgba(12,27,92,0.28)] sm:w-[38rem] sm:-translate-y-8 lg:right-[1%] lg:w-[44rem]"
-                        />
-                        <img
-                            v-if="roleIndex === 0 || roleIndex === 2"
-                            src="/images/role-character-female.png"
-                            alt="Guru berdiri di samping workspace"
-                            class="absolute bottom-0 left-[-6%] z-30 w-[6rem] -translate-y-8 object-contain sm:left-0 sm:-translate-y-16 lg:left-[-9%] lg:w-[13rem] lg:-translate-y-20"
-                        />
-                        <img
-                            v-if="roleIndex === 1 || roleIndex === 2"
-                            src="/images/role-character-male.png"
-                            alt="Pengajar berdiri di samping workspace"
-                            class="absolute bottom-0 right-[-6%] z-20 w-[7rem] -translate-y-8 object-contain sm:right-0 sm:w-[11rem] sm:-translate-y-16 lg:right-[-9%] lg:w-[14rem] lg:-translate-y-20"
-                        />
-                        <div
-                            class="pointer-events-none absolute right-[-2rem] top-[4rem] z-0 h-48 w-48 rounded-full bg-brand-secondary/25"
-                        />
-                    </div>
-                </div>
-            </div>
-        </section>
-        <section
+            data-reveal-section
             id="untuk-siapa"
-            class="relative isolate z-20 -mt-12 min-h-0 overflow-hidden bg-white px-5 py-20 sm:px-8 lg:min-h-[48rem] lg:px-12 lg:py-24"
+            class="relative px-5 pb-20 sm:px-8 lg:px-12"
         >
             <div
-                class="pointer-events-none absolute -left-48 top-[-12rem] h-[34rem] w-[34rem] rounded-full bg-brand-secondary/15"
-            />
-            <div
-                class="pointer-events-none absolute right-[-14rem] top-[-10rem] h-[30rem] w-[30rem] rounded-full border border-brand-secondary/20"
-            />
-            <div
-                class="pointer-events-none absolute bottom-10 right-1/3 h-32 w-32 rounded-full border border-brand-secondary/25"
-            />
-            <div
-                class="pointer-events-none absolute left-[8%] top-[18%] h-24 w-24 rounded-full border border-brand-primary/15"
-            />
-            <div
-                class="pointer-events-none absolute bottom-[15%] right-[8%] h-20 w-20 rounded-full bg-brand-secondary/10"
-            />
-            <div
-                class="pointer-events-none absolute left-[22%] top-[20%] h-24 w-24 rounded-full border border-brand-primary/15"
-            />
-            <div
-                class="relative mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16"
+                class="mx-auto max-w-7xl rounded-[2rem] bg-brand-accent p-8 sm:p-12"
             >
-                <div
-                    class="pointer-events-none absolute -left-32 top-0 h-96 w-96 rounded-full border border-brand-secondary/20"
-                />
-                <div
-                    class="pointer-events-none absolute right-1/3 top-10 h-40 w-40 rounded-full border border-brand-secondary/15"
-                />
-                <div
-                    class="pointer-events-none absolute left-1/2 top-1/2 h-32 w-32 rounded-full border border-brand-secondary/10"
-                />
-                <div
-                    class="relative flex min-h-[20rem] w-full translate-y-6 items-center justify-center lg:min-h-[34rem] lg:translate-y-10"
-                >
-                    <img
-                        src="/images/role-section-characters.png"
-                        alt="Siswa dan guru menggunakan Kuesify bersama"
-                        class="relative z-10 block w-full max-w-[30rem] -translate-x-6 object-contain lg:-translate-x-12"
-                    />
-                </div>
-                <div
-                    class="max-w-2xl translate-y-6 border-l-4 border-brand-secondary pl-6 lg:translate-y-10 lg:pl-8"
-                >
-                    <p
-                        class="text-xs font-black uppercase tracking-[0.18em] text-brand-primary"
+                <div class="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
+                    <div>
+                        <p
+                            class="text-xs font-black uppercase tracking-[0.18em] text-brand-primary"
+                        >
+                            Untuk kelas yang ingin bergerak
+                        </p>
+                        <h2
+                            class="mt-4 max-w-3xl text-4xl font-black tracking-[-0.05em] text-slate-900 sm:text-5xl"
+                        >
+                            Satu layar untuk creator. Satu PIN untuk seluruh
+                            kelas.
+                        </h2>
+                        <p
+                            class="mt-5 max-w-2xl text-lg leading-8 text-slate-600"
+                        >
+                            Dipakai untuk pembelajaran, bimbingan belajar, acara
+                            komunitas, dan demo kompetisi yang perlu terasa
+                            hidup.
+                        </p>
+                    </div>
+                    <div
+                        class="relative flex flex-wrap items-end gap-3 pt-14 sm:pt-0"
                     >
-                        Untuk kelas yang ingin bergerak
-                    </p>
-                    <h2
-                        class="mt-4 max-w-3xl text-4xl font-black leading-[1.02] tracking-[-0.05em] text-brand-primary sm:text-5xl"
-                    >
-                        Satu layar untuk creator. Satu PIN untuk seluruh kelas.
-                    </h2>
-                    <p
-                        class="mt-5 max-w-2xl text-lg leading-8 text-brand-primary/75"
-                    >
-                        Dipakai untuk pembelajaran, bimbingan belajar, acara
-                        komunitas, dan demo kompetisi yang perlu terasa hidup.
-                    </p>
-                    <div class="mt-8 flex flex-wrap gap-3">
+                        <img
+                            data-mascot
+                            src="/assets/kuesify/characters/image-5.svg"
+                            alt="Karakter creator Kuesify sedang menyusun kuis"
+                            class="absolute -top-1 right-8 w-24 will-change-transform sm:-top-12 sm:right-14 sm:w-28"
+                        />
                         <Link
                             v-if="canRegister"
                             href="/register"
-                            class="min-h-13 rounded-2xl bg-brand-secondary px-6 py-4 text-sm font-black text-white shadow-figma"
+                            class="min-h-13 rounded-2xl bg-brand-primary px-6 py-4 text-sm font-black text-white shadow-[0_8px_0_#233EA8]"
                             >Buat akun gratis</Link
-                        >
-                        <Link
+                        ><Link
                             href="/join"
-                            class="min-h-13 rounded-2xl bg-brand-primary px-6 py-4 text-sm font-black text-white shadow-figma"
+                            class="min-h-13 rounded-2xl border-2 border-brand-secondary/40 bg-white px-6 py-4 text-sm font-black text-brand-primary"
                             >Punya PIN? Masuk</Link
                         >
                     </div>
@@ -784,16 +783,12 @@ const scrollFeatures = (direction: number) => {
             </div>
         </section>
 
-        <footer
-            class="border-t border-brand-primary/15 px-5 py-8 sm:px-8 lg:px-12"
-        >
+        <footer class="border-t border-slate-200 px-5 py-8 sm:px-8 lg:px-12">
             <div
-                class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 text-sm text-brand-primary/65"
+                class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 text-sm text-slate-500"
             >
-                <div
-                    class="flex items-center gap-2 font-black text-brand-primary"
-                >
-                    <ApplicationLogo class="h-7 w-7 text-brand-secondary" />
+                <div class="flex items-center gap-2 font-black text-slate-900">
+                    <ApplicationLogo class="h-7 w-7 text-brand-primary" />
                     kuesify
                 </div>
                 <p>
@@ -809,99 +804,3 @@ const scrollFeatures = (direction: number) => {
     </main>
 </template>
 
-<style>
-html {
-    scroll-behavior: smooth;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    html {
-        scroll-behavior: auto;
-    }
-}
-</style>
-<style>
-.feature-copy {
-    padding-inline-start: max(0rem, calc(50% - 10rem));
-}
-
-@media (max-width: 767px) {
-    .feature-copy {
-        padding-inline-start: 0;
-    }
-}
-.feature-card-stage {
-    position: relative;
-    height: 100%;
-    overflow: hidden;
-}
-
-.feature-card {
-    position: absolute;
-    left: 50%;
-    top: 0;
-    width: min(76vw, 20rem);
-    height: 22rem;
-    border-radius: 1.5rem;
-    border-width: 1px;
-    padding: 1.5rem;
-    transition:
-        transform 450ms ease,
-        opacity 300ms ease;
-}
-
-.feature-card-active {
-    transform: translateX(-50%) scale(1);
-    opacity: 1;
-}
-
-@media (min-width: 1024px) {
-    .feature-nav-prev {
-        left: calc(50% - 12rem);
-    }
-
-    .feature-nav-next {
-        right: calc(50% - 12rem);
-    }
-}
-.feature-card-prev {
-    transform: translateX(calc(-50% - 10rem)) rotate(-10deg) scale(0.92);
-    opacity: 0.45;
-    pointer-events: none;
-}
-
-.feature-card-next {
-    transform: translateX(calc(-50% + 10rem)) rotate(10deg) scale(0.92);
-    opacity: 0.45;
-    pointer-events: none;
-}
-
-.feature-card-hidden {
-    transform: translateX(-50%) scale(0.86);
-    opacity: 0;
-    pointer-events: none;
-}
-
-@media (max-width: 639px) {
-    .feature-card {
-        width: min(76vw, 20rem);
-    }
-
-    @media (min-width: 1024px) {
-        .feature-nav-prev {
-            left: calc(50% - 12rem);
-        }
-
-        .feature-nav-next {
-            right: calc(50% - 12rem);
-        }
-    }
-    .feature-card-prev {
-        transform: translateX(calc(-50% - 7rem)) rotate(-8deg) scale(0.9);
-    }
-
-    .feature-card-next {
-        transform: translateX(calc(-50% + 7rem)) rotate(8deg) scale(0.9);
-    }
-}
-</style>

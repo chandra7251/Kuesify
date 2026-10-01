@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\AiGeneration;
 use App\Models\LiveSession;
+use App\Models\Mission;
+use App\Models\UserMission;
 use App\Models\Organization;
 use App\Models\Question;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use App\Models\UserProgress;
 use App\Services\ReverbHealthService;
+use App\Services\GamificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -41,29 +44,8 @@ class DashboardController extends Controller
             return $this->creatorDashboard($organization, $request);
         }
 
-        // Fallback untuk role tidak dikenal tetap memakai Dashboard legacy.
-        $progress = UserProgress::where('user_id', $request->user()->id)->first();
-        $badges = DB::table('badge_awards')
-            ->join('badges', 'badge_awards.badge_id', '=', 'badges.id')
-            ->where('badge_awards.organization_id', $organization->id)
-            ->where('badge_awards.user_id', $request->user()->id)
-            ->select('badges.key', 'badges.name')
-            ->get()->toArray();
-
-        return Inertia::render('Dashboard', [
-            'organization' => ['id' => $organization->id, 'name' => $organization->name, 'role' => $role],
-            'stats' => [
-                'quizzes' => Quiz::count(),
-                'questions' => Question::count(),
-                'liveSessions' => LiveSession::whereIn('status', ['lobby', 'live'])->count(),
-                'attempts' => QuizAttempt::where('participant_id', $request->user()->id)->count(),
-                'xp' => $progress?->xp ?? 0,
-                'streak' => $progress?->streak ?? 0,
-                'level' => $progress?->level ?? 1,
-            ],
-            'recentQuizzes' => Quiz::latest()->take(8)->get(['id', 'title', 'status', 'updated_at']),
-            'badges' => $badges,
-        ]);
+        // Role tidak dikenal — tampilkan 403 daripada data lintas-tenant.
+        abort(403, "Role tidak dikenal: {$role}");
     }
 
     private function superAdminDashboard(Organization $organization, Request $request): Response
@@ -178,15 +160,7 @@ class DashboardController extends Controller
         $user = $request->user();
         $progress = UserProgress::where('user_id', $user->id)->first();
 
-        $badges = DB::table('badge_awards')
-            ->join('badges', 'badge_awards.badge_id', '=', 'badges.id')
-            ->where('badge_awards.organization_id', $organization->id)
-            ->where('badge_awards.user_id', $user->id)
-            ->select('badges.key', 'badges.name')
-            ->orderBy('badges.name')
-            ->get()
-            ->map(fn ($badge) => ['key' => $badge->key, 'name' => $badge->name])
-            ->all();
+        $badges = app(GamificationService::class)->participantBadges($organization->id, $user->id);
 
         $recentAttempts = QuizAttempt::with('quiz:id,title')
             ->where('participant_id', $user->id)
@@ -202,18 +176,38 @@ class DashboardController extends Controller
             ])
             ->all();
 
-        $availableQuizzes = Quiz::withCount('questions')
+        $availableQuizzes = Quiz::query()
+            ->select(['id', 'title', 'description', 'deadline_at', 'max_attempts', 'allow_retry'])
+            ->withCount('questions')
+            ->selectSub(
+                QuizAttempt::query()
+                    ->selectRaw('count(*)')
+                    ->whereColumn('quiz_attempts.quiz_id', 'quizzes.id')
+                    ->where('quiz_attempts.participant_id', $user->id),
+                'my_attempts_count',
+            )
+            ->selectSub(
+                QuizAttempt::query()
+                    ->selectRaw('max(score)')
+                    ->whereColumn('quiz_attempts.quiz_id', 'quizzes.id')
+                    ->where('quiz_attempts.participant_id', $user->id)
+                    ->where('quiz_attempts.status', 'completed'),
+                'best_score',
+            )
             ->where('status', 'published')
             ->latest()
             ->take(6)
-            ->get(['id', 'title', 'description', 'deadline_at', 'max_attempts'])
+            ->get()
             ->map(fn (Quiz $quiz) => [
                 'id' => $quiz->id,
                 'title' => $quiz->title,
                 'description' => $quiz->description,
-                'questions_count' => $quiz->questions_count,
+                'questions_count' => (int) $quiz->questions_count,
                 'deadline_at' => $quiz->deadline_at?->toIso8601String(),
                 'max_attempts' => $quiz->max_attempts,
+                'allow_retry' => (bool) $quiz->allow_retry,
+                'my_attempts_count' => (int) $quiz->my_attempts_count,
+                'best_score' => $quiz->best_score !== null ? (int) $quiz->best_score : null,
             ])
             ->all();
 
@@ -234,6 +228,37 @@ class DashboardController extends Controller
             ];
         })->values()->all();
 
+        $gamification = app(GamificationService::class);
+        foreach ($gamification->missionDefinitions() as $definition) {
+            Mission::updateOrCreate(['key' => $definition['key']], $definition);
+        }
+        $missionDate = Carbon::now($organization->timezone ?: 'UTC');
+        $missions = Mission::where('is_active', true)->get()->map(function (Mission $mission) use ($organization, $user, $missionDate): array {
+            $periodKey = match ($mission->kind) {
+                'daily' => $missionDate->toDateString(),
+                'weekly' => $missionDate->copy()->startOfWeek()->toDateString(),
+                default => 'lifetime',
+            };
+            $progress = UserMission::withoutGlobalScopes()->where([
+                'organization_id' => $organization->id,
+                'user_id' => $user->id,
+                'mission_id' => $mission->id,
+                'period_key' => $periodKey,
+            ])->first();
+
+            return [
+                'key' => $mission->key,
+                'kind' => $mission->kind,
+                'title' => $mission->title,
+                'description' => $mission->description,
+                'goal' => $mission->goal,
+                'progress' => $progress?->progress ?? 0,
+                'reward_xp' => $mission->reward_xp,
+                'completed_at' => $progress?->completed_at?->toIso8601String(),
+                'period_key' => $periodKey,
+            ];
+        })->values()->all();
+
         return Inertia::render('participant/dashboard', [
             'organization' => ['id' => $organization->id, 'name' => $organization->name, 'role' => 'participant'],
             'stats' => [
@@ -243,13 +268,14 @@ class DashboardController extends Controller
                 'xp' => $progress?->xp ?? 0,
                 'streak' => $progress?->streak ?? 0,
                 'level' => $progress?->level ?? 1,
-                'badges' => count($badges),
+                'badges' => collect($badges)->where('earned', true)->count(),
             ],
             'badges' => $badges,
             'recentAttempts' => $recentAttempts,
             'availableQuizzes' => $availableQuizzes,
             'quizOfTheDay' => $availableQuizzes[0] ?? null,
             'streakHeatmap' => $streakHeatmap,
+            'missions' => $missions,
         ]);
     }
 

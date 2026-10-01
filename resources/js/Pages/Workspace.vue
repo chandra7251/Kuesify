@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { roleLabel } from '@/utils/roleLabel';
 import { Head, Link, useForm } from '@inertiajs/vue3';
@@ -54,7 +54,7 @@ const sectionMeta: Record<
     organization: {
         eyebrow: 'Pengaturan',
         description: 'Atur member, role, dan group organisasi.',
-        tone: 'bg-emerald-800 text-white',
+        tone: 'bg-brand-primary text-white',
     },
     admin: {
         eyebrow: 'Platform',
@@ -69,17 +69,33 @@ const meta = computed(
         sectionMeta[props.section] ?? {
             eyebrow: 'Workspace',
             description: 'Kelola data Kuesify.',
-            tone: 'bg-teal-800 text-white',
+            tone: 'bg-brand-primary text-white',
         },
 );
 const isQuestions = computed(() => props.section === 'questions');
 const isReports = computed(() => props.section === 'reports');
 const isOrganization = computed(() => props.section === 'organization');
-const organizationGroups = computed(() => (Array.isArray(props.summary.groups) ? props.summary.groups : []) as { id: number; name: string }[]);
+const organizationGroups = computed(
+    () =>
+        (Array.isArray(props.summary.groups) ? props.summary.groups : []) as {
+            id: number;
+            name: string;
+        }[],
+);
 const groupForm = useForm({ name: '' });
 const memberGroup = useForm({ user_id: 0 });
-function createGroup(): void { groupForm.post(route('organization.groups.store'), { preserveScroll: true, onSuccess: () => groupForm.reset() }); }
-function addMember(groupId: number, userId: number): void { memberGroup.user_id = userId; memberGroup.post(route('organization.groups.members.store', groupId), { preserveScroll: true }); }
+function createGroup(): void {
+    groupForm.post(route('organization.groups.store'), {
+        preserveScroll: true,
+        onSuccess: () => groupForm.reset(),
+    });
+}
+function addMember(groupId: number, userId: number): void {
+    memberGroup.user_id = userId;
+    memberGroup.post(route('organization.groups.members.store', groupId), {
+        preserveScroll: true,
+    });
+}
 const isAdmin = computed(() => props.section === 'admin');
 const isStyledSection = computed(
     () => isQuestions.value || isReports.value || isAdmin.value,
@@ -114,11 +130,11 @@ const summarySize = (value: unknown) =>
         <template v-if="!isStyledSection" #header>
             <div>
                 <p
-                    class="text-xs font-bold uppercase tracking-[0.18em] text-teal-700"
+                    class="text-xs font-bold uppercase tracking-[0.18em] text-brand-primary"
                 >
                     {{ meta.eyebrow }}
                 </p>
-                <h2 class="mt-1 text-xl font-extrabold text-teal-950">
+                <h2 class="mt-1 text-xl font-extrabold text-slate-950">
                     {{ title }}
                 </h2>
             </div>
@@ -176,7 +192,7 @@ const summarySize = (value: unknown) =>
                             class="inline-flex min-h-11 items-center justify-center px-4 text-sm font-bold uppercase transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                             :class="
                                 isStyledSection
-                                    ? 'rounded-md bg-[#3451b5] text-white hover:bg-[#29439d] focus-visible:outline-[#3451b5]'
+                                    ? 'rounded-md bg-brand-primary text-white hover:bg-brand-hover focus-visible:outline-brand-primary'
                                     : 'rounded-xl bg-white text-slate-900 hover:bg-slate-100 focus-visible:outline-white'
                             "
                         >
@@ -505,7 +521,7 @@ const summarySize = (value: unknown) =>
                                 class="rounded-full px-2.5 py-1 text-xs font-extrabold"
                                 :class="
                                     value === 'online'
-                                        ? 'bg-emerald-100 text-emerald-800'
+                                        ? 'bg-brand-secondary/15 text-brand-primary'
                                         : 'bg-rose-100 text-rose-800'
                                 "
                             >
@@ -598,7 +614,7 @@ const summarySize = (value: unknown) =>
                                 v-if="subKey === 'reverb_status'"
                                 :class="
                                     subVal === 'online'
-                                        ? 'bg-emerald-100 text-emerald-800'
+                                        ? 'bg-brand-secondary/15 text-brand-primary'
                                         : 'bg-rose-100 text-rose-800'
                                 "
                                 class="rounded-full px-2 py-0.5 font-extrabold"
@@ -662,11 +678,46 @@ const summarySize = (value: unknown) =>
             </section>
 
             <section v-if="isOrganization" class="grid gap-5 lg:grid-cols-2">
-                <form class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm" @submit.prevent="createGroup">
-                    <h2 class="font-extrabold text-slate-900">Buat group / departemen</h2>
-                    <div class="mt-3 flex gap-2"><input v-model="groupForm.name" required class="min-h-11 min-w-0 flex-1 rounded-lg border-slate-300 text-sm" placeholder="Nama group" /><button type="submit" class="min-h-11 rounded-lg bg-brand-primary px-4 text-sm font-bold text-white">Tambah</button></div>
+                <form
+                    class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+                    @submit.prevent="createGroup"
+                >
+                    <h2 class="font-extrabold text-slate-900">
+                        Buat group / departemen
+                    </h2>
+                    <div class="mt-3 flex gap-2">
+                        <input
+                            v-model="groupForm.name"
+                            required
+                            class="min-h-11 min-w-0 flex-1 rounded-lg border-slate-300 text-sm"
+                            placeholder="Nama group"
+                        /><button
+                            type="submit"
+                            class="min-h-11 rounded-lg bg-brand-primary px-4 text-sm font-bold text-white"
+                        >
+                            Tambah
+                        </button>
+                    </div>
                 </form>
-                <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"><h2 class="font-extrabold text-slate-900">Group aktif</h2><div v-if="organizationGroups.length" class="mt-3 flex flex-wrap gap-2"><span v-for="group in organizationGroups" :key="group.id" class="rounded-full bg-brand-secondary px-3 py-1 text-xs font-bold">{{ group.name }}</span></div><p v-else class="mt-3 text-sm text-slate-500">Belum ada group.</p></section>
+                <section
+                    class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+                >
+                    <h2 class="font-extrabold text-slate-900">Group aktif</h2>
+                    <div
+                        v-if="organizationGroups.length"
+                        class="mt-3 flex flex-wrap gap-2"
+                    >
+                        <span
+                            v-for="group in organizationGroups"
+                            :key="group.id"
+                            class="rounded-full bg-brand-secondary px-3 py-1 text-xs font-bold"
+                            >{{ group.name }}</span
+                        >
+                    </div>
+                    <p v-else class="mt-3 text-sm text-slate-500">
+                        Belum ada group.
+                    </p>
+                </section>
             </section>
 
             <!-- Data Workspace List (Persis Question Bank) -->
@@ -721,7 +772,7 @@ const summarySize = (value: unknown) =>
                         :class="
                             isStyledSection
                                 ? 'question-row items-center border-l-4 border-l-transparent bg-white px-6 py-5 hover:bg-slate-50'
-                                : 'flex-col justify-center border-l-2 border-l-transparent px-5 py-4 hover:bg-teal-50/40 sm:flex-row sm:items-center sm:justify-between'
+                                : 'flex-col justify-center border-l-2 border-l-transparent px-5 py-4 hover:bg-brand-accent/40 sm:flex-row sm:items-center sm:justify-between'
                         "
                     >
                         <div
@@ -750,7 +801,7 @@ const summarySize = (value: unknown) =>
                                     {{ item.questions_count ?? 0 }} Soal
                                     terdaftar
                                     <span v-if="item.deadline_at">
-                                        · Batas {{ item.deadline_at }}</span
+                                        Â· Batas {{ item.deadline_at }}</span
                                     >
                                 </p>
                             </div>
@@ -796,7 +847,7 @@ const summarySize = (value: unknown) =>
                                 :class="
                                     isQuestions
                                         ? 'text-[#3154D5]'
-                                        : 'text-teal-800'
+                                        : 'text-brand-primary'
                                 "
                             >
                                 {{
@@ -806,18 +857,44 @@ const summarySize = (value: unknown) =>
                                     ''
                                 }}
                             </span>
-                            <div v-if="isOrganization && organizationGroups.length" class="flex flex-wrap items-center gap-2">
-                                <select class="min-h-9 rounded-md border-slate-300 text-xs" aria-label="Pilih group" @change="addMember(Number(($event.target as HTMLSelectElement).value), Number(item.id))">
+                            <div
+                                v-if="
+                                    isOrganization && organizationGroups.length
+                                "
+                                class="flex flex-wrap items-center gap-2"
+                            >
+                                <select
+                                    class="min-h-9 rounded-md border-slate-300 text-xs"
+                                    aria-label="Pilih group"
+                                    @change="
+                                        addMember(
+                                            Number(
+                                                (
+                                                    $event.target as HTMLSelectElement
+                                                ).value,
+                                            ),
+                                            Number(item.id),
+                                        )
+                                    "
+                                >
                                     <option value="">Tambah ke group</option>
-                                    <option v-for="group in organizationGroups" :key="group.id" :value="group.id">{{ group.name }}</option>
+                                    <option
+                                        v-for="group in organizationGroups"
+                                        :key="group.id"
+                                        :value="group.id"
+                                    >
+                                        {{ group.name }}
+                                    </option>
                                 </select>
                             </div>
                             <div v-if="isReports" class="flex flex-wrap gap-2">
                                 <a
                                     v-for="format in ['csv', 'xlsx'] as const"
                                     :key="format"
-                                    :href="exportHref('/reports/export', format)"
-                                    class="inline-flex min-h-9 items-center justify-center rounded-md bg-[#3451b5] px-3.5 text-xs font-bold uppercase text-white transition hover:bg-[#29439d]"
+                                    :href="
+                                        exportHref('/reports/export', format)
+                                    "
+                                    class="inline-flex min-h-9 items-center justify-center rounded-md bg-brand-primary px-3.5 text-xs font-bold uppercase text-white transition hover:bg-brand-hover"
                                 >
                                     Unduh {{ format }}
                                 </a>
@@ -828,7 +905,7 @@ const summarySize = (value: unknown) =>
                 <div v-else class="px-5 py-12 text-center">
                     <div
                         v-if="!isStyledSection"
-                        class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-teal-50 text-lg font-extrabold text-teal-700"
+                        class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-brand-accent text-lg font-extrabold text-brand-primary"
                     >
                         +
                     </div>
@@ -866,7 +943,9 @@ const summarySize = (value: unknown) =>
                         href="/dashboard"
                         class="mt-4 inline-flex text-xs font-bold hover:underline"
                         :class="
-                            isStyledSection ? 'text-[#3154D5]' : 'text-teal-700'
+                            isStyledSection
+                                ? 'text-[#3154D5]'
+                                : 'text-brand-primary'
                         "
                     >
                         Kembali ke dashboard
@@ -888,3 +967,4 @@ const summarySize = (value: unknown) =>
     color: #527a12;
 }
 </style>
+

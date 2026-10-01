@@ -37,7 +37,7 @@ class QuizController extends Controller
         Gate::authorize('update', $quiz);
         $data = $request->validate([
             'title' => ['required', 'string', 'max:120'], 'description' => ['nullable', 'string', 'max:4000'],
-            'visibility' => ['nullable', 'in:private,organization,public'], 'max_attempts' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'visibility' => ['nullable', 'in:private,organization,public'], 'max_attempts' => ['nullable', 'integer', 'min:1', 'max:100'], 'allow_retry' => ['nullable', 'boolean'],
             'deadline_at' => ['nullable', 'date'], 'show_explanations' => ['nullable', 'boolean'], 'category_id' => ['nullable', 'exists:categories,id'],
         ]);
         $quiz->update($data);

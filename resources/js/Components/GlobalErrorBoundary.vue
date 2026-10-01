@@ -8,7 +8,8 @@ function reloadPage(): void {
 }
 
 onErrorCaptured((error) => {
-    errorMessage.value = error instanceof Error ? error.message : 'Terjadi kesalahan.';
+    errorMessage.value =
+        error instanceof Error ? error.message : 'Terjadi kesalahan.';
     return false;
 });
 </script>
@@ -19,7 +20,9 @@ onErrorCaptured((error) => {
         class="mx-auto mt-8 max-w-xl rounded-xl border border-status-danger/30 bg-white p-6 text-slate-900 shadow-sm"
         role="alert"
     >
-        <p class="text-sm font-extrabold uppercase tracking-wide text-status-danger">
+        <p
+            class="text-sm font-extrabold uppercase tracking-wide text-status-danger"
+        >
             Aplikasi bermasalah
         </p>
         <h1 class="mt-2 text-xl font-extrabold">Muat ulang halaman</h1>

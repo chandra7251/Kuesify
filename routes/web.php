@@ -77,6 +77,8 @@ Route::middleware(['auth', 'organization.context'])->group(function () {
     Route::get('/quizzes', [WorkspaceController::class, 'quizzes'])->name('quizzes.index');
     Route::get('/live-sessions', [WorkspaceController::class, 'live'])->name('live-sessions.index');
     Route::get('/attempts', [WorkspaceController::class, 'attempts'])->name('attempts.index');
+    Route::get('/participant/quizzes', [WorkspaceController::class, 'participantQuizzes'])->name('participant.quizzes.index');
+    Route::get('/participant/badges', [WorkspaceController::class, 'participantBadges'])->name('participant.badges.index');
     Route::get('/attempts/export', [WorkspaceController::class, 'exportAttempts'])->name('attempts.export');
     Route::get('/attempts/{attempt}/play', [QuizAttemptController::class, 'play'])->name('attempts.play');
     Route::get('/organization', [WorkspaceController::class, 'organization'])->name('organization.index');
@@ -88,6 +90,12 @@ Route::middleware(['auth', 'organization.context'])->group(function () {
     Route::post('/admin/moderation/{quiz}/approve', [QuizController::class, 'approveModeration'])->name('admin.moderation.approve');
     Route::post('/admin/moderation/{quiz}/reject', [QuizController::class, 'rejectModeration'])->name('admin.moderation.reject');
     Route::get('/materials', [WorkspaceController::class, 'materials'])->name('materials.index');
+    Route::get('/participant/materials', [WorkspaceController::class, 'participantMaterials'])->name('participant.materials.index');
+    Route::get('/participant/materials/{material}/print', [WorkspaceController::class, 'printMaterial'])->name('participant.materials.print');
+    Route::post('/participant/materials/{material}/read', [WorkspaceController::class, 'markMaterialRead'])->name('participant.materials.read');
+    Route::put('/participant/materials/{material}/note', [WorkspaceController::class, 'saveMaterialNote'])->name('participant.materials.note.save');
+    Route::delete('/participant/materials/{material}/note', [WorkspaceController::class, 'deleteMaterialNote'])->name('participant.materials.note.delete');
+    Route::put('/participant/materials/{material}/check', [WorkspaceController::class, 'saveMaterialCheck'])->name('participant.materials.check.save');
     Route::get('/reports/export', [WorkspaceController::class, 'exportReport'])->name('reports.export');
 });
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import QuizListSkeleton from '@/Components/QuizListSkeleton.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
@@ -20,6 +20,7 @@ type Quiz = {
     category_id?: number | null;
     category?: { name: string; theme_key?: string | null } | null;
     max_attempts?: number | null;
+    allow_retry?: boolean;
     deadline_at?: string | null;
     show_explanations: boolean;
     questions: Question[];
@@ -49,6 +50,7 @@ const metadata = useForm({
     visibility: 'organization',
     category_id: '',
     max_attempts: '',
+    allow_retry: false,
     deadline_at: '',
     show_explanations: false,
 });
@@ -59,7 +61,13 @@ const selectedQuiz = computed(
 );
 const themeClass = computed(() => {
     const theme = selectedQuiz.value?.category?.theme_key;
-    return theme === 'ocean' ? 'ring-2 ring-sky-200' : theme === 'forest' ? 'ring-2 ring-emerald-200' : theme === 'sunset' ? 'ring-2 ring-orange-200' : '';
+    return theme === 'ocean'
+        ? 'ring-2 ring-sky-200'
+        : theme === 'forest'
+          ? 'ring-2 ring-brand-secondary'
+          : theme === 'sunset'
+            ? 'ring-2 ring-orange-200'
+            : '';
 });
 
 const selectedQuestions = computed(() =>
@@ -78,6 +86,7 @@ function selectQuiz(quiz: Quiz): void {
     metadata.visibility = quiz.visibility;
     metadata.category_id = quiz.category_id ? String(quiz.category_id) : '';
     metadata.max_attempts = quiz.max_attempts ? String(quiz.max_attempts) : '';
+    metadata.allow_retry = quiz.allow_retry ?? false;
     metadata.deadline_at = quiz.deadline_at?.slice(0, 16) ?? '';
     metadata.show_explanations = quiz.show_explanations;
 }
@@ -86,11 +95,21 @@ if (selectedQuiz.value) selectQuiz(selectedQuiz.value);
 
 function applyFilters(): void {
     loadingQuizzes.value = true;
-    router.get(route('quizzes.index'), {
-        search: filters.value.search || undefined,
-        status: filters.value.status || undefined,
-        category: filters.value.category || undefined,
-    }, { preserveState: true, replace: true, onFinish: () => { loadingQuizzes.value = false; } });
+    router.get(
+        route('quizzes.index'),
+        {
+            search: filters.value.search || undefined,
+            status: filters.value.status || undefined,
+            category: filters.value.category || undefined,
+        },
+        {
+            preserveState: true,
+            replace: true,
+            onFinish: () => {
+                loadingQuizzes.value = false;
+            },
+        },
+    );
 }
 
 function clearFilters(): void {
@@ -144,12 +163,18 @@ function cloneQuiz(): void {
 
 function addCollaborator(userId: string): void {
     if (!selectedQuiz.value || !userId) return;
-    useForm({ user_id: Number(userId) }).post(route('quizzes.collaborators.store', selectedQuiz.value.id), { preserveScroll: true });
+    useForm({ user_id: Number(userId) }).post(
+        route('quizzes.collaborators.store', selectedQuiz.value.id),
+        { preserveScroll: true },
+    );
 }
 
 function removeCollaborator(userId: number): void {
     if (!selectedQuiz.value) return;
-    useForm({}).delete(route('quizzes.collaborators.destroy', [selectedQuiz.value.id, userId]), { preserveScroll: true });
+    useForm({}).delete(
+        route('quizzes.collaborators.destroy', [selectedQuiz.value.id, userId]),
+        { preserveScroll: true },
+    );
 }
 
 function archiveQuiz(): void {
@@ -207,24 +232,61 @@ function archiveQuiz(): void {
                     <section
                         class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
                     >
-                        <form class="space-y-2 border-b border-slate-100 p-3" @submit.prevent="applyFilters">
-                            <label class="sr-only" for="quiz-search">Cari quiz</label>
-                            <input id="quiz-search" v-model="filters.search" class="min-h-10 w-full rounded-lg border-slate-300 text-sm" placeholder="Cari quiz" />
-                            <select v-model="filters.status" class="min-h-10 w-full rounded-lg border-slate-300 text-sm" aria-label="Filter status">
+                        <form
+                            class="space-y-2 border-b border-slate-100 p-3"
+                            @submit.prevent="applyFilters"
+                        >
+                            <label class="sr-only" for="quiz-search"
+                                >Cari quiz</label
+                            >
+                            <input
+                                id="quiz-search"
+                                v-model="filters.search"
+                                class="min-h-10 w-full rounded-lg border-slate-300 text-sm"
+                                placeholder="Cari quiz"
+                            />
+                            <select
+                                v-model="filters.status"
+                                class="min-h-10 w-full rounded-lg border-slate-300 text-sm"
+                                aria-label="Filter status"
+                            >
                                 <option value="">Semua status</option>
                                 <option value="draft">Draft</option>
-                                <option value="pending_moderation">Menunggu moderasi</option>
+                                <option value="pending_moderation">
+                                    Menunggu moderasi
+                                </option>
                                 <option value="published">Published</option>
                                 <option value="rejected">Ditolak</option>
                                 <option value="archived">Diarsipkan</option>
                             </select>
-                            <select v-model="filters.category" class="min-h-10 w-full rounded-lg border-slate-300 text-sm" aria-label="Filter kategori">
+                            <select
+                                v-model="filters.category"
+                                class="min-h-10 w-full rounded-lg border-slate-300 text-sm"
+                                aria-label="Filter kategori"
+                            >
                                 <option value="">Semua kategori</option>
-                                <option v-for="category in categories" :key="category.id" :value="String(category.id)">{{ category.name }}</option>
+                                <option
+                                    v-for="category in categories"
+                                    :key="category.id"
+                                    :value="String(category.id)"
+                                >
+                                    {{ category.name }}
+                                </option>
                             </select>
                             <div class="flex gap-2">
-                                <button type="submit" class="min-h-9 flex-1 rounded-lg bg-brand-primary px-3 text-xs font-bold text-white">Terapkan</button>
-                                <button type="button" class="min-h-9 rounded-lg border border-slate-300 px-3 text-xs font-bold text-slate-700" @click="clearFilters">Reset</button>
+                                <button
+                                    type="submit"
+                                    class="min-h-9 flex-1 rounded-lg bg-brand-primary px-3 text-xs font-bold text-white"
+                                >
+                                    Terapkan
+                                </button>
+                                <button
+                                    type="button"
+                                    class="min-h-9 rounded-lg border border-slate-300 px-3 text-xs font-bold text-slate-700"
+                                    @click="clearFilters"
+                                >
+                                    Reset
+                                </button>
                             </div>
                         </form>
                         <div
@@ -240,7 +302,9 @@ function archiveQuiz(): void {
                                 >{{ quizzes.length }}</span
                             >
                         </div>
-                        <div v-if="loadingQuizzes" class="p-2"><QuizListSkeleton :count="3" /></div>
+                        <div v-if="loadingQuizzes" class="p-2">
+                            <QuizListSkeleton :count="3" />
+                        </div>
                         <div v-else class="space-y-1 p-2">
                             <button
                                 v-for="quiz in quizzes"
@@ -282,7 +346,11 @@ function archiveQuiz(): void {
                     </section>
                 </aside>
 
-                <section v-if="selectedQuiz" class="min-w-0 space-y-5" :class="themeClass">
+                <section
+                    v-if="selectedQuiz"
+                    class="min-w-0 space-y-5"
+                    :class="themeClass"
+                >
                     <header
                         class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
                     >
@@ -326,15 +394,52 @@ function archiveQuiz(): void {
                         </div>
                     </header>
 
-                    <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                        <h2 class="font-extrabold text-slate-950">Co-creator</h2>
-                        <p class="mt-1 text-sm text-slate-500">Tambahkan creator organisasi untuk mengedit quiz ini.</p>
+                    <section
+                        class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+                    >
+                        <h2 class="font-extrabold text-slate-950">
+                            Co-creator
+                        </h2>
+                        <p class="mt-1 text-sm text-slate-500">
+                            Tambahkan creator organisasi untuk mengedit quiz
+                            ini.
+                        </p>
                         <div class="mt-4 flex flex-wrap gap-2">
-                            <select class="min-h-10 rounded-lg border-slate-300 text-sm" aria-label="Pilih co-creator" @change="addCollaborator(($event.target as HTMLSelectElement).value)">
+                            <select
+                                class="min-h-10 rounded-lg border-slate-300 text-sm"
+                                aria-label="Pilih co-creator"
+                                @change="
+                                    addCollaborator(
+                                        ($event.target as HTMLSelectElement)
+                                            .value,
+                                    )
+                                "
+                            >
                                 <option value="">Tambah co-creator</option>
-                                <option v-for="member in members.filter((item) => item.role === 'creator')" :key="member.id" :value="member.id">{{ member.name }}</option>
+                                <option
+                                    v-for="member in members.filter(
+                                        (item) => item.role === 'creator',
+                                    )"
+                                    :key="member.id"
+                                    :value="member.id"
+                                >
+                                    {{ member.name }}
+                                </option>
                             </select>
-                            <span v-for="collaborator in selectedQuiz.collaborators ?? []" :key="collaborator.id" class="rounded-full bg-brand-secondary px-3 py-2 text-xs font-bold">{{ collaborator.name }} <button type="button" class="ml-1" @click="removeCollaborator(collaborator.id)">×</button></span>
+                            <span
+                                v-for="collaborator in selectedQuiz.collaborators ??
+                                []"
+                                :key="collaborator.id"
+                                class="rounded-full bg-brand-secondary px-3 py-2 text-xs font-bold"
+                                >{{ collaborator.name }}
+                                <button
+                                    type="button"
+                                    class="ml-1"
+                                    @click="removeCollaborator(collaborator.id)"
+                                >
+                                    ×
+                                </button></span
+                            >
                         </div>
                     </section>
 
@@ -402,6 +507,16 @@ function archiveQuiz(): void {
                                     min="1"
                                     placeholder="Tanpa batas"
                             /></label>
+                            <label
+                                class="flex min-h-11 cursor-pointer items-center gap-3 self-end rounded-lg border border-slate-200 px-4 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50"
+                            >
+                                <input
+                                    v-model="metadata.allow_retry"
+                                    type="checkbox"
+                                    class="h-5 w-5 rounded border-slate-300 text-brand-secondary focus:ring-brand-secondary"
+                                />
+                                Izinkan peserta mengulang kuis
+                            </label>
                             <label class="text-sm font-bold text-slate-800"
                                 >Deadline<input
                                     v-model="metadata.deadline_at"

@@ -1,5 +1,6 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import Modal from '@/Components/Modal.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { useEchoPublic } from '@laravel/echo-vue';
 import QRCode from 'qrcode';
@@ -43,8 +44,11 @@ useEchoPublic<LiveState>(
         answer.reset();
     },
 );
-const selectedOptionIndex = computed(() =>
-    state.value.question?.options?.findIndex((option) => option === answer.answer) ?? -1,
+const selectedOptionIndex = computed(
+    () =>
+        state.value.question?.options?.findIndex(
+            (option) => option === answer.answer,
+        ) ?? -1,
 );
 
 const secondsLeft = computed(() => {
@@ -85,8 +89,23 @@ function handleShortcut(event: KeyboardEvent): void {
         choose(answer.answer);
     }
 }
+const hostActionProcessing = ref(false);
+const showEndConfirm = ref(false);
+
+function confirmEndSession(): void {
+    showEndConfirm.value = false;
+    hostAction('end');
+}
+
 function hostAction(name: 'lock' | 'start' | 'next' | 'end'): void {
-    useForm({}).post(route(`live-sessions.${name}`, state.value.id));
+    if (hostActionProcessing.value) return;
+    hostActionProcessing.value = true;
+    useForm({}).post(route(`live-sessions.${name}`, state.value.id), {
+        preserveScroll: true,
+        onFinish: () => {
+            hostActionProcessing.value = false;
+        },
+    });
 }
 
 const hostJoinUrl =
@@ -229,7 +248,7 @@ async function loadQr(): Promise<void> {
                     <button
                         v-if="state.status === 'lobby'"
                         type="button"
-                        class="min-h-11 rounded-lg bg-[#3451b5] px-5 text-sm font-bold text-white transition hover:bg-[#29439d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3451b5]"
+                        class="min-h-11 rounded-lg bg-brand-primary px-5 text-sm font-bold text-white transition hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
                         @click="hostAction('start')"
                     >
                         Mulai kuis
@@ -237,7 +256,7 @@ async function loadQr(): Promise<void> {
                     <button
                         v-if="state.status === 'live'"
                         type="button"
-                        class="min-h-11 rounded-lg bg-[#3451b5] px-5 text-sm font-bold text-white transition hover:bg-[#29439d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3451b5]"
+                        class="min-h-11 rounded-lg bg-brand-primary px-5 text-sm font-bold text-white transition hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
                         @click="hostAction('next')"
                     >
                         Soal berikutnya
@@ -245,7 +264,7 @@ async function loadQr(): Promise<void> {
                     <button
                         type="button"
                         class="min-h-11 rounded-lg px-3 text-sm font-bold text-red-700 transition hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-                        @click="hostAction('end')"
+                        @click="showEndConfirm = true"
                     >
                         Akhiri sesi
                     </button>
@@ -409,7 +428,42 @@ async function loadQr(): Promise<void> {
                 </div>
             </div>
         </dialog>
-    </AuthenticatedLayout>
+    
+    <!-- Host End Session Confirmation Modal -->
+    <Modal :show="showEndConfirm" title="Akhiri Sesi Live Quiz" @close="showEndConfirm = false">
+        <div class="p-6">
+            <div class="flex items-center gap-3">
+                <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 text-red-600">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </span>
+                <div>
+                    <h3 class="text-lg font-black text-slate-900">Konfirmasi Akhiri Sesi</h3>
+                    <p class="text-sm text-slate-500">Semua peserta akan diarahkan ke layar panggung podium hasil akhir.</p>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <button
+                    type="button"
+                    class="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                    @click="showEndConfirm = false"
+                >
+                    Batal
+                </button>
+                <button
+                    type="button"
+                    class="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-black text-white hover:bg-red-700"
+                    :disabled="hostActionProcessing"
+                    @click="confirmEndSession"
+                >
+                    Ya, Akhiri Sesi Sekarang
+                </button>
+            </div>
+        </div>
+    </Modal>
+
+</AuthenticatedLayout>
     <main v-else class="min-h-screen bg-[#f4fbfa] px-4 py-8">
         <div class="mx-auto max-w-xl">
             <Link href="/join" class="text-sm font-extrabold text-[#527A12]"
@@ -548,3 +602,4 @@ async function loadQr(): Promise<void> {
     }
 }
 </style>
+

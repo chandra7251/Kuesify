@@ -98,135 +98,69 @@ const submit = () => {
         </div>
 
         <form class="mt-7 space-y-6" @submit.prevent="submit">
-            <fieldset ref="roleMenu" aria-describedby="role-help">
-                <legend class="text-sm font-semibold text-slate-900">
-                    Saya bergabung sebagai
-                </legend>
+            
+            <fieldset aria-describedby="role-help">
+                <div class="flex items-center justify-between">
+                    <legend class="text-sm font-black text-slate-900">
+                        Pilih Peran Utama Kamu
+                    </legend>
+                    <span class="rounded-full bg-brand-accent px-2.5 py-0.5 text-[11px] font-extrabold text-brand-primary">
+                        Dapat diubah nanti
+                    </span>
+                </div>
                 <p id="role-help" class="mt-1 text-xs leading-5 text-slate-500">
-                    Peran bisa diubah oleh admin workspace setelah bergabung.
+                    Pilih bagaimana kamu akan menggunakan Kuesify untuk pengalaman terbaik.
                 </p>
-                <div class="relative mt-3">
-                    <button
-                        type="button"
-                        class="flex min-h-14 w-full items-center gap-3 rounded-xl border border-brand-secondary bg-brand-secondary/10 px-3 text-left transition hover:bg-brand-secondary/10 focus:outline-none focus:ring-2 focus:ring-brand-secondary focus:ring-offset-2"
-                        aria-haspopup="listbox"
-                        :aria-expanded="roleMenuOpen"
-                        @click.stop="roleMenuOpen = !roleMenuOpen"
-                    >
-                        <span
-                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-primary text-brand-secondary"
-                        >
-                            <svg
-                                class="h-5 w-5"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                stroke-width="1.8"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    :d="selectedRole.icon"
-                                />
-                            </svg>
-                        </span>
-                        <span class="min-w-0 flex-1">
-                            <span
-                                class="block text-sm font-bold text-slate-900"
-                            >
-                                {{ selectedRole.title }}
-                            </span>
-                            <span
-                                class="mt-0.5 block truncate text-xs text-slate-600"
-                            >
-                                {{ selectedRole.description }}
-                            </span>
-                        </span>
-                        <svg
-                            class="h-5 w-5 shrink-0 text-brand-primary transition"
-                            :class="{ 'rotate-180': roleMenuOpen }"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                            aria-hidden="true"
-                        >
-                            <path
-                                fill-rule="evenodd"
-                                d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z"
-                                clip-rule="evenodd"
-                            />
-                        </svg>
-                    </button>
 
-                    <div
-                        v-if="roleMenuOpen"
-                        class="absolute inset-x-0 top-full z-20 mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white p-1 shadow-xl shadow-slate-300/40"
-                        role="listbox"
-                        aria-label="Pilih peran"
+                <!-- Responsive Interactive Role Cards -->
+                <div class="mt-3 grid gap-3 sm:grid-cols-3">
+                    <button
+                        v-for="role in roles"
+                        :key="role.value"
+                        type="button"
+                        class="group relative flex flex-col justify-between rounded-2xl border-2 p-3.5 text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-secondary focus:ring-offset-2"
+                        :class="[
+                            form.role === role.value
+                                ? 'border-brand-primary bg-brand-accent/50 shadow-md shadow-brand-primary/10 -translate-y-0.5'
+                                : 'border-slate-200 bg-white hover:border-brand-primary/40 hover:bg-slate-50'
+                        ]"
+                        @click="form.role = role.value"
                     >
-                        <button
-                            v-for="role in roles"
-                            :key="role.value"
-                            type="button"
-                            class="group flex min-h-14 w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition hover:bg-brand-secondary/10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-secondary"
-                            :class="{
-                                'bg-brand-secondary/15 ring-1 ring-brand-secondary/30':
-                                    form.role === role.value,
-                            }"
-                            role="option"
-                            :aria-selected="form.role === role.value"
-                            @click="selectRole(role.value)"
+                        <!-- Active checkmark badge -->
+                        <div
+                            v-if="form.role === role.value"
+                            class="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-brand-primary text-white shadow-sm ring-2 ring-white"
                         >
+                            <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+
+                        <div>
                             <span
-                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 group-hover:bg-brand-secondary/15 group-hover:text-brand-primary"
-                                :class="{
-                                    'bg-brand-primary text-brand-secondary':
-                                        form.role === role.value,
-                                }"
+                                class="inline-flex h-9 w-9 items-center justify-center rounded-xl transition"
+                                :class="[
+                                    form.role === role.value
+                                        ? 'bg-brand-primary text-brand-secondary'
+                                        : 'bg-slate-100 text-slate-600 group-hover:bg-brand-accent group-hover:text-brand-primary'
+                                ]"
                             >
-                                <svg
-                                    class="h-4 w-4"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="1.8"
-                                    aria-hidden="true"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        :d="role.icon"
-                                    />
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" :d="role.icon" />
                                 </svg>
                             </span>
-                            <span class="min-w-0 flex-1">
-                                <span
-                                    class="block text-sm font-bold text-slate-900"
-                                    >{{ role.title }}</span
-                                >
-                                <span
-                                    class="block truncate text-xs text-slate-600"
-                                    >{{ role.description }}</span
-                                >
-                            </span>
-                            <svg
-                                v-if="form.role === role.value"
-                                class="h-5 w-5 shrink-0 text-brand-secondary"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    fill-rule="evenodd"
-                                    d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.86-9.86a.75.75 0 0 0-1.06-1.06L9 10.88 7.2 9.08a.75.75 0 0 0-1.06 1.06l2.33 2.33a.75.75 0 0 0 1.06 0l4.33-4.33Z"
-                                    clip-rule="evenodd"
-                                />
-                            </svg>
-                        </button>
-                    </div>
+                            <p class="mt-2.5 text-xs font-black text-slate-900 sm:text-sm">
+                                {{ role.title }}
+                            </p>
+                        </div>
+                        <p class="mt-1 text-[11px] leading-relaxed text-slate-500">
+                            {{ role.description }}
+                        </p>
+                    </button>
                 </div>
                 <InputError class="mt-2" :message="form.errors.role" />
             </fieldset>
+
 
             <div class="border-t border-slate-100 pt-5">
                 <p class="text-sm font-bold text-slate-900">Informasi akun</p>

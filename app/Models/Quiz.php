@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Support\TenantContext;
+use App\Models\Organization;
 use DomainException;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -10,12 +11,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-#[Fillable(['organization_id', 'creator_id', 'category_id', 'title', 'description', 'status', 'visibility', 'cover_image', 'deadline_at', 'max_attempts', 'show_explanations', 'settings'])]
+#[Fillable(['organization_id', 'creator_id', 'category_id', 'title', 'description', 'status', 'visibility', 'cover_image', 'deadline_at', 'max_attempts', 'allow_retry', 'show_explanations', 'settings'])]
 class Quiz extends Model
 {
     protected function casts(): array
     {
-        return ['settings' => 'array', 'deadline_at' => 'datetime', 'show_explanations' => 'boolean'];
+        return ['settings' => 'array', 'deadline_at' => 'datetime', 'allow_retry' => 'boolean', 'show_explanations' => 'boolean'];
     }
 
     protected static function booted(): void
@@ -29,6 +30,10 @@ class Quiz extends Model
         });
     }
 
+public function organization(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class);
+    }
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'creator_id');

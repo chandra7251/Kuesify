@@ -31,19 +31,26 @@ withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
                 <span
                     class="grid h-11 w-11 place-items-center rounded-2xl bg-white shadow-sm"
                 >
-                    <ApplicationLogo class="h-7 w-7 text-brand-secondary" />
+                    <ApplicationLogo class="h-8 w-8 text-brand-secondary" />
                 </span>
                 <span class="text-xl font-extrabold tracking-tight"
                     >Kuesify</span
                 >
             </Link>
 
-            <div class="relative my-auto max-w-xl py-16">
-                <p
-                    class="mb-5 inline-flex rounded-full bg-brand-secondary px-3 py-1 text-sm font-extrabold text-[#102449]"
-                >
-                    Platform belajar interaktif
-                </p>
+            <div class="relative my-auto max-w-xl py-12">
+                <div class="mb-5 flex items-center gap-3">
+                    <img
+                        src="/assets/kuesify/characters/image-14.svg"
+                        alt="Maskot Kuesify"
+                        class="h-16 w-16 object-contain animate-float-gentle filter drop-shadow-md"
+                    />
+                    <p
+                        class="inline-flex rounded-full bg-brand-secondary px-3.5 py-1 text-sm font-extrabold text-brand-dark shadow-sm"
+                    >
+                        Platform belajar interaktif ✨
+                    </p>
+                </div>
                 <h2
                     class="max-w-xl text-4xl font-black leading-tight tracking-tight xl:text-5xl"
                 >
@@ -86,7 +93,7 @@ withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
                 class="absolute left-4 top-5 z-10 inline-flex items-center gap-1 sm:left-8 sm:top-10 lg:hidden"
             >
                 <span class="grid h-10 w-10 place-items-center">
-                    <ApplicationLogo class="h-6 w-6 text-brand-secondary" />
+                    <ApplicationLogo class="h-7 w-7 text-brand-secondary" />
                 </span>
                 <span
                     class="text-lg font-extrabold tracking-tight text-brand-secondary"
@@ -107,7 +114,7 @@ withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
                 :class="[contentClass, !compact ? 'pt-16 sm:pt-20' : '']"
             >
                 <div
-                    class="rounded-[1.75rem] border border-white/70 bg-white p-5 shadow-figma sm:rounded-[2rem] sm:p-9"
+                    class="rounded-[1.75rem] border border-white/70 bg-white p-5 shadow-figma sm:rounded-[2rem] sm:p-9 ui-reveal hover-lift"
                 >
                     <slot />
                 </div>
@@ -132,3 +139,4 @@ withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
     display: none;
 }
 </style>
+
