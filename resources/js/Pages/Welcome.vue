@@ -9,6 +9,7 @@ const answer = ref<string | null>(null);
 const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
 const featureIndex = ref(0);
 const roleIndex = ref(2);
+const mobileMenuOpen = ref(false);
 const roleDetails = [
     {
         label: 'RUANG BELAJAR PERSONAL',
@@ -58,8 +59,111 @@ const scrollFeatures = (direction: number) => {
 <template>
     <Head title="Kuesify — Belajar jadi hidup" />
     <main class="bg-brand-accent text-brand-primary">
+        <div
+            class="fixed inset-x-0 top-0 z-[9999] bg-brand-primary px-3 py-3 shadow-lg sm:px-8 sm:py-4 lg:px-12"
+        >
+            <nav
+                class="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-4"
+                aria-label="Navigasi utama"
+            >
+                <Link
+                    href="/"
+                    class="flex items-center gap-2 rounded-xl text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-secondary"
+                >
+                    <ApplicationLogo
+                        class="h-9 w-9 text-brand-secondary sm:h-10 sm:w-10"
+                    />
+                    <span
+                        class="text-lg font-black tracking-tight text-brand-secondary sm:text-xl"
+                        >kuesify</span
+                    >
+                </Link>
+                <div
+                    class="hidden items-center gap-7 text-sm font-bold text-white/80 md:flex"
+                >
+                    <a href="#fitur" class="hover:text-brand-secondary">Fitur</a
+                    ><a href="#cara-kerja" class="hover:text-brand-secondary"
+                        >Cara kerja</a
+                    ><a href="#untuk-siapa" class="hover:text-brand-secondary"
+                        >Untuk siapa</a
+                    >
+                </div>
+                <div class="hidden items-center gap-2 sm:gap-4 md:flex">
+                    <Link
+                        v-if="canLogin"
+                        href="/login"
+                        class="inline-flex min-h-10 items-center justify-center rounded-xl bg-brand-primary px-3 py-2 text-xs font-extrabold leading-none text-white transition hover:bg-brand-hover sm:min-h-11 sm:px-4 sm:py-3 sm:text-sm"
+                        >Masuk</Link
+                    >
+                    <Link
+                        v-if="canRegister"
+                        href="/register"
+                        class="inline-flex min-h-10 items-center justify-center rounded-xl bg-brand-secondary px-3.5 py-2 text-xs font-extrabold leading-none text-brand-primary shadow-figma transition hover:-translate-y-0.5 active:translate-y-1 active:shadow-none sm:min-h-11 sm:px-5 sm:py-3 sm:text-sm"
+                        >Mulai gratis</Link
+                    >
+                </div>
+                <button
+                    type="button"
+                    class="grid h-10 w-10 place-items-center rounded-xl bg-brand-secondary text-brand-primary shadow-figma md:hidden"
+                    :aria-expanded="mobileMenuOpen"
+                    aria-label="Buka menu navigasi"
+                    @click="mobileMenuOpen = !mobileMenuOpen"
+                >
+                    <span class="sr-only">Menu</span>
+                    <span class="flex w-5 flex-col gap-1">
+                        <span
+                            class="h-0.5 w-full rounded-full bg-brand-primary"
+                        />
+                        <span
+                            class="h-0.5 w-full rounded-full bg-brand-primary"
+                        />
+                        <span
+                            class="h-0.5 w-full rounded-full bg-brand-primary"
+                        />
+                    </span>
+                </button>
+            </nav>
+            <div
+                v-if="mobileMenuOpen"
+                class="mt-3 grid gap-0 text-sm font-bold text-white md:hidden"
+            >
+                <a
+                    href="#fitur"
+                    class="border-b border-white/15 px-3 py-3 text-white hover:bg-white/10"
+                    @click="mobileMenuOpen = false"
+                    >Fitur</a
+                >
+                <a
+                    href="#cara-kerja"
+                    class="border-b border-white/15 px-3 py-3 text-white hover:bg-white/10"
+                    @click="mobileMenuOpen = false"
+                    >Cara kerja</a
+                >
+                <a
+                    href="#untuk-siapa"
+                    class="border-b border-white/15 px-3 py-3 text-white hover:bg-white/10"
+                    @click="mobileMenuOpen = false"
+                    >Untuk siapa</a
+                >
+                <div class="grid grid-cols-2 gap-2 border-0 pt-3">
+                    <Link
+                        v-if="canLogin"
+                        href="/login"
+                        class="rounded-xl bg-brand-primary px-3 py-3 text-center text-white ring-2 ring-white/20 hover:bg-brand-hover"
+                        >Masuk</Link
+                    >
+                    <Link
+                        v-if="canRegister"
+                        href="/register"
+                        class="rounded-xl bg-brand-secondary px-3 py-3 text-center font-extrabold text-brand-primary hover:bg-brand-lime"
+                        >Mulai gratis</Link
+                    >
+                </div>
+            </div>
+        </div>
+
         <section
-            class="relative isolate overflow-hidden px-5 pb-20 pt-5 sm:px-8 lg:px-12"
+            class="relative isolate min-h-0 overflow-hidden px-5 pb-20 pt-5 sm:px-8 lg:min-h-[42rem] lg:px-12"
         >
             <div
                 class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
@@ -76,57 +180,6 @@ const scrollFeatures = (direction: number) => {
                 <div
                     class="absolute left-1/4 top-20 h-72 w-72 rounded-full bg-brand-secondary/20 opacity-60 blur-3xl"
                 ></div>
-            </div>
-
-            <div
-                class="-mx-5 -mt-5 bg-brand-primary px-5 py-4 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12"
-            >
-                <nav
-                    class="mx-auto flex max-w-7xl items-center justify-between gap-4"
-                    aria-label="Navigasi utama"
-                >
-                    <Link
-                        href="/"
-                        class="flex items-center gap-2 rounded-xl text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-secondary"
-                    >
-                        <ApplicationLogo
-                            class="h-10 w-10 text-brand-secondary"
-                        />
-                        <span
-                            class="text-xl font-black tracking-tight text-brand-secondary"
-                            >kuesify</span
-                        >
-                    </Link>
-                    <div
-                        class="hidden items-center gap-7 text-sm font-bold text-white/80 md:flex"
-                    >
-                        <a href="#fitur" class="hover:text-brand-secondary"
-                            >Fitur</a
-                        ><a
-                            href="#cara-kerja"
-                            class="hover:text-brand-secondary"
-                            >Cara kerja</a
-                        ><a
-                            href="#untuk-siapa"
-                            class="hover:text-brand-secondary"
-                            >Untuk siapa</a
-                        >
-                    </div>
-                    <div class="flex items-center gap-2 sm:gap-4">
-                        <Link
-                            v-if="canLogin"
-                            href="/login"
-                            class="min-h-11 rounded-xl px-3 py-3 text-sm font-extrabold text-brand-secondary hover:bg-white/10 sm:px-4"
-                            >Masuk</Link
-                        >
-                        <Link
-                            v-if="canRegister"
-                            href="/register"
-                            class="min-h-11 rounded-xl bg-brand-secondary px-4 py-3 text-sm font-extrabold text-white shadow-figma transition hover:-translate-y-0.5 active:translate-y-1 active:shadow-none sm:px-5"
-                            >Mulai gratis</Link
-                        >
-                    </div>
-                </nav>
             </div>
 
             <div
@@ -219,7 +272,7 @@ const scrollFeatures = (direction: number) => {
 
         <section
             id="fitur"
-            class="lg:pt-30 relative overflow-hidden bg-brand-primary px-5 py-20 text-white sm:px-8 lg:px-12 lg:pb-20"
+            class="relative min-h-0 overflow-hidden bg-brand-primary px-5 py-20 text-white sm:px-8 lg:min-h-[42rem] lg:px-12 lg:py-24"
         >
             <div
                 class="pointer-events-none absolute -left-32 bottom-0 h-96 w-96 rounded-full bg-brand-secondary/10"
@@ -228,40 +281,39 @@ const scrollFeatures = (direction: number) => {
                 class="pointer-events-none absolute -right-32 top-10 h-80 w-80 rounded-full border border-white/10"
             />
 
-            <div
-                class="max-w-9xl gap-18 relative mx-auto my-auto grid translate-x-8 items-start md:grid-cols-[0.78fr_1.22fr] md:gap-16"
-            >
-                <div
-                    class="mx-120 relative order-2 flex w-full max-w-md translate-y-12 items-end justify-center md:order-1 md:justify-start lg:translate-y-24"
-                >
-                    <div
-                        class="pointer-events-none absolute bottom-8 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-brand-secondary/15 blur-3xl"
-                    />
-                    <img
-                        src="/images/study-character-female.png"
-                        alt="Siswa belajar menggunakan laptop"
-                        class="relative z-10 w-full object-contain object-bottom drop-shadow-[0_22px_26px_rgba(35,62,168,0.24)]"
-                    />
-                </div>
+            <div class="relative mx-auto my-auto max-w-7xl">
+                <!-- Desktop: grid 2 kolom (ilustrasi + teks), Mobile: stack -->
+                <div class="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12">
+                    <!-- Ilustrasi Kiri (Desktop), Atas (Mobile) -->
+                    <div class="flex items-center justify-center">
+                        <img
+                            src="/images/study-character-female.png"
+                            alt="Siswa belajar menggunakan laptop"
+                            class="w-full max-w-md object-contain object-center drop-shadow-[0_22px_26px_rgba(35,62,168,0.24)]"
+                        />
+                    </div>
 
-                <div class="order-1 min-w-0 md:order-2">
-                    <p
-                        class="text-xs font-black uppercase tracking-[0.18em] text-brand-lime"
-                    >
-                        Satu platform, tiga mode
-                    </p>
-                    <h2
-                        class="mt-4 max-w-2xl text-4xl font-black leading-[1.02] tracking-[-0.055em] sm:text-5xl"
-                    >
-                        Belajar aktif, dengan cara yang terasa pas.
-                    </h2>
-                    <p class="mt-5 max-w-xl text-base leading-7 text-white/70">
-                        Pilih pengalaman belajar yang sesuai dengan energi
-                        kelas, waktu peserta, dan materi yang sudah tersedia.
-                    </p>
+                    <!-- Konten Teks Kanan (Desktop), Bawah (Mobile) -->
+                    <div class="min-w-0">
+                        <p
+                            class="text-xs font-black uppercase tracking-[0.18em] text-brand-lime"
+                        >
+                            Satu platform, tiga mode
+                        </p>
+                        <h2
+                            class="mt-4 max-w-xl text-3xl font-black leading-[1.05] tracking-[-0.045em] sm:text-4xl lg:text-5xl lg:leading-[1.02] lg:tracking-[-0.055em]"
+                        >
+                            Belajar aktif, dengan cara yang terasa pas.
+                        </h2>
+                        <p class="mt-5 max-w-lg text-base leading-7 text-white/70">
+                            Pilih pengalaman belajar yang sesuai dengan energi
+                            kelas, waktu peserta, dan materi yang sudah tersedia.
+                        </p>
 
-                    <div
-                        class="relative mx-auto mt-9 h-[23rem] w-full max-w-[54rem]"
+                        <!-- Carousel Mode Cards -->
+                        <div class="mt-8 lg:mt-12">
+                            <div
+                                class="relative mx-auto h-[23rem] w-full max-w-[54rem]"
                     >
                         <button
                             v-if="featureIndex > 0"
@@ -392,14 +444,15 @@ const scrollFeatures = (direction: number) => {
                             ›
                         </button>
                     </div>
-                    <p class="mt-2 text-xs font-bold text-white/45"></p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
         <section
             id="cara-kerja"
-            class="relative overflow-hidden px-5 py-20 sm:px-8 lg:px-12 lg:py-24"
+            class="relative min-h-0 overflow-hidden px-5 py-20 sm:px-8 lg:min-h-[42rem] lg:px-12 lg:py-24"
         >
             <div
                 class="pointer-events-none absolute -right-24 top-10 h-96 w-96 rounded-full border border-brand-secondary/20"
@@ -418,6 +471,13 @@ const scrollFeatures = (direction: number) => {
                     >
                         Tidak perlu pindah-pindah aplikasi.
                     </h2>
+                    <div class="mt-6 flex justify-center lg:hidden">
+                        <img
+                            src="/images/study-character-male.png"
+                            alt="Siswa belajar menggunakan tablet"
+                            class="w-full max-w-[14rem] object-contain"
+                        />
+                    </div>
                     <p
                         class="mt-5 max-w-xl text-lg leading-8 text-brand-primary/70"
                     >
@@ -433,7 +493,7 @@ const scrollFeatures = (direction: number) => {
                                     'Ikuti kuis live, kerjakan latihan mandiri, dan lihat progres belajar.',
                                 ],
                                 [
-                                    'M4 6h16M12 6v11M8 20l4-4 4 4M7 20h10',
+                                    'M4 20h4L19 9l-4-4L4 16v4ZM14.5 6.5l3 3',
                                     'Guru/Pengajar',
                                     'Buat soal, jalankan sesi live, bagikan latihan, dan beri feedback.',
                                 ],
@@ -472,7 +532,7 @@ const scrollFeatures = (direction: number) => {
                     </ol>
                 </div>
                 <div
-                    class="relative flex items-center justify-center lg:justify-end"
+                    class="relative hidden items-center justify-center lg:flex lg:justify-end"
                 >
                     <div
                         class="pointer-events-none absolute bottom-8 right-8 h-72 w-72 rounded-full bg-brand-secondary/10 blur-3xl sm:h-96 sm:w-96"
@@ -488,8 +548,23 @@ const scrollFeatures = (direction: number) => {
 
         <section
             id="peran"
-            class="relative bg-brand-primary px-5 py-20 text-white sm:px-8 lg:px-12 lg:py-24"
+            class="relative min-h-0 bg-brand-primary px-5 py-20 text-white sm:px-8 lg:min-h-[32rem] lg:px-12 lg:py-24"
         >
+            <div
+                class="pointer-events-none absolute left-[-12rem] top-1/3 h-[30rem] w-[30rem] rounded-full border border-brand-secondary/15"
+            />
+            <div
+                class="pointer-events-none absolute right-[-10rem] top-[-8rem] h-[28rem] w-[28rem] rounded-full bg-brand-secondary/10 blur-3xl"
+            />
+            <div
+                class="pointer-events-none absolute left-1/3 top-24 h-40 w-40 rounded-full border border-white/10"
+            />
+            <div
+                class="pointer-events-none absolute bottom-[-10rem] right-1/4 h-[26rem] w-[26rem] rounded-full bg-white/5 blur-3xl"
+            />
+            <div
+                class="pointer-events-none absolute bottom-20 left-1/2 h-24 w-24 rounded-full border border-brand-secondary/20"
+            />
             <div
                 class="pointer-events-none absolute -left-40 bottom-0 h-96 w-96 rounded-full bg-white/5"
             />
@@ -509,7 +584,7 @@ const scrollFeatures = (direction: number) => {
                         Semua punya ruang untuk menjalankan perannya.
                     </h2>
                     <div
-                        class="mt-8 grid rounded-2xl border border-white/20 bg-white/10 p-1 sm:grid-cols-3"
+                        class="mt-8 grid grid-cols-3 rounded-2xl border border-white/20 bg-white/10 p-1"
                     >
                         <button
                             v-for="(role, index) in [
@@ -519,7 +594,7 @@ const scrollFeatures = (direction: number) => {
                             ]"
                             :key="role"
                             type="button"
-                            class="rounded-xl px-4 py-3 text-sm font-black transition sm:text-base"
+                            class="min-w-0 whitespace-normal rounded-xl px-1 py-3 text-[11px] font-black leading-tight transition sm:px-4 sm:text-base"
                             :class="
                                 roleIndex === index
                                     ? 'bg-brand-lime text-brand-primary'
@@ -532,9 +607,9 @@ const scrollFeatures = (direction: number) => {
                     </div>
                 </div>
                 <div
-                    class="mt-16 grid items-center gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-12"
+                    class="mt-0 grid items-center gap-3 lg:mt-16 lg:grid-cols-[0.8fr_1.2fr] lg:gap-12"
                 >
-                    <div class="max-w-xl lg:-translate-x-8">
+                    <div class="order-2 max-w-xl lg:order-1 lg:-translate-x-8">
                         <p
                             class="text-xs font-black uppercase tracking-[0.18em] text-brand-lime"
                         >
@@ -563,7 +638,7 @@ const scrollFeatures = (direction: number) => {
                         </ul>
                     </div>
                     <div
-                        class="relative flex min-h-[26rem] items-end justify-center lg:min-h-[36rem]"
+                        class="relative order-1 flex min-h-[19rem] items-center justify-center sm:min-h-[30rem] lg:order-2 lg:min-h-[36rem]"
                     >
                         <div
                             class="pointer-events-none absolute inset-8 rounded-[3rem] bg-white/10 blur-3xl"
@@ -571,41 +646,73 @@ const scrollFeatures = (direction: number) => {
                         <img
                             src="/images/role-laptop-mockup.png"
                             alt="Laptop workspace Kuesify"
-                            class="relative right-[1%] z-10 w-[44rem] -translate-y-8 object-contain drop-shadow-[0_24px_30px_rgba(12,27,92,0.28)]"
+                            class="relative right-0 z-10 w-[20rem] object-contain drop-shadow-[0_24px_30px_rgba(12,27,92,0.28)] sm:w-[38rem] sm:-translate-y-8 lg:right-[1%] lg:w-[44rem]"
                         />
                         <img
                             v-if="roleIndex === 0 || roleIndex === 2"
                             src="/images/role-character-female.png"
                             alt="Guru berdiri di samping workspace"
-                            class="absolute bottom-0 left-[-9%] z-30 w-[13rem] -translate-y-20 object-contain"
+                            class="absolute bottom-0 left-[-6%] z-30 w-[6rem] -translate-y-8 object-contain sm:left-0 sm:-translate-y-16 lg:left-[-9%] lg:w-[13rem] lg:-translate-y-20"
                         />
                         <img
                             v-if="roleIndex === 1 || roleIndex === 2"
                             src="/images/role-character-male.png"
                             alt="Pengajar berdiri di samping workspace"
-                            class="absolute bottom-0 right-[-9%] z-20 w-[14rem] -translate-y-20 object-contain"
+                            class="absolute bottom-0 right-[-6%] z-20 w-[7rem] -translate-y-8 object-contain sm:right-0 sm:w-[11rem] sm:-translate-y-16 lg:right-[-9%] lg:w-[14rem] lg:-translate-y-20"
+                        />
+                        <div
+                            class="pointer-events-none absolute right-[-2rem] top-[4rem] z-0 h-48 w-48 rounded-full bg-brand-secondary/25"
                         />
                     </div>
                 </div>
             </div>
         </section>
-        <section id="untuk-siapa" class="px-5 pb-20 sm:px-8 lg:px-12">
+        <section
+            id="untuk-siapa"
+            class="relative isolate z-20 -mt-12 min-h-0 overflow-hidden bg-white px-5 py-20 sm:px-8 lg:min-h-[48rem] lg:px-12 lg:py-24"
+        >
             <div
-                class="mx-auto grid max-w-7xl items-center gap-10 overflow-hidden rounded-[2rem] bg-brand-secondary/10 p-8 sm:p-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 lg:p-14"
+                class="pointer-events-none absolute -left-48 top-[-12rem] h-[34rem] w-[34rem] rounded-full bg-brand-secondary/15"
+            />
+            <div
+                class="pointer-events-none absolute right-[-14rem] top-[-10rem] h-[30rem] w-[30rem] rounded-full border border-brand-secondary/20"
+            />
+            <div
+                class="pointer-events-none absolute bottom-10 right-1/3 h-32 w-32 rounded-full border border-brand-secondary/25"
+            />
+            <div
+                class="pointer-events-none absolute left-[8%] top-[18%] h-24 w-24 rounded-full border border-brand-primary/15"
+            />
+            <div
+                class="pointer-events-none absolute bottom-[15%] right-[8%] h-20 w-20 rounded-full bg-brand-secondary/10"
+            />
+            <div
+                class="pointer-events-none absolute left-[22%] top-[20%] h-24 w-24 rounded-full border border-brand-primary/15"
+            />
+            <div
+                class="relative mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16"
             >
                 <div
-                    class="relative flex min-h-[18rem] items-end justify-center lg:min-h-[24rem]"
+                    class="pointer-events-none absolute -left-32 top-0 h-96 w-96 rounded-full border border-brand-secondary/20"
+                />
+                <div
+                    class="pointer-events-none absolute right-1/3 top-10 h-40 w-40 rounded-full border border-brand-secondary/15"
+                />
+                <div
+                    class="pointer-events-none absolute left-1/2 top-1/2 h-32 w-32 rounded-full border border-brand-secondary/10"
+                />
+                <div
+                    class="relative flex min-h-[20rem] w-full translate-y-6 items-center justify-center lg:min-h-[34rem] lg:translate-y-10"
                 >
-                    <div
-                        class="pointer-events-none absolute bottom-0 h-64 w-64 rounded-full bg-brand-secondary/15 blur-3xl"
-                    />
                     <img
                         src="/images/role-section-characters.png"
                         alt="Siswa dan guru menggunakan Kuesify bersama"
-                        class="relative z-10 max-h-[24rem] w-full object-contain drop-shadow-[0_20px_24px_rgba(49,62,168,0.16)]"
+                        class="relative z-10 block w-full max-w-[30rem] -translate-x-6 object-contain lg:-translate-x-12"
                     />
                 </div>
-                <div>
+                <div
+                    class="max-w-2xl translate-y-6 border-l-4 border-brand-secondary pl-6 lg:translate-y-10 lg:pl-8"
+                >
                     <p
                         class="text-xs font-black uppercase tracking-[0.18em] text-brand-primary"
                     >
@@ -626,12 +733,12 @@ const scrollFeatures = (direction: number) => {
                         <Link
                             v-if="canRegister"
                             href="/register"
-                            class="min-h-13 rounded-2xl bg-brand-primary px-6 py-4 text-sm font-black text-white shadow-figma"
+                            class="min-h-13 rounded-2xl bg-brand-secondary px-6 py-4 text-sm font-black text-white shadow-figma"
                             >Buat akun gratis</Link
                         >
                         <Link
                             href="/join"
-                            class="min-h-13 rounded-2xl border-2 border-brand-primary/35 bg-white px-6 py-4 text-sm font-black text-brand-primary"
+                            class="min-h-13 rounded-2xl bg-brand-primary px-6 py-4 text-sm font-black text-white shadow-figma"
                             >Punya PIN? Masuk</Link
                         >
                     </div>
