@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
@@ -287,7 +287,7 @@ const scrollFeatures = (direction: number) => {
                     class="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12"
                 >
                     <!-- Ilustrasi Kiri (Desktop), Atas (Mobile) -->
-                    <div class="flex items-center justify-center">
+                    <div class="hidden items-center justify-center lg:flex">
                         <img
                             src="/images/study-character-female.png"
                             alt="Siswa belajar menggunakan laptop"
@@ -307,6 +307,12 @@ const scrollFeatures = (direction: number) => {
                         >
                             Belajar aktif, dengan cara yang terasa pas.
                         </h2>
+                        <!-- Ilustrasi Mobile (hidden di desktop) -->
+                        <img
+                            src="/images/study-character-female.png"
+                            alt="Siswa belajar menggunakan laptop"
+                            class="mx-auto mt-6 w-48 object-contain object-center drop-shadow-[0_22px_26px_rgba(35,62,168,0.24)] lg:hidden"
+                        />
                         <p
                             class="mt-5 max-w-lg text-base leading-7 text-white/70"
                         >
