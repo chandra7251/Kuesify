@@ -44,6 +44,17 @@ it('opens study flashcards only after a published quiz deadline passes', functio
 
     $quiz->update(['deadline_at' => now()->subMinute()]);
 
+    $this->getJson(route('quizzes.study', $quiz))->assertForbidden();
+    QuizAttempt::create([
+        'organization_id' => $organization->id,
+        'quiz_id' => $quiz->id,
+        'participant_id' => $participant->id,
+        'status' => 'completed',
+        'score' => 100,
+        'started_at' => now()->subMinutes(10),
+        'completed_at' => now()->subMinute(),
+    ]);
+
     $this->getJson(route('quizzes.study', $quiz))
         ->assertOk()
         ->assertJsonPath('quiz.flashcards.0.answer', 'Jakarta')

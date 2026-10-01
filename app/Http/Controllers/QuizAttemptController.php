@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -28,6 +29,15 @@ class QuizAttemptController extends Controller
     {
         $quiz = Quiz::with('questions')->where('status', 'published')->findOrFail($quiz);
         abort_unless($quiz->deadline_at?->isPast(), 403);
+        $organizationId = session('organization_id');
+        $role = $organizationId ? $request->user()->organizations()->whereKey($organizationId)->value('organization_user.role') : null;
+        abort_unless($role === 'participant', 403);
+        abort_unless(QuizAttempt::withoutGlobalScopes()
+            ->where('organization_id', $organizationId)
+            ->where('quiz_id', $quiz->id)
+            ->where('participant_id', $request->user()->id)
+            ->where('status', 'completed')
+            ->exists(), 403);
 
         $payload = [
             'id' => $quiz->id,
@@ -57,11 +67,52 @@ class QuizAttemptController extends Controller
         );
         abort_unless($attempt->participant_id === $request->user()->id, 403);
 
+        $attemptsUsed = QuizAttempt::withoutGlobalScopes()
+            ->where('quiz_id', $attempt->quiz_id)
+            ->where('participant_id', $attempt->participant_id)
+            ->count();
+        $completedAttempts = QuizAttempt::withoutGlobalScopes()
+            ->where('quiz_id', $attempt->quiz_id)
+            ->where('participant_id', $attempt->participant_id)
+            ->where('status', 'completed');
+        $maxAttempts = $attempt->quiz->max_attempts;
+        $totalPoints = (int) $attempt->quiz->questions()->sum('points');
+        $correctAnswers = $attempt->answers->where('is_correct', true)->count();
+        $incorrectAnswers = $attempt->answers->where('is_correct', false)->count();
+        $answeredCount = $attempt->answers->count();
+        $unansweredCount = max(0, $attempt->quiz->questions->count() - $answeredCount);
+        $percentage = $totalPoints > 0 && $attempt->score !== null ? round(($attempt->score / $totalPoints) * 100, 1) : null;
+        $xpEvent = DB::table('xp_events')->where('quiz_attempt_id', $attempt->id)->first(['amount', 'level_before', 'level_after']);
+        $xpEarned = (int) ($xpEvent?->amount ?? 0);
+        $earnedBadges = DB::table('badge_awards')
+            ->join('badges', 'badge_awards.badge_id', '=', 'badges.id')
+            ->where('badge_awards.quiz_attempt_id', $attempt->id)
+            ->orderBy('badge_awards.created_at')
+            ->get(['badges.key', 'badges.name']);
+
         return Inertia::render('AttemptPlay', [
             'attempt' => [
                 'id' => $attempt->id,
                 'status' => $attempt->status,
                 'score' => $attempt->score,
+                'attempts_used' => $attemptsUsed,
+                'attempts_remaining' => $maxAttempts === null ? null : max(0, $maxAttempts - $attemptsUsed),
+                'retry_allowed' => $attempt->quiz->allow_retry && ($maxAttempts === null || $attemptsUsed < $maxAttempts),
+                'latest_score' => $completedAttempts->clone()->latest('id')->value('score'),
+                'best_score' => $completedAttempts->max('score'),
+                'result' => [
+                    'total_points' => $totalPoints,
+                    'percentage' => $percentage,
+                    'correct_answers' => $attempt->status === 'in_progress' ? null : $correctAnswers,
+                    'incorrect_answers' => $attempt->status === 'in_progress' ? null : $incorrectAnswers,
+                    'unanswered_answers' => $attempt->status === 'in_progress' ? null : $unansweredCount,
+                    'answered_answers' => $attempt->status === 'in_progress' ? null : $answeredCount,
+                    'xp_earned' => $xpEarned,
+                    'level_before' => $xpEvent?->level_before,
+                    'level_after' => $xpEvent?->level_after,
+                    'level_up' => $xpEvent?->level_before !== null && $xpEvent?->level_after > $xpEvent?->level_before,
+                    'earned_badges' => $earnedBadges->map(fn ($badge) => ['key' => $badge->key, 'name' => $badge->name])->values(),
+                ],
                 'quiz' => [
                     'id' => $attempt->quiz->id,
                     'title' => $attempt->quiz->title,
@@ -80,9 +131,9 @@ class QuizAttemptController extends Controller
                     'id' => $answer->id,
                     'question_id' => $answer->question_id,
                     'answer' => $answer->answer,
-                    'is_correct' => $answer->is_correct,
-                    'points_awarded' => $answer->points_awarded,
-                    'feedback' => $answer->feedback,
+                    'is_correct' => $attempt->status === 'in_progress' ? null : $answer->is_correct,
+                    'points_awarded' => $attempt->status === 'in_progress' ? null : $answer->points_awarded,
+                    'feedback' => $attempt->status === 'in_progress' ? null : $answer->feedback,
                 ]),
             ],
         ]);

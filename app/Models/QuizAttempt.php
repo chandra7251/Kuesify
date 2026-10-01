@@ -21,7 +21,13 @@ class QuizAttempt extends Model
             throw new DomainException('The homework deadline has passed.');
         }
 
-        if ($quiz->max_attempts !== null && static::where('quiz_id', $quiz->id)->where('participant_id', $participant->id)->count() >= $quiz->max_attempts) {
+        $attempts = static::where('quiz_id', $quiz->id)->where('participant_id', $participant->id)->count();
+
+        if (! $quiz->allow_retry && $attempts > 0) {
+            throw new DomainException('Retry is disabled for this quiz.');
+        }
+
+        if ($quiz->max_attempts !== null && $attempts >= $quiz->max_attempts) {
             throw new DomainException('Maximum attempts reached.');
         }
 

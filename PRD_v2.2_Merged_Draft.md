@@ -76,11 +76,13 @@ Tema lomba: **Website harus mempermudah akses pendidikan dan mendukung proses be
 6. Super admin dashboard: metrik global, 7-day trend, distribusi role, top organisasi.
 7. Export dan governance konten: toggle CSV/XLSX, moderation queue public quiz, notification center.
 8. UX polish: skeleton loading, empty states, toast notifications, keyboard shortcuts Live Quiz.
-9. Code quality: TypeScript strict, dashboard branching tests, lint/build hijau, error boundary.
+9. UX belajar materi: progressive disclosure alat belajar, feedback status aksi, dan safe public publishing.
+10. Code quality: TypeScript strict, dashboard branching tests, lint/build hijau, error boundary.
 
 ### Kandidat Inovasi Lanjutan
 
 - **Study Mode:** Flashcard view setelah deadline untuk review jawaban.
+- **Study Mode Guard:** Flashcard hanya terbuka untuk participant yang sudah menyelesaikan attempt setelah deadline.
 - **Student Progress Dashboard:** Visualisasi progress belajar per kategori/subject.
 - **Teacher Insights:** Retention, weak topics, average time per question.
 - **Multilingual Toggle:** Quick switch Bahasa/English untuk istilah UI utama.
@@ -129,7 +131,7 @@ Status 27 Sep 2026: kandidat di atas sudah ditarik masuk sprint kompetisi dan te
 - Join live quiz via PIN/QR.
 - Mengerjakan self-paced quiz.
 - Melihat hasil, pembahasan, XP, level, streak, badge.
-- Mengakses materi publik organisasi sesuai tenant.
+- Mengakses katalog kuis dan materi belajar read-only dari organisasi sendiri atau materi publik lintas organisasi.
 - Membutuhkan dashboard belajar yang fokus ke progress, rekomendasi, dan kuis tersedia.
 
 ### Guru / Trainer / Creator
@@ -204,18 +206,25 @@ Status 27 Sep 2026: kandidat di atas sudah ditarik masuk sprint kompetisi dan te
 
 ### FR-07 Self-Paced / Homework
 
-- Participant dapat mengerjakan quiz mandiri dengan deadline dan max attempts.
+- Participant dapat mengerjakan quiz mandiri dengan deadline, `max_attempts`, dan kebijakan `allow_retry`.
+- `allow_retry` menentukan apakah participant boleh membuat attempt baru setelah attempt sebelumnya selesai; deadline, akses tenant, status quiz, dan `max_attempts` tetap wajib dipenuhi.
 - Sistem menampilkan review jawaban, skor, status benar/salah, dan pembahasan.
+- Katalog quiz menampilkan status belum dikerjakan, sedang dikerjakan, selesai, pending review, retry tersedia, atau attempt habis.
+- Halaman hasil menampilkan skor terbaru, skor terbaik, persentase, jumlah jawaban benar/salah, attempt terpakai, attempt tersisa, XP yang didapat, serta aksi lanjutan.
 - Creator dapat manual grading essay.
 - Gradebook dapat export CSV.
 
 ### FR-08 Gamification
 
 - XP bertambah setelah attempt selesai.
-- Level dihitung dari threshold XP.
+- Level memakai threshold kumulatif progresif: kenaikan dari level `n` ke `n + 1` membutuhkan `n * 1000 XP`; level 1 dimulai dari 0 XP, level 2 dari 1.000 XP, level 3 dari 3.000 XP, level 4 dari 6.000 XP, dan seterusnya.
 - Daily streak dihitung dari aktivitas belajar.
-- Minimal lima badge awal tersedia.
-- Participant dashboard harus memvisualkan XP, level, badge, dan streak.
+- Minimal lima badge awal tersedia dengan nama, deskripsi, kriteria, rarity, progress, dan tanggal diperoleh.
+- Participant dashboard harus memvisualkan XP, level, progress menuju level berikutnya, badge, streak, misi aktif, dan misi yang selesai.
+- Participant memiliki misi daily, weekly, dan learning path. Setiap progress misi idempotent dan setiap reward hanya diberikan sekali.
+- Retry quiz tidak boleh menggandakan progress misi atau XP secara tidak terbatas; aturan reward retry dijelaskan per misi.
+- Reward misi dapat berupa XP, badge, title, streak shield terbatas, atau unlock study pack.
+- Study Mode hanya dapat diakses participant setelah deadline quiz dan setelah participant menyelesaikan attempt.
 
 ### FR-09 Analytics, Export, dan Moderation
 
@@ -232,6 +241,13 @@ Status 27 Sep 2026: kandidat di atas sudah ditarik masuk sprint kompetisi dan te
 - Dashboard dan halaman elemen wajib terpisah per role.
 - Tidak boleh menumpuk semua role dalam satu `Dashboard.vue` atau `Workspace.vue` dengan `v-if` yang membuat jomplang.
 - Halaman baru wajib mengikuti source of truth warna di `tailwind.config.js`.
+- Halaman Vue tidak boleh memakai warna legacy `teal-*`, `emerald-*`, atau `#0AB883`; gunakan token brand dari `tailwind.config.js`.
+- Aksi belajar materi wajib memberi feedback status, mencegah double submit saat proses, dan memakai konfirmasi untuk aksi berisiko seperti membuka materi ke publik atau menghapus catatan.
+- Konten pendukung materi seperti catatan dan cek pemahaman wajib memakai progressive disclosure agar kartu materi tetap mudah dipindai.
+- Halaman print materi wajib minim distraksi: tanpa sidebar/topbar aplikasi, kontrol layar disembunyikan saat cetak, dan copy aksi memakai Bahasa Indonesia.
+- Creator material list wajib menampilkan akses materi sebagai badge/filter agar materi organisasi dan public tidak tercampur secara ambigu.
+- Error upload materi wajib menjelaskan tindakan perbaikan, terutama saat isi file tidak cocok dengan ekstensi.
+- Microcopy materi wajib konsisten memakai Bahasa Indonesia untuk aksi utama dan label akses: Publik, Unduh, Cetak, dan Unggah.
 - Validasi wajib: `npx prettier --write <file>`, `npx eslint <file>`, `npx vue-tsc --noEmit`, `npm run build`. Backend kritis: `php artisan test`.
 
 ---
@@ -251,9 +267,10 @@ Status 27 Sep 2026: kandidat di atas sudah ditarik masuk sprint kompetisi dan te
 | Route | Page | Tujuan |
 |---|---|---|
 | `/dashboard` | `participant/dashboard.vue` | XP, streak, level, badge, attempts, kuis tersedia, quiz of the day |
+| `/participant/quizzes` | `participant/quizzes.vue` | Katalog kuis published untuk siswa, dengan search/filter kategori dan guard role peserta |
+| `/participant/materials` | `participant/materials.vue` | Perpustakaan materi read-only untuk siswa, scope organisasi/public, search isi/nama file, version/update label, download aman, progress selesai, catatan pribadi, cek pemahaman, dan print-friendly |
 | `/attempts` | `Attempts.vue` atau `participant/attempts.vue` | Kuis self-paced dan attempt history |
 | `/attempts/{attempt}` | `AttemptPlay.vue` | Player self-paced dan review |
-| `/materials` | `Materials.vue` atau `participant/materials.vue` | Materi organisasi yang dapat dibaca siswa |
 
 ### Creator
 
@@ -263,7 +280,7 @@ Status 27 Sep 2026: kandidat di atas sudah ditarik masuk sprint kompetisi dan te
 | `/quizzes` | `QuizBuilder.vue` atau `creator/quizzes.vue` | Quiz builder |
 | `/questions` | `creator/question-bank.vue` | Question bank, tag, import/export |
 | `/live-sessions` | `LiveHub.vue` atau `creator/live.vue` | Live session management |
-| `/materials` | `Materials.vue` atau `creator/materials.vue` | Upload dokumen dan AI draft |
+| `/materials` | `Materials.vue` atau `creator/materials.vue` | Upload dokumen, pilih visibility organisasi/public, dan AI draft |
 | `/reports` | `Workspace.vue` atau `creator/reports.vue` | Gradebook dan analytics |
 
 ### Organization Admin
@@ -308,6 +325,9 @@ Model inti:
 - `live_participants`
 - `live_answers`
 - `materials`
+- `material_progresses`
+- `material_notes`
+- `material_checks`
 - `ai_generations`
 - `ai_question_drafts`
 - `user_progress`
@@ -321,11 +341,11 @@ Model inti:
 - Pivot role wajib menyimpan role per organisasi.
 - Live guest data harus tetap bisa diaudit tanpa akun.
 - AI draft tidak boleh langsung publish tanpa approval creator.
+- Materi punya `visibility` (`organization`/`public`) untuk membedakan akses tenant internal dan materi publik siswa. Creator memilih visibility saat upload.
+- Materi punya `version` untuk menampilkan nomor versi dan waktu pembaruan pada library/print view.
 
 ### Usulan Data Model — Belum Final
 
-- `material_progress` untuk progress baca materi per siswa.
-- `material_notes` untuk catatan pribadi siswa.
 - `quiz_collaborators` untuk collaborative quiz.
 - `question_hints` untuk help hints system.
 - `user_locale_preferences` atau kolom locale di `users`.
@@ -367,6 +387,14 @@ Model inti:
 18. Theme templates berdasarkan kategori tersedia untuk variasi visual kotak kuis.
 19. TypeScript strict dan build frontend hijau.
 20. Test dashboard branching per role tersedia.
+21. Participant material library memberi feedback jelas untuk simpan catatan, hapus catatan, cek pemahaman, dan tandai selesai.
+22. Creator mendapat warning dan konfirmasi sebelum publish materi sebagai public.
+23. Study Mode menolak akses sebelum participant menyelesaikan attempt dan menampilkan empty state saat flashcard kosong.
+24. Halaman Vue tidak mengandung warna legacy `teal-*`, `emerald-*`, atau `#0AB883`.
+25. Print materi tidak membawa sidebar/topbar aplikasi dan siap cetak/save PDF.
+26. Creator dapat memfilter daftar materi berdasarkan akses organisasi/public, melihat badge akses, dan membaca error upload yang actionable.
+27. Label aksi dan akses materi memakai Bahasa Indonesia konsisten pada halaman creator, participant, dan print.
+28. Dark mode pada halaman authenticated mempertahankan kontras dan surface konsisten, termasuk halaman profil dan kontrol topbar.
 
 ---
 
@@ -384,6 +412,52 @@ Model inti:
 | Offline mode | Cache quiz list saja atau attempt offline | Basic cache aman; offline attempt berisiko konflik data |
 
 ---
+
+
+## 14. v2.6 Participant Learning Loop — Competition Target
+
+Tema v2.6: **Belajar interaktif dengan feedback Loop**.
+
+| Kriteria | Bobot | Fokus Implementasi |
+|---|---:|---|
+| Feedback Loop | 40% | Completed quiz state, richer result feedback (breakdown + pembahasan), purposeful motion |
+| Retry Policy | 20% | Explicit retry limit display, locked state, guidance |
+| Progression | 20% | Progressive level XP, badge progression visual |
+| Gamification | 20% | Mission system, XP/level/streak tracking |
+
+### Prioritas v2.6 Yang Masuk Sprint
+
+1. **Progressive level XP** — progress bar level dari 1 ke 2 ke 3 dst, threshold cumulative (1000, 3000, 6000...).
+2. **Explicit retry policy** — di quiz card dan attempt page, tampilkan `X/Y attempt` dan `Sudah selesai`/`Retry tersedia`.
+3. **Completed quiz state** — setelah submit, tampilkan result screen dengan breakdown per soal.
+4. **Richer result feedback** — breakdown correct/incorrect/unanswered, XP earned, level up (animasi), badge unlock.
+5. **Participant-only missions** — mission list dengan progress bar, reward XP, daily/weekly/lifetime period.
+6. **Badge progression** — badge card dengan progress bar dan status earned/unlocked.
+7. **Purposeful motion** — GSAP animations untuk level-up, badge unlock, mascot feedback saat submit.
+
+### Backend
+
+- `GamificationService::recordAttempt()` — sudah ada: XP, level, streak, badge, mission.
+- `UserProgress` model — sudah ada: xp, level, streak, last_activity_date.
+- `Badge` & `Mission` model — sudah ada.
+- Test `GamificationTest.php` — sudah hijau.
+
+### Frontend
+
+- `Participant/dashboard.vue` — sudah ada: XP/level progress bar, streak heatmap, badge grid, mission list, activity feed.
+- `AttemptPlay.vue` — sudah ada: result view dengan breakdown, XP/level/badge reward, GSAP animations.
+- `participant/quizzes.vue` — sudah ada: `attemptLabel()` menampilkan `X/Y attempt`, `statusLabel()`.
+
+### Acceptance v2.6
+
+1. Progress bar level menunjukkan XP saat ini vs threshold level berikutnya.
+2. Quiz card di participant dashboard tampilkan `X/Y attempt` dan status retry tersedia/sudah selesai.
+3. Setelah submit attempt, tampilkan result screen dengan breakdown correct/incorrect/unanswered.
+4. Result screen tampilkan XP earned, level up (jika ada), badge unlock (jika ada), dan animasi GSAP.
+5. Mission list di dashboard tampilkan progress bar dan reward XP per mission.
+6. Badge grid tampilkan badge yang sudah di-earned dengan status.
+7. Semua animasi GSAP di result screen mendukung `prefers-reduced-motion`.
+
 
 ## 12. Change Log
 
@@ -409,3 +483,5 @@ grep -n "\[ \]\|\[-\]" task.md
 4. Setiap `[ ]` dan `[-]` harus punya owner dan ETA di `Urutan lanjut`.
 5. Sebelum koding UI, baca `FRONT-END.md`, `DESIGN.md`, `tailwind.config.js`, `AuthenticatedLayout.vue`, dan 2–3 page/komponen terdekat.
 6. Sebelum menyatakan selesai, jalankan validasi relevan: `php artisan test`, `npx vue-tsc --noEmit`, `npm run build`, dan lint/format file terkait.
+
+

@@ -1,11 +1,11 @@
 import '../css/app.css';
 import './bootstrap';
 
+import GlobalErrorBoundary from '@/Components/GlobalErrorBoundary.vue';
+import GlobalToast from '@/Components/GlobalToast.vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { configureEcho } from '@laravel/echo-vue';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
-import GlobalErrorBoundary from '@/Components/GlobalErrorBoundary.vue';
-import GlobalToast from '@/Components/GlobalToast.vue';
 import { createApp, DefineComponent, h } from 'vue';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 
@@ -32,7 +32,10 @@ createInertiaApp({
         createApp({
             render: () =>
                 h(GlobalToast, null, {
-                    default: () => h(GlobalErrorBoundary, null, { default: () => h(App, props) }),
+                    default: () =>
+                        h(GlobalErrorBoundary, null, {
+                            default: () => h(App, props),
+                        }),
                 }),
         })
             .use(plugin)
@@ -43,7 +46,6 @@ createInertiaApp({
         color: '#4B5563',
     },
 });
-
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
     window.addEventListener('load', () => {

@@ -7,6 +7,9 @@ use App\Models\AttemptAnswer;
 use App\Models\Category;
 use App\Models\LiveSession;
 use App\Models\Material;
+use App\Models\MaterialCheck;
+use App\Models\MaterialNote;
+use App\Models\MaterialProgress;
 use App\Models\Organization;
 use App\Models\Question;
 use App\Models\Quiz;
@@ -16,6 +19,7 @@ use App\Services\ReverbHealthService;
 use App\Support\SimpleXlsx;
 use App\Support\TenantContext;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
@@ -34,6 +38,8 @@ class WorkspaceController extends Controller
 
     public function questions(Request $request): InertiaResponse
     {
+        abort_unless($this->canCreate($request), 403);
+
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:120'],
             'type' => ['nullable', 'in:multiple_choice,true_false,fill_blank,essay'],
@@ -49,12 +55,14 @@ class WorkspaceController extends Controller
         return $this->page('Question Bank', 'questions', $query->paginate(15)->withQueryString(), $filters, [
             'types' => ['multiple_choice', 'true_false', 'fill_blank', 'essay'],
             'categories' => Category::orderBy('name')->get(['id', 'name', 'theme_key']),
-            'tags' => Tag::orderBy('name')->get(['id', 'name', 'theme_key']),
+            'tags' => Tag::orderBy('name')->get(['id', 'name']),
         ]);
     }
 
     public function exportQuestions(Request $request): StreamedResponse
     {
+        abort_unless($this->canCreate($request), 403);
+
         $rows = Question::with(['category:id,name,theme_key', 'tags:id,name'])->orderBy('id')->get();
         $exportRows = $rows->map(fn (Question $question): array => [$question->id, $question->type, $question->prompt, json_encode($question->options), $question->correct_answer, $question->points, $question->category?->name, $question->tags->pluck('name')->join('|')]);
 
@@ -95,6 +103,88 @@ class WorkspaceController extends Controller
         ]);
     }
 
+
+    
+    public function participantBadges(Request $request): InertiaResponse
+    {
+        $org = $this->activeOrganization();
+        abort_unless($org->roleFor($request->user()) === 'participant', 403);
+
+        $gamification = app(\App\Services\GamificationService::class);
+        $badges = $gamification->participantBadges($org->id, $request->user()->id);
+        $progress = \App\Models\UserProgress::withoutGlobalScopes()
+            ->where(['organization_id' => $org->id, 'user_id' => $request->user()->id])
+            ->first();
+
+        return Inertia::render('participant/badges', [
+            'organization' => ['id' => $org->id, 'name' => $org->name, 'role' => 'participant'],
+            'badges' => $badges,
+            'stats' => [
+                'xp' => (int) ($progress?->xp ?? 0),
+                'streak' => (int) ($progress?->streak ?? 0),
+                'level' => (int) ($progress?->level ?? 1),
+                'earnedCount' => collect($badges)->where('earned', true)->count(),
+                'totalCount' => count($badges),
+            ],
+        ]);
+    }
+
+    public function participantQuizzes(Request $request): InertiaResponse
+    {
+        abort_unless($this->activeOrganization()->roleFor($request->user()) === 'participant', 403);
+
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:120'],
+            'category' => ['nullable', 'integer', 'exists:categories,id'],
+        ]);
+
+        $quizzes = Quiz::query()
+            ->select('quizzes.*')
+            ->with(['category:id,name,theme_key'])
+            ->withCount('questions')
+            ->selectSub(
+                QuizAttempt::query()
+                    ->selectRaw('count(*)')
+                    ->whereColumn('quiz_attempts.quiz_id', 'quizzes.id')
+                    ->where('quiz_attempts.participant_id', $request->user()->id),
+                'my_attempts_count',
+            )
+->selectSub(
+                QuizAttempt::query()
+                    ->select('score')
+                    ->whereColumn('quiz_attempts.quiz_id', 'quizzes.id')
+                    ->where('quiz_attempts.participant_id', $request->user()->id)
+                    ->where('quiz_attempts.status', 'completed')
+                    ->latest('quiz_attempts.id')
+                    ->limit(1),
+                'latest_score',
+            )
+            ->selectSub(
+                QuizAttempt::query()
+                    ->selectRaw('max(score)')
+                    ->whereColumn('quiz_attempts.quiz_id', 'quizzes.id')
+                    ->where('quiz_attempts.participant_id', $request->user()->id)
+                    ->where('quiz_attempts.status', 'completed'),
+                'best_score',
+            )            ->where('status', 'published')
+            ->when($filters['search'] ?? null, function ($query, string $search): void {
+                $query->where(function ($query) use ($search): void {
+                    $query->where('title', 'like', '%'.$search.'%')
+                        ->orWhere('description', 'like', '%'.$search.'%');
+                });
+            })
+            ->when($filters['category'] ?? null, fn ($query, int $category) => $query->where('category_id', $category))
+            ->latest()
+            ->paginate(12)
+            ->withQueryString();
+
+        return Inertia::render('participant/quizzes', [
+            'quizzes' => $quizzes,
+            'filters' => $filters,
+            'categories' => Category::orderBy('name')->get(['id', 'name', 'theme_key']),
+        ]);
+    }
+
     public function attempts(Request $request): InertiaResponse
     {
         $isCreator = $this->canCreate($request);
@@ -126,7 +216,7 @@ class WorkspaceController extends Controller
         $organization = $this->activeOrganization();
 
         return $this->page('Organisasi', 'organization', $organization->members()->select('users.id', 'users.name', 'users.email', 'organization_user.role', 'organization_user.is_active')->paginate(20), [], [
-            'groups' => $organization->groups()->orderBy('name')->get(['id', 'name', 'theme_key']),
+            'groups' => $organization->groups()->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -154,7 +244,7 @@ class WorkspaceController extends Controller
 
         return Inertia::render('admin/'.$section, [
             'members' => $organization->members()->select('users.id', 'users.name', 'users.email', 'organization_user.role', 'organization_user.is_active')->get(),
-            'groups' => $organization->groups()->orderBy('name')->get(['id', 'name', 'theme_key']),
+            'groups' => $organization->groups()->orderBy('name')->get(['id', 'name']),
             'organization' => ['id' => $organization->id, 'name' => $organization->name],
         ]);
     }
@@ -221,6 +311,173 @@ class WorkspaceController extends Controller
     private function page(string $title, string $section, mixed $items, array $filters = [], array $summary = []): InertiaResponse
     {
         return Inertia::render('Workspace', compact('title', 'section', 'items', 'filters', 'summary'));
+    }
+
+
+    public function participantMaterials(Request $request): InertiaResponse
+    {
+        abort_unless($this->activeOrganization()->roleFor($request->user()) === 'participant', 403);
+
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:120'],
+            'scope' => ['nullable', 'in:all,organization,public'],
+        ]);
+        $scope = $filters['scope'] ?? 'all';
+        $organizationId = $this->activeOrganization()->id;
+
+        $materials = Material::withoutGlobalScopes()
+            ->with([
+                'creator:id,name',
+                'notes' => fn ($query) => $query
+                    ->where('user_id', $request->user()->id)
+                    ->select(['id', 'material_id', 'body']),
+                'checks' => fn ($query) => $query
+                    ->where('user_id', $request->user()->id)
+                    ->select(['id', 'material_id', 'answer', 'confidence']),
+            ])
+            ->withCount([
+                'progresses as read_count' => fn ($query) => $query->where('user_id', $request->user()->id),
+            ])
+            ->where('status', 'extracted')
+            ->where(function ($query) use ($organizationId, $scope): void {
+                if ($scope === 'organization') {
+                    $query->where('organization_id', $organizationId);
+
+                    return;
+                }
+
+                if ($scope === 'public') {
+                    $query->where('visibility', 'public');
+
+                    return;
+                }
+
+                $query->where('organization_id', $organizationId)
+                    ->orWhere('visibility', 'public');
+            })
+            ->when($filters['search'] ?? null, function ($query, string $search): void {
+                $query->where(function ($query) use ($search): void {
+                    $query->where('original_name', 'like', '%'.$search.'%')
+                        ->orWhere('extracted_text', 'like', '%'.$search.'%');
+                });
+            })
+            ->latest()
+            ->paginate(12)
+            ->withQueryString();
+
+        return Inertia::render('participant/materials', [
+            'materials' => $materials,
+            'filters' => ['search' => $filters['search'] ?? '', 'scope' => $scope],
+        ]);
+    }
+
+    public function markMaterialRead(Request $request, int $material)
+    {
+        abort_unless($this->activeOrganization()->roleFor($request->user()) === 'participant', 403);
+
+        $organizationId = $this->activeOrganization()->id;
+
+        $material = Material::withoutGlobalScopes()
+            ->whereKey($material)
+            ->where('status', 'extracted')
+            ->where(function ($query) use ($organizationId): void {
+                $query->where('organization_id', $organizationId)
+                    ->orWhere('visibility', 'public');
+            })
+            ->firstOrFail();
+
+        MaterialProgress::withoutGlobalScopes()->updateOrCreate(
+            ['material_id' => $material->id, 'user_id' => $request->user()->id],
+            ['organization_id' => $organizationId, 'read_at' => now()],
+        );
+
+        return back();
+    }
+
+    public function saveMaterialNote(Request $request, int $material): RedirectResponse
+    {
+        abort_unless($this->activeOrganization()->roleFor($request->user()) === 'participant', 403);
+
+        $data = $request->validate(['body' => ['required', 'string', 'max:5000']]);
+        $organizationId = $this->activeOrganization()->id;
+        $this->visibleParticipantMaterial($material, $organizationId);
+
+        MaterialNote::withoutGlobalScopes()->updateOrCreate(
+            ['material_id' => $material, 'user_id' => $request->user()->id],
+            ['organization_id' => $organizationId, 'body' => trim($data['body'])],
+        );
+
+        return back();
+    }
+
+    public function deleteMaterialNote(Request $request, int $material): RedirectResponse
+    {
+        abort_unless($this->activeOrganization()->roleFor($request->user()) === 'participant', 403);
+        $this->visibleParticipantMaterial($material, $this->activeOrganization()->id);
+
+        MaterialNote::withoutGlobalScopes()
+            ->where('material_id', $material)
+            ->where('user_id', $request->user()->id)
+            ->delete();
+
+        return back();
+    }
+
+    public function printMaterial(Request $request, int $material): InertiaResponse
+    {
+        abort_unless($this->activeOrganization()->roleFor($request->user()) === 'participant', 403);
+
+        $material = $this->visibleParticipantMaterial($material, $this->activeOrganization()->id)
+            ->load('creator:id,name');
+        $note = MaterialNote::withoutGlobalScopes()
+            ->where('material_id', $material->id)
+            ->where('user_id', $request->user()->id)
+            ->value('body');
+
+        return Inertia::render('participant/material-print', [
+            'material' => [
+                'id' => $material->id,
+                'original_name' => $material->original_name,
+                'visibility' => $material->visibility,
+                'version' => $material->version,
+                'page_count' => $material->page_count,
+                'extracted_text' => $material->extracted_text,
+                'updated_at' => $material->updated_at?->toISOString(),
+                'creator' => $material->creator?->only(['id', 'name']),
+            ],
+            'note' => $note,
+        ]);
+    }
+
+    public function saveMaterialCheck(Request $request, int $material): RedirectResponse
+    {
+        abort_unless($this->activeOrganization()->roleFor($request->user()) === 'participant', 403);
+
+        $data = $request->validate([
+            'answer' => ['required', 'string', 'max:1000'],
+            'confidence' => ['required', 'integer', 'min:1', 'max:5'],
+        ]);
+        $organizationId = $this->activeOrganization()->id;
+        $this->visibleParticipantMaterial($material, $organizationId);
+
+        MaterialCheck::withoutGlobalScopes()->updateOrCreate(
+            ['material_id' => $material, 'user_id' => $request->user()->id],
+            ['organization_id' => $organizationId, 'answer' => trim($data['answer']), 'confidence' => $data['confidence']],
+        );
+
+        return back();
+    }
+
+    private function visibleParticipantMaterial(int $material, int $organizationId): Material
+    {
+        return Material::withoutGlobalScopes()
+            ->whereKey($material)
+            ->where('status', 'extracted')
+            ->where(function ($query) use ($organizationId): void {
+                $query->where('organization_id', $organizationId)
+                    ->orWhere('visibility', 'public');
+            })
+            ->firstOrFail();
     }
 
     public function materials(Request $request): InertiaResponse

@@ -17,10 +17,13 @@ class MaterialController extends Controller
     public function store(Request $request): RedirectResponse
     {
         Gate::authorize('create', Quiz::class);
-        $data = $request->validate(['file' => ['required', 'file', 'mimes:pdf,ppt,pptx', 'max:25600']]);
+        $data = $request->validate([
+            'file' => ['required', 'file', 'mimes:pdf,ppt,pptx', 'max:25600'],
+            'visibility' => ['nullable', 'in:organization,public'],
+        ]);
         $file = $data['file'];
         if (! $this->hasExpectedSignature($file)) {
-            return back()->withErrors(['file' => 'File signature does not match the selected format.']);
+            return back()->withErrors(['file' => 'Isi file tidak sesuai dengan ekstensinya. Unggah PDF/PPT/PPTX asli, bukan file yang hanya diganti nama.']);
         }
         $path = $file->store('materials/'.app(TenantContext::class)->id(), 'local');
         $material = Material::create([
@@ -32,6 +35,7 @@ class MaterialController extends Controller
             'mime_type' => $file->getMimeType(),
             'size' => $file->getSize(),
             'status' => 'uploaded',
+            'visibility' => $data['visibility'] ?? 'organization',
         ]);
 
         ExtractMaterial::dispatch($material);
@@ -41,8 +45,16 @@ class MaterialController extends Controller
 
     public function download(Request $request, int $material): StreamedResponse
     {
-        Gate::authorize('create', Quiz::class);
-        $material = Material::findOrFail($material);
+        $material = Material::withoutGlobalScopes()->findOrFail($material);
+        $organizationId = app(TenantContext::class)->id();
+        $role = $organizationId ? $request->user()->organizations()->whereKey($organizationId)->value('organization_user.role') : null;
+        $canManage = $role !== null
+            && in_array($role, ['creator', 'organization_admin', 'super_admin'], true)
+            && $material->organization_id === $organizationId;
+        $canRead = $material->status === 'extracted'
+            && ($material->organization_id === $organizationId || $material->visibility === 'public');
+
+        abort_unless($canManage || $canRead, 403);
 
         return Storage::disk($material->disk)->download($material->path, $material->original_name);
     }

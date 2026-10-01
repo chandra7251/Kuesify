@@ -39,7 +39,7 @@ const verificationLinkSent = computed(
 
         <div
             v-if="verificationLinkSent"
-            class="mt-5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800"
+            class="mt-5 rounded-lg border border-brand-secondary/40 bg-brand-secondary/15 px-3 py-2 text-sm font-medium text-brand-primary"
         >
             Tautan verifikasi baru sudah dikirim ke emailmu.
         </div>

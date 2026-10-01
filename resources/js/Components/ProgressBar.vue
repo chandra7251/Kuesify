@@ -17,13 +17,19 @@ const percentage = computed(() => {
         return 0;
     }
 
-    return Math.min(100, Math.max(0, Math.round((props.current / props.max) * 100)));
+    return Math.min(
+        100,
+        Math.max(0, Math.round((props.current / props.max) * 100)),
+    );
 });
 </script>
 
 <template>
     <div>
-        <div v-if="label" class="mb-2 flex items-center justify-between gap-3 text-xs font-semibold text-slate-600">
+        <div
+            v-if="label"
+            class="mb-2 flex items-center justify-between gap-3 text-xs font-semibold text-slate-600"
+        >
             <span>{{ label }}</span>
             <span>{{ percentage }}%</span>
         </div>
@@ -35,7 +41,10 @@ const percentage = computed(() => {
             aria-valuemin="0"
             aria-valuemax="100"
         >
-            <div class="h-2 rounded-full bg-brand-secondary" :style="{ width: `${percentage}%` }"></div>
+            <div
+                class="h-2 rounded-full bg-brand-secondary"
+                :style="{ width: `${percentage}%` }"
+            ></div>
         </div>
     </div>
 </template>

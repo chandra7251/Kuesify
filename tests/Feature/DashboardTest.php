@@ -135,6 +135,11 @@ it('renders participant dashboard with learning progress', function () {
             ->where('stats.availableQuizzes', 1)
             ->where('stats.attempts', 1)
             ->where('badges.0.name', 'Kuis Pertama')
+            ->where('badges.0.earned', true)
+            ->has('badges', 13)
+            ->where('badges.1.earned', false)
+            ->where('badges.1.rarity', 'common')
+            ->where('badges.1.progress', 1)
             ->where('quizOfTheDay.title', 'Latihan Aljabar')
             ->has('streakHeatmap', 30));
 });

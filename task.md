@@ -109,6 +109,13 @@ Sumber acceptance: `docs/MVP_SCOPE_COMPETITION.md`.
 - [x] Daily streak counter dengan 30-day heatmap.
 - [x] Badge system dengan lima badge awal.
 - [x] "Quiz of the Day" quiz curated untuk daily engagement — **COMPETITION ADD**
+- [x] **Audit fix:** formula level backend/frontend memakai threshold kumulatif progresif dan teruji.
+- [-] **Quiz retry policy:** backend `allow_retry`, guard, builder field, payload retry state, dan test selesai; E2E retry private/organisasi belum lengkap.
+- [-] **Quiz completion state:** hasil menampilkan score summary dan retry state; marker katalog latest/best/pending review belum selesai penuh.
+- [x] **Result feedback:** persentase, benar/salah, attempt summary, pembahasan, CTA, XP earned dari attempt, dan badge unlock feedback sudah tampil; best score tetap tersedia di katalog/dashboard.
+- [-] **Participant missions:** schema, default mission, progress dashboard, reward idempotent, dan test dasar selesai; expiry/anti-farming retry perlu E2E lanjutan.
+- [x] **Badge progression:** participant mendapat katalog badge dengan locked state, rarity, criteria, progress, earned date, dan unlock feedback per attempt.
+- [x] **Purposeful motion:** result reveal, XP reward, level-up, submit feedback, badge unlock stagger, dan mascot reaction memakai GSAP scoped dengan reduced-motion fallback.
 
 ## 8. Dashboard & Workspace Per-Role — PRD v2.5 (26 Sep 2026)
 
@@ -149,6 +156,7 @@ Sumber acceptance: `docs/MVP_SCOPE_COMPETITION.md`.
 - [x] Question Tag Autocomplete: creator Question Bank memakai endpoint `questions.tags` tenant-scoped
 - [x] WCAG 2.1 AA Fixes: Modal memakai `inert`, Dropdown memakai `aria-controls`, keyboard/focus behavior teruji lewat build — **COMPETITION ADD**
 - [x] Mobile UX law pass: bottom nav tidak overlap konten, active nav memakai `aria-current` + indikator non-warna, tap target 44 px, focus ring global, reduced motion, dan tanpa horizontal overflow; validasi `npm run build` + `tests/E2E/mobile.spec.ts` hijau — **COMPETITION ADD**
+- [x] Dark Mode Consistency: surface kartu, form input/select/textarea, teks, border, profil, dan toggle topbar memakai token dark konsisten; validasi `npm run build` + `tests/E2E/dark-mode.spec.ts` hijau — **Medium impact UX** — **COMPETITION ADD**
 
 ### 8.5 Code Quality — Competition Focus
 
@@ -163,6 +171,20 @@ Sumber acceptance: `docs/MVP_SCOPE_COMPETITION.md`.
 - [x] Quiz Analytics (creator dashboard) — student retention, weak topics, dan avg time per question berbasis timestamp jawaban — **High impact Innovation** — **COMPETITION ADD**
 - [x] Visual Feedback Pembahasan (participant): hasil menandai benar/salah dan pembahasan di AttemptPlay build hijau — **Medium impact Theme** — **COMPETITION ADD**
 - [x] Theme Templates (categories): Quiz Builder memakai `categories.theme_key` untuk accent visual per tema — **Medium impact Theme** — **COMPETITION ADD**
+- [x] Participant Quiz Catalog: `/participant/quizzes` read-only untuk siswa, search/filter kategori, attempt count, dan role guard; validasi `npm run build` + `WorkspacePagesTest` hijau — **High impact Theme** — **COMPETITION ADD**
+- [x] Participant Material Library: `/participant/materials` read-only untuk siswa, scope organisasi/public, search nama/isi materi, download aman, dan role guard; validasi `npm run build` + `MaterialUploadTest` + `WorkspacePagesTest` hijau — **High impact Theme** — **COMPETITION ADD**
+- [x] Material Progress Tracking: `material_progresses` + tombol `Tandai selesai` per materi siswa; guard hanya materi organisasi/public terlihat; validasi `npm run build` + `WorkspacePagesTest` hijau — **High impact Theme** — **COMPETITION ADD**
+- [x] Material Visibility Publishing: creator memilih `organization` atau `public` saat upload; participant hanya melihat materi extracted yang sesuai akses; validasi `npm run build` + `MaterialUploadTest` hijau — **High impact Theme** — **COMPETITION ADD**
+- [x] Material Study UX: alat belajar materi memakai progressive disclosure, status simpan/hapus/tandai selesai jelas, tombol disable saat proses, dan hapus catatan memakai konfirmasi; validasi `npm run build` + `WorkspacePagesTest` hijau — **High impact UX** — **COMPETITION ADD**
+- [x] Safe Public Publishing UX: upload materi public menampilkan warning dan konfirmasi agar creator tidak salah membuka materi organisasi ke publik; validasi `npm run build` + `MaterialUploadTest` hijau — **High impact UX** — **COMPETITION ADD**
+- [x] Study Mode Access Guard: flashcard review hanya untuk participant yang sudah menyelesaikan attempt setelah deadline; empty state tersedia saat flashcard kosong; validasi `SelfPacedHttpTest` hijau — **High impact UX** — **COMPETITION ADD**
+- [x] Brand Token Consistency: halaman Vue bersih dari `teal-*`, `emerald-*`, dan warna lama di luar token `tailwind.config.js`; validasi `rg` + `npm run build` hijau — **High impact Code/UI** — **COMPETITION ADD**
+- [x] Private Material Notes: `material_notes` + simpan/hapus catatan pribadi siswa pada materi yang terlihat; ownership guard dan validasi `npm run build` + `WorkspacePagesTest` hijau — **Medium impact Theme** — **COMPETITION ADD**
+- [x] Print-Friendly Material: halaman `/participant/materials/{material}/print` untuk cetak/save PDF materi + catatan pribadi, tanpa app chrome saat print; guard akses tenant/public dan validasi `npm run build` + `WorkspacePagesTest` hijau — **Medium impact Theme** — **COMPETITION ADD**
+- [x] Material Check Understanding: `material_checks` + jawaban refleksi dan confidence 1–5 pada materi yang terlihat; validasi `npm run build` + `WorkspacePagesTest` hijau — **Medium impact Innovation** — **COMPETITION ADD**
+- [x] Creator Material Manageability: tabel materi creator punya filter akses, badge akses, counter hasil filter, empty state filter, dan error upload spoofing berbahasa jelas; validasi `npm run build` + `MaterialUploadTest` hijau — **Medium impact UX** — **COMPETITION ADD**
+- [x] Material Version/Update Label: kolom `materials.version` + label versi dan tanggal pembaruan pada library/print view; validasi `npm run build` + `WorkspacePagesTest` hijau — **Low impact Theme** — **COMPETITION ADD**
+- [x] Material Microcopy Consistency: label materi memakai Bahasa Indonesia konsisten (`Publik`, `Unduh`, `Cetak`, `Unggah`) dan aria pagination lebih jelas; validasi `npm run build` + `MaterialUploadTest` hijau — **Low impact UX** — **COMPETITION ADD**
 
 ## 10. Post-MVP
 
@@ -203,3 +225,5 @@ grep -n "PRD v2.5" PRD_v2.2_Merged_Draft.md
 7. **(Baru v2.3)** Refactor Front-End per-role: Dashboard `participant`/`creator`/`admin`/`superadmin` + Workspace/Admin per-role — **selesai**.
 8. **(Baru v2.4)** PRD v2.4 improvements: Dashboard per-role, komponen reusable, keyboard shortcuts, CSV/XLSX toggle, WCAG 2.1 AA, tsconfig strict, test coverage — **selesai**.
 9. **(Baru v2.5)** Competition Focus: WCAG 2.1 AA, TypeScript strict, test coverage, skeleton loading, empty states, toast, study mode, student progress, multilingual toggle, help hints, collaborative quiz, offline mode — **selesai; Horizon tetap owner deployment Linux/CI**.
+10. **(Baru v2.6)** Participant learning loop: progressive level XP, explicit retry policy, completed quiz state, richer result feedback, participant-only missions, badge progression, dan purposeful motion — **belum dikerjakan; mulai dari backend policy dan test, lalu frontend**.
+
