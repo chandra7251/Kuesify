@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
@@ -283,13 +283,15 @@ const scrollFeatures = (direction: number) => {
 
             <div class="relative mx-auto my-auto max-w-7xl">
                 <!-- Desktop: grid 2 kolom (ilustrasi + teks), Mobile: stack -->
-                <div class="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12">
+                <div
+                    class="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12"
+                >
                     <!-- Ilustrasi Kiri (Desktop), Atas (Mobile) -->
                     <div class="flex items-center justify-center">
                         <img
                             src="/images/study-character-female.png"
                             alt="Siswa belajar menggunakan laptop"
-                            class="w-full max-w-md object-contain object-center drop-shadow-[0_22px_26px_rgba(35,62,168,0.24)]"
+                            class="w-full max-w-md object-contain object-center drop-shadow-[0_22px_26px_rgba(35,62,168,0.24)] lg:-translate-x-10 lg:translate-y-16"
                         />
                     </div>
 
@@ -305,145 +307,169 @@ const scrollFeatures = (direction: number) => {
                         >
                             Belajar aktif, dengan cara yang terasa pas.
                         </h2>
-                        <p class="mt-5 max-w-lg text-base leading-7 text-white/70">
+                        <p
+                            class="mt-5 max-w-lg text-base leading-7 text-white/70"
+                        >
                             Pilih pengalaman belajar yang sesuai dengan energi
-                            kelas, waktu peserta, dan materi yang sudah tersedia.
+                            kelas, waktu peserta, dan materi yang sudah
+                            tersedia.
                         </p>
 
+                        <!-- Carousel Mode Cards -->
                         <!-- Carousel Mode Cards -->
                         <div class="mt-8 lg:mt-12">
                             <div
                                 class="relative mx-auto h-[23rem] w-full max-w-[54rem]"
-                    >
-                        <button
-                            v-if="featureIndex > 0"
-                            type="button"
-                            class="feature-nav-prev absolute left-2 top-1/2 z-30 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white text-xl font-black text-brand-primary shadow-figma transition hover:bg-brand-secondary"
-                            aria-label="Mode sebelumnya"
-                            @click="scrollFeatures(-1)"
-                        >
-                            ‹
-                        </button>
-                        <div class="feature-card-stage">
-                            <article
-                                :class="[
-                                    'feature-card',
-                                    featureIndex === 0
-                                        ? 'feature-card-active z-20 border-brand-secondary bg-brand-lime text-brand-primary shadow-figma'
-                                        : featureIndex === 1
-                                          ? 'feature-card-prev bg-brand-surface z-10 border-white/15 text-brand-secondary'
-                                          : 'feature-card-hidden bg-brand-surface z-0 border-white/15 text-brand-secondary',
-                                ]"
                             >
-                                <div class="flex items-center justify-between">
-                                    <span
-                                        class="grid h-10 w-10 place-items-center rounded-xl bg-white/70 text-sm font-black"
-                                        >01</span
+                                <button
+                                    v-if="featureIndex > 0"
+                                    type="button"
+                                    class="feature-nav-prev absolute left-2 top-1/2 z-30 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white text-xl font-black text-brand-primary shadow-figma transition hover:bg-brand-secondary"
+                                    aria-label="Mode sebelumnya"
+                                    @click="scrollFeatures(-1)"
+                                >
+                                    ‹
+                                </button>
+                                <div class="feature-card-stage">
+                                    <article
+                                        :class="[
+                                            'feature-card',
+                                            featureIndex === 0
+                                                ? 'feature-card-active z-20 border-brand-secondary bg-brand-lime text-brand-primary shadow-figma'
+                                                : featureIndex === 1
+                                                  ? 'feature-card-prev bg-brand-surface z-10 border-white/15 text-brand-secondary'
+                                                  : 'feature-card-hidden bg-brand-surface z-0 border-white/15 text-brand-secondary',
+                                        ]"
                                     >
-                                    <span
-                                        class="text-xs font-black uppercase tracking-[0.16em] text-inherit"
-                                        >Realtime</span
+                                        <div
+                                            class="flex items-center justify-between"
+                                        >
+                                            <span
+                                                class="grid h-10 w-10 place-items-center rounded-xl bg-white/70 text-sm font-black"
+                                                >01</span
+                                            >
+                                            <span
+                                                class="text-xs font-black uppercase tracking-[0.16em] text-inherit"
+                                                >Realtime</span
+                                            >
+                                        </div>
+                                        <h3
+                                            class="mt-12 text-2xl font-black tracking-[-0.03em]"
+                                        >
+                                            Live Quiz
+                                        </h3>
+                                        <p
+                                            class="mt-3 text-sm leading-6 text-inherit"
+                                        >
+                                            Buka room, bagikan PIN, dan lihat
+                                            kelas merespons soal secara
+                                            langsung.
+                                        </p>
+                                        <Link
+                                            href="/join"
+                                            class="mt-8 inline-block text-sm font-black text-inherit"
+                                            >Masuk room
+                                            <span aria-hidden="true"
+                                                >→</span
+                                            ></Link
+                                        >
+                                    </article>
+                                    <article
+                                        :class="[
+                                            'feature-card',
+                                            featureIndex === 1
+                                                ? 'feature-card-active z-20 border-brand-secondary bg-brand-lime text-brand-primary shadow-figma'
+                                                : featureIndex === 0
+                                                  ? 'feature-card-next bg-brand-surface z-10 border-white/15 text-brand-secondary'
+                                                  : 'feature-card-prev bg-brand-surface z-10 border-white/15 text-brand-secondary',
+                                        ]"
                                     >
+                                        <div
+                                            class="flex items-center justify-between"
+                                        >
+                                            <span
+                                                class="grid h-10 w-10 place-items-center rounded-xl border border-brand-secondary/60 text-sm font-black text-inherit"
+                                                >02</span
+                                            >
+                                            <span
+                                                class="text-xs font-black uppercase tracking-[0.16em] text-inherit"
+                                                >Mandiri</span
+                                            >
+                                        </div>
+                                        <h3
+                                            class="mt-12 text-2xl font-black tracking-[-0.03em]"
+                                        >
+                                            Self-Paced
+                                        </h3>
+                                        <p
+                                            class="mt-3 text-sm leading-6 text-inherit"
+                                        >
+                                            Susun latihan dengan deadline jelas
+                                            dan biarkan peserta belajar sesuai
+                                            tempo.
+                                        </p>
+                                        <Link
+                                            href="/register"
+                                            class="mt-8 inline-block text-sm font-black text-inherit"
+                                            >Mulai latihan
+                                            <span aria-hidden="true"
+                                                >→</span
+                                            ></Link
+                                        >
+                                    </article>
+                                    <article
+                                        :class="[
+                                            'feature-card',
+                                            featureIndex === 2
+                                                ? 'feature-card-active z-20 border-brand-secondary bg-brand-lime text-brand-primary shadow-figma'
+                                                : featureIndex === 1
+                                                  ? 'feature-card-next bg-brand-surface z-10 border-white/15 text-brand-secondary'
+                                                  : 'feature-card-hidden bg-brand-surface z-0 border-white/15 text-brand-secondary',
+                                        ]"
+                                    >
+                                        <div
+                                            class="flex items-center justify-between"
+                                        >
+                                            <span
+                                                class="grid h-10 w-10 place-items-center rounded-xl border border-brand-secondary/60 text-sm font-black text-inherit"
+                                                >03</span
+                                            >
+                                            <span
+                                                class="text-xs font-black uppercase tracking-[0.16em] text-inherit"
+                                                >Berbantuan AI</span
+                                            >
+                                        </div>
+                                        <h3
+                                            class="mt-12 text-2xl font-black tracking-[-0.03em]"
+                                        >
+                                            Materi ke Soal
+                                        </h3>
+                                        <p
+                                            class="mt-3 text-sm leading-6 text-inherit"
+                                        >
+                                            Mulai dari PDF atau PPTX, buat draft
+                                            soal, lalu review sebelum dibagikan.
+                                        </p>
+                                        <Link
+                                            href="/materials"
+                                            class="mt-8 inline-block text-sm font-black text-inherit"
+                                            >Lihat materi
+                                            <span aria-hidden="true"
+                                                >→</span
+                                            ></Link
+                                        >
+                                    </article>
                                 </div>
-                                <h3
-                                    class="mt-12 text-2xl font-black tracking-[-0.03em]"
+                                <button
+                                    v-if="featureIndex < 2"
+                                    type="button"
+                                    class="feature-nav-next absolute right-2 top-1/2 z-30 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white text-xl font-black text-brand-primary shadow-figma transition hover:bg-brand-secondary"
+                                    aria-label="Mode berikutnya"
+                                    @click="scrollFeatures(1)"
                                 >
-                                    Live Quiz
-                                </h3>
-                                <p class="mt-3 text-sm leading-6 text-inherit">
-                                    Buka room, bagikan PIN, dan lihat kelas
-                                    merespons soal secara langsung.
-                                </p>
-                                <Link
-                                    href="/join"
-                                    class="mt-8 inline-block text-sm font-black text-inherit"
-                                    >Masuk room
-                                    <span aria-hidden="true">→</span></Link
-                                >
-                            </article>
-                            <article
-                                :class="[
-                                    'feature-card',
-                                    featureIndex === 1
-                                        ? 'feature-card-active z-20 border-brand-secondary bg-brand-lime text-brand-primary shadow-figma'
-                                        : featureIndex === 0
-                                          ? 'feature-card-next bg-brand-surface z-10 border-white/15 text-brand-secondary'
-                                          : 'feature-card-prev bg-brand-surface z-10 border-white/15 text-brand-secondary',
-                                ]"
-                            >
-                                <div class="flex items-center justify-between">
-                                    <span
-                                        class="grid h-10 w-10 place-items-center rounded-xl border border-brand-secondary/60 text-sm font-black text-inherit"
-                                        >02</span
-                                    >
-                                    <span
-                                        class="text-xs font-black uppercase tracking-[0.16em] text-inherit"
-                                        >Mandiri</span
-                                    >
-                                </div>
-                                <h3
-                                    class="mt-12 text-2xl font-black tracking-[-0.03em]"
-                                >
-                                    Self-Paced
-                                </h3>
-                                <p class="mt-3 text-sm leading-6 text-inherit">
-                                    Susun latihan dengan deadline jelas dan
-                                    biarkan peserta belajar sesuai tempo.
-                                </p>
-                                <Link
-                                    href="/register"
-                                    class="mt-8 inline-block text-sm font-black text-inherit"
-                                    >Mulai latihan
-                                    <span aria-hidden="true">→</span></Link
-                                >
-                            </article>
-                            <article
-                                :class="[
-                                    'feature-card',
-                                    featureIndex === 2
-                                        ? 'feature-card-active z-20 border-brand-secondary bg-brand-lime text-brand-primary shadow-figma'
-                                        : featureIndex === 1
-                                          ? 'feature-card-next bg-brand-surface z-10 border-white/15 text-brand-secondary'
-                                          : 'feature-card-hidden bg-brand-surface z-0 border-white/15 text-brand-secondary',
-                                ]"
-                            >
-                                <div class="flex items-center justify-between">
-                                    <span
-                                        class="grid h-10 w-10 place-items-center rounded-xl border border-brand-secondary/60 text-sm font-black text-inherit"
-                                        >03</span
-                                    >
-                                    <span
-                                        class="text-xs font-black uppercase tracking-[0.16em] text-inherit"
-                                        >Berbantuan AI</span
-                                    >
-                                </div>
-                                <h3
-                                    class="mt-12 text-2xl font-black tracking-[-0.03em]"
-                                >
-                                    Materi ke Soal
-                                </h3>
-                                <p class="mt-3 text-sm leading-6 text-inherit">
-                                    Mulai dari PDF atau PPTX, buat draft soal,
-                                    lalu review sebelum dibagikan.
-                                </p>
-                                <Link
-                                    href="/materials"
-                                    class="mt-8 inline-block text-sm font-black text-inherit"
-                                    >Lihat materi
-                                    <span aria-hidden="true">→</span></Link
-                                >
-                            </article>
-                        </div>
-                        <button
-                            v-if="featureIndex < 2"
-                            type="button"
-                            class="feature-nav-next absolute right-2 top-1/2 z-30 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white text-xl font-black text-brand-primary shadow-figma transition hover:bg-brand-secondary"
-                            aria-label="Mode berikutnya"
-                            @click="scrollFeatures(1)"
-                        >
-                            ›
-                        </button>
-                    </div>
+                                    ›
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
