@@ -563,15 +563,27 @@ const scrollFeatures = (direction: number) => {
                         </ul>
                     </div>
                     <div
-                        class="relative flex min-h-[22rem] items-center justify-center lg:min-h-[30rem]"
+                        class="relative flex min-h-[26rem] items-end justify-center lg:min-h-[36rem]"
                     >
                         <div
                             class="pointer-events-none absolute inset-8 rounded-[3rem] bg-white/10 blur-3xl"
                         />
                         <img
-                            :src="roleDetails[roleIndex].image"
-                            :alt="roleDetails[roleIndex].alt"
-                            class="relative z-10 max-h-[30rem] w-full object-contain drop-shadow-[0_24px_30px_rgba(12,27,92,0.28)]"
+                            src="/images/role-laptop-mockup.png"
+                            alt="Laptop workspace Kuesify"
+                            class="relative z-10 w-[80rem] -translate-y-8 object-contain drop-shadow-[0_24px_30px_rgba(12,27,92,0.28)]"
+                        />
+                        <img
+                            v-if="roleIndex === 0 || roleIndex === 2"
+                            src="/images/role-character-female.png"
+                            alt="Guru berdiri di samping workspace"
+                            class="absolute bottom-0 left-[-3%] z-20 w-[38%] -translate-y-4 object-contain"
+                        />
+                        <img
+                            v-if="roleIndex === 1 || roleIndex === 2"
+                            src="/images/role-character-male.png"
+                            alt="Pengajar berdiri di samping workspace"
+                            class="absolute bottom-0 right-[-3%] z-20 w-[42%] -translate-y-4 object-contain"
                         />
                     </div>
                 </div>
