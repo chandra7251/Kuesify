@@ -3,12 +3,14 @@ import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { nextTick, onMounted, onUnmounted, ref } from 'vue';
 
 gsap.registerPlugin(ScrollTrigger);
 
 defineProps<{ canLogin: boolean; canRegister: boolean }>();
 
+const answer = ref<string | null>(null);
+const answers = ['Produsen', 'Konsumen', 'Pengurai', 'Predator'];
 const featureIndex = ref(0);
 const roleIndex = ref(2);
 const mobileMenuOpen = ref(false);
@@ -59,97 +61,75 @@ let motionMedia: gsap.MatchMedia | null = null;
 const interactionCleanups: Array<() => void> = [];
 
 const scrollFeatures = (direction: number) => {
-    featureIndex.value = Math.max(
-        0,
-        Math.min(2, featureIndex.value + direction),
-    );
+    featureIndex.value = Math.max(0, Math.min(2, featureIndex.value + direction));
+};
+
+
+const selectAnswer = async (choice: string) => {
+    answer.value = choice;
+    await nextTick();
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const feedback = landingRoot.value?.querySelector<HTMLElement>('[data-answer-feedback]');
+    if (feedback) {
+        gsap.fromTo(feedback, 
+            { autoAlpha: 0, y: 12, scale: 0.9, rotation: -3 }, 
+            {
+                autoAlpha: 1, y: 0, scale: 1, rotation: 0, 
+                duration: 0.5, ease: 'back.out(2)',
+                onComplete: () => {
+                    gsap.to(feedback, { scale: 1.05, duration: 0.2, yoyo: true, repeat: 1, ease: 'power1.inOut' });
+                }
+            }
+        );
+    }
 };
 
 onMounted(() => {
     if (!landingRoot.value) return;
 
-    const handleScroll = () => {
-        isScrolled.value = window.scrollY > 24;
-    };
+    const handleScroll = () => { isScrolled.value = window.scrollY > 24; };
     window.addEventListener('scroll', handleScroll, { passive: true });
-    interactionCleanups.push(() =>
-        window.removeEventListener('scroll', handleScroll),
-    );
+    interactionCleanups.push(() => window.removeEventListener('scroll', handleScroll));
 
     motionMedia = gsap.matchMedia();
     motionMedia.add('(prefers-reduced-motion: no-preference)', () => {
         motionContext = gsap.context(() => {
-            const timeline = gsap.timeline({
-                defaults: { ease: 'power3.out' },
-            });
-            const heroItems =
-                gsap.utils.toArray<HTMLElement>('[data-hero-item]');
-            const sections = gsap.utils.toArray<HTMLElement>(
-                '[data-reveal-section]',
-            );
-            const featureCards = gsap.utils.toArray<HTMLElement>(
-                '[data-feature-card]',
-            );
-            const processSteps = gsap.utils.toArray<HTMLElement>(
-                '[data-process-step]',
-            );
+            const timeline = gsap.timeline({ defaults: { ease: 'power3.out' } });
+            const heroItems = gsap.utils.toArray<HTMLElement>('[data-hero-item]');
+            const sections = gsap.utils.toArray<HTMLElement>('[data-reveal-section]');
+            const featureCards = gsap.utils.toArray<HTMLElement>('[data-feature-card]');
+            const processSteps = gsap.utils.toArray<HTMLElement>('[data-process-step]');
             const floaters = gsap.utils.toArray<HTMLElement>('[data-float]');
-            const ambientBlobs = gsap.utils.toArray<HTMLElement>(
-                '[data-ambient-blob]',
-            );
+            const ambientBlobs = gsap.utils.toArray<HTMLElement>('[data-ambient-blob]');
             const mascots = gsap.utils.toArray<HTMLElement>('[data-mascot]');
 
             // Hero entrance with subtle rotation and expressive stagger
-            timeline.from(heroItems, {
-                autoAlpha: 0,
-                y: 32,
-                rotation: -2,
-                duration: 0.65,
-                stagger: 0.11,
-                ease: 'back.out(1.2)',
+            timeline.from(heroItems, { 
+                autoAlpha: 0, y: 32, rotation: -2, 
+                duration: 0.65, stagger: 0.11, ease: 'back.out(1.2)' 
             });
-            timeline.from(
-                '[data-hero-actions]',
-                {
-                    autoAlpha: 0,
-                    y: 20,
-                    scale: 0.95,
-                    duration: 0.5,
-                    ease: 'back.out(1.5)',
-                },
-                '-=0.3',
-            );
-            timeline.from(
-                '[data-hero-meta]',
-                {
-                    autoAlpha: 0,
-                    y: 14,
-                    duration: 0.45,
-                },
-                '-=0.3',
-            );
-            timeline.from(
-                '[data-hero-illustration]',
-                {
-                    autoAlpha: 0,
-                    y: 40,
-                    scale: 0.92,
-                    rotation: 3,
-                    duration: 0.8,
-                    ease: 'back.out(1.1)',
-                },
-                '-=0.5',
-            );
+            timeline.from('[data-hero-actions]', { 
+                autoAlpha: 0, y: 20, scale: 0.95, 
+                duration: 0.5, ease: 'back.out(1.5)' 
+            }, '-=0.3');
+            timeline.from('[data-hero-meta]', { 
+                autoAlpha: 0, y: 14, 
+                duration: 0.45 
+            }, '-=0.3');
+            timeline.from('[data-hero-illustration]', { 
+                autoAlpha: 0, y: 40, scale: 0.92, rotation: 3, 
+                duration: 0.8, ease: 'back.out(1.1)' 
+            }, '-=0.5');
 
             // Ambient blobs float with rotation and scale pulse (more organic)
             ambientBlobs.forEach((blob, i) => {
                 const tl = gsap.timeline({ repeat: -1 });
                 tl.to(blob, {
-                    x: i % 2 ? 20 : -16,
+                    x: i % 2 ? 20 : -16, 
                     y: i % 2 ? -14 : 18,
                     rotation: i % 2 ? 8 : -8,
                     scale: 1.05,
-                    duration: 7 + i * 1.8,
+                    duration: 7 + i * 1.8, 
                     ease: 'sine.inOut',
                     yoyo: true,
                     repeat: 1,
@@ -159,28 +139,21 @@ onMounted(() => {
             // Float decorative elements
             floaters.forEach((floater, i) => {
                 gsap.to(floater, {
-                    y: i % 2 ? 10 : -10,
-                    rotation: i % 2 ? 3 : -3,
-                    duration: 2.8 + i * 0.4,
-                    repeat: -1,
-                    yoyo: true,
-                    ease: 'sine.inOut',
-                    delay: i * 0.3,
+                    y: i % 2 ? 10 : -10, rotation: i % 2 ? 3 : -3,
+                    duration: 2.8 + i * 0.4, repeat: -1, yoyo: true,
+                    ease: 'sine.inOut', delay: i * 0.3,
                 });
             });
 
             // Mascots float with breathing (scale pulse)
             if (mascots.length) {
                 mascots.forEach((mascot, i) => {
-                    const tl = gsap.timeline({
-                        repeat: -1,
-                        delay: i ? 0.45 : 1.25,
-                    });
+                    const tl = gsap.timeline({ repeat: -1, delay: i ? 0.45 : 1.25 });
                     tl.to(mascot, {
-                        y: i ? -9 : -13,
+                        y: i ? -9 : -13, 
                         rotation: i ? -4 : 4,
                         scale: 1.02,
-                        duration: i ? 3 : 2.7,
+                        duration: i ? 3 : 2.7, 
                         ease: 'sine.inOut',
                         yoyo: true,
                         repeat: 1,
@@ -189,50 +162,28 @@ onMounted(() => {
             }
 
             // Scroll indicator bounce infinite
-            const scrollIndicator =
-                landingRoot.value?.querySelector<HTMLElement>(
-                    '[data-scroll-hint]',
-                );
+            const scrollIndicator = landingRoot.value?.querySelector<HTMLElement>('[data-scroll-hint]');
             if (scrollIndicator) {
-                gsap.to(scrollIndicator, {
-                    y: 8,
-                    duration: 0.8,
-                    repeat: -1,
-                    yoyo: true,
-                    ease: 'power1.inOut',
+                gsap.to(scrollIndicator, { 
+                    y: 8, duration: 0.8, repeat: -1, yoyo: true, ease: 'power1.inOut' 
                 });
             }
 
             // Illustration hero float with subtle scale
-            const heroIllustration =
-                landingRoot.value?.querySelector<HTMLElement>(
-                    '[data-hero-illustration]',
-                );
+            const heroIllustration = landingRoot.value?.querySelector<HTMLElement>('[data-hero-illustration]');
             if (heroIllustration) {
                 gsap.to(heroIllustration, {
-                    y: -14,
-                    scale: 1.02,
-                    duration: 3.5,
-                    repeat: -1,
-                    yoyo: true,
-                    ease: 'sine.inOut',
+                    y: -14, scale: 1.02, duration: 3.5, repeat: -1, yoyo: true, ease: 'sine.inOut',
                 });
             }
 
             // Section reveals with ScrollTrigger and parallax
             sections.forEach((section) => {
                 gsap.from(section, {
-                    autoAlpha: 0,
-                    y: 35,
-                    duration: 0.7,
-                    ease: 'power2.out',
-                    scrollTrigger: {
-                        trigger: section,
-                        start: 'top 84%',
-                        once: true,
-                    },
+                    autoAlpha: 0, y: 35, duration: 0.7, ease: 'power2.out',
+                    scrollTrigger: { trigger: section, start: 'top 84%', once: true },
                 });
-
+                
                 // Parallax scrub
                 gsap.to(section, {
                     y: -20,
@@ -244,53 +195,28 @@ onMounted(() => {
                         scrub: 1,
                     },
                 });
-
+                
                 ScrollTrigger.create({
-                    trigger: section,
-                    start: 'top 55%',
-                    end: 'bottom 45%',
-                    onEnter: () => {
-                        activeSection.value = (section as HTMLElement).id;
-                    },
-                    onEnterBack: () => {
-                        activeSection.value = (section as HTMLElement).id;
-                    },
+                    trigger: section, start: 'top 55%', end: 'bottom 45%',
+                    onEnter: () => { activeSection.value = (section as HTMLElement).id; },
+                    onEnterBack: () => { activeSection.value = (section as HTMLElement).id; },
                 });
             });
 
             // Feature cards reveal + magnetic hover
             if (featureCards.length) {
                 gsap.from(featureCards, {
-                    autoAlpha: 0,
-                    y: 40,
-                    scale: 0.95,
-                    rotation: -3,
-                    duration: 0.65,
-                    stagger: 0.14,
-                    ease: 'back.out(1.2)',
-                    scrollTrigger: {
-                        trigger: featureCards[0],
-                        start: 'top 82%',
-                        once: true,
-                    },
+                    autoAlpha: 0, y: 40, scale: 0.95, rotation: -3, 
+                    duration: 0.65, stagger: 0.14, ease: 'back.out(1.2)',
+                    scrollTrigger: { trigger: featureCards[0], start: 'top 82%', once: true },
                 });
-
+                
                 featureCards.forEach((card) => {
                     const hoverEnter = () => {
-                        gsap.to(card, {
-                            y: -8,
-                            scale: 1.02,
-                            duration: 0.4,
-                            ease: 'power2.out',
-                        });
+                        gsap.to(card, { y: -8, scale: 1.02, duration: 0.4, ease: 'power2.out' });
                     };
                     const hoverLeave = () => {
-                        gsap.to(card, {
-                            y: 0,
-                            scale: 1,
-                            duration: 0.4,
-                            ease: 'power2.inOut',
-                        });
+                        gsap.to(card, { y: 0, scale: 1, duration: 0.4, ease: 'power2.inOut' });
                     };
                     card.addEventListener('mouseenter', hoverEnter);
                     card.addEventListener('mouseleave', hoverLeave);
@@ -304,57 +230,36 @@ onMounted(() => {
             // Process steps slide in with connection line draw
             if (processSteps.length) {
                 gsap.from(processSteps, {
-                    autoAlpha: 0,
-                    x: 32,
-                    rotation: 2,
-                    duration: 0.65,
-                    stagger: 0.15,
-                    ease: 'power3.out',
-                    scrollTrigger: {
-                        trigger: processSteps[0],
-                        start: 'top 82%',
-                        once: true,
-                    },
+                    autoAlpha: 0, x: 32, rotation: 2, 
+                    duration: 0.65, stagger: 0.15, ease: 'power3.out',
+                    scrollTrigger: { trigger: processSteps[0], start: 'top 82%', once: true },
                 });
-
-                const lines = gsap.utils.toArray<HTMLElement>(
-                    '[data-connection-line]',
-                );
+                
+                const lines = gsap.utils.toArray<HTMLElement>('[data-connection-line]');
                 if (lines.length) {
                     gsap.from(lines, {
-                        scaleX: 0,
-                        duration: 0.6,
-                        stagger: 0.15,
-                        ease: 'power2.inOut',
-                        scrollTrigger: {
-                            trigger: processSteps[0],
-                            start: 'top 78%',
-                            once: true,
-                        },
+                        scaleX: 0, 
+                        duration: 0.6, stagger: 0.15, ease: 'power2.inOut',
+                        scrollTrigger: { trigger: processSteps[0], start: 'top 78%', once: true },
                     });
                 }
             }
 
             // CTA buttons hover lift
-            const ctaButtons =
-                gsap.utils.toArray<HTMLElement>('[data-cta-button]');
+            const ctaButtons = gsap.utils.toArray<HTMLElement>('[data-cta-button]');
             ctaButtons.forEach((btn) => {
                 const hoverEnter = () => {
-                    gsap.to(btn, {
-                        y: -4,
-                        scale: 1.03,
-                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.14)',
-                        duration: 0.3,
-                        ease: 'power2.out',
+                    gsap.to(btn, { 
+                        y: -4, scale: 1.03, 
+                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.14)', 
+                        duration: 0.3, ease: 'power2.out' 
                     });
                 };
                 const hoverLeave = () => {
-                    gsap.to(btn, {
-                        y: 0,
-                        scale: 1,
-                        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)',
-                        duration: 0.3,
-                        ease: 'power2.inOut',
+                    gsap.to(btn, { 
+                        y: 0, scale: 1, 
+                        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)', 
+                        duration: 0.3, ease: 'power2.inOut' 
                     });
                 };
                 btn.addEventListener('mouseenter', hoverEnter);
@@ -369,6 +274,7 @@ onMounted(() => {
         }, landingRoot.value ?? undefined);
     });
 });
+
 onUnmounted(() => {
     interactionCleanups.splice(0).forEach((cleanup) => cleanup());
     motionMedia?.revert();
@@ -378,10 +284,10 @@ onUnmounted(() => {
 
 <template>
     <Head title="Kuesify — Belajar jadi hidup" />
-    <main class="bg-white text-brand-primary">
+    <main class="bg-brand-accent text-brand-primary">
         <div
             :class="isScrolled ? 'shadow-figma' : 'shadow-none'"
-            class="fixed inset-x-0 top-0 z-[9999] bg-brand-primary px-3 py-3 shadow-lg transition-shadow duration-300 sm:px-8 sm:py-4 lg:px-12"
+            class="fixed inset-x-0 top-0 z-[9999] bg-brand-primary transition-shadow duration-300 px-3 py-3 shadow-lg sm:px-8 sm:py-4 lg:px-12"
         >
             <nav
                 class="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-4"
@@ -507,9 +413,7 @@ onUnmounted(() => {
                 class="mx-auto grid max-w-7xl items-center gap-12 pt-16 lg:grid-cols-[1.02fr_0.98fr] lg:pb-10 lg:pt-24"
             >
                 <div class="max-w-2xl">
-                    <h1
-                        data-hero-item
-                        class="mt-6 text-5xl font-black leading-[0.96] tracking-[-0.065em] sm:text-6xl lg:text-7xl"
+                    <h1 data-hero-item class="mt-6 text-5xl font-black leading-[0.96] tracking-[-0.065em] sm:text-6xl lg:text-7xl"
                     >
                         Bukan cuma jawab soal.<br /><span
                             class="text-brand-primary"
@@ -523,9 +427,7 @@ onUnmounted(() => {
                         alt="Dua siswa belajar bersama menggunakan laptop"
                         class="mx-auto mt-6 w-full max-w-sm object-contain drop-shadow-[0_22px_26px_rgba(35,62,168,0.16)] lg:hidden"
                     />
-                    <p
-                        data-hero-item
-                        class="mt-6 max-w-xl text-lg leading-8 text-brand-primary/75 sm:text-xl"
+                    <p data-hero-item class="mt-6 max-w-xl text-lg leading-8 text-brand-primary/75 sm:text-xl"
                     >
                         Kuesify menyatukan quiz live, latihan mandiri, dan
                         materi interaktif untuk kelas yang lebih aktif dari awal
@@ -544,9 +446,7 @@ onUnmounted(() => {
                             >Masuk dengan PIN</Link
                         >
                     </div>
-                    <div
-                        data-hero-meta
-                        class="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-brand-primary/75"
+                    <div data-hero-meta class="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-brand-primary/75"
                     >
                         <span class="inline-flex items-center gap-2">
                             <svg
@@ -589,22 +489,15 @@ onUnmounted(() => {
                     class="relative mx-auto hidden w-full max-w-2xl items-center justify-center self-center lg:flex lg:justify-end"
                 >
                     <div
-                        data-ambient-blob
-                        class="pointer-events-none absolute bottom-8 right-4 h-64 w-64 rounded-full bg-brand-secondary/10 blur-3xl sm:h-80 sm:w-80"
+                        data-ambient-blob class="pointer-events-none absolute bottom-8 right-4 h-64 w-64 rounded-full bg-brand-secondary/10 blur-3xl sm:h-80 sm:w-80"
                     />
-                    <img
-                        data-hero-illustration
-                        src="/images/learning-characters.png"
-                        alt="Dua siswa belajar bersama menggunakan laptop"
-                        class="relative z-10 w-full max-w-2xl object-contain object-bottom drop-shadow-[0_22px_26px_rgba(35,62,168,0.16)]"
+                    <img data-hero-illustration src="/images/learning-characters.png" alt="Dua siswa belajar bersama menggunakan laptop" class="relative z-10 w-full max-w-2xl object-contain object-bottom drop-shadow-[0_22px_26px_rgba(35,62,168,0.16)]"
                     />
                 </div>
             </div>
         </section>
 
-        <section
-            data-reveal-section
-            id="fitur"
+        <section data-reveal-section id="fitur"
             class="relative min-h-0 overflow-hidden bg-brand-primary px-5 py-20 text-white sm:px-8 lg:min-h-[42rem] lg:px-12 lg:py-24"
         >
             <div
@@ -672,8 +565,7 @@ onUnmounted(() => {
                                 <div class="feature-card-stage">
                                     <article
                                         :class="[
-                                            'feature-card',
-                                            'data-feature-card',
+                                            'feature-card' , 'data-feature-card' ,
                                             featureIndex === 0
                                                 ? 'feature-card-active z-20 border-brand-secondary bg-brand-lime text-brand-primary shadow-figma'
                                                 : featureIndex === 1
@@ -716,8 +608,7 @@ onUnmounted(() => {
                                     </article>
                                     <article
                                         :class="[
-                                            'feature-card',
-                                            'data-feature-card',
+                                            'feature-card' , 'data-feature-card' ,
                                             featureIndex === 1
                                                 ? 'feature-card-active z-20 border-brand-secondary bg-brand-lime text-brand-primary shadow-figma'
                                                 : featureIndex === 0
@@ -760,8 +651,7 @@ onUnmounted(() => {
                                     </article>
                                     <article
                                         :class="[
-                                            'feature-card',
-                                            'data-feature-card',
+                                            'feature-card' , 'data-feature-card' ,
                                             featureIndex === 2
                                                 ? 'feature-card-active z-20 border-brand-secondary bg-brand-lime text-brand-primary shadow-figma'
                                                 : featureIndex === 1
@@ -818,9 +708,7 @@ onUnmounted(() => {
             </div>
         </section>
 
-        <section
-            data-reveal-section
-            id="cara-kerja"
+        <section data-reveal-section id="cara-kerja"
             class="relative min-h-0 overflow-hidden px-5 py-20 sm:px-8 lg:min-h-[42rem] lg:px-12 lg:py-24"
         >
             <div
@@ -1036,9 +924,7 @@ onUnmounted(() => {
                 </div>
             </div>
         </section>
-        <section
-            data-reveal-section
-            id="untuk-siapa"
+        <section data-reveal-section id="untuk-siapa"
             class="relative isolate z-20 -mt-12 min-h-0 overflow-hidden bg-white px-5 py-20 sm:px-8 lg:min-h-[48rem] lg:px-12 lg:py-24"
         >
             <div
@@ -1237,3 +1123,7 @@ html {
     }
 }
 </style>
+
+
+
+
