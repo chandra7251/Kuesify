@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+
+const page = usePage();
+const isAuthenticated = computed(() => Boolean(page.props.auth?.user));
 
 const form = useForm({ pin: '', alias: '' });
 const root = ref<HTMLElement | null>(null);
@@ -338,15 +341,24 @@ function join(): void {
                 </Link>
                 <div class="flex items-center gap-2 sm:gap-4">
                     <Link
-                        href="/login"
-                        class="inline-flex min-h-10 items-center justify-center rounded-xl bg-brand-primary px-3 py-2 text-xs font-extrabold leading-none text-white transition hover:bg-brand-secondary sm:min-h-11 sm:px-4 sm:py-3 sm:text-sm"
-                        >Masuk</Link
+                        v-if="isAuthenticated"
+                        :href="route('dashboard')"
+                        class="inline-flex min-h-10 items-center justify-center rounded-xl bg-brand-secondary px-3.5 py-2 text-xs font-extrabold leading-none text-brand-primary shadow-figma transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:min-h-11 sm:px-5 sm:py-3 sm:text-sm"
                     >
-                    <Link
-                        href="/register"
-                        class="inline-flex min-h-10 items-center justify-center rounded-xl bg-brand-secondary px-3.5 py-2 text-xs font-extrabold leading-none text-brand-primary shadow-figma transition hover:-translate-y-0.5 active:translate-y-1 active:shadow-none sm:min-h-11 sm:px-5 sm:py-3 sm:text-sm"
-                        >Mulai gratis</Link
-                    >
+                        Kembali ke Dashboard
+                    </Link>
+                    <template v-else>
+                        <Link
+                            href="/login"
+                            class="inline-flex min-h-10 items-center justify-center rounded-xl bg-brand-primary px-3 py-2 text-xs font-extrabold leading-none text-white transition hover:bg-brand-secondary sm:min-h-11 sm:px-4 sm:py-3 sm:text-sm"
+                            >Masuk</Link
+                        >
+                        <Link
+                            href="/register"
+                            class="inline-flex min-h-10 items-center justify-center rounded-xl bg-brand-secondary px-3.5 py-2 text-xs font-extrabold leading-none text-brand-primary shadow-figma transition hover:-translate-y-0.5 active:translate-y-1 active:shadow-none sm:min-h-11 sm:px-5 sm:py-3 sm:text-sm"
+                            >Mulai gratis</Link
+                        >
+                    </template>
                 </div>
             </nav>
         </div>
