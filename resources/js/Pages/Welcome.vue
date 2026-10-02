@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { gsap } from 'gsap';

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import type { PageProps } from '@/types';
-import { Head, useForm, usePage } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import DeleteUserForm from './Partials/DeleteUserForm.vue';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue';
@@ -13,92 +13,75 @@ defineProps<{
 }>();
 
 const page = usePage<PageProps>();
-const localeForm = useForm({ locale: page.props.auth.user.locale ?? 'id' });
-const localeLabel = computed(() =>
-    localeForm.locale === 'id' ? 'Bahasa Indonesia' : 'English',
+const user = page.props.auth.user;
+const userInitials = computed(() =>
+    user.name
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0])
+        .join('')
+        .toUpperCase(),
 );
-
-function updateLocale(): void {
-    localeForm.patch(route('profile.locale'), { preserveScroll: true });
-}
 </script>
 
 <template>
     <Head title="Profil" />
 
     <AuthenticatedLayout>
-        <main class="mx-auto max-w-7xl space-y-5 px-4 py-6 sm:px-6 lg:px-8">
+        <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
             <section
-                class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-7"
+                class="overflow-hidden rounded-2xl bg-brand-primary p-6 text-white shadow-figma sm:p-8"
             >
-                <p
-                    class="text-xs font-extrabold uppercase tracking-[0.18em] text-[#3154D5]"
+                <div
+                    class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between"
                 >
-                    PENGATURAN AKUN
-                </p>
-                <h1
-                    class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl"
-                >
-                    Profil
-                </h1>
-                <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                    Kelola informasi akun, keamanan, dan preferensi profil Anda.
-                </p>
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-brand-secondary text-2xl font-black text-brand-primary shadow-sm"
+                        >
+                            {{ userInitials }}
+                        </div>
+                        <div>
+                            <p
+                                class="text-xs font-black uppercase tracking-[0.2em] text-brand-secondary"
+                            >
+                                Pengaturan akun
+                            </p>
+                            <h1
+                                class="mt-2 text-2xl font-black tracking-tight sm:text-3xl"
+                            >
+                                {{ user.name }}
+                            </h1>
+                            <p class="mt-1 text-sm text-white/75">
+                                {{ user.email }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </section>
 
-            <div class="space-y-5">
-                <div
-                    class="rounded-xl border border-slate-200 bg-white p-6 shadow-[0_2px_7px_rgba(15,23,42,0.09)] sm:p-7"
-                >
-                    <UpdateProfileInformationForm
-                        :must-verify-email="mustVerifyEmail"
-                        :status="status"
-                        class="max-w-xl"
-                    />
-                </div>
+            <section
+                class="rounded-2xl border border-l-4 border-slate-200 border-l-brand-primary bg-white p-6 shadow-figma-sm sm:p-7"
+            >
+                <UpdateProfileInformationForm
+                    :must-verify-email="mustVerifyEmail"
+                    :status="status"
+                    class="max-w-xl"
+                />
+            </section>
 
-                <div
-                    class="rounded-xl border border-slate-200 bg-white p-6 shadow-[0_2px_7px_rgba(15,23,42,0.09)] sm:p-7"
-                >
-                    <form class="max-w-xl" @submit.prevent="updateLocale">
-                        <h2 class="text-lg font-extrabold text-slate-900">
-                            Bahasa / Language
-                        </h2>
-                        <p class="mt-1 text-sm text-slate-600">
-                            Preferensi saat ini: {{ localeLabel }}
-                        </p>
-                        <div class="mt-4 flex flex-wrap items-center gap-3">
-                            <select
-                                v-model="localeForm.locale"
-                                class="min-h-11 rounded-lg border-slate-300 text-sm"
-                                aria-label="Bahasa"
-                            >
-                                <option value="id">Bahasa Indonesia</option>
-                                <option value="en">English</option>
-                            </select>
-                            <button
-                                type="submit"
-                                class="min-h-11 rounded-lg bg-brand-primary px-4 text-sm font-bold text-white"
-                                :disabled="localeForm.processing"
-                            >
-                                Simpan
-                            </button>
-                        </div>
-                    </form>
-                </div>
+            <section
+                class="rounded-2xl border border-l-4 border-slate-200 border-l-brand-primary bg-white p-6 shadow-figma-sm sm:p-7"
+            >
+                <UpdatePasswordForm class="max-w-xl" />
+            </section>
 
-                <div
-                    class="rounded-xl border border-slate-200 bg-white p-6 shadow-[0_2px_7px_rgba(15,23,42,0.09)] sm:p-7"
-                >
-                    <UpdatePasswordForm class="max-w-xl" />
-                </div>
-
-                <div
-                    class="rounded-xl border border-slate-200 bg-white p-6 shadow-[0_2px_7px_rgba(15,23,42,0.09)] sm:p-7"
-                >
-                    <DeleteUserForm class="max-w-xl" />
-                </div>
-            </div>
+            <section
+                class="rounded-2xl border border-l-4 border-red-200 border-l-status-danger bg-white p-6 shadow-figma-sm sm:p-7"
+            >
+                <DeleteUserForm class="max-w-xl" />
+            </section>
         </main>
     </AuthenticatedLayout>
 </template>

@@ -10,7 +10,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -45,29 +45,6 @@ type AttemptSummary = {
     updated_at: string | null;
 };
 
-const activeMissionTab = ref<'all' | 'daily' | 'weekly' | 'campaign'>('all');
-const equippedTitle = ref('');
-
-const missionBadgeLink: Record<string, string> = {
-    learning_quiz_5: 'Trial Challenger',
-    campaign_dungeon_15: 'Dungeon Conqueror',
-    campaign_dungeon_25: 'Dungeon Grandmaster',
-    campaign_flawless: 'Flawless Mastery',
-    campaign_titan_30: 'Eternal Titan',
-};
-
-const filteredMissions = computed(() => {
-    if (activeMissionTab.value === 'daily')
-        return props.missions.filter((m) => m.kind === 'daily');
-    if (activeMissionTab.value === 'weekly')
-        return props.missions.filter((m) => m.kind === 'weekly');
-    if (activeMissionTab.value === 'campaign')
-        return props.missions.filter(
-            (m) => m.kind === 'campaign' || m.kind === 'learning_path',
-        );
-    return props.missions;
-});
-
 const props = defineProps<{
     organization: { id: number; name: string; role: string | null };
     stats: {
@@ -96,6 +73,71 @@ const props = defineProps<{
     streakHeatmap: { date: string; count: number }[];
     missions: Mission[];
 }>();
+
+const activeMissionTab = ref<'all' | 'daily' | 'weekly' | 'campaign'>('all');
+const equippedTitle = ref('');
+
+const missionBadgeLink: Record<string, string> = {
+    learning_quiz_5: 'Trial Challenger',
+    campaign_dungeon_15: 'Dungeon Conqueror',
+    campaign_dungeon_25: 'Dungeon Grandmaster',
+    campaign_flawless: 'Flawless Mastery',
+    campaign_titan_30: 'Eternal Titan',
+};
+
+const filteredMissions = computed(() => {
+    if (activeMissionTab.value === 'daily')
+        return props.missions.filter((m) => m.kind === 'daily');
+    if (activeMissionTab.value === 'weekly')
+        return props.missions.filter((m) => m.kind === 'weekly');
+    if (activeMissionTab.value === 'campaign')
+        return props.missions.filter(
+            (m) => m.kind === 'campaign' || m.kind === 'learning_path',
+        );
+    return props.missions;
+});
+
+const missionPage = ref(1);
+const missionsPerPage = 9;
+const missionPageCount = computed(() =>
+    Math.max(1, Math.ceil(filteredMissions.value.length / missionsPerPage)),
+);
+const paginatedMissions = computed(() => {
+    const start = (missionPage.value - 1) * missionsPerPage;
+    return filteredMissions.value.slice(start, start + missionsPerPage);
+});
+
+watch(activeMissionTab, () => {
+    missionPage.value = 1;
+});
+
+watch(missionPageCount, (pageCount) => {
+    if (missionPage.value > pageCount) missionPage.value = pageCount;
+});
+
+function missionKindLabel(kind: string): string {
+    return kind === 'daily'
+        ? 'Bounty Harian'
+        : kind === 'weekly'
+          ? 'Raid Mingguan'
+          : 'Jalur Legenda';
+}
+
+function missionKindIcon(kind: string): string {
+    return kind === 'daily'
+        ? 'target'
+        : kind === 'weekly'
+          ? 'calendar'
+          : 'trophy';
+}
+
+function missionKindClass(kind: string): string {
+    return kind === 'daily'
+        ? 'bg-blue-100 text-brand-primary'
+        : kind === 'weekly'
+          ? 'bg-violet-100 text-violet-700'
+          : 'bg-emerald-100 text-emerald-700';
+}
 
 const levelStartXp = computed(
     () => 1000 * (((props.stats.level - 1) * props.stats.level) / 2),
@@ -321,13 +363,13 @@ onUnmounted(() => {
 
                         <!-- Level Progress Card -->
                         <div
-                            class="rounded-xl border border-white/15 bg-[#ffffff]/10 p-4 backdrop-blur-md"
+                            class="rounded-xl border border-brand-secondary/70 bg-brand-secondary p-4 shadow-figma-sm transition hover:shadow-figma"
                         >
                             <div
-                                class="flex items-center justify-between text-xs font-semibold text-white/80"
+                                class="flex items-center justify-between text-xs font-semibold text-brand-dark"
                             >
                                 <span
-                                    class="inline-flex items-center gap-1.5 font-bold text-brand-secondary"
+                                    class="inline-flex items-center gap-1.5 font-black text-brand-primary"
                                 >
                                     <AppIcon name="level" :size="15" />
                                     <span>Level {{ stats.level }}</span>
@@ -347,11 +389,11 @@ onUnmounted(() => {
                                 <p class="text-2xl font-black text-white">
                                     {{ stats.xp }}
                                     <span
-                                        class="text-xs font-bold text-white/60"
+                                        class="text-xs font-black text-brand-primary"
                                         >XP</span
                                     >
                                 </p>
-                                <p class="text-xs text-white/70">
+                                <p class="text-xs font-bold text-brand-dark">
                                     Target {{ nextLevelXp }} XP
                                 </p>
                             </div>
@@ -635,7 +677,7 @@ onUnmounted(() => {
 
                         <div
                             v-if="filteredAvailableQuizzes.length"
-                            class="mt-4 grid gap-3 sm:grid-cols-2 overflow-y-auto pr-1 pb-2 custom-scrollbar"
+                            class="custom-scrollbar mt-4 grid gap-3 overflow-y-auto pb-2 pr-1 sm:grid-cols-2"
                         >
                             <QuizCard
                                 v-for="quiz in filteredAvailableQuizzes"
@@ -695,7 +737,7 @@ onUnmounted(() => {
 
                     <!-- Badge Collection -->
                     <section
-                        class="flex lg:h-[490px] flex-col rounded-xl border border-[#e2e8f0] bg-[#ffffff] p-5 shadow-sm"
+                        class="flex flex-col rounded-xl border border-[#e2e8f0] bg-[#ffffff] p-5 shadow-sm lg:h-[490px]"
                     >
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
@@ -730,208 +772,231 @@ onUnmounted(() => {
                 <!-- Misi Belajar (RPG Guild Quest Board) -->
                 <section
                     data-motion-section
-                    class="flex flex-col rounded-xl border border-[#e2e8f0] bg-[#ffffff] p-5 shadow-sm"
+                    class="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-figma sm:p-6 xl:min-h-[800px]"
                 >
                     <div
-                        class="flex flex-wrap items-center justify-between gap-3"
+                        class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between"
                     >
-                        <div class="flex items-center gap-2">
-                            <AppIcon
-                                name="target"
-                                :size="18"
-                                class="text-brand-primary"
-                            />
+                        <div class="flex items-start gap-3">
+                            <span
+                                class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-primary/10 text-brand-primary"
+                            >
+                                <AppIcon name="target" :size="20" />
+                            </span>
                             <div>
-                                <h2 class="text-base font-bold text-[#0f172a]">
-                                    Papan Misi Petualang (Quest Board)
+                                <p
+                                    class="text-xs font-black uppercase tracking-[0.18em] text-brand-primary"
+                                >
+                                    Quest board
+                                </p>
+                                <h2
+                                    class="mt-1 text-lg font-black text-[#0f172a] sm:text-xl"
+                                >
+                                    Papan Misi Petualang
                                 </h2>
-                                <p class="text-xs text-[#64748b]">
-                                    Selesaikan bounty harian, raid mingguan, dan
-                                    jalur legenda untuk panen XP dan lencana.
+                                <p
+                                    class="mt-1 text-xs leading-5 text-[#64748b]"
+                                >
+                                    Selesaikan bounty, raid, dan jalur legenda
+                                    untuk panen XP serta lencana.
                                 </p>
                             </div>
                         </div>
 
-                        <!-- Quest Tabs -->
                         <div
-                            class="flex items-center gap-1.5 rounded-xl bg-[#f1f5f9] p-1 text-xs font-bold"
+                            class="flex w-full items-center gap-1 overflow-x-auto rounded-xl bg-[#f1f5f9] p-1 text-xs font-bold xl:w-auto"
                         >
                             <button
+                                v-for="tab in [
+                                    {
+                                        key: 'all',
+                                        label: `Semua (${missions.length})`,
+                                    },
+                                    { key: 'daily', label: 'Bounty Harian' },
+                                    { key: 'weekly', label: 'Raid Mingguan' },
+                                    { key: 'campaign', label: 'Jalur Legenda' },
+                                ]"
+                                :key="tab.key"
                                 type="button"
-                                @click="activeMissionTab = 'all'"
-                                class="rounded-lg px-2.5 py-1 transition"
+                                class="min-h-9 shrink-0 rounded-lg px-3 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-primary"
                                 :class="
-                                    activeMissionTab === 'all'
-                                        ? 'shadow-xs bg-[#ffffff] text-brand-primary'
-                                        : 'text-[#475569] hover:text-[#0f172a]'
+                                    activeMissionTab === tab.key
+                                        ? 'bg-white text-brand-primary shadow-sm'
+                                        : 'text-[#475569] hover:bg-white/70 hover:text-[#0f172a]'
+                                "
+                                @click="
+                                    activeMissionTab =
+                                        tab.key as typeof activeMissionTab
                                 "
                             >
-                                Semua ({{ missions.length }})
-                            </button>
-                            <button
-                                type="button"
-                                @click="activeMissionTab = 'daily'"
-                                class="rounded-lg px-2.5 py-1 transition"
-                                :class="
-                                    activeMissionTab === 'daily'
-                                        ? 'shadow-xs bg-[#ffffff] text-brand-primary'
-                                        : 'text-[#475569] hover:text-[#0f172a]'
-                                "
-                            >
-                                Bounty Harian
-                            </button>
-                            <button
-                                type="button"
-                                @click="activeMissionTab = 'weekly'"
-                                class="rounded-lg px-2.5 py-1 transition"
-                                :class="
-                                    activeMissionTab === 'weekly'
-                                        ? 'shadow-xs bg-[#ffffff] text-brand-primary'
-                                        : 'text-[#475569] hover:text-[#0f172a]'
-                                "
-                            >
-                                Raid Mingguan
-                            </button>
-                            <button
-                                type="button"
-                                @click="activeMissionTab = 'campaign'"
-                                class="rounded-lg px-2.5 py-1 transition"
-                                :class="
-                                    activeMissionTab === 'campaign'
-                                        ? 'shadow-xs bg-[#ffffff] text-brand-primary'
-                                        : 'text-[#475569] hover:text-[#0f172a]'
-                                "
-                            >
-                                Jalur Legenda
+                                {{ tab.label }}
                             </button>
                         </div>
                     </div>
 
                     <div
-                        v-if="filteredMissions.length"
-                        class="mt-4 grid gap-3 md:grid-cols-3"
+                        v-if="paginatedMissions.length"
+                        class="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3 xl:grid-rows-3"
                     >
                         <article
-                            v-for="mission in filteredMissions"
+                            v-for="mission in paginatedMissions"
                             :key="mission.key"
-                            class="flex flex-col justify-between rounded-xl border p-4 transition duration-200"
-                            :class="[
-                                mission.completed_at ||
-                                mission.progress >= mission.goal
-                                    ? '/50 border-status-success/40 bg-[#f8fafc]/70 dark:border-status-success/30'
-                                    : 'border-[#e2e8f0]/80 bg-[#ffffff] hover:border-brand-primary/40',
-                            ]"
+                            class="flex min-h-[190px] flex-col justify-between rounded-2xl border border-brand-dark/30 bg-brand-primary p-4 text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-figma-hover"
                         >
                             <div>
                                 <div
                                     class="flex items-start justify-between gap-2"
                                 >
                                     <span
-                                        class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-bold"
                                         :class="[
-                                            mission.kind === 'daily'
-                                                ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300'
-                                                : mission.kind === 'weekly'
-                                                  ? 'bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300'
-                                                  : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300',
+                                            'inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-wide',
+                                            missionKindClass(mission.kind),
                                         ]"
                                     >
                                         <AppIcon
                                             :name="
-                                                mission.kind === 'daily'
-                                                    ? 'target'
-                                                    : mission.kind === 'weekly'
-                                                      ? 'calendar'
-                                                      : 'trophy'
+                                                missionKindIcon(mission.kind)
                                             "
                                             :size="12"
                                         />
-                                        <span>{{
-                                            mission.kind === 'daily'
-                                                ? 'Bounty Harian'
-                                                : mission.kind === 'weekly'
-                                                  ? 'Raid Mingguan'
-                                                  : 'Jalur Legenda'
-                                        }}</span>
+                                        {{ missionKindLabel(mission.kind) }}
                                     </span>
-
                                     <span
-                                        class="inline-flex items-center gap-1 rounded-full bg-brand-primary/10 px-2 py-0.5 text-xs font-bold text-brand-primary"
+                                        class="inline-flex shrink-0 items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-xs font-black text-white"
                                     >
                                         <AppIcon name="xp" :size="12" />
-                                        <span>+{{ mission.reward_xp }} XP</span>
+                                        +{{ mission.reward_xp }} XP
                                     </span>
                                 </div>
 
                                 <h3
-                                    class="mt-3 text-sm font-bold text-[#0f172a]"
+                                    class="mt-4 text-sm font-black leading-5 text-white"
                                 >
                                     {{ mission.title }}
                                 </h3>
-                                <p
-                                    class="mt-1 text-xs leading-relaxed text-[#475569]"
-                                >
+                                <p class="mt-1 text-xs leading-5 text-white/75">
                                     {{ mission.description }}
                                 </p>
 
                                 <div
                                     v-if="missionBadgeLink[mission.key]"
-                                    class="mt-2.5 inline-flex items-center gap-1 rounded-md border border-amber-200/50 bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800"
+                                    class="mt-3 inline-flex max-w-full items-center gap-1.5 rounded-lg border border-amber-200/40 bg-amber-100 px-2.5 py-1 text-[10px] font-black text-amber-900"
                                 >
-                                    <AppIcon name="badge" :size="11" />
-                                    <span
-                                        >Membuka Lencana: [{{
+                                    <AppIcon name="badge" :size="12" />
+                                    <span class="truncate"
+                                        >Lencana:
+                                        {{
                                             missionBadgeLink[mission.key]
-                                        }}]</span
+                                        }}</span
                                     >
                                 </div>
                             </div>
 
                             <div class="mt-4">
-                                <ProgressBar
-                                    :current="mission.progress"
-                                    :max="mission.goal"
-                                    :label="`${mission.progress}/${mission.goal}`"
-                                />
                                 <div
-                                    class="mt-2 flex items-center justify-between text-xs font-semibold"
+                                    class="mb-2 flex items-center justify-between text-xs font-bold text-white/85"
                                 >
                                     <span
-                                        :class="
-                                            mission.completed_at ||
-                                            mission.progress >= mission.goal
-                                                ? 'inline-flex items-center gap-1 font-bold text-status-success'
-                                                : 'text-[#64748b]'
-                                        "
+                                        >{{ mission.progress }}/{{
+                                            mission.goal
+                                        }}
+                                        selesai</span
                                     >
-                                        <AppIcon
-                                            v-if="
-                                                mission.completed_at ||
-                                                mission.progress >= mission.goal
-                                            "
-                                            name="check"
-                                            :size="12"
-                                        />
-                                        <span>{{
-                                            mission.completed_at ||
-                                            mission.progress >= mission.goal
-                                                ? 'Quest Tuntas ✨'
-                                                : `${mission.progress}/${mission.goal} selesai`
-                                        }}</span>
-                                    </span>
+                                    <span
+                                        >{{
+                                            Math.min(
+                                                100,
+                                                Math.round(
+                                                    (mission.progress /
+                                                        mission.goal) *
+                                                        100,
+                                                ),
+                                            )
+                                        }}%</span
+                                    >
                                 </div>
+                                <div
+                                    class="h-2 overflow-hidden rounded-full bg-white/20"
+                                >
+                                    <div
+                                        class="h-full rounded-full bg-brand-secondary transition-all"
+                                        :style="{
+                                            width: `${Math.min(100, (mission.progress / mission.goal) * 100)}%`,
+                                        }"
+                                    />
+                                </div>
+                                <p
+                                    class="mt-2 text-[11px] font-bold"
+                                    :class="
+                                        mission.completed_at ||
+                                        mission.progress >= mission.goal
+                                            ? 'text-brand-secondary'
+                                            : 'text-white/60'
+                                    "
+                                >
+                                    {{
+                                        mission.completed_at ||
+                                        mission.progress >= mission.goal
+                                            ? 'Quest tuntas ✨'
+                                            : 'Teruskan petualangan'
+                                    }}
+                                </p>
                             </div>
                         </article>
                     </div>
 
                     <p
                         v-else
-                        class="mt-4 rounded-xl bg-[#f8fafc] px-4 py-6 text-center text-xs font-medium text-[#64748b]"
+                        class="mt-5 flex min-h-[240px] items-center justify-center rounded-xl bg-[#f8fafc] px-4 py-6 text-center text-xs font-medium text-[#64748b]"
                     >
                         Belum ada quest di kategori ini.
                     </p>
-                </section>
 
+                    <div
+                        v-if="missionPageCount > 1"
+                        class="mt-5 flex items-center justify-between border-t border-slate-100 pt-4"
+                    >
+                        <p class="text-xs font-semibold text-[#64748b]">
+                            Halaman {{ missionPage }} dari
+                            {{ missionPageCount }}
+                        </p>
+                        <div class="flex items-center gap-2">
+                            <button
+                                v-for="page in missionPageCount"
+                                :key="page"
+                                type="button"
+                                class="grid h-9 min-w-9 place-items-center rounded-lg px-2 text-xs font-black transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-primary"
+                                :class="
+                                    page === missionPage
+                                        ? 'bg-brand-primary text-white'
+                                        : 'border border-slate-200 text-brand-primary hover:border-brand-primary hover:bg-brand-primary/5'
+                                "
+                                :aria-current="
+                                    page === missionPage ? 'page' : undefined
+                                "
+                                @click="missionPage = page"
+                            >
+                                {{ page }}
+                            </button>
+                            <button
+                                type="button"
+                                class="min-h-9 rounded-lg border border-slate-200 px-3 text-xs font-black text-brand-primary transition hover:border-brand-primary disabled:cursor-not-allowed disabled:opacity-40"
+                                :disabled="missionPage === 1"
+                                @click="missionPage--"
+                            >
+                                Sebelumnya
+                            </button>
+                            <button
+                                type="button"
+                                class="min-h-9 rounded-lg bg-brand-primary px-3 text-xs font-black text-white transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-40"
+                                :disabled="missionPage === missionPageCount"
+                                @click="missionPage++"
+                            >
+                                Berikutnya
+                            </button>
+                        </div>
+                    </div>
+                </section>
                 <!-- Riwayat Attempt Terbaru -->
                 <section
                     data-motion-section

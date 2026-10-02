@@ -46,3 +46,4 @@ export default {
 
     plugins: [forms],
 };
+

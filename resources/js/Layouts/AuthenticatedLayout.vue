@@ -222,7 +222,8 @@ function closeMobileNav(): void {
 
 <template>
     <div
-        class="min-h-screen w-full max-w-full overflow-x-hidden bg-white text-slate-900"
+        class="min-h-screen w-full max-w-full overflow-x-hidden text-slate-900"
+        :class="currentRole === 'participant' ? 'bg-[#F5F8FA]' : 'bg-white'"
     >
         <!-- ========================================================================= -->
         <!-- 1. DESKTOP SIDEBAR: FIXED TO VIEWPORT (Never scrolls with the page!)      -->

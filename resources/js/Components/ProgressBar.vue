@@ -42,7 +42,7 @@ const percentage = computed(() => {
             aria-valuemax="100"
         >
             <div
-                class="h-2 rounded-full bg-brand-secondary"
+                class="h-2 rounded-full bg-brand-primary"
                 :style="{ width: `${percentage}%` }"
             ></div>
         </div>

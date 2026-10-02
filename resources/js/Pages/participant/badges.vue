@@ -247,7 +247,7 @@ function copyProof(): void {
  <Head title="Katalog & Panduan Lencana RPG" />
 
  <AuthenticatedLayout>
- <div class="min-h-[calc(100vh-4rem)] bg-brand-accent">
+ <div class="min-h-[calc(100vh-4rem)]">
  <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
  <!-- Header Hero RPG Style -->
  <section class="rounded-2xl bg-brand-primary px-6 py-7 text-white shadow-figma sm:px-8">

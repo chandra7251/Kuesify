@@ -28,7 +28,7 @@ const stateCopy = {
 
 <template>
     <article
-        class="ui-card-hover shadow-sm-sm group relative overflow-hidden rounded-xl border border-[#e2e8f0] bg-[#ffffff] p-5 transition duration-300 hover:-translate-y-1 hover:border-brand-primary/30 hover:shadow-sm"
+        class="ui-card-hover shadow-sm-sm group relative flex h-full flex-col overflow-hidden rounded-xl border border-[#e2e8f0] bg-[#ffffff] p-5 transition duration-300 hover:-translate-y-1 hover:border-brand-primary/30 hover:shadow-sm"
     >
         <div
             class="absolute inset-x-0 top-0 h-1 origin-left scale-x-75 bg-gradient-to-r from-brand-primary via-brand-secondary to-support-1 opacity-80 transition duration-500 group-hover:scale-x-100"
@@ -78,6 +78,7 @@ const stateCopy = {
                 >Best {{ score }}</span
             >
         </div>
-        <slot name="actions" />
+        <div class="mt-auto flex flex-col"><slot name="actions" /></div>
     </article>
 </template>
+
