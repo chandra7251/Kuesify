@@ -57,9 +57,14 @@ const missionBadgeLink: Record<string, string> = {
 };
 
 const filteredMissions = computed(() => {
-    if (activeMissionTab.value === 'daily') return props.missions.filter((m) => m.kind === 'daily');
-    if (activeMissionTab.value === 'weekly') return props.missions.filter((m) => m.kind === 'weekly');
-    if (activeMissionTab.value === 'campaign') return props.missions.filter((m) => m.kind === 'campaign' || m.kind === 'learning_path');
+    if (activeMissionTab.value === 'daily')
+        return props.missions.filter((m) => m.kind === 'daily');
+    if (activeMissionTab.value === 'weekly')
+        return props.missions.filter((m) => m.kind === 'weekly');
+    if (activeMissionTab.value === 'campaign')
+        return props.missions.filter(
+            (m) => m.kind === 'campaign' || m.kind === 'learning_path',
+        );
     return props.missions;
 });
 
@@ -146,7 +151,9 @@ const filteredAvailableQuizzes = computed(() => {
         return props.availableQuizzes.filter((q) => q.my_attempts_count === 0);
     }
     if (quizFilter.value === 'retry') {
-        return props.availableQuizzes.filter((q) => q.my_attempts_count > 0 && canStart(q));
+        return props.availableQuizzes.filter(
+            (q) => q.my_attempts_count > 0 && canStart(q),
+        );
     }
     if (quizFilter.value === 'done') {
         return props.availableQuizzes.filter((q) => !canStart(q));
@@ -192,14 +199,32 @@ onMounted(() => {
                 defaults: { ease: 'power3.out' },
             });
             const hero = motionRoot.value?.querySelector('[data-motion-hero]');
-            const items = motionRoot.value?.querySelectorAll('[data-motion-item]:not([data-motion-hero])');
+            const items = motionRoot.value?.querySelectorAll(
+                '[data-motion-item]:not([data-motion-hero])',
+            );
             const sections = motionRoot.value?.querySelectorAll(
                 '[data-motion-section]',
             );
 
-            if (hero) timeline.from(hero, { autoAlpha: 0, y: 16, duration: 0.45, clearProps: 'all' });
+            if (hero)
+                timeline.from(hero, {
+                    autoAlpha: 0,
+                    y: 16,
+                    duration: 0.45,
+                    clearProps: 'all',
+                });
             if (items?.length)
-                timeline.from(items, { autoAlpha: 0, y: 14, duration: 0.35, stagger: 0.05, clearProps: 'all' }, '-=0.2');
+                timeline.from(
+                    items,
+                    {
+                        autoAlpha: 0,
+                        y: 14,
+                        duration: 0.35,
+                        stagger: 0.05,
+                        clearProps: 'all',
+                    },
+                    '-=0.2',
+                );
             if (sections?.length) {
                 gsap.from(sections, {
                     autoAlpha: 0,
@@ -234,7 +259,7 @@ onUnmounted(() => {
     <Head title="Dashboard Siswa" />
 
     <AuthenticatedLayout>
-        <div class="min-h-[calc(100vh-4rem)] bg-brand-accent">
+        <div class="min-h-[calc(100vh-4rem)] bg-[#F5F8FA]">
             <main
                 ref="motionRoot"
                 data-motion="participant-dashboard"
@@ -243,50 +268,88 @@ onUnmounted(() => {
                 <!-- Hero Section: Clean, Purposeful, Educational -->
                 <section
                     data-motion-hero
-                    class="relative overflow-hidden rounded-2xl bg-brand-primary px-6 py-7 text-white shadow-sm sm:px-8"
+                    class="relative overflow-hidden rounded-xl bg-brand-primary px-6 py-7 text-white shadow-sm sm:px-8"
                 >
                     <div class="flex items-center justify-between">
-                        <div class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-brand-secondary backdrop-blur-sm">
-                            <span class="h-2 w-2 rounded-full bg-brand-secondary" aria-hidden="true"></span>
+                        <div
+                            class="inline-flex items-center gap-2 rounded-full bg-[#ffffff]/10 px-3 py-1 text-xs font-bold text-brand-secondary backdrop-blur-sm"
+                        >
+                            <span
+                                class="h-2 w-2 rounded-full bg-brand-secondary"
+                                aria-hidden="true"
+                            ></span>
                             <span>{{ organization.name }}</span>
                         </div>
-                        <div class="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
-                            <AppIcon name="flame" :size="14" class="text-brand-secondary" />
+                        <div
+                            class="inline-flex items-center gap-1.5 rounded-full bg-[#ffffff]/10 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm"
+                        >
+                            <AppIcon
+                                name="flame"
+                                :size="14"
+                                class="text-brand-secondary"
+                            />
                             <span>{{ stats.streak }} Hari Streak</span>
                         </div>
                     </div>
 
-                    <div class="mt-6 grid gap-6 lg:grid-cols-[1fr_20rem] lg:items-center">
+                    <div
+                        class="mt-6 grid gap-6 lg:grid-cols-[1fr_20rem] lg:items-center"
+                    >
                         <div>
                             <div class="flex flex-wrap items-center gap-2">
-                                <h1 class="text-2xl font-black tracking-tight text-white sm:text-3xl">
+                                <h1
+                                    class="text-2xl font-black tracking-tight text-white sm:text-3xl"
+                                >
                                     Halo, {{ $page.props.auth.user.name }}
                                 </h1>
                                 <span
                                     v-if="equippedTitle"
-                                    class="inline-flex items-center gap-1.5 rounded-full border border-brand-secondary/40 bg-brand-secondary/20 px-3 py-0.5 text-xs font-black text-brand-secondary shadow-xs backdrop-blur-sm"
+                                    class="shadow-xs inline-flex items-center gap-1.5 rounded-full border border-brand-secondary/40 bg-brand-secondary/20 px-3 py-0.5 text-xs font-black text-brand-secondary backdrop-blur-sm"
                                 >
                                     <AppIcon name="badge" :size="13" />
                                     <span>Gelar: [{{ equippedTitle }}]</span>
                                 </span>
                             </div>
-                            <p class="mt-2 max-w-xl text-sm leading-relaxed text-white/80">
-                                Lanjutkan pembelajaran mandiri, selesaikan misi aktif, dan kumpulkan poin pengalaman untuk menaikkan level akunmu.
+                            <p
+                                class="mt-2 max-w-xl text-sm leading-relaxed text-white/80"
+                            >
+                                Lanjutkan pembelajaran mandiri, selesaikan misi
+                                aktif, dan kumpulkan poin pengalaman untuk
+                                menaikkan level akunmu.
                             </p>
                         </div>
 
                         <!-- Level Progress Card -->
-                        <div class="rounded-xl border border-white/15 bg-white/10 p-4 backdrop-blur-md">
-                            <div class="flex items-center justify-between text-xs font-semibold text-white/80">
-                                <span class="inline-flex items-center gap-1.5 text-brand-secondary font-bold">
+                        <div
+                            class="rounded-xl border border-white/15 bg-[#ffffff]/10 p-4 backdrop-blur-md"
+                        >
+                            <div
+                                class="flex items-center justify-between text-xs font-semibold text-white/80"
+                            >
+                                <span
+                                    class="inline-flex items-center gap-1.5 font-bold text-brand-secondary"
+                                >
                                     <AppIcon name="level" :size="15" />
                                     <span>Level {{ stats.level }}</span>
                                 </span>
-                                <span>{{ Math.round((currentLevelXp / levelTargetXp) * 100) }}% Progres</span>
+                                <span
+                                    >{{
+                                        Math.round(
+                                            (currentLevelXp / levelTargetXp) *
+                                                100,
+                                        )
+                                    }}% Progres</span
+                                >
                             </div>
-                            <div class="mt-2.5 flex items-baseline justify-between">
+                            <div
+                                class="mt-2.5 flex items-baseline justify-between"
+                            >
                                 <p class="text-2xl font-black text-white">
-                                    {{ stats.xp }} <span class="text-xs font-bold text-white/60">XP</span>
+                                    {{ stats.xp }}
+                                    <span
+                                        class="text-xs font-bold text-white/60"
+                                        >XP</span
+                                    >
                                 </p>
                                 <p class="text-xs text-white/70">
                                     Target {{ nextLevelXp }} XP
@@ -324,18 +387,22 @@ onUnmounted(() => {
                 <div data-motion-section class="grid gap-6 lg:grid-cols-3">
                     <!-- Quiz of the Day Card -->
                     <section
-                        class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2 dark:border-slate-800 dark:bg-slate-900"
+                        class="flex flex-col rounded-xl border border-[#e2e8f0] bg-[#ffffff] p-5 shadow-sm lg:col-span-2"
                     >
                         <div class="flex items-center justify-between gap-3">
                             <div class="flex items-center gap-2">
-                                <AppIcon name="star" :size="18" class="text-brand-primary dark:text-brand-secondary" />
-                                <h2 class="text-base font-bold text-slate-900 dark:text-white">
+                                <AppIcon
+                                    name="star"
+                                    :size="18"
+                                    class="text-brand-primary"
+                                />
+                                <h2 class="text-base font-bold text-[#0f172a]">
                                     Quiz of the Day
                                 </h2>
                             </div>
                             <Link
                                 href="/participant/quizzes"
-                                class="text-xs font-semibold text-brand-primary hover:underline dark:text-brand-secondary"
+                                class="text-xs font-semibold text-brand-primary hover:underline"
                             >
                                 Lihat Semua Kuis &rarr;
                             </Link>
@@ -343,58 +410,113 @@ onUnmounted(() => {
 
                         <div
                             v-if="quizOfTheDay"
-                            class="mt-4 rounded-xl border border-slate-200/80 bg-slate-50/60 p-5 dark:border-slate-800 dark:bg-slate-800/40"
+                            class="/40 mt-4 rounded-xl border border-[#e2e8f0]/80 bg-[#f8fafc]/60 p-5"
                         >
-                            <div class="flex items-center justify-between gap-2">
-                                <span class="inline-flex items-center gap-1.5 rounded-md bg-brand-secondary/20 px-2.5 py-0.5 text-xs font-bold text-brand-dark dark:text-brand-secondary">
+                            <div
+                                class="flex items-center justify-between gap-2"
+                            >
+                                <span
+                                    class="inline-flex items-center gap-1.5 rounded-md bg-brand-secondary/20 px-2.5 py-0.5 text-xs font-bold text-brand-dark"
+                                >
                                     Rekomendasi Hari Ini
                                 </span>
-                                <span class="text-xs font-semibold text-brand-primary dark:text-brand-secondary">
+                                <span
+                                    class="text-xs font-semibold text-brand-primary"
+                                >
                                     +50 XP
                                 </span>
                             </div>
 
-                            <h3 class="mt-3 text-lg font-black text-slate-900 dark:text-white">
+                            <h3 class="mt-3 text-lg font-black text-[#0f172a]">
                                 {{ quizOfTheDay.title }}
                             </h3>
-                            <p class="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
-                                {{ quizOfTheDay.description ?? 'Kuis pilihan dari organisasi untuk latihan mandiri.' }}
+                            <p
+                                class="mt-1 line-clamp-2 text-xs leading-relaxed text-[#475569]"
+                            >
+                                {{
+                                    quizOfTheDay.description ??
+                                    'Kuis pilihan dari organisasi untuk latihan mandiri.'
+                                }}
                             </p>
 
-                            <div class="mt-4 flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400 font-medium">
+                            <div
+                                class="mt-4 flex flex-wrap items-center gap-3 text-xs font-medium text-[#64748b]"
+                            >
                                 <span class="inline-flex items-center gap-1.5">
                                     <AppIcon name="quiz" :size="14" />
-                                    <span>{{ quizOfTheDay.questions_count }} Soal</span>
+                                    <span
+                                        >{{
+                                            quizOfTheDay.questions_count
+                                        }}
+                                        Soal</span
+                                    >
                                 </span>
-                                <span v-if="quizOfTheDay.deadline_at" class="inline-flex items-center gap-1.5">
+                                <span
+                                    v-if="quizOfTheDay.deadline_at"
+                                    class="inline-flex items-center gap-1.5"
+                                >
                                     <AppIcon name="clock" :size="14" />
-                                    <span>Batas: {{ dateFormatter.format(new Date(quizOfTheDay.deadline_at)) }}</span>
+                                    <span
+                                        >Batas:
+                                        {{
+                                            dateFormatter.format(
+                                                new Date(
+                                                    quizOfTheDay.deadline_at,
+                                                ),
+                                            )
+                                        }}</span
+                                    >
                                 </span>
-                                <span v-if="quizOfTheDay.best_score !== null" class="inline-flex items-center gap-1.5 text-brand-primary font-bold dark:text-brand-secondary">
+                                <span
+                                    v-if="quizOfTheDay.best_score !== null"
+                                    class="inline-flex items-center gap-1.5 font-bold text-brand-primary"
+                                >
                                     <AppIcon name="trophy" :size="14" />
-                                    <span>Skor Terbaik: {{ quizOfTheDay.best_score }}</span>
+                                    <span
+                                        >Skor Terbaik:
+                                        {{ quizOfTheDay.best_score }}</span
+                                    >
                                 </span>
                             </div>
 
-                            <div class="mt-5 flex items-center justify-between gap-3 border-t border-slate-200/80 pt-3 dark:border-slate-700">
-                                <span class="text-xs text-slate-500 dark:text-slate-400">
-                                    {{ quizOfTheDay.my_attempts_count ? `${quizOfTheDay.my_attempts_count} kali dikerjakan` : 'Belum pernah dicoba' }}
+                            <div
+                                class="mt-5 flex items-center justify-between gap-3 border-t border-[#e2e8f0]/80 pt-3"
+                            >
+                                <span class="text-xs text-[#64748b]">
+                                    {{
+                                        quizOfTheDay.my_attempts_count
+                                            ? `${quizOfTheDay.my_attempts_count} kali dikerjakan`
+                                            : 'Belum pernah dicoba'
+                                    }}
                                 </span>
                                 <button
                                     type="button"
-                                    class="inline-flex items-center gap-2 rounded-xl bg-brand-primary px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-brand-hover active:scale-95 disabled:opacity-50"
+                                    class="shadow-xs inline-flex items-center gap-2 rounded-xl bg-brand-primary px-4 py-2 text-xs font-bold text-white transition hover:bg-brand-hover active:scale-95 disabled:opacity-50"
                                     :disabled="!canStart(quizOfTheDay)"
                                     @click="startQuiz(quizOfTheDay)"
                                 >
-                                    <AppIcon :name="quizOfTheDay.my_attempts_count ? 'repeat' : 'arrowRight'" :size="14" />
-                                    <span>{{ canStart(quizOfTheDay) ? (quizOfTheDay.my_attempts_count ? 'Ulangi Kuis' : 'Mulai Sekarang') : 'Batas Selesai' }}</span>
+                                    <AppIcon
+                                        :name="
+                                            quizOfTheDay.my_attempts_count
+                                                ? 'repeat'
+                                                : 'arrowRight'
+                                        "
+                                        :size="14"
+                                    />
+                                    <span>{{
+                                        canStart(quizOfTheDay)
+                                            ? quizOfTheDay.my_attempts_count
+                                                ? 'Ulangi Kuis'
+                                                : 'Mulai Sekarang'
+                                            : 'Batas Selesai'
+                                    }}</span>
                                 </button>
                             </div>
                         </div>
 
                         <p
                             v-else
-                            class="mt-4 rounded-xl bg-slate-50 px-4 py-6 text-center text-xs text-slate-500 dark:bg-slate-800"
+                            class="mt-4 rounded-xl bg-[#f8fafc] px-4 py-6 text-center text-xs text-[#64748b]"
                         >
                             Belum ada kuis yang dipublikasikan saat ini.
                         </p>
@@ -402,30 +524,49 @@ onUnmounted(() => {
 
                     <!-- Streak 30 Hari Card -->
                     <section
-                        class="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+                        class="flex h-fit flex-col justify-between self-start rounded-xl bg-brand-primary p-5 text-white shadow-sm"
                     >
                         <div>
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
-                                    <AppIcon name="flame" :size="18" class="text-brand-secondary" />
-                                    <h2 class="text-base font-bold text-slate-900 dark:text-white">
+                                    <AppIcon
+                                        name="flame"
+                                        :size="18"
+                                        class="text-brand-secondary"
+                                    />
+                                    <h2 class="text-base font-bold text-white">
                                         Streak Belajar
                                     </h2>
                                 </div>
-                                <span class="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                                <span
+                                    class="rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-bold text-white"
+                                >
                                     {{ stats.streak }} Hari
                                 </span>
                             </div>
-                            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            <p class="mt-1 text-xs text-white/80">
                                 Pertahankan konsistensi belajar harianmu.
                             </p>
-                            <StreakCalendar class="mt-4" :streaks="streakHeatmap" />
+                            <StreakCalendar
+                                class="mt-4"
+                                :streaks="streakHeatmap"
+                            />
                         </div>
 
-                        <div class="mt-4 flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-3.5 py-2.5 text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-300">
-                            <span class="font-medium">Total Hari Aktif (30 Hari)</span>
-                            <span class="font-bold text-brand-primary dark:text-brand-secondary tabular-nums">
-                                {{ streakHeatmap.filter(s => s.count > 0).length }} / 30
+                        <div
+                            class="mt-4 flex items-center justify-between rounded-xl bg-white/10 px-3.5 py-2.5 text-xs text-white/90"
+                        >
+                            <span class="font-medium"
+                                >Total Hari Aktif (30 Hari)</span
+                            >
+                            <span
+                                class="font-black tabular-nums text-brand-secondary"
+                            >
+                                {{
+                                    streakHeatmap.filter((s) => s.count > 0)
+                                        .length
+                                }}
+                                / 30
                             </span>
                         </div>
                     </section>
@@ -435,25 +576,33 @@ onUnmounted(() => {
                 <div class="grid gap-6 lg:grid-cols-3">
                     <!-- Kuis Tersedia -->
                     <section
-                        class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2 dark:border-slate-800 dark:bg-slate-900"
+                        class="flex flex-col rounded-xl border border-[#e2e8f0] bg-[#ffffff] p-5 shadow-sm lg:col-span-2 lg:h-[490px]"
                     >
-                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div
+                            class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+                        >
                             <div>
-                                <h2 class="text-base font-bold text-slate-900 dark:text-white">
+                                <h2 class="text-base font-bold text-[#0f172a]">
                                     Kuis Tersedia
                                 </h2>
-                                <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                                <p class="mt-0.5 text-xs text-[#64748b]">
                                     Pilih materi kuis untuk mengasah pemahaman.
                                 </p>
                             </div>
 
                             <!-- Filter Pills -->
-                            <div class="flex flex-wrap items-center gap-1.5 text-xs font-semibold">
+                            <div
+                                class="flex flex-wrap items-center gap-1.5 text-xs font-semibold"
+                            >
                                 <button
                                     type="button"
                                     @click="quizFilter = 'all'"
                                     class="rounded-lg px-2.5 py-1 transition"
-                                    :class="quizFilter === 'all' ? 'bg-brand-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'"
+                                    :class="
+                                        quizFilter === 'all'
+                                            ? 'bg-brand-primary text-white'
+                                            : 'bg-[#f1f5f9] text-[#475569] hover:bg-slate-200'
+                                    "
                                 >
                                     Semua ({{ availableQuizzes.length }})
                                 </button>
@@ -461,7 +610,11 @@ onUnmounted(() => {
                                     type="button"
                                     @click="quizFilter = 'unattempted'"
                                     class="rounded-lg px-2.5 py-1 transition"
-                                    :class="quizFilter === 'unattempted' ? 'bg-brand-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'"
+                                    :class="
+                                        quizFilter === 'unattempted'
+                                            ? 'bg-brand-primary text-white'
+                                            : 'bg-[#f1f5f9] text-[#475569] hover:bg-slate-200'
+                                    "
                                 >
                                     Belum Dicoba
                                 </button>
@@ -469,7 +622,11 @@ onUnmounted(() => {
                                     type="button"
                                     @click="quizFilter = 'retry'"
                                     class="rounded-lg px-2.5 py-1 transition"
-                                    :class="quizFilter === 'retry' ? 'bg-brand-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'"
+                                    :class="
+                                        quizFilter === 'retry'
+                                            ? 'bg-brand-primary text-white'
+                                            : 'bg-[#f1f5f9] text-[#475569] hover:bg-slate-200'
+                                    "
                                 >
                                     Bisa Diulang
                                 </button>
@@ -478,7 +635,7 @@ onUnmounted(() => {
 
                         <div
                             v-if="filteredAvailableQuizzes.length"
-                            class="mt-4 grid gap-3 sm:grid-cols-2"
+                            class="mt-4 grid gap-3 sm:grid-cols-2 overflow-y-auto pr-1 pb-2 custom-scrollbar"
                         >
                             <QuizCard
                                 v-for="quiz in filteredAvailableQuizzes"
@@ -490,18 +647,39 @@ onUnmounted(() => {
                                 :score="quiz.best_score"
                             >
                                 <template #actions>
-                                    <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-3 dark:border-slate-700">
-                                        <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                                            {{ quiz.my_attempts_count ? `${quiz.my_attempts_count}x dikerjakan` : 'Belum dikerjakan' }}
+                                    <div
+                                        class="mt-3 flex items-center justify-between gap-2 border-t border-[#f1f5f9] pt-3"
+                                    >
+                                        <span
+                                            class="text-[11px] font-medium text-[#64748b]"
+                                        >
+                                            {{
+                                                quiz.my_attempts_count
+                                                    ? `${quiz.my_attempts_count}x dikerjakan`
+                                                    : 'Belum dikerjakan'
+                                            }}
                                         </span>
                                         <button
                                             type="button"
-                                            class="inline-flex items-center gap-1.5 rounded-lg bg-brand-primary px-3 py-1.5 text-xs font-bold text-white transition hover:bg-brand-hover active:scale-95 disabled:bg-slate-200 disabled:text-slate-400 dark:disabled:bg-slate-800"
+                                            class="inline-flex items-center gap-1.5 rounded-lg bg-brand-primary px-3 py-1.5 text-xs font-bold text-white transition hover:bg-brand-hover active:scale-95 disabled:bg-slate-200 disabled:text-slate-400"
                                             :disabled="!canStart(quiz)"
                                             @click="startQuiz(quiz)"
                                         >
-                                            <AppIcon :name="quiz.my_attempts_count ? 'repeat' : 'arrowRight'" :size="12" />
-                                            <span>{{ canStart(quiz) ? (quiz.my_attempts_count ? 'Ulangi' : 'Mulai') : 'Selesai' }}</span>
+                                            <AppIcon
+                                                :name="
+                                                    quiz.my_attempts_count
+                                                        ? 'repeat'
+                                                        : 'arrowRight'
+                                                "
+                                                :size="12"
+                                            />
+                                            <span>{{
+                                                canStart(quiz)
+                                                    ? quiz.my_attempts_count
+                                                        ? 'Ulangi'
+                                                        : 'Mulai'
+                                                    : 'Selesai'
+                                            }}</span>
                                         </button>
                                     </div>
                                 </template>
@@ -509,7 +687,7 @@ onUnmounted(() => {
                         </div>
                         <p
                             v-else
-                            class="mt-6 rounded-xl bg-slate-50 px-4 py-6 text-center text-xs font-medium text-slate-500 dark:bg-slate-800"
+                            class="mt-6 rounded-xl bg-[#f8fafc] px-4 py-6 text-center text-xs font-medium text-[#64748b]"
                         >
                             Tidak ada kuis di kategori ini.
                         </p>
@@ -517,28 +695,33 @@ onUnmounted(() => {
 
                     <!-- Badge Collection -->
                     <section
-                        class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+                        class="flex lg:h-[490px] flex-col rounded-xl border border-[#e2e8f0] bg-[#ffffff] p-5 shadow-sm"
                     >
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                                <AppIcon name="badge" :size="18" class="text-brand-primary dark:text-brand-secondary" />
-                                <h2 class="text-base font-bold text-slate-900 dark:text-white">
+                                <AppIcon
+                                    name="badge"
+                                    :size="18"
+                                    class="text-brand-primary"
+                                />
+                                <h2 class="text-base font-bold text-[#0f172a]">
                                     Badge Saya
                                 </h2>
                             </div>
                             <Link
                                 href="/participant/badges"
-                                class="text-xs font-bold text-brand-primary hover:underline dark:text-brand-secondary"
+                                class="text-xs font-bold text-brand-primary hover:underline"
                             >
                                 Panduan Lengkap &rarr;
                             </Link>
                         </div>
-                        <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                        <p class="mt-0.5 text-xs text-[#64748b]">
                             Pencapaian belajar yang telah dibuka.
                         </p>
                         <BadgeGrid
-                            class="mt-4"
+                            class="mt-4 flex-1"
                             :badges="badges"
+                            :limit="3"
                             empty-text="Selesaikan kuis pertama untuk membuka badge."
                         />
                     </section>
@@ -547,28 +730,41 @@ onUnmounted(() => {
                 <!-- Misi Belajar (RPG Guild Quest Board) -->
                 <section
                     data-motion-section
-                    class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+                    class="flex flex-col rounded-xl border border-[#e2e8f0] bg-[#ffffff] p-5 shadow-sm"
                 >
-                    <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div
+                        class="flex flex-wrap items-center justify-between gap-3"
+                    >
                         <div class="flex items-center gap-2">
-                            <AppIcon name="target" :size="18" class="text-brand-primary dark:text-brand-secondary" />
+                            <AppIcon
+                                name="target"
+                                :size="18"
+                                class="text-brand-primary"
+                            />
                             <div>
-                                <h2 class="text-base font-bold text-slate-900 dark:text-white">
+                                <h2 class="text-base font-bold text-[#0f172a]">
                                     Papan Misi Petualang (Quest Board)
                                 </h2>
-                                <p class="text-xs text-slate-500 dark:text-slate-400">
-                                    Selesaikan bounty harian, raid mingguan, dan jalur legenda untuk panen XP dan lencana.
+                                <p class="text-xs text-[#64748b]">
+                                    Selesaikan bounty harian, raid mingguan, dan
+                                    jalur legenda untuk panen XP dan lencana.
                                 </p>
                             </div>
                         </div>
 
                         <!-- Quest Tabs -->
-                        <div class="flex items-center gap-1.5 rounded-xl bg-slate-100 p-1 text-xs font-bold dark:bg-slate-800">
+                        <div
+                            class="flex items-center gap-1.5 rounded-xl bg-[#f1f5f9] p-1 text-xs font-bold"
+                        >
                             <button
                                 type="button"
                                 @click="activeMissionTab = 'all'"
                                 class="rounded-lg px-2.5 py-1 transition"
-                                :class="activeMissionTab === 'all' ? 'bg-white text-brand-primary shadow-xs dark:bg-slate-900 dark:text-brand-secondary' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400'"
+                                :class="
+                                    activeMissionTab === 'all'
+                                        ? 'shadow-xs bg-[#ffffff] text-brand-primary'
+                                        : 'text-[#475569] hover:text-[#0f172a]'
+                                "
                             >
                                 Semua ({{ missions.length }})
                             </button>
@@ -576,7 +772,11 @@ onUnmounted(() => {
                                 type="button"
                                 @click="activeMissionTab = 'daily'"
                                 class="rounded-lg px-2.5 py-1 transition"
-                                :class="activeMissionTab === 'daily' ? 'bg-white text-brand-primary shadow-xs dark:bg-slate-900 dark:text-brand-secondary' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400'"
+                                :class="
+                                    activeMissionTab === 'daily'
+                                        ? 'shadow-xs bg-[#ffffff] text-brand-primary'
+                                        : 'text-[#475569] hover:text-[#0f172a]'
+                                "
                             >
                                 Bounty Harian
                             </button>
@@ -584,7 +784,11 @@ onUnmounted(() => {
                                 type="button"
                                 @click="activeMissionTab = 'weekly'"
                                 class="rounded-lg px-2.5 py-1 transition"
-                                :class="activeMissionTab === 'weekly' ? 'bg-white text-brand-primary shadow-xs dark:bg-slate-900 dark:text-brand-secondary' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400'"
+                                :class="
+                                    activeMissionTab === 'weekly'
+                                        ? 'shadow-xs bg-[#ffffff] text-brand-primary'
+                                        : 'text-[#475569] hover:text-[#0f172a]'
+                                "
                             >
                                 Raid Mingguan
                             </button>
@@ -592,7 +796,11 @@ onUnmounted(() => {
                                 type="button"
                                 @click="activeMissionTab = 'campaign'"
                                 class="rounded-lg px-2.5 py-1 transition"
-                                :class="activeMissionTab === 'campaign' ? 'bg-white text-brand-primary shadow-xs dark:bg-slate-900 dark:text-brand-secondary' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400'"
+                                :class="
+                                    activeMissionTab === 'campaign'
+                                        ? 'shadow-xs bg-[#ffffff] text-brand-primary'
+                                        : 'text-[#475569] hover:text-[#0f172a]'
+                                "
                             >
                                 Jalur Legenda
                             </button>
@@ -608,43 +816,74 @@ onUnmounted(() => {
                             :key="mission.key"
                             class="flex flex-col justify-between rounded-xl border p-4 transition duration-200"
                             :class="[
-                                mission.completed_at || mission.progress >= mission.goal
-                                    ? 'border-status-success/40 bg-slate-50/70 dark:border-status-success/30 dark:bg-slate-800/50'
-                                    : 'border-slate-200/80 bg-white hover:border-brand-primary/40 dark:border-slate-800 dark:bg-slate-900',
+                                mission.completed_at ||
+                                mission.progress >= mission.goal
+                                    ? '/50 border-status-success/40 bg-[#f8fafc]/70 dark:border-status-success/30'
+                                    : 'border-[#e2e8f0]/80 bg-[#ffffff] hover:border-brand-primary/40',
                             ]"
                         >
                             <div>
-                                <div class="flex items-start justify-between gap-2">
+                                <div
+                                    class="flex items-start justify-between gap-2"
+                                >
                                     <span
                                         class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-bold"
                                         :class="[
                                             mission.kind === 'daily'
                                                 ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300'
                                                 : mission.kind === 'weekly'
-                                                ? 'bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300'
-                                                : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300',
+                                                  ? 'bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300'
+                                                  : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300',
                                         ]"
                                     >
-                                        <AppIcon :name="mission.kind === 'daily' ? 'target' : mission.kind === 'weekly' ? 'calendar' : 'trophy'" :size="12" />
-                                        <span>{{ mission.kind === 'daily' ? 'Bounty Harian' : mission.kind === 'weekly' ? 'Raid Mingguan' : 'Jalur Legenda' }}</span>
+                                        <AppIcon
+                                            :name="
+                                                mission.kind === 'daily'
+                                                    ? 'target'
+                                                    : mission.kind === 'weekly'
+                                                      ? 'calendar'
+                                                      : 'trophy'
+                                            "
+                                            :size="12"
+                                        />
+                                        <span>{{
+                                            mission.kind === 'daily'
+                                                ? 'Bounty Harian'
+                                                : mission.kind === 'weekly'
+                                                  ? 'Raid Mingguan'
+                                                  : 'Jalur Legenda'
+                                        }}</span>
                                     </span>
 
-                                    <span class="inline-flex items-center gap-1 rounded-full bg-brand-primary/10 px-2 py-0.5 text-xs font-bold text-brand-primary dark:text-brand-secondary">
+                                    <span
+                                        class="inline-flex items-center gap-1 rounded-full bg-brand-primary/10 px-2 py-0.5 text-xs font-bold text-brand-primary"
+                                    >
                                         <AppIcon name="xp" :size="12" />
                                         <span>+{{ mission.reward_xp }} XP</span>
                                     </span>
                                 </div>
 
-                                <h3 class="mt-3 text-sm font-bold text-slate-900 dark:text-white">
+                                <h3
+                                    class="mt-3 text-sm font-bold text-[#0f172a]"
+                                >
                                     {{ mission.title }}
                                 </h3>
-                                <p class="mt-1 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+                                <p
+                                    class="mt-1 text-xs leading-relaxed text-[#475569]"
+                                >
                                     {{ mission.description }}
                                 </p>
 
-                                <div v-if="missionBadgeLink[mission.key]" class="mt-2.5 inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:bg-amber-950/50 dark:text-amber-300 border border-amber-200/50 dark:border-amber-800/40">
+                                <div
+                                    v-if="missionBadgeLink[mission.key]"
+                                    class="mt-2.5 inline-flex items-center gap-1 rounded-md border border-amber-200/50 bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800"
+                                >
                                     <AppIcon name="badge" :size="11" />
-                                    <span>Membuka Lencana: [{{ missionBadgeLink[mission.key] }}]</span>
+                                    <span
+                                        >Membuka Lencana: [{{
+                                            missionBadgeLink[mission.key]
+                                        }}]</span
+                                    >
                                 </div>
                             </div>
 
@@ -654,12 +893,31 @@ onUnmounted(() => {
                                     :max="mission.goal"
                                     :label="`${mission.progress}/${mission.goal}`"
                                 />
-                                <div class="mt-2 flex items-center justify-between text-xs font-semibold">
+                                <div
+                                    class="mt-2 flex items-center justify-between text-xs font-semibold"
+                                >
                                     <span
-                                        :class="mission.completed_at || mission.progress >= mission.goal ? 'text-status-success font-bold inline-flex items-center gap-1' : 'text-slate-500'"
+                                        :class="
+                                            mission.completed_at ||
+                                            mission.progress >= mission.goal
+                                                ? 'inline-flex items-center gap-1 font-bold text-status-success'
+                                                : 'text-[#64748b]'
+                                        "
                                     >
-                                        <AppIcon v-if="mission.completed_at || mission.progress >= mission.goal" name="check" :size="12" />
-                                        <span>{{ mission.completed_at || mission.progress >= mission.goal ? 'Quest Tuntas ✨' : `${mission.progress}/${mission.goal} selesai` }}</span>
+                                        <AppIcon
+                                            v-if="
+                                                mission.completed_at ||
+                                                mission.progress >= mission.goal
+                                            "
+                                            name="check"
+                                            :size="12"
+                                        />
+                                        <span>{{
+                                            mission.completed_at ||
+                                            mission.progress >= mission.goal
+                                                ? 'Quest Tuntas ✨'
+                                                : `${mission.progress}/${mission.goal} selesai`
+                                        }}</span>
                                     </span>
                                 </div>
                             </div>
@@ -668,7 +926,7 @@ onUnmounted(() => {
 
                     <p
                         v-else
-                        class="mt-4 rounded-xl bg-slate-50 px-4 py-6 text-center text-xs font-medium text-slate-500 dark:bg-slate-800"
+                        class="mt-4 rounded-xl bg-[#f8fafc] px-4 py-6 text-center text-xs font-medium text-[#64748b]"
                     >
                         Belum ada quest di kategori ini.
                     </p>
@@ -677,18 +935,22 @@ onUnmounted(() => {
                 <!-- Riwayat Attempt Terbaru -->
                 <section
                     data-motion-section
-                    class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+                    class="flex flex-col rounded-xl border border-[#e2e8f0] bg-[#ffffff] p-5 shadow-sm"
                 >
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
-                            <AppIcon name="results" :size="18" class="text-brand-primary dark:text-brand-secondary" />
-                            <h2 class="text-base font-bold text-slate-900 dark:text-white">
+                            <AppIcon
+                                name="results"
+                                :size="18"
+                                class="text-brand-primary"
+                            />
+                            <h2 class="text-base font-bold text-[#0f172a]">
                                 Riwayat Pengerjaan
                             </h2>
                         </div>
                         <Link
                             href="/attempts"
-                            class="text-xs font-semibold text-brand-primary hover:underline dark:text-brand-secondary"
+                            class="text-xs font-semibold text-brand-primary hover:underline"
                         >
                             Semua Riwayat &rarr;
                         </Link>

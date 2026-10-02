@@ -23,10 +23,10 @@ withDefaults(
             class="flex items-center justify-between gap-3 py-3"
         >
             <div class="min-w-0">
-                <p class="truncate text-sm font-semibold text-slate-900">
+                <p class="truncate text-sm font-semibold text-[#0f172a]">
                     {{ item.title }}
                 </p>
-                <p v-if="item.subtitle" class="text-xs text-slate-500">
+                <p v-if="item.subtitle" class="text-xs text-[#64748b]">
                     {{ item.subtitle }}
                 </p>
             </div>
@@ -40,7 +40,7 @@ withDefaults(
     </div>
     <p
         v-else
-        class="rounded-xl bg-brand-accent px-4 py-6 text-center text-sm text-slate-600"
+        class="rounded-xl bg-brand-accent px-4 py-6 text-center text-sm text-[#475569]"
     >
         {{ emptyText }}
     </p>

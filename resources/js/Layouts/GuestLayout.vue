@@ -39,16 +39,9 @@ withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
             </Link>
 
             <div class="relative my-auto max-w-xl py-12">
-                <div class="mb-5 flex items-center gap-3">
-                    <img
-                        src="/assets/kuesify/characters/image-14.svg"
-                        alt="Maskot Kuesify"
-                        class="animate-float-gentle h-16 w-16 object-contain drop-shadow-md filter"
-                    />
-                    <p
-                        class="inline-flex rounded-full bg-brand-secondary px-3.5 py-1 text-sm font-extrabold text-brand-dark shadow-sm"
-                    >
-                        Platform belajar interaktif ✨
+                <div class="mb-5">
+                    <p class="text-sm font-extrabold text-brand-secondary">
+                        Platform belajar interaktif
                     </p>
                 </div>
                 <h2
