@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
@@ -99,60 +99,39 @@ onMounted(() => {
             );
             const mascots = gsap.utils.toArray<HTMLElement>('[data-mascot]');
 
-            // Hero entrance with subtle rotation and expressive stagger
+            // Hero entrance
             timeline.from(heroItems, {
                 autoAlpha: 0,
-                y: 32,
-                rotation: -2,
-                duration: 0.65,
-                stagger: 0.11,
-                ease: 'back.out(1.2)',
+                y: 28,
+                duration: 0.55,
+                stagger: 0.09,
             });
             timeline.from(
                 '[data-hero-actions]',
-                {
-                    autoAlpha: 0,
-                    y: 20,
-                    scale: 0.95,
-                    duration: 0.5,
-                    ease: 'back.out(1.5)',
-                },
-                '-=0.3',
+                { autoAlpha: 0, y: 18, duration: 0.45 },
+                '-=0.2',
             );
             timeline.from(
                 '[data-hero-meta]',
-                {
-                    autoAlpha: 0,
-                    y: 14,
-                    duration: 0.45,
-                },
-                '-=0.3',
+                { autoAlpha: 0, y: 12, duration: 0.4 },
+                '-=0.25',
             );
             timeline.from(
                 '[data-hero-illustration]',
-                {
-                    autoAlpha: 0,
-                    y: 40,
-                    scale: 0.92,
-                    rotation: 3,
-                    duration: 0.8,
-                    ease: 'back.out(1.1)',
-                },
-                '-=0.5',
+                { autoAlpha: 0, y: 32, scale: 0.94, duration: 0.7 },
+                '-=0.4',
             );
 
-            // Ambient blobs float with rotation and scale pulse (more organic)
+            // Ambient blobs float
             ambientBlobs.forEach((blob, i) => {
-                const tl = gsap.timeline({ repeat: -1 });
-                tl.to(blob, {
-                    x: i % 2 ? 20 : -16,
-                    y: i % 2 ? -14 : 18,
-                    rotation: i % 2 ? 8 : -8,
-                    scale: 1.05,
-                    duration: 7 + i * 1.8,
-                    ease: 'sine.inOut',
+                gsap.to(blob, {
+                    x: i % 2 ? 18 : -14,
+                    y: i % 2 ? -12 : 16,
+                    duration: 7 + i * 1.5,
+                    repeat: -1,
                     yoyo: true,
-                    repeat: 1,
+                    ease: 'sine.inOut',
+                    delay: i * 0.35,
                 });
             });
 
@@ -169,62 +148,42 @@ onMounted(() => {
                 });
             });
 
-            // Mascots float with breathing (scale pulse)
+            // Mascots float
             if (mascots.length) {
                 mascots.forEach((mascot, i) => {
-                    const tl = gsap.timeline({
+                    gsap.to(mascot, {
+                        y: i ? -7 : -11,
+                        rotation: i ? -3 : 3,
+                        duration: i ? 2.8 : 2.5,
                         repeat: -1,
+                        yoyo: true,
+                        ease: 'sine.inOut',
                         delay: i ? 0.45 : 1.25,
                     });
-                    tl.to(mascot, {
-                        y: i ? -9 : -13,
-                        rotation: i ? -4 : 4,
-                        scale: 1.02,
-                        duration: i ? 3 : 2.7,
-                        ease: 'sine.inOut',
-                        yoyo: true,
-                        repeat: 1,
-                    });
                 });
             }
 
-            // Scroll indicator bounce infinite
-            const scrollIndicator =
-                landingRoot.value?.querySelector<HTMLElement>(
-                    '[data-scroll-hint]',
-                );
-            if (scrollIndicator) {
-                gsap.to(scrollIndicator, {
-                    y: 8,
-                    duration: 0.8,
-                    repeat: -1,
-                    yoyo: true,
-                    ease: 'power1.inOut',
-                });
-            }
-
-            // Illustration hero float with subtle scale
+            // Illustration hero float
             const heroIllustration =
                 landingRoot.value?.querySelector<HTMLElement>(
                     '[data-hero-illustration]',
                 );
             if (heroIllustration) {
                 gsap.to(heroIllustration, {
-                    y: -14,
-                    scale: 1.02,
-                    duration: 3.5,
+                    y: -12,
+                    duration: 3.2,
                     repeat: -1,
                     yoyo: true,
                     ease: 'sine.inOut',
                 });
             }
 
-            // Section reveals with ScrollTrigger and parallax
+            // Section reveals with ScrollTrigger
             sections.forEach((section) => {
                 gsap.from(section, {
                     autoAlpha: 0,
-                    y: 35,
-                    duration: 0.7,
+                    y: 26,
+                    duration: 0.6,
                     ease: 'power2.out',
                     scrollTrigger: {
                         trigger: section,
@@ -232,19 +191,6 @@ onMounted(() => {
                         once: true,
                     },
                 });
-
-                // Parallax scrub
-                gsap.to(section, {
-                    y: -20,
-                    ease: 'none',
-                    scrollTrigger: {
-                        trigger: section,
-                        start: 'top bottom',
-                        end: 'bottom top',
-                        scrub: 1,
-                    },
-                });
-
                 ScrollTrigger.create({
                     trigger: section,
                     start: 'top 55%',
@@ -258,57 +204,29 @@ onMounted(() => {
                 });
             });
 
-            // Feature cards reveal + magnetic hover
+            // Feature cards reveal + hover lift
             if (featureCards.length) {
                 gsap.from(featureCards, {
                     autoAlpha: 0,
-                    y: 40,
-                    scale: 0.95,
-                    rotation: -3,
-                    duration: 0.65,
-                    stagger: 0.14,
-                    ease: 'back.out(1.2)',
+                    y: 30,
+                    duration: 0.55,
+                    stagger: 0.1,
+                    ease: 'power2.out',
                     scrollTrigger: {
                         trigger: featureCards[0],
                         start: 'top 82%',
                         once: true,
                     },
                 });
-
-                featureCards.forEach((card) => {
-                    const hoverEnter = () => {
-                        gsap.to(card, {
-                            y: -8,
-                            scale: 1.02,
-                            duration: 0.4,
-                            ease: 'power2.out',
-                        });
-                    };
-                    const hoverLeave = () => {
-                        gsap.to(card, {
-                            y: 0,
-                            scale: 1,
-                            duration: 0.4,
-                            ease: 'power2.inOut',
-                        });
-                    };
-                    card.addEventListener('mouseenter', hoverEnter);
-                    card.addEventListener('mouseleave', hoverLeave);
-                    interactionCleanups.push(() => {
-                        card.removeEventListener('mouseenter', hoverEnter);
-                        card.removeEventListener('mouseleave', hoverLeave);
-                    });
-                });
             }
 
-            // Process steps slide in with connection line draw
+            // Process steps slide in
             if (processSteps.length) {
                 gsap.from(processSteps, {
                     autoAlpha: 0,
-                    x: 32,
-                    rotation: 2,
-                    duration: 0.65,
-                    stagger: 0.15,
+                    x: 24,
+                    duration: 0.55,
+                    stagger: 0.12,
                     ease: 'power3.out',
                     scrollTrigger: {
                         trigger: processSteps[0],
@@ -316,59 +234,13 @@ onMounted(() => {
                         once: true,
                     },
                 });
-
-                const lines = gsap.utils.toArray<HTMLElement>(
-                    '[data-connection-line]',
-                );
-                if (lines.length) {
-                    gsap.from(lines, {
-                        scaleX: 0,
-                        duration: 0.6,
-                        stagger: 0.15,
-                        ease: 'power2.inOut',
-                        scrollTrigger: {
-                            trigger: processSteps[0],
-                            start: 'top 78%',
-                            once: true,
-                        },
-                    });
-                }
             }
-
-            // CTA buttons hover lift
-            const ctaButtons =
-                gsap.utils.toArray<HTMLElement>('[data-cta-button]');
-            ctaButtons.forEach((btn) => {
-                const hoverEnter = () => {
-                    gsap.to(btn, {
-                        y: -4,
-                        scale: 1.03,
-                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.14)',
-                        duration: 0.3,
-                        ease: 'power2.out',
-                    });
-                };
-                const hoverLeave = () => {
-                    gsap.to(btn, {
-                        y: 0,
-                        scale: 1,
-                        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)',
-                        duration: 0.3,
-                        ease: 'power2.inOut',
-                    });
-                };
-                btn.addEventListener('mouseenter', hoverEnter);
-                btn.addEventListener('mouseleave', hoverLeave);
-                interactionCleanups.push(() => {
-                    btn.removeEventListener('mouseenter', hoverEnter);
-                    btn.removeEventListener('mouseleave', hoverLeave);
-                });
-            });
 
             return () => motionContext?.revert();
         }, landingRoot.value ?? undefined);
     });
 });
+
 onUnmounted(() => {
     interactionCleanups.splice(0).forEach((cleanup) => cleanup());
     motionMedia?.revert();
@@ -378,7 +250,7 @@ onUnmounted(() => {
 
 <template>
     <Head title="Kuesify — Belajar jadi hidup" />
-    <main class="bg-white text-brand-primary">
+    <main class="bg-[#f7f7f2] text-slate-900">
         <div
             :class="isScrolled ? 'shadow-figma' : 'shadow-none'"
             class="fixed inset-x-0 top-0 z-[9999] bg-brand-primary px-3 py-3 shadow-lg transition-shadow duration-300 sm:px-8 sm:py-4 lg:px-12"

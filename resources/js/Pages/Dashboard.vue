@@ -2,8 +2,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { roleLabel } from '@/utils/roleLabel';
 import { Head, Link } from '@inertiajs/vue3';
-import { computed, onMounted, ref, nextTick } from 'vue';
 import { Chart, registerables } from 'chart.js';
+import { computed, nextTick, onMounted, ref } from 'vue';
 
 Chart.register(...registerables);
 
@@ -100,7 +100,8 @@ onMounted(async () => {
                 datasets: [
                     {
                         label: 'Total Attempts Pengerjaan',
-                        data: props.adminAnalytics.charts.attempts_trend.attempts,
+                        data: props.adminAnalytics.charts.attempts_trend
+                            .attempts,
                         borderColor: '#3154D5',
                         backgroundColor: 'rgba(49, 84, 213, 0.08)',
                         borderWidth: 3,
@@ -137,7 +138,11 @@ onMounted(async () => {
                     legend: {
                         position: 'top',
                         labels: {
-                            font: { family: 'Figtree, sans-serif', size: 12, weight: 'bold' },
+                            font: {
+                                family: 'Figtree, sans-serif',
+                                size: 12,
+                                weight: 'bold',
+                            },
                             usePointStyle: true,
                             boxWidth: 8,
                         },
@@ -153,7 +158,10 @@ onMounted(async () => {
                 scales: {
                     x: {
                         grid: { display: false },
-                        ticks: { font: { size: 11, weight: 'bold' }, color: '#64748b' },
+                        ticks: {
+                            font: { size: 11, weight: 'bold' },
+                            color: '#64748b',
+                        },
                     },
                     y: {
                         type: 'linear',
@@ -161,7 +169,11 @@ onMounted(async () => {
                         position: 'left',
                         beginAtZero: true,
                         grid: { color: '#f1f5f9' },
-                        ticks: { font: { size: 11 }, color: '#64748b', precision: 0 },
+                        ticks: {
+                            font: { size: 11 },
+                            color: '#64748b',
+                            precision: 0,
+                        },
                     },
                     y1: {
                         type: 'linear',
@@ -185,7 +197,8 @@ onMounted(async () => {
                 labels: props.adminAnalytics.charts.role_distribution.labels,
                 datasets: [
                     {
-                        data: props.adminAnalytics.charts.role_distribution.data,
+                        data: props.adminAnalytics.charts.role_distribution
+                            .data,
                         backgroundColor: [
                             '#3154D5', // Siswa
                             '#0AB883', // Guru
@@ -206,7 +219,11 @@ onMounted(async () => {
                     legend: {
                         position: 'bottom',
                         labels: {
-                            font: { family: 'Figtree, sans-serif', size: 11, weight: 'bold' },
+                            font: {
+                                family: 'Figtree, sans-serif',
+                                size: 11,
+                                weight: 'bold',
+                            },
                             usePointStyle: true,
                             padding: 14,
                         },
@@ -230,14 +247,16 @@ onMounted(async () => {
                 datasets: [
                     {
                         label: 'Total Attempts Pengerjaan',
-                        data: props.adminAnalytics.charts.top_organizations.attempts,
+                        data: props.adminAnalytics.charts.top_organizations
+                            .attempts,
                         backgroundColor: '#3154D5',
                         borderRadius: 6,
                         barThickness: 16,
                     },
                     {
                         label: 'Member Terdaftar',
-                        data: props.adminAnalytics.charts.top_organizations.members,
+                        data: props.adminAnalytics.charts.top_organizations
+                            .members,
                         backgroundColor: '#90CB31',
                         borderRadius: 6,
                         barThickness: 16,
@@ -251,7 +270,11 @@ onMounted(async () => {
                     legend: {
                         position: 'top',
                         labels: {
-                            font: { family: 'Figtree, sans-serif', size: 11, weight: 'bold' },
+                            font: {
+                                family: 'Figtree, sans-serif',
+                                size: 11,
+                                weight: 'bold',
+                            },
                             usePointStyle: true,
                             boxWidth: 8,
                         },
@@ -260,12 +283,19 @@ onMounted(async () => {
                 scales: {
                     x: {
                         grid: { display: false },
-                        ticks: { font: { size: 11, weight: 'bold' }, color: '#64748b' },
+                        ticks: {
+                            font: { size: 11, weight: 'bold' },
+                            color: '#64748b',
+                        },
                     },
                     y: {
                         beginAtZero: true,
                         grid: { color: '#f1f5f9' },
-                        ticks: { font: { size: 11 }, color: '#64748b', precision: 0 },
+                        ticks: {
+                            font: { size: 11 },
+                            color: '#64748b',
+                            precision: 0,
+                        },
                     },
                 },
             },
@@ -327,26 +357,43 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
     <Head :title="isSuperAdmin ? 'Executive Dashboard' : 'Dashboard'" />
 
     <AuthenticatedLayout>
-        <div class="min-h-[calc(100vh-4rem)] bg-[#E6F1F5]">
-            <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-
+        <div class="min-h-[calc(100vh-4rem)] bg-white">
+            <main
+                class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8"
+            >
                 <!-- ═════════════════════════════════════════════════════════════════ -->
                 <!-- VIEW 1: EXECUTIVE SAAS DASHBOARD KHUSUS SUPER ADMIN            -->
                 <!-- ═════════════════════════════════════════════════════════════════ -->
                 <template v-if="isSuperAdmin && adminAnalytics">
                     <!-- HERO BANNER SUPER ADMIN -->
-                    <section class="overflow-hidden rounded-2xl bg-[#3b5fe1] px-5 py-6 text-white shadow-sm sm:px-7 sm:py-7">
-                        <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                    <section
+                        class="overflow-hidden rounded-2xl bg-brand-primary px-5 py-6 text-white shadow-sm sm:px-7 sm:py-7"
+                    >
+                        <div
+                            class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between"
+                        >
                             <div>
-                                <p class="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-white/80">
-                                    <span class="h-2 w-2 rounded-full bg-[#90CB31]"></span>
+                                <p
+                                    class="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-white/80"
+                                >
+                                    <span
+                                        class="h-2 w-2 rounded-full bg-brand-secondary"
+                                    ></span>
                                     SaaS Platform Owner · Executive Dashboard
                                 </p>
-                                <h1 class="mt-3 max-w-3xl text-2xl font-bold tracking-tight sm:text-3xl">
-                                    Selamat Datang, {{ $page.props.auth.user.name }}
+                                <h1
+                                    class="mt-3 max-w-3xl text-2xl font-bold tracking-tight sm:text-3xl"
+                                >
+                                    Selamat Datang,
+                                    {{ $page.props.auth.user.name }}
                                 </h1>
-                                <p class="mt-2 max-w-2xl text-sm leading-6 text-white/80 sm:text-base">
-                                    Pantau metrik analitik ekosistem multi-tenant, tren pengerjaan kuis, utilisasi AI, dan kesehatan infrastruktur server secara real-time.
+                                <p
+                                    class="mt-2 max-w-2xl text-sm leading-6 text-white/80 sm:text-base"
+                                >
+                                    Pantau metrik analitik ekosistem
+                                    multi-tenant, tren pengerjaan kuis,
+                                    utilisasi AI, dan kesehatan infrastruktur
+                                    server secara real-time.
                                 </p>
                             </div>
                         </div>
@@ -355,144 +402,315 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                     <!-- EXECUTIVE KPI METRIC CARDS -->
                     <section aria-labelledby="executive-summary">
                         <div class="mb-3">
-                            <h2 id="executive-summary" class="text-lg font-bold text-slate-950">Ringkasan Ekosistem Multi-Tenant</h2>
-                            <p class="mt-1 text-sm text-slate-600">Statistik performa dan utilisasi seluruh platform Kuesify.</p>
+                            <h2
+                                id="executive-summary"
+                                class="text-lg font-bold text-slate-950"
+                            >
+                                Ringkasan Ekosistem Multi-Tenant
+                            </h2>
+                            <p class="mt-1 text-sm text-slate-600">
+                                Statistik performa dan utilisasi seluruh
+                                platform Kuesify.
+                            </p>
                         </div>
-                        <div class="grid grid-cols-2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm sm:grid-cols-4">
-                            <article class="border-b border-r border-slate-100 p-5 sm:border-b-0 sm:p-6">
-                                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Instansi</p>
-                                <p class="mt-2 text-3xl font-extrabold text-[#3154D5]">{{ adminAnalytics.kpi.total_organizations }}</p>
-                                <p class="mt-1 text-xs text-slate-500">Sekolah & Tenant Aktif</p>
+                        <div
+                            class="grid grid-cols-2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm sm:grid-cols-4"
+                        >
+                            <article
+                                class="border-b border-r border-slate-100 p-5 sm:border-b-0 sm:p-6"
+                            >
+                                <p
+                                    class="text-xs font-bold uppercase tracking-wider text-slate-500"
+                                >
+                                    Total Instansi
+                                </p>
+                                <p
+                                    class="mt-2 text-3xl font-extrabold text-[#3154D5]"
+                                >
+                                    {{ adminAnalytics.kpi.total_organizations }}
+                                </p>
+                                <p class="mt-1 text-xs text-slate-500">
+                                    Sekolah & Tenant Aktif
+                                </p>
                             </article>
 
-                            <article class="border-b border-slate-100 p-5 sm:border-b-0 sm:border-r sm:p-6">
-                                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Pengguna</p>
-                                <p class="mt-2 text-3xl font-extrabold text-[#527A12]">{{ adminAnalytics.kpi.total_users }}</p>
-                                <p class="mt-1 text-xs text-slate-500">Siswa, Guru & Admin</p>
+                            <article
+                                class="border-b border-slate-100 p-5 sm:border-b-0 sm:border-r sm:p-6"
+                            >
+                                <p
+                                    class="text-xs font-bold uppercase tracking-wider text-slate-500"
+                                >
+                                    Total Pengguna
+                                </p>
+                                <p
+                                    class="mt-2 text-3xl font-extrabold text-[#527A12]"
+                                >
+                                    {{ adminAnalytics.kpi.total_users }}
+                                </p>
+                                <p class="mt-1 text-xs text-slate-500">
+                                    Siswa, Guru & Admin
+                                </p>
                             </article>
 
-                            <article class="border-r border-slate-100 p-5 sm:p-6">
-                                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Attempts</p>
-                                <p class="mt-2 text-3xl font-extrabold text-[#3154D5]">{{ adminAnalytics.kpi.total_attempts }}</p>
-                                <p class="mt-1 text-xs text-slate-500">Pengerjaan Kuis Selesai</p>
+                            <article
+                                class="border-r border-slate-100 p-5 sm:p-6"
+                            >
+                                <p
+                                    class="text-xs font-bold uppercase tracking-wider text-slate-500"
+                                >
+                                    Total Attempts
+                                </p>
+                                <p
+                                    class="mt-2 text-3xl font-extrabold text-[#3154D5]"
+                                >
+                                    {{ adminAnalytics.kpi.total_attempts }}
+                                </p>
+                                <p class="mt-1 text-xs text-slate-500">
+                                    Pengerjaan Kuis Selesai
+                                </p>
                             </article>
 
                             <article class="p-5 sm:p-6">
-                                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Rata-Rata Skor</p>
-                                <p class="mt-2 text-3xl font-extrabold text-[#527A12]">{{ adminAnalytics.kpi.avg_platform_score }}</p>
-                                <p class="mt-1 text-xs text-slate-500">Skor Agregat Nasional</p>
+                                <p
+                                    class="text-xs font-bold uppercase tracking-wider text-slate-500"
+                                >
+                                    Rata-Rata Skor
+                                </p>
+                                <p
+                                    class="mt-2 text-3xl font-extrabold text-[#527A12]"
+                                >
+                                    {{ adminAnalytics.kpi.avg_platform_score }}
+                                </p>
+                                <p class="mt-1 text-xs text-slate-500">
+                                    Skor Agregat Nasional
+                                </p>
                             </article>
                         </div>
                     </section>
 
                     <!-- GRAPHS SECTION (CHART.JS) -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                         <!-- CHART 1: TREN ATTEMPTS & SKOR (2 SPAN) -->
-                        <div class="lg:col-span-2 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col justify-between">
-                            <div class="flex items-center justify-between mb-4">
+                        <div
+                            class="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2"
+                        >
+                            <div class="mb-4 flex items-center justify-between">
                                 <div>
-                                    <h3 class="font-bold text-slate-900 text-base">Tren Pengerjaan & Skor Kuis (7 Hari Terakhir)</h3>
-                                    <p class="text-xs text-slate-500">Volume attempts pengerjaan harian vs rata-rata skor peserta</p>
+                                    <h3
+                                        class="text-base font-bold text-slate-900"
+                                    >
+                                        Tren Pengerjaan & Skor Kuis (7 Hari
+                                        Terakhir)
+                                    </h3>
+                                    <p class="text-xs text-slate-500">
+                                        Volume attempts pengerjaan harian vs
+                                        rata-rata skor peserta
+                                    </p>
                                 </div>
-                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-[#3154D5] border border-blue-100">
-                                    <i class="fa-solid fa-chart-line mr-1"></i> Live Metric
+                                <span
+                                    class="rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-xs font-bold text-[#3154D5]"
+                                >
+                                    <i class="fa-solid fa-chart-line mr-1"></i>
+                                    Live Metric
                                 </span>
                             </div>
 
-                            <div class="h-64 w-full relative">
+                            <div class="relative h-64 w-full">
                                 <canvas ref="trendCanvas"></canvas>
                             </div>
                         </div>
 
                         <!-- CHART 2: DISTRIBUSI ROLE PENGGUNA (1 SPAN) -->
-                        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col justify-between">
-                            <div class="flex items-center justify-between mb-2">
+                        <div
+                            class="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+                        >
+                            <div class="mb-2 flex items-center justify-between">
                                 <div>
-                                    <h3 class="font-bold text-slate-900 text-base">Distribusi Pengguna</h3>
-                                    <p class="text-xs text-slate-500">Proporsi role pengguna se-platform</p>
+                                    <h3
+                                        class="text-base font-bold text-slate-900"
+                                    >
+                                        Distribusi Pengguna
+                                    </h3>
+                                    <p class="text-xs text-slate-500">
+                                        Proporsi role pengguna se-platform
+                                    </p>
                                 </div>
-                                <i class="fa-solid fa-chart-pie text-[#3154D5] text-base"></i>
+                                <i
+                                    class="fa-solid fa-chart-pie text-base text-[#3154D5]"
+                                ></i>
                             </div>
 
-                            <div class="h-64 w-full relative flex items-center justify-center">
+                            <div
+                                class="relative flex h-64 w-full items-center justify-center"
+                            >
                                 <canvas ref="rolesCanvas"></canvas>
                             </div>
                         </div>
                     </div>
 
                     <!-- SECOND ROW: TOP ORGS & INFRASTRUCTURE / AI STATUS -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                         <!-- CHART 3: TOP 5 ORGANISASI -->
-                        <div class="lg:col-span-2 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                            <div class="flex items-center justify-between mb-4">
+                        <div
+                            class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2"
+                        >
+                            <div class="mb-4 flex items-center justify-between">
                                 <div>
-                                    <h3 class="font-bold text-slate-900 text-base">Top 5 Instansi / Sekolah Teraktif</h3>
-                                    <p class="text-xs text-slate-500">Perbandingan jumlah pengerjaan kuis dan member terdaftar</p>
+                                    <h3
+                                        class="text-base font-bold text-slate-900"
+                                    >
+                                        Top 5 Instansi / Sekolah Teraktif
+                                    </h3>
+                                    <p class="text-xs text-slate-500">
+                                        Perbandingan jumlah pengerjaan kuis dan
+                                        member terdaftar
+                                    </p>
                                 </div>
-                                <i class="fa-solid fa-ranking-star text-[#0AB883] text-base"></i>
+                                <i
+                                    class="fa-solid fa-ranking-star text-base text-[#0AB883]"
+                                ></i>
                             </div>
 
-                            <div class="h-60 w-full relative">
+                            <div class="relative h-60 w-full">
                                 <canvas ref="topOrgsCanvas"></canvas>
                             </div>
                         </div>
 
                         <!-- STATUS INFRASTRUKTUR & UTILISASI AI -->
-                        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+                        <div
+                            class="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+                        >
                             <div>
-                                <h3 class="font-bold text-slate-900 text-base">Status Sistem & AI Generator</h3>
-                                <p class="text-xs text-slate-500">Kesehatan queue, WebSocket & kuota AI</p>
+                                <h3 class="text-base font-bold text-slate-900">
+                                    Status Sistem & AI Generator
+                                </h3>
+                                <p class="text-xs text-slate-500">
+                                    Kesehatan queue, WebSocket & kuota AI
+                                </p>
                             </div>
 
                             <div class="space-y-3">
                                 <!-- Reverb Status -->
-                                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                                <div
+                                    class="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 p-3.5"
+                                >
                                     <div class="flex items-center gap-2.5">
-                                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-[#3154D5] flex items-center justify-center">
-                                            <i class="fa-solid fa-network-wired text-xs"></i>
+                                        <div
+                                            class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-[#3154D5]"
+                                        >
+                                            <i
+                                                class="fa-solid fa-network-wired text-xs"
+                                            ></i>
                                         </div>
                                         <div>
-                                            <div class="text-xs font-bold text-slate-800">WebSocket Reverb</div>
-                                            <div class="text-[11px] text-slate-500">Latensi: {{ adminAnalytics.kpi.reverb_latency_ms }}ms</div>
+                                            <div
+                                                class="text-xs font-bold text-slate-800"
+                                            >
+                                                WebSocket Reverb
+                                            </div>
+                                            <div
+                                                class="text-[11px] text-slate-500"
+                                            >
+                                                Latensi:
+                                                {{
+                                                    adminAnalytics.kpi
+                                                        .reverb_latency_ms
+                                                }}ms
+                                            </div>
                                         </div>
                                     </div>
                                     <span
-                                        :class="adminAnalytics.kpi.reverb_running ? 'bg-emerald-50 text-[#0AB883] border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'"
-                                        class="px-2 py-0.5 rounded-full text-xs font-bold border"
+                                        :class="
+                                            adminAnalytics.kpi.reverb_running
+                                                ? 'border-emerald-200 bg-emerald-50 text-[#0AB883]'
+                                                : 'border-rose-200 bg-rose-50 text-rose-700'
+                                        "
+                                        class="rounded-full border px-2 py-0.5 text-xs font-bold"
                                     >
-                                        {{ adminAnalytics.kpi.reverb_running ? 'Online' : 'Offline' }}
+                                        {{
+                                            adminAnalytics.kpi.reverb_running
+                                                ? 'Online'
+                                                : 'Offline'
+                                        }}
                                     </span>
                                 </div>
 
                                 <!-- AI Monthly Gen -->
-                                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                                <div
+                                    class="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 p-3.5"
+                                >
                                     <div class="flex items-center gap-2.5">
-                                        <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                                            <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                                        <div
+                                            class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600"
+                                        >
+                                            <i
+                                                class="fa-solid fa-wand-magic-sparkles text-xs"
+                                            ></i>
                                         </div>
                                         <div>
-                                            <div class="text-xs font-bold text-slate-800">AI Gemini Generate</div>
-                                            <div class="text-[11px] text-slate-500">Bulan Ini: {{ adminAnalytics.kpi.ai_generations_month }} kuis</div>
+                                            <div
+                                                class="text-xs font-bold text-slate-800"
+                                            >
+                                                AI Gemini Generate
+                                            </div>
+                                            <div
+                                                class="text-[11px] text-slate-500"
+                                            >
+                                                Bulan Ini:
+                                                {{
+                                                    adminAnalytics.kpi
+                                                        .ai_generations_month
+                                                }}
+                                                kuis
+                                            </div>
                                         </div>
                                     </div>
-                                    <span class="text-xs font-extrabold text-indigo-700">
-                                        {{ adminAnalytics.kpi.ai_generations_total }} Total
+                                    <span
+                                        class="text-xs font-extrabold text-indigo-700"
+                                    >
+                                        {{
+                                            adminAnalytics.kpi
+                                                .ai_generations_total
+                                        }}
+                                        Total
                                     </span>
                                 </div>
 
                                 <!-- Background Queue -->
-                                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                                <div
+                                    class="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 p-3.5"
+                                >
                                     <div class="flex items-center gap-2.5">
-                                        <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-                                            <i class="fa-solid fa-layer-group text-xs"></i>
+                                        <div
+                                            class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-600"
+                                        >
+                                            <i
+                                                class="fa-solid fa-layer-group text-xs"
+                                            ></i>
                                         </div>
                                         <div>
-                                            <div class="text-xs font-bold text-slate-800">Antrean Background</div>
-                                            <div class="text-[11px] text-slate-500">Failed: {{ adminAnalytics.kpi.failed_jobs }} job</div>
+                                            <div
+                                                class="text-xs font-bold text-slate-800"
+                                            >
+                                                Antrean Background
+                                            </div>
+                                            <div
+                                                class="text-[11px] text-slate-500"
+                                            >
+                                                Failed:
+                                                {{
+                                                    adminAnalytics.kpi
+                                                        .failed_jobs
+                                                }}
+                                                job
+                                            </div>
                                         </div>
                                     </div>
-                                    <span class="text-xs font-bold text-slate-700">
-                                        {{ adminAnalytics.kpi.queued_jobs }} Pending
+                                    <span
+                                        class="text-xs font-bold text-slate-700"
+                                    >
+                                        {{ adminAnalytics.kpi.queued_jobs }}
+                                        Pending
                                     </span>
                                 </div>
                             </div>
@@ -500,44 +718,99 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                     </div>
 
                     <!-- TABEL AKTIVITAS PENGERJAAN KUIS TERBARU GLOBAL -->
-                    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                        <div class="flex items-center justify-between mb-4">
+                    <div
+                        class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+                    >
+                        <div class="mb-4 flex items-center justify-between">
                             <div>
-                                <h3 class="font-bold text-slate-900 text-base">Aktivitas Pengerjaan Kuis Terbaru se-Platform</h3>
-                                <p class="text-xs text-slate-500">Pengerjaan kuis real-time dari seluruh instansi dan siswa</p>
+                                <h3 class="text-base font-bold text-slate-900">
+                                    Aktivitas Pengerjaan Kuis Terbaru
+                                    se-Platform
+                                </h3>
+                                <p class="text-xs text-slate-500">
+                                    Pengerjaan kuis real-time dari seluruh
+                                    instansi dan siswa
+                                </p>
                             </div>
-                            <Link href="/reports" class="text-xs font-bold text-[#3154D5] hover:underline flex items-center gap-1">
+                            <Link
+                                href="/reports"
+                                class="flex items-center gap-1 text-xs font-bold text-[#3154D5] hover:underline"
+                            >
                                 <span>Lihat Laporan Lengkap</span>
-                                <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                <i
+                                    class="fa-solid fa-arrow-right text-[10px]"
+                                ></i>
                             </Link>
                         </div>
 
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-sm">
-                                <thead class="text-xs font-bold uppercase tracking-wider text-slate-500 bg-slate-50/70 border-y border-slate-100">
+                                <thead
+                                    class="border-y border-slate-100 bg-slate-50/70 text-xs font-bold uppercase tracking-wider text-slate-500"
+                                >
                                     <tr>
-                                        <th class="py-3 px-4">Judul Kuis</th>
-                                        <th class="py-3 px-4">Peserta</th>
-                                        <th class="py-3 px-4">Instansi</th>
-                                        <th class="py-3 px-4 text-center">Skor</th>
-                                        <th class="py-3 px-4 text-right">Waktu</th>
+                                        <th class="px-4 py-3">Judul Kuis</th>
+                                        <th class="px-4 py-3">Peserta</th>
+                                        <th class="px-4 py-3">Instansi</th>
+                                        <th class="px-4 py-3 text-center">
+                                            Skor
+                                        </th>
+                                        <th class="px-4 py-3 text-right">
+                                            Waktu
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
-                                    <tr v-for="att in adminAnalytics.recent_attempts" :key="att.id" class="hover:bg-slate-50/50 transition-colors">
-                                        <td class="py-3.5 px-4 font-bold text-slate-800">{{ att.quiz_title }}</td>
-                                        <td class="py-3.5 px-4 text-xs text-slate-600 font-medium">{{ att.participant_name }}</td>
-                                        <td class="py-3.5 px-4 text-xs text-slate-500">{{ att.organization_name }}</td>
-                                        <td class="py-3.5 px-4 text-center">
-                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold" :class="att.score >= 70 ? 'bg-emerald-50 text-[#0AB883] border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'">
+                                    <tr
+                                        v-for="att in adminAnalytics.recent_attempts"
+                                        :key="att.id"
+                                        class="transition-colors hover:bg-slate-50/50"
+                                    >
+                                        <td
+                                            class="px-4 py-3.5 font-bold text-slate-800"
+                                        >
+                                            {{ att.quiz_title }}
+                                        </td>
+                                        <td
+                                            class="px-4 py-3.5 text-xs font-medium text-slate-600"
+                                        >
+                                            {{ att.participant_name }}
+                                        </td>
+                                        <td
+                                            class="px-4 py-3.5 text-xs text-slate-500"
+                                        >
+                                            {{ att.organization_name }}
+                                        </td>
+                                        <td class="px-4 py-3.5 text-center">
+                                            <span
+                                                class="rounded-full px-2.5 py-0.5 text-xs font-bold"
+                                                :class="
+                                                    att.score >= 70
+                                                        ? 'border border-emerald-200 bg-emerald-50 text-[#0AB883]'
+                                                        : 'border border-amber-200 bg-amber-50 text-amber-700'
+                                                "
+                                            >
                                                 {{ att.score }} / 100
                                             </span>
                                         </td>
-                                        <td class="py-3.5 px-4 text-xs text-slate-400 text-right">{{ att.created_at }}</td>
+                                        <td
+                                            class="px-4 py-3.5 text-right text-xs text-slate-400"
+                                        >
+                                            {{ att.created_at }}
+                                        </td>
                                     </tr>
-                                    <tr v-if="!adminAnalytics.recent_attempts?.length">
-                                        <td colspan="5" class="py-6 text-center text-xs text-slate-400 italic">
-                                            Belum ada aktivitas pengerjaan kuis terbaru.
+                                    <tr
+                                        v-if="
+                                            !adminAnalytics.recent_attempts
+                                                ?.length
+                                        "
+                                    >
+                                        <td
+                                            colspan="5"
+                                            class="py-6 text-center text-xs italic text-slate-400"
+                                        >
+                                            Belum ada aktivitas pengerjaan kuis
+                                            terbaru.
                                         </td>
                                     </tr>
                                 </tbody>
@@ -552,7 +825,7 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                 <template v-else>
                     <section
                         aria-labelledby="dashboard-title"
-                        class="overflow-hidden rounded-2xl bg-[#3b5fe1] px-5 py-6 text-white shadow-sm sm:px-7 sm:py-7"
+                        class="overflow-hidden rounded-2xl bg-brand-primary px-5 py-6 text-white shadow-sm sm:px-7 sm:py-7"
                     >
                         <div
                             class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between"
@@ -562,7 +835,7 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                                     class="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-white/80"
                                 >
                                     <span
-                                        class="h-2 w-2 rounded-full bg-[#90CB31]"
+                                        class="h-2 w-2 rounded-full bg-brand-secondary"
                                         aria-hidden="true"
                                     ></span>
                                     {{ roleLabel(organization.role) }} ·
@@ -572,13 +845,14 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                                     id="dashboard-title"
                                     class="mt-3 max-w-3xl text-2xl font-bold tracking-tight sm:text-3xl"
                                 >
-                                    Selamat datang, {{ $page.props.auth.user.name }}
+                                    Selamat datang,
+                                    {{ $page.props.auth.user.name }}
                                 </h1>
                                 <p
                                     class="mt-2 max-w-2xl text-sm leading-6 text-white/80 sm:text-base"
                                 >
-                                    Kelola soal, siapkan kuis, dan pantau aktivitas
-                                    belajar dari satu workspace.
+                                    Kelola soal, siapkan kuis, dan pantau
+                                    aktivitas belajar dari satu workspace.
                                 </p>
                             </div>
                             <div class="grid shrink-0 gap-3 sm:flex">
@@ -621,7 +895,9 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                                     index < 2
                                         ? 'border-b border-slate-100 sm:border-b-0'
                                         : '',
-                                    index % 2 === 0 ? 'border-r border-slate-100' : '',
+                                    index % 2 === 0
+                                        ? 'border-r border-slate-100'
+                                        : '',
                                     index === 1 ? 'sm:border-r' : '',
                                 ]"
                             >
@@ -642,7 +918,10 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
 
                     <section aria-labelledby="quick-actions">
                         <div class="mb-3">
-                            <h2 id="quick-actions" class="text-lg font-bold text-slate-950">
+                            <h2
+                                id="quick-actions"
+                                class="text-lg font-bold text-slate-950"
+                            >
                                 Akses cepat
                             </h2>
                             <p class="mt-1 text-sm text-slate-600">
@@ -668,7 +947,10 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
 
                     <section aria-labelledby="recent-quizzes">
                         <div class="mb-3">
-                            <h2 id="recent-quizzes" class="text-lg font-bold text-slate-950">
+                            <h2
+                                id="recent-quizzes"
+                                class="text-lg font-bold text-slate-950"
+                            >
                                 Kuis terbaru
                             </h2>
                             <p class="mt-1 text-sm text-slate-600">
@@ -684,32 +966,36 @@ const formatDate = (value: string) => dateFormatter.format(new Date(value));
                             >
                                 Belum ada kuis yang dibuat.
                             </div>
-                            <div
-                                v-else
-                                class="divide-y divide-slate-100"
-                            >
+                            <div v-else class="divide-y divide-slate-100">
                                 <div
                                     v-for="quiz in recentQuizzes"
                                     :key="quiz.id"
                                     class="flex items-center justify-between p-4 hover:bg-slate-50/50"
                                 >
                                     <div>
-                                        <h4 class="font-bold text-slate-800 text-sm">
+                                        <h4
+                                            class="text-sm font-bold text-slate-800"
+                                        >
                                             {{ quiz.title }}
                                         </h4>
                                         <p class="text-xs text-slate-400">
-                                            Diperbarui {{ formatDate(quiz.updated_at) }}
+                                            Diperbarui
+                                            {{ formatDate(quiz.updated_at) }}
                                         </p>
                                     </div>
                                     <span
                                         class="rounded-full px-2.5 py-0.5 text-xs font-bold"
                                         :class="
                                             quiz.status === 'published'
-                                                ? 'bg-emerald-50 text-[#0AB883] border border-emerald-200'
+                                                ? 'border border-emerald-200 bg-emerald-50 text-[#0AB883]'
                                                 : 'bg-slate-100 text-slate-600'
                                         "
                                     >
-                                        {{ quiz.status === 'published' ? 'Published' : 'Draft' }}
+                                        {{
+                                            quiz.status === 'published'
+                                                ? 'Published'
+                                                : 'Draft'
+                                        }}
                                     </span>
                                 </div>
                             </div>

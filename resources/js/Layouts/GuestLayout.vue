@@ -43,7 +43,7 @@ withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
                     <img
                         src="/assets/kuesify/characters/image-14.svg"
                         alt="Maskot Kuesify"
-                        class="h-16 w-16 object-contain animate-float-gentle filter drop-shadow-md"
+                        class="animate-float-gentle h-16 w-16 object-contain drop-shadow-md filter"
                     />
                     <p
                         class="inline-flex rounded-full bg-brand-secondary px-3.5 py-1 text-sm font-extrabold text-brand-dark shadow-sm"
@@ -114,7 +114,7 @@ withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
                 :class="[contentClass, !compact ? 'pt-16 sm:pt-20' : '']"
             >
                 <div
-                    class="rounded-[1.75rem] border border-white/70 bg-white p-5 shadow-figma sm:rounded-[2rem] sm:p-9 ui-reveal hover-lift"
+                    class="ui-reveal hover-lift rounded-[1.75rem] border border-white/70 bg-white p-5 shadow-figma sm:rounded-[2rem] sm:p-9"
                 >
                     <slot />
                 </div>
@@ -139,4 +139,3 @@ withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
     display: none;
 }
 </style>
-

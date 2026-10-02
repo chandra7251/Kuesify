@@ -222,7 +222,7 @@ function closeMobileNav(): void {
 
 <template>
     <div
-        class="min-h-screen w-full max-w-full overflow-x-hidden bg-brand-accent text-slate-900"
+        class="min-h-screen w-full max-w-full overflow-x-hidden bg-white text-slate-900"
     >
         <!-- ========================================================================= -->
         <!-- 1. DESKTOP SIDEBAR: FIXED TO VIEWPORT (Never scrolls with the page!)      -->
@@ -359,14 +359,24 @@ function closeMobileNav(): void {
                     <img
                         src="/assets/kuesify/characters/image-14.svg"
                         alt="Maskot Kuesify"
-                        class="h-10 w-10 shrink-0 object-contain animate-float-gentle drop-shadow"
+                        class="animate-float-gentle h-10 w-10 shrink-0 object-contain drop-shadow"
                     />
                     <div class="min-w-0">
                         <p class="truncate text-xs font-black text-white">
-                            {{ currentRole === 'participant' ? 'Siap Kuis Live?' : 'Ruang Creator' }}
+                            {{
+                                currentRole === 'participant'
+                                    ? 'Siap Kuis Live?'
+                                    : 'Ruang Creator'
+                            }}
                         </p>
-                        <p class="truncate text-[11px] text-brand-secondary font-semibold">
-                            {{ currentRole === 'participant' ? 'Masuk pakai PIN ruang' : 'Kelola kuis & materi' }}
+                        <p
+                            class="truncate text-[11px] font-semibold text-brand-secondary"
+                        >
+                            {{
+                                currentRole === 'participant'
+                                    ? 'Masuk pakai PIN ruang'
+                                    : 'Kelola kuis & materi'
+                            }}
                         </p>
                     </div>
                 </div>
@@ -868,7 +878,6 @@ function closeMobileNav(): void {
                 <span>{{ item.label }}</span>
             </Link>
         </nav>
-
     </div>
 </template>
 
@@ -908,4 +917,3 @@ function closeMobileNav(): void {
     }
 }
 </style>
-
