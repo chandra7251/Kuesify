@@ -307,7 +307,7 @@ function join(): void {
         class="relative min-h-screen overflow-hidden bg-brand-accent text-brand-primary selection:bg-brand-secondary selection:text-white"
     >
         <!-- Ambient Background Blobs -->
-        <div class="pointer-events-none absolute inset-0 overflow-hidden">
+        <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
             <div
                 class="absolute -left-[10%] top-[-10%] h-[45vw] w-[45vw] rounded-full bg-brand-secondary/20 mix-blend-multiply blur-[80px]"
             ></div>
@@ -317,58 +317,76 @@ function join(): void {
         </div>
 
         <!-- Navigation -->
-        <nav
-            class="sticky top-0 z-40 w-full border-b border-brand-primary/10 bg-white/80 backdrop-blur"
+        <div
+            class="sticky top-0 z-[9999] w-full bg-brand-primary px-3 py-3 shadow-figma sm:px-8 sm:py-4 lg:px-12"
         >
-            <div
-                class="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:h-20 sm:px-8 lg:px-12"
+            <nav
+                class="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-4"
+                aria-label="Navigasi utama"
             >
                 <Link
                     href="/"
-                    class="flex items-center gap-2.5 transition-transform hover:scale-105"
+                    class="flex items-center gap-2 rounded-xl text-white transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-secondary"
                 >
-                    <ApplicationLogo class="h-8 w-8 text-brand-secondary" />
+                    <ApplicationLogo
+                        class="h-9 w-9 text-brand-secondary sm:h-10 sm:w-10"
+                    />
                     <span
-                        class="text-xl font-black tracking-[-0.04em] text-brand-primary"
+                        class="text-lg font-black tracking-tight text-brand-secondary sm:text-xl"
+                        >kuesify</span
                     >
-                        kuesify
-                    </span>
                 </Link>
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 sm:gap-4">
                     <Link
                         href="/login"
-                        class="hidden items-center justify-center rounded-2xl bg-brand-primary/10 px-5 py-2.5 text-sm font-black text-brand-primary transition hover:bg-brand-primary/20 sm:flex"
+                        class="inline-flex min-h-10 items-center justify-center rounded-xl bg-brand-primary px-3 py-2 text-xs font-extrabold leading-none text-white transition hover:bg-brand-secondary sm:min-h-11 sm:px-4 sm:py-3 sm:text-sm"
+                        >Masuk</Link
                     >
-                        Masuk →
-                    </Link>
+                    <Link
+                        href="/register"
+                        class="inline-flex min-h-10 items-center justify-center rounded-xl bg-brand-secondary px-3.5 py-2 text-xs font-extrabold leading-none text-brand-primary shadow-figma transition hover:-translate-y-0.5 active:translate-y-1 active:shadow-none sm:min-h-11 sm:px-5 sm:py-3 sm:text-sm"
+                        >Mulai gratis</Link
+                    >
                 </div>
-            </div>
-        </nav>
+            </nav>
+        </div>
 
         <div
             class="relative z-10 mx-auto flex min-h-[calc(100vh-5rem)] max-w-6xl flex-col items-center justify-center p-6 lg:flex-row lg:gap-16 lg:p-8"
         >
+            <!-- Line Orbs (Copied from Welcome.vue) -->
+            <div
+                class="pointer-events-none absolute -left-32 top-0 h-96 w-96 rounded-full border border-brand-secondary/20"
+            ></div>
+            <div
+                class="pointer-events-none absolute right-1/3 top-10 h-40 w-40 rounded-full border border-brand-secondary/15"
+            ></div>
+            <div
+                class="pointer-events-none absolute left-1/2 top-1/2 h-32 w-32 rounded-full border border-brand-secondary/10"
+            ></div>
+
+            <!-- Filled Orbs (Added 4 solid fill orbs) -->
+            <div
+                class="pointer-events-none absolute -left-48 top-[-12rem] h-[34rem] w-[34rem] rounded-full bg-brand-secondary/15"
+            ></div>
+            <div
+                class="pointer-events-none absolute right-[-2rem] top-[4rem] z-0 h-48 w-48 rounded-full bg-brand-primary/10"
+            ></div>
+            <div
+                class="pointer-events-none absolute bottom-0 left-[-10rem] h-96 w-96 rounded-full bg-brand-primary/5"
+            ></div>
+            <div
+                class="pointer-events-none absolute bottom-[-4rem] right-[-6rem] z-0 h-64 w-64 rounded-full bg-brand-secondary/15"
+            ></div>
+            <div
+                class="pointer-events-none absolute bottom-[15%] right-[8%] h-20 w-20 rounded-full bg-brand-secondary/10"
+            ></div>
+
             <!-- Left Panel (Branding / Mascot) -->
             <div
                 class="mb-10 flex w-full flex-col items-center text-center lg:mb-0 lg:w-1/2 lg:items-start lg:text-left"
             >
-                <div
-                    class="mb-6 inline-flex items-center gap-2 rounded-full bg-brand-secondary/15 px-4 py-2"
-                >
-                    <span class="relative flex h-3 w-3">
-                        <span
-                            class="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-secondary opacity-75"
-                        ></span>
-                        <span
-                            class="relative inline-flex h-3 w-3 rounded-full bg-brand-secondary"
-                        ></span>
-                    </span>
-                    <span
-                        class="text-xs font-black uppercase tracking-wider text-brand-secondary"
-                    >
-                        Arena Live Aktif
-                    </span>
-                </div>
+                <!-- Arena Live Aktif Badge Removed -->
 
                 <h1
                     class="text-4xl font-black leading-[1.1] tracking-[-0.05em] text-brand-primary sm:text-5xl lg:text-6xl"
@@ -384,9 +402,15 @@ function join(): void {
                 </p>
 
                 <!-- Mascot -->
-                <div class="relative mt-8 max-w-[200px] lg:max-w-[280px]">
+                <div
+                    class="relative mt-16 max-w-[150px] -translate-x-16 sm:mt-8 sm:max-w-[200px] sm:translate-x-0 lg:max-w-[280px]"
+                >
                     <img
-                        src="/images/study-character-male.png"
+                        :src="
+                            form.pin.length === 6
+                                ? '/images/chibi-male-pin-lengkap.png'
+                                : '/images/chibi-male-live-join.png'
+                        "
                         alt="Kuesify Mascot"
                         ref="mascotEl"
                         class="relative z-10 drop-shadow-2xl"
@@ -395,7 +419,7 @@ function join(): void {
                     <!-- Speech Bubble -->
                     <div
                         ref="speechBubbleEl"
-                        class="absolute -right-8 -top-8 z-20 w-44 rounded-2xl bg-white p-3 shadow-figma sm:-right-16 sm:-top-4 lg:-right-24 lg:-top-6"
+                        class="absolute -right-32 -top-12 z-20 w-44 rounded-2xl bg-white p-3 shadow-figma sm:-right-16 sm:-top-4 lg:-right-24 lg:-top-6"
                     >
                         <div
                             class="absolute -bottom-2 left-6 h-4 w-4 rotate-45 bg-white"
@@ -405,7 +429,7 @@ function join(): void {
                         >
                             {{
                                 form.pin.length === 6
-                                    ? 'PIN lengkap! Masukkan namamu dan ayo mulai! 🚀'
+                                    ? 'PIN lengkap! Masukkan namamu dan ayo mulai!'
                                     : mascotSpeech
                             }}
                         </p>
@@ -523,14 +547,47 @@ function join(): void {
                                 Nama Panggilan Kamu
                                 <span class="text-red-500">*</span>
                             </label>
-                            <input
-                                id="live-alias-input"
-                                v-model="form.alias"
-                                maxlength="25"
-                                placeholder="Contoh: Sang Juara 🏆"
-                                autocomplete="nickname"
-                                class="block min-h-12 w-full rounded-xl border-2 border-brand-primary/20 bg-brand-accent/30 px-4 text-sm font-bold text-brand-primary transition placeholder:text-brand-primary/40 focus:border-brand-secondary focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-secondary/20"
-                            />
+                            <div class="relative">
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="24"
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        class="h-5 w-5 text-brand-primary/40"
+                                    >
+                                        <path
+                                            d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"
+                                        />
+                                        <path
+                                            d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"
+                                        />
+                                        <path d="M4 22h16" />
+                                        <path
+                                            d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"
+                                        />
+                                        <path
+                                            d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"
+                                        />
+                                        <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+                                    </svg>
+                                </div>
+                                <input
+                                    id="live-alias-input"
+                                    v-model="form.alias"
+                                    maxlength="25"
+                                    placeholder="Contoh: Sang Juara"
+                                    autocomplete="nickname"
+                                    class="block min-h-12 w-full rounded-xl border-2 border-brand-primary/20 bg-brand-accent/30 pl-11 pr-4 text-sm font-bold text-brand-primary transition placeholder:text-brand-primary/40 focus:border-brand-secondary focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-secondary/20"
+                                />
+                            </div>
                             <span
                                 v-if="form.errors.alias"
                                 class="mt-1 block text-xs font-bold text-red-500"
@@ -543,7 +600,7 @@ function join(): void {
                         <div class="pt-2">
                             <button
                                 type="submit"
-                                class="group relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-brand-primary px-6 text-base font-black text-white shadow-figma transition-all hover:-translate-y-1 hover:shadow-figma-hover active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:opacity-50"
+                                class="group relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-brand-primary px-6 text-base font-black text-white shadow-figma transition-all hover:-translate-y-1 hover:bg-brand-secondary hover:text-white hover:shadow-figma-hover active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:opacity-50"
                                 :disabled="
                                     form.processing ||
                                     form.pin.length !== 6 ||
@@ -576,7 +633,32 @@ function join(): void {
                                     Menghubungkan...
                                 </span>
                                 <span v-else class="flex items-center gap-2">
-                                    Masuk dan Mulai 🚀
+                                    Masuk dan Mulai
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="24"
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        class="h-5 w-5"
+                                    >
+                                        <path
+                                            d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+                                        />
+                                        <path
+                                            d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+                                        />
+                                        <path
+                                            d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"
+                                        />
+                                        <path
+                                            d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"
+                                        />
+                                    </svg>
                                 </span>
                             </button>
                         </div>
