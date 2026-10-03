@@ -99,55 +99,57 @@ const navigationItems = computed(() => {
         { label: 'Materi AI', href: '/materials', icon: 'ai' },
     ];
 
-    if (role === 'organization_admin' || role === 'super_admin') {
-        items.push({
-            label: 'Organisasi',
-            href: '/organization',
-            icon: 'organization',
-        });
-        items.push({
-            label: 'Anggota',
-            href: '/admin/members',
-            icon: 'members',
-        });
-        items.push({
-            label: 'Group',
-            href: '/admin/groups',
-            icon: 'groups',
-        });
-        items.push({
-            label: 'Pengaturan Org',
-            href: '/admin/settings',
-            icon: 'settings',
-        });
+    if (role === 'organization_admin') {
+        return [
+            { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
+            {
+                label: 'Anggota',
+                href: '/admin/members',
+                icon: 'members',
+            },
+            {
+                label: 'Group',
+                href: '/admin/groups',
+                icon: 'groups',
+            },
+            { label: 'Laporan Tenant', href: '/reports', icon: 'results' },
+            {
+                label: 'Pengaturan Org',
+                href: '/admin/settings',
+                icon: 'settings',
+            },
+        ];
     }
 
     if (role === 'super_admin') {
-        items.push({
-            label: 'Platform Admin',
-            href: '/admin',
-            icon: 'platform',
-        });
-        items.push({
-            label: 'Moderasi',
-            href: '/admin/moderation',
-            icon: 'moderation',
-        });
-        items.push({
-            label: 'Tenants',
-            href: '/superadmin/tenants',
-            icon: 'tenants',
-        });
-        items.push({
-            label: 'Kategori',
-            href: '/superadmin/categories',
-            icon: 'categories',
-        });
-        items.push({
-            label: 'AI Monitoring',
-            href: '/superadmin/ai-monitoring',
-            icon: 'monitoring',
-        });
+        return [
+            { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
+            {
+                label: 'Platform Admin',
+                href: '/admin',
+                icon: 'platform',
+            },
+            {
+                label: 'Tenants',
+                href: '/superadmin/tenants',
+                icon: 'tenants',
+            },
+            {
+                label: 'Kategori',
+                href: '/superadmin/categories',
+                icon: 'categories',
+            },
+            {
+                label: 'AI Monitoring',
+                href: '/superadmin/ai-monitoring',
+                icon: 'monitoring',
+            },
+            {
+                label: 'Moderasi',
+                href: '/admin/moderation',
+                icon: 'moderation',
+            },
+        ];
     }
 
     return items;
