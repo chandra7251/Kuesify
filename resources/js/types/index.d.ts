@@ -18,6 +18,7 @@ export type PageProps<
 > = T & {
     auth: {
         user: User;
+        unreadNotificationsCount?: number;
     };
     currentOrganization?: OrganizationInfo | null;
     flash?: {

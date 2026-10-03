@@ -4,43 +4,11 @@ import AvatarIcon from '@/Components/AvatarIcon.vue';
 import type { PageProps } from '@/types';
 import { roleLabel } from '@/utils/roleLabel';
 import { Link, usePage } from '@inertiajs/vue3';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed } from 'vue';
 
 const page = usePage<PageProps>();
 
 const emit = defineEmits<{ toggleMobileSidebar: [] }>();
-
-const props = defineProps<{
-    darkMode: boolean;
-}>();
-
-const localDarkMode = ref(props.darkMode);
-
-watch(
-    () => props.darkMode,
-    (value) => {
-        localDarkMode.value = value;
-    },
-);
-
-onMounted(() => {
-    localDarkMode.value =
-        document.documentElement.classList.contains('dark-mode');
-});
-
-function handleThemeToggle(): void {
-    localDarkMode.value = !localDarkMode.value;
-    document.documentElement.classList.toggle('dark-mode', localDarkMode.value);
-
-    try {
-        window.localStorage.setItem(
-            'kuesify.dark-mode',
-            String(localDarkMode.value),
-        );
-    } catch {
-        // Visual preference remains active when storage is unavailable.
-    }
-}
 
 const currentRole = computed(
     () =>
@@ -102,53 +70,6 @@ const currentRole = computed(
                         {{ roleLabel(currentRole) }}
                     </p>
                 </div>
-
-                <button
-                    type="button"
-                    class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white/10 text-brand-secondary ring-2 ring-brand-secondary/30 transition hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
-                    :aria-label="
-                        localDarkMode
-                            ? 'Aktifkan mode terang'
-                            : 'Aktifkan mode gelap'
-                    "
-                    :title="localDarkMode ? 'Mode terang' : 'Mode gelap'"
-                    @click="handleThemeToggle"
-                >
-                    <svg
-                        v-if="localDarkMode"
-                        class="h-5 w-5"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true"
-                    >
-                        <circle cx="12" cy="12" r="4" />
-                        <path d="M12 2v2" />
-                        <path d="M12 20v2" />
-                        <path d="m4.93 4.93 1.41 1.41" />
-                        <path d="m17.66 17.66 1.41 1.41" />
-                        <path d="M2 12h2" />
-                        <path d="M20 12h2" />
-                        <path d="m6.34 17.66-1.41 1.41" />
-                        <path d="m19.07 4.93-1.41 1.41" />
-                    </svg>
-                    <svg
-                        v-else
-                        class="h-5 w-5"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true"
-                    >
-                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-                    </svg>
-                </button>
 
                 <button
                     type="button"

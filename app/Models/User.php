@@ -11,14 +11,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'avatar_key', 'locale'])]
+#[Fillable(['name', 'email', 'password', 'avatar_key', 'locale', 'preferences'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    public const AVATAR_KEYS = ['profile_1', 'profile_2', 'profile_3', 'profile_4', 'profile_5', 'profile_6', 'profile_7', 'profile_8', 'profile_9', 'profile_10', 'profile_11', 'profile_12', 'profile_13'];
+    public const AVATAR_KEYS = ['profile_1', 'profile_2', 'profile_3', 'profile_4', 'profile_5', 'profile_6', 'profile_7', 'profile_8', 'profile_9', 'profile_10', 'profile_11', 'profile_12', 'profile_13', 'rocket', 'book'];
 
     /**
      * Get the attributes that should be cast.
@@ -30,6 +30,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'preferences' => 'array',
         ];
     }
 

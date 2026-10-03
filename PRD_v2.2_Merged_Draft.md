@@ -394,7 +394,7 @@ Model inti:
 25. Print materi tidak membawa sidebar/topbar aplikasi dan siap cetak/save PDF.
 26. Creator dapat memfilter daftar materi berdasarkan akses organisasi/public, melihat badge akses, dan membaca error upload yang actionable.
 27. Label aksi dan akses materi memakai Bahasa Indonesia konsisten pada halaman creator, participant, dan print.
-28. Dark mode pada halaman authenticated mempertahankan kontras dan surface konsisten, termasuk halaman profil dan kontrol topbar.
+28. Semua role (participant, creator, organization_admin, super_admin) dapat memilih dan mengubah avatar profil dari halaman `/profile` menggunakan avatar yang tersedia di database (`profile_1` s/d `profile_13`). Toggle dark mode dihapus dari antarmuka — aplikasi menggunakan light mode saja.
 
 ---
 
@@ -467,6 +467,15 @@ Tema v2.6: **Belajar interaktif dengan feedback Loop**.
 - **26 Sep 2026 — v2.5:** Menambahkan competition focus: study mode, student progress dashboard, teacher insights, multilingual toggle, help hints, quiz of the day, collaborative quiz, offline mode PWA, error boundary, skeleton, empty states, toast.
 - **26 Sep 2026 — PRD Cleanup:** Merapikan header rusak dan mengembalikan section v2.4 yang sempat hilang: roles, FR, required pages, data model, non-functional requirements, governance.
 - **27 Sep 2026 — PRD/Task Sync:** Menarik CSV/XLSX export, public moderation queue, notification center, group member assignment, study mode, multilingual toggle, help hints, collaborative quiz, dan offline mode ke scope kompetisi sesuai `task.md`; Horizon production Linux tetap blocked lokal Windows.
+- **04 Okt 2026 — v2.7 INSYFEST 2026 Submission Refinement:** 
+  1. Penyesuaian arsitektur Live Multiplayer Quiz dengan Laravel Reverb WebSockets (`BROADCAST_CONNECTION=reverb`, `QUEUE_CONNECTION=sync`).
+  2. Implementasi multi-step Join Live dengan PIN 6-digit & Avatar Picker (13 pilihan avatar khas Kuesify) serta auto-fill alias bagi pengguna terotentikasi.
+  3. Fitur Host Live Quiz: Indikator progress soal (*Soal ke X dari Y*), hitung mundur waktu otomatis, penguncian jawaban satu kali (*one-shot lock*), *speed multiplier*, serta animasi *Intermission Podium Top 3* dengan 3s lock countdown.
+  4. Real-time feedback jawaban peserta: status Benar/Salah, poin +XP, dan kunci jawaban langsung di layar peserta.
+  5. Sistem notifikasi dua arah (*EssaySubmittedForReview* saat peserta submit essay & *AttemptGraded* saat nilai rilis) dengan indikator badge merah unread di sidebar navigasi.
+  6. Creator Question Bank Context-Aware: Form pembuatan soal yang dinamis beradaptasi dengan tipe soal (Pilihan Ganda opsi A-E, True/False radio, Isian, Essay).
+  7. Penyempurnaan Single Light Theme (menghapus rujukan Dark Mode di UI) dan penataan menu sidebar sesuai role (Penilaian Essay di Creator, Notifikasi di Participant).
+  8. Pembuatan dokumen kompetisi INSYFEST 2026: `[Proposal] INSYFEST2026-KaiCenatMewingDepartment.pdf`, `[ManualBook] INSYFEST2026-KaiCenatMewingDepartment.pdf`, `[TampilanWeb] INSYFEST2026-KaiCenatMewingDepartment.pdf`, serta bundel ZIP `[KaiCenatMewingDepartment]-WEBDEV-INSYFEST2026-[Kuesify].zip`.
 
 ---
 

@@ -267,7 +267,9 @@ class WorkspaceController extends Controller
                 ->keyBy('question_id')
             : collect();
 
-        return $this->page('Laporan', 'reports', $quizzes, [], [
+        $title = $this->isSuperAdmin($request) ? 'Laporan Global' : 'Laporan';
+        return $this->page($title, 'reports', $quizzes, [], [
+            'isGlobal' => $this->isSuperAdmin($request),
             'completionCount' => $total,
             'averageScore' => $total ? round($attempts->avg('score'), 2) : 0,
             'questions' => $allQuestions->map(function (Question $question) use ($answerStats) {

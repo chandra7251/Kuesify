@@ -445,16 +445,33 @@ function openSession(): void {
                                 >
                                     {{ session.quiz.title }}
                                 </p>
-                                <p class="mt-1 text-xs text-slate-500">
-                                    PIN
-                                    <strong
-                                        class="tracking-widest text-slate-800"
-                                        >{{ session.pin }}</strong
-                                    >
-                                    · {{ session.participants.length }} peserta
+                                <p class="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                                    <span>
+                                        PIN <strong class="tracking-widest text-slate-800">{{ session.pin }}</strong>
+                                    </span>
+                                    <span>·</span>
+                                    <span class="flex items-center gap-1.5">
+                                        <span class="flex -space-x-1.5 overflow-hidden">
+                                            <template v-for="(p, i) in (session.participants as any[]).slice(0, 4)" :key="p.id">
+                                                <img
+                                                    v-if="p.avatar_key"
+                                                    :src="`/images/photo_profile/${p.avatar_key}.png`"
+                                                    :alt="p.alias"
+                                                    class="inline-block h-5 w-5 rounded-full border border-white object-cover ring-1 ring-slate-200"
+                                                />
+                                                <span
+                                                    v-else
+                                                    class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-white bg-brand-primary/10 text-[9px] font-black text-brand-primary ring-1 ring-slate-200"
+                                                >
+                                                    {{ p.alias.charAt(0).toUpperCase() }}
+                                                </span>
+                                            </template>
+                                        </span>
+                                        <strong>{{ session.participants.length }} peserta</strong>
+                                    </span>
                                     <span
                                         v-if="session.lobby_locked"
-                                        class="ml-1 font-semibold text-amber-700"
+                                        class="font-semibold text-amber-700"
                                     >
                                         · Lobby terkunci
                                     </span>

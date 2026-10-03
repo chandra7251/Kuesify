@@ -369,49 +369,49 @@ function submit(): void {
             </section>
             <section v-if="finished" class="mt-4 grid gap-3 sm:grid-cols-3">
                 <div
-                    class="gsap-stat rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800"
+                    class="gsap-stat rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
                 >
                     <p
-                        class="text-xs font-bold text-slate-500 dark:text-slate-300"
+                        class="text-xs font-bold text-slate-500"
                     >
                         Persentase
                     </p>
                     <p
-                        class="mt-1 text-2xl font-black text-slate-900 dark:text-white"
+                        class="mt-1 text-2xl font-black text-slate-900"
                     >
                         {{ attempt.result.percentage ?? 0 }}%
                     </p>
                 </div>
                 <div
-                    class="gsap-stat rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800"
+                    class="gsap-stat rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
                 >
                     <p
-                        class="text-xs font-bold text-slate-500 dark:text-slate-300"
+                        class="text-xs font-bold text-slate-500"
                     >
                         Benar / salah
                     </p>
                     <p
-                        class="mt-1 text-2xl font-black text-slate-900 dark:text-white"
+                        class="mt-1 text-2xl font-black text-slate-900"
                     >
                         {{ attempt.result.correct_answers ?? 0 }} /
                         {{ attempt.result.incorrect_answers ?? 0 }}
                     </p>
                 </div>
                 <div
-                    class="gsap-stat rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800"
+                    class="gsap-stat rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
                 >
                     <p
-                        class="text-xs font-bold text-slate-500 dark:text-slate-300"
+                        class="text-xs font-bold text-slate-500"
                     >
                         Attempt
                     </p>
                     <p
-                        class="mt-1 text-2xl font-black text-slate-900 dark:text-white"
+                        class="mt-1 text-2xl font-black text-slate-900"
                     >
                         {{ attempt.attempts_used
                         }}<span
                             v-if="attempt.attempts_remaining !== null"
-                            class="text-sm font-bold text-slate-500 dark:text-slate-300"
+                            class="text-sm font-bold text-slate-500"
                         >
                             /
                             {{
@@ -428,7 +428,7 @@ function submit(): void {
                     (attempt.result.xp_earned > 0 ||
                         attempt.result.earned_badges.length)
                 "
-                class="gsap-reward mt-4 rounded-2xl border border-brand-secondary/40 bg-brand-accent p-4 dark:border-brand-secondary/50 dark:bg-slate-800"
+                class="gsap-reward mt-4 rounded-2xl border border-brand-secondary/40 bg-brand-accent p-4"
                 aria-live="polite"
             >
                 <div class="flex items-start gap-3">
@@ -440,13 +440,13 @@ function submit(): void {
                     </span>
                     <div class="min-w-0 flex-1">
                         <p
-                            class="text-sm font-black text-slate-900 dark:text-white"
+                            class="text-sm font-black text-slate-900"
                         >
                             Reward belajar
                         </p>
                         <p
                             v-if="attempt.result.xp_earned > 0"
-                            class="mt-1 text-sm font-bold text-brand-primary dark:text-brand-secondary"
+                            class="mt-1 text-sm font-bold text-brand-primary"
                         >
                             +{{ attempt.result.xp_earned }} XP dari kuis ini
                         </p>
@@ -457,7 +457,7 @@ function submit(): void {
                             <span
                                 v-for="badge in attempt.result.earned_badges"
                                 :key="badge.key"
-                                class="gsap-badge-unlock inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-bold text-slate-700 shadow-sm dark:bg-slate-700 dark:text-slate-100"
+                                class="gsap-badge-unlock inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-bold text-slate-700 shadow-sm"
                             >
                                 <AppIcon
                                     name="badge"
@@ -477,7 +477,7 @@ function submit(): void {
             </section>
             <section
                 v-if="finished && attempt.result.level_up"
-                class="gsap-level-up mt-3 rounded-2xl border border-support-1/50 bg-support-1/10 p-4 dark:border-support-1/60 dark:bg-support-1/15"
+                class="gsap-level-up mt-3 rounded-2xl border border-support-1/50 bg-support-1/10 p-4"
             >
                 <div class="flex items-center gap-3">
                     <span
@@ -487,12 +487,12 @@ function submit(): void {
                     /></span>
                     <div>
                         <p
-                            class="text-sm font-black text-slate-900 dark:text-white"
+                            class="text-sm font-black text-slate-900"
                         >
                             Level naik!
                         </p>
                         <p
-                            class="mt-1 text-sm font-bold text-slate-700 dark:text-slate-200"
+                            class="mt-1 text-sm font-bold text-slate-700"
                         >
                             Level {{ attempt.result.level_after }} terbuka.
                             Teruskan ritmemu.
@@ -511,7 +511,7 @@ function submit(): void {
                 </button>
                 <Link
                     href="/participant/quizzes"
-                    class="inline-flex min-h-11 items-center rounded-xl border border-slate-200 px-5 font-bold text-slate-700 dark:border-slate-600 dark:text-slate-200"
+                    class="inline-flex min-h-11 items-center rounded-xl border border-slate-200 px-5 font-bold text-slate-700"
                     >Kembali ke katalog</Link
                 >
             </div>

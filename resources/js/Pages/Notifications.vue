@@ -37,18 +37,23 @@ async function load(): Promise<void> {
     loading.value = false;
 }
 function markRead(item: NotificationItem): void {
-    if (item.read_at) return;
-    router.patch(
-        route('notifications.read', item.id),
-        {},
-        {
-            preserveScroll: true,
-            onSuccess: () => {
-                item.read_at = new Date().toISOString();
-                unreadCount.value = Math.max(0, unreadCount.value - 1);
+    if (!item.read_at) {
+        router.patch(
+            route('notifications.read', item.id),
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    item.read_at = new Date().toISOString();
+                    unreadCount.value = Math.max(0, unreadCount.value - 1);
+                },
             },
-        },
-    );
+        );
+    }
+
+    if (item.data.attempt_id) {
+        router.get(route('attempts.index'));
+    }
 }
 onMounted(load);
 </script>

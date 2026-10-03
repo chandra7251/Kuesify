@@ -26,37 +26,6 @@ watch(desktopSidebarExpanded, (expanded) => {
 });
 // Mobile slide-over drawer state
 const mobileSidebarOpen = ref(false);
-const darkMode = ref(false);
-
-onMounted(() => {
-    let savedTheme: string | null = null;
-
-    try {
-        savedTheme = window.localStorage.getItem('kuesify.dark-mode');
-    } catch {
-        savedTheme = null;
-    }
-
-    darkMode.value =
-        savedTheme === null
-            ? window.matchMedia('(prefers-color-scheme: dark)').matches
-            : savedTheme === 'true';
-    document.documentElement.classList.toggle('dark-mode', darkMode.value);
-});
-
-function toggleDarkMode(): void {
-    darkMode.value = !darkMode.value;
-    document.documentElement.classList.toggle('dark-mode', darkMode.value);
-
-    try {
-        window.localStorage.setItem(
-            'kuesify.dark-mode',
-            String(darkMode.value),
-        );
-    } catch {
-        // Keep visual preference active when storage is unavailable.
-    }
-}
 
 const currentRole = computed(() => {
     return (
@@ -81,6 +50,7 @@ const navigationItems = computed(() => {
             { label: 'Lencana', href: '/participant/badges', icon: 'badge' },
             { label: 'Gabung Live', href: '/join', icon: 'live' },
             { label: 'Hasil Belajar', href: '/attempts', icon: 'results' },
+            { label: 'Notifikasi', href: '/notifications', icon: 'notifications' },
         ];
     }
 
@@ -94,6 +64,7 @@ const navigationItems = computed(() => {
         },
         { label: 'Quiz Builder', href: '/quizzes', icon: 'builder' },
         { label: 'Live Quiz', href: '/live-sessions', icon: 'live' },
+        { label: 'Penilaian Essay', href: '/attempts', icon: 'results' },
         { label: 'Hasil', href: '/reports', icon: 'results' },
         { label: 'Notifikasi', href: '/notifications', icon: 'notifications' },
         { label: 'Materi AI', href: '/materials', icon: 'ai' },
@@ -355,9 +326,17 @@ function closeMobileNav(): void {
                     <!-- Text Label (Visible only when Expanded) -->
                     <span
                         v-if="desktopSidebarExpanded"
-                        class="truncate text-sm"
+                        class="truncate text-sm flex-1"
                     >
                         {{ item.label }}
+                    </span>
+                    <!-- Unread Badge indicator for Notifikasi -->
+                    <span
+                        v-if="item.icon === 'notifications' && (page.props.auth?.unreadNotificationsCount ?? 0) > 0"
+                        class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-black text-white shadow-sm"
+                        :class="!desktopSidebarExpanded ? 'absolute -top-1 -right-1' : ''"
+                    >
+                        {{ page.props.auth.unreadNotificationsCount }}
                     </span>
                     <span
                         v-if="!desktopSidebarExpanded"
@@ -371,7 +350,7 @@ function closeMobileNav(): void {
 
             <!-- Middle Helpful Study Widget (Visible when expanded) -->
             <div
-                v-if="desktopSidebarExpanded"
+                v-if="desktopSidebarExpanded && currentRole !== 'organization_admin' && currentRole !== 'super_admin'"
                 class="mx-3 mb-3 mt-auto rounded-2xl border border-white/15 bg-white/10 p-3.5 backdrop-blur-sm transition-all"
             >
                 <div class="flex items-center gap-3">
@@ -407,7 +386,7 @@ function closeMobileNav(): void {
                     <span>⚡ Gabung via PIN</span>
                 </Link>
                 <Link
-                    v-else
+                    v-else-if="currentRole === 'creator'"
                     href="/quizzes"
                     class="btn-shimmer mt-3 flex items-center justify-center gap-1.5 rounded-xl bg-brand-secondary px-3 py-2 text-center text-xs font-black text-brand-dark shadow-sm transition hover:brightness-105 active:scale-95"
                 >
@@ -530,7 +509,6 @@ function closeMobileNav(): void {
             :class="desktopSidebarExpanded ? 'lg:pl-72' : 'lg:pl-20'"
         >
             <TopNavBar
-                :dark-mode="darkMode"
                 @toggle-mobile-sidebar="mobileSidebarOpen = true"
             />
 
@@ -806,7 +784,13 @@ function closeMobileNav(): void {
                                 />
                                 <polyline points="9 12 11 14 15 10" />
                             </svg>
-                            <span class="truncate">{{ item.label }}</span>
+                            <span class="truncate flex-1">{{ item.label }}</span>
+                            <span
+                                v-if="item.icon === 'notifications' && (page.props.auth?.unreadNotificationsCount ?? 0) > 0"
+                                class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-black text-white shadow-sm"
+                            >
+                                {{ page.props.auth.unreadNotificationsCount }}
+                            </span>
                         </Link>
                     </nav>
                 </div>

@@ -228,11 +228,11 @@ const summarySize = (value: unknown) =>
                 <!-- 3 Stat Cards untuk Reports (Persis Question Bank & Live Quiz) -->
                 <section
                     v-if="isReports"
-                    class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                    class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
                 >
                     <!-- Card 1: Total Penyelesaian -->
                     <article
-                        class="min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]"
+                        class="rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]"
                     >
                         <div class="flex items-center justify-between gap-3">
                             <p
@@ -313,7 +313,7 @@ const summarySize = (value: unknown) =>
 
                     <!-- Card 2: Rata-rata Skor -->
                     <article
-                        class="min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)] sm:col-span-2 lg:col-span-1"
+                        class="rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]"
                     >
                         <div class="flex items-center justify-between gap-3">
                             <p
@@ -400,7 +400,7 @@ const summarySize = (value: unknown) =>
 
                     <!-- Card 3: Analisis Soal -->
                     <article
-                        class="min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)] sm:col-span-2 lg:col-span-1"
+                        class="rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]"
                     >
                         <div class="flex items-center justify-between gap-3">
                             <p
@@ -810,7 +810,9 @@ const summarySize = (value: unknown) =>
                             :class="
                                 isStyledSection
                                     ? 'question-row items-center border-l-4 border-l-transparent bg-white px-6 py-5 hover:bg-slate-50'
-                                    : 'flex-col justify-center border-l-2 border-l-transparent px-5 py-4 hover:bg-brand-accent/40 sm:flex-row sm:items-center sm:justify-between'
+                                    : isReports
+                                      ? 'flex-col gap-2 border-l-2 border-l-transparent px-5 py-4 hover:bg-brand-accent/40 sm:flex-row sm:items-center sm:justify-between'
+                                      : 'flex-col justify-center border-l-2 border-l-transparent px-5 py-4 hover:bg-brand-accent/40 sm:flex-row sm:items-center sm:justify-between'
                             "
                         >
                             <div
@@ -933,7 +935,7 @@ const summarySize = (value: unknown) =>
                                 </div>
                                 <div
                                     v-if="isReports"
-                                    class="flex flex-wrap gap-2"
+                                    class="flex flex-col gap-2 sm:flex-row sm:flex-wrap"
                                 >
                                     <a
                                         v-for="format in [
@@ -947,7 +949,7 @@ const summarySize = (value: unknown) =>
                                                 format,
                                             )
                                         "
-                                        class="inline-flex min-h-9 items-center justify-center rounded-md bg-brand-primary px-3.5 text-xs font-bold uppercase text-white transition hover:bg-brand-hover"
+                                        class="inline-flex w-full min-h-9 items-center justify-center rounded-md bg-brand-primary px-3.5 text-xs font-bold uppercase text-white transition hover:bg-brand-hover sm:w-auto"
                                     >
                                         Unduh {{ format }}
                                     </a>

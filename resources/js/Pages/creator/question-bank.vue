@@ -163,6 +163,7 @@ function questionTypeLabel(type: string): string {
                             <select
                                 v-model="form.type"
                                 class="mt-2 min-h-11 w-full rounded-xl border-slate-300 text-sm focus:border-brand-primary focus:ring-brand-primary"
+                                @change="form.correct_answer = ''; form.options = ['', '']"
                             >
                                 <option value="multiple_choice">
                                     Pilihan ganda
@@ -187,18 +188,100 @@ function questionTypeLabel(type: string): string {
                                 placeholder="Tulis pertanyaan yang ingin disimpan..."
                             />
                         </label>
-                        <label class="block">
-                            <span
-                                class="text-xs font-black uppercase tracking-wide text-slate-600"
-                                >Jawaban benar</span
+
+                        <!-- Opsi pilihan ganda -->
+                        <div v-if="form.type === 'multiple_choice'" class="space-y-3">
+                            <span class="block text-xs font-black uppercase tracking-wide text-slate-600">Pilihan jawaban</span>
+                            <div
+                                v-for="(opt, idx) in form.options"
+                                :key="idx"
+                                class="flex items-center gap-2"
                             >
+                                <span class="w-6 shrink-0 text-center text-xs font-black text-slate-400">
+                                    {{ ['A', 'B', 'C', 'D', 'E'][idx] }}
+                                </span>
+                                <input
+                                    v-model="form.options[idx]"
+                                    :placeholder="`Opsi ${['A', 'B', 'C', 'D', 'E'][idx]}`"
+                                    class="min-h-10 flex-1 rounded-xl border-slate-300 text-sm focus:border-brand-primary focus:ring-brand-primary"
+                                />
+                                <button
+                                    v-if="form.options.length > 2"
+                                    type="button"
+                                    class="shrink-0 rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-500"
+                                    @click="form.options.splice(idx, 1); if (form.correct_answer === opt) form.correct_answer = ''"
+                                >✕</button>
+                            </div>
+                            <button
+                                v-if="form.options.length < 5"
+                                type="button"
+                                class="w-full rounded-xl border border-dashed border-slate-300 py-2 text-xs font-bold text-slate-500 hover:border-brand-primary hover:text-brand-primary"
+                                @click="form.options.push('')"
+                            >
+                                + Tambah opsi
+                            </button>
+                        </div>
+
+                        <!-- Jawaban benar: pilihan ganda → dropdown opsi -->
+                        <label v-if="form.type === 'multiple_choice'" class="block">
+                            <span class="text-xs font-black uppercase tracking-wide text-slate-600">Jawaban benar</span>
+                            <select
+                                v-model="form.correct_answer"
+                                required
+                                class="mt-2 min-h-11 w-full rounded-xl border-slate-300 text-sm focus:border-brand-primary focus:ring-brand-primary"
+                            >
+                                <option value="" disabled>— Pilih jawaban yang benar —</option>
+                                <option
+                                    v-for="(opt, idx) in form.options.filter(o => o.trim())"
+                                    :key="idx"
+                                    :value="opt"
+                                >
+                                    {{ ['A', 'B', 'C', 'D', 'E'][form.options.indexOf(opt)] }}. {{ opt }}
+                                </option>
+                            </select>
+                        </label>
+
+                        <!-- Jawaban benar: true/false → radio button -->
+                        <div v-else-if="form.type === 'true_false'" class="space-y-2">
+                            <span class="block text-xs font-black uppercase tracking-wide text-slate-600">Jawaban benar</span>
+                            <div class="flex gap-3">
+                                <label
+                                    class="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border py-3 text-sm font-bold transition"
+                                    :class="form.correct_answer === 'True'
+                                        ? 'border-emerald-500 bg-emerald-50 text-emerald-900'
+                                        : 'border-slate-200 text-slate-600 hover:border-slate-300'"
+                                >
+                                    <input v-model="form.correct_answer" type="radio" value="True" class="sr-only" />
+                                    ✓ Benar (True)
+                                </label>
+                                <label
+                                    class="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border py-3 text-sm font-bold transition"
+                                    :class="form.correct_answer === 'False'
+                                        ? 'border-red-500 bg-red-50 text-red-900'
+                                        : 'border-slate-200 text-slate-600 hover:border-slate-300'"
+                                >
+                                    <input v-model="form.correct_answer" type="radio" value="False" class="sr-only" />
+                                    ✕ Salah (False)
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Jawaban benar: isian/essay → text input biasa -->
+                        <label v-else-if="form.type === 'fill_blank'" class="block">
+                            <span class="text-xs font-black uppercase tracking-wide text-slate-600">Jawaban benar</span>
                             <input
                                 v-model="form.correct_answer"
                                 required
                                 class="mt-2 min-h-11 w-full rounded-xl border-slate-300 text-sm focus:border-brand-primary focus:ring-brand-primary"
-                                placeholder="Masukkan jawaban"
+                                placeholder="Jawaban yang tepat untuk soal isian"
                             />
                         </label>
+
+                        <!-- Essay: tidak perlu jawaban benar -->
+                        <div v-else-if="form.type === 'essay'" class="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3">
+                            <p class="text-xs font-bold text-amber-800">ℹ️ Soal essay dinilai manual oleh creator — tidak perlu jawaban benar otomatis.</p>
+                        </div>
+
                         <label class="block">
                             <span
                                 class="text-xs font-black uppercase tracking-wide text-slate-600"

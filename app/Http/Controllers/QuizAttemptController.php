@@ -157,6 +157,13 @@ class QuizAttemptController extends Controller
         abort_unless($attempt->participant_id === $request->user()->id && $attempt->status === 'in_progress', 403);
         $attempt->submit();
 
+        if ($attempt->status === 'pending_review') {
+            $creator = $attempt->quiz->creator;
+            if ($creator) {
+                $creator->notify(new \App\Notifications\EssaySubmittedForReview($attempt));
+            }
+        }
+
         return back();
     }
 

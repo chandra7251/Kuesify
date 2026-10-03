@@ -5,9 +5,40 @@ import { gsap } from 'gsap';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
 const page = usePage();
-const isAuthenticated = computed(() => Boolean(page.props.auth?.user));
+const user = computed(() => (page.props.auth as any)?.user);
+const isAuthenticated = computed(() => Boolean(user.value));
 
-const form = useForm({ pin: '', alias: '' });
+const form = useForm({
+    pin: '',
+    alias: user.value?.name || '',
+    avatar_key: user.value?.avatar_key || '',
+});
+
+// Step: 1 = PIN+alias form, 2 = avatar picker
+const step = ref<1 | 2>(1);
+
+const avatarOptions = Array.from({ length: 13 }, (_, i) => ({
+    key: `profile_${i + 1}`,
+    src: `/images/photo_profile/profile_${i + 1}.png`,
+}));
+
+function goToAvatarStep(): void {
+    // Jika user sudah login dan punya avatar di DB, langsung join saja tanpa perlu langkah 2 pilih avatar temporary
+    if (isAuthenticated.value && user.value?.avatar_key) {
+        if (!form.avatar_key) form.avatar_key = user.value.avatar_key;
+        submitFromAvatarStep();
+        return;
+    }
+
+    step.value = 2;
+    // default ke avatar pertama jika belum pilih
+    if (!form.avatar_key) form.avatar_key = 'profile_1';
+    mascotSpeech.value = 'Pilih avatar jagoanmu buat sesi ini!';
+}
+
+function selectAvatar(key: string): void {
+    form.avatar_key = key;
+}
 const root = ref<HTMLElement | null>(null);
 const canvasBg = ref<HTMLCanvasElement | null>(null);
 const mascotEl = ref<HTMLElement | null>(null);
@@ -86,18 +117,22 @@ function initCanvas(): void {
 function sanitizePin(event: Event): void {
     const input = event.target as HTMLInputElement;
     form.pin = input.value.replace(/[^0-9]/g, '').slice(0, 6);
+    if (form.errors.pin) form.clearErrors('pin');
 }
 
 function pressKey(key: string): void {
     if (key === 'back') {
         if (form.pin.length > 0) {
             form.pin = form.pin.slice(0, -1);
+            if (form.errors.pin) form.clearErrors('pin');
             triggerMascotReaction('back');
         }
     } else if (key === 'clear') {
         form.pin = '';
+        if (form.errors.pin) form.clearErrors('pin');
         triggerMascotReaction('clear');
     } else if (form.pin.length < 6) {
+        if (form.errors.pin) form.clearErrors('pin');
         form.pin += key;
         triggerMascotReaction('digit');
     }
@@ -301,6 +336,11 @@ function join(): void {
     triggerMascotReaction('submit');
     form.post(route('live-sessions.join'));
 }
+
+function submitFromAvatarStep(): void {
+    triggerMascotReaction('submit');
+    form.post(route('live-sessions.join'));
+}
 </script>
 
 <template>
@@ -455,8 +495,8 @@ function join(): void {
                     data-anim-card
                     class="relative rounded-3xl bg-white p-4 shadow-figma sm:p-6 lg:p-8"
                 >
-                    <!-- Form -->
-                    <form @submit.prevent="join" class="flex flex-col gap-4 sm:gap-5">
+                    <!-- Step 1: Form PIN + Alias -->
+                    <form v-if="step === 1" @submit.prevent="goToAvatarStep" class="flex flex-col gap-4 sm:gap-5">
                         <!-- PIN Section -->
                         <div>
                             <div class="mb-3 flex items-center justify-between">
@@ -495,11 +535,13 @@ function join(): void {
                                     :key="i"
                                     class="flex h-10 w-full items-center justify-center rounded-lg border-2 text-sm font-black transition-all sm:h-12 sm:text-lg lg:h-14 lg:text-xl"
                                     :class="[
-                                        form.pin.length >= i
-                                            ? 'border-brand-secondary bg-brand-secondary text-white'
-                                            : form.pin.length === i - 1
-                                              ? 'scale-105 border-brand-secondary bg-brand-secondary/10 text-brand-primary ring-4 ring-brand-secondary/20'
-                                              : 'border-brand-primary/20 bg-brand-accent text-brand-primary/30',
+                                        form.errors.pin
+                                            ? 'border-red-400 bg-red-50 text-red-500 ring-2 ring-red-200'
+                                            : form.pin.length >= i
+                                              ? 'border-brand-secondary bg-brand-secondary text-white'
+                                              : form.pin.length === i - 1
+                                                ? 'scale-105 border-brand-secondary bg-brand-secondary/10 text-brand-primary ring-4 ring-brand-secondary/20'
+                                                : 'border-brand-primary/20 bg-brand-accent text-brand-primary/30',
                                     ]"
                                 >
                                     {{ form.pin[i - 1] || '' }}
@@ -645,36 +687,98 @@ function join(): void {
                                     Menghubungkan...
                                 </span>
                                 <span v-else class="flex items-center gap-2">
-                                    Masuk dan Mulai
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="24"
-                                        height="24"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="2"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        class="h-5 w-5"
-                                    >
-                                        <path
-                                            d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
-                                        />
-                                        <path
-                                            d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
-                                        />
-                                        <path
-                                            d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"
-                                        />
-                                        <path
-                                            d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"
-                                        />
+                                    Pilih Avatar
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                                        <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
                                     </svg>
                                 </span>
                             </button>
                         </div>
                     </form>
+
+                    <!-- Step 2: Pilih Avatar -->
+                    <div v-if="step === 2" class="flex flex-col gap-5">
+                        <!-- Header -->
+                        <div class="text-center">
+                            <p class="text-xs font-bold uppercase tracking-widest text-brand-primary/50">Langkah 2 dari 2</p>
+                            <h2 class="mt-1 text-xl font-black text-brand-primary sm:text-2xl">Pilih Avatar Kamu</h2>
+                            <p class="mt-1 text-sm text-brand-primary/60">Avatar ini cuma untuk sesi live ini ya!</p>
+                        </div>
+
+                        <!-- Preview avatar terpilih + nama -->
+                        <div class="flex items-center gap-4 rounded-2xl border-2 border-brand-secondary/30 bg-brand-secondary/5 px-4 py-3">
+                            <img
+                                :src="`/images/photo_profile/${form.avatar_key}.png`"
+                                :alt="form.alias"
+                                class="h-14 w-14 shrink-0 rounded-full border-2 border-brand-secondary object-cover shadow"
+                            />
+                            <div class="min-w-0">
+                                <p class="truncate text-base font-black text-brand-primary">{{ form.alias }}</p>
+                                <p class="text-xs text-brand-primary/50">PIN: {{ form.pin }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Grid avatar -->
+                        <div class="grid grid-cols-4 gap-2 sm:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
+                            <button
+                                v-for="opt in avatarOptions"
+                                :key="opt.key"
+                                type="button"
+                                class="group relative aspect-square overflow-hidden rounded-xl border-2 transition-all duration-150 active:scale-95"
+                                :class="form.avatar_key === opt.key
+                                    ? 'border-brand-secondary ring-4 ring-brand-secondary/30 scale-105'
+                                    : 'border-transparent hover:border-brand-primary/30'"
+                                @click="selectAvatar(opt.key)"
+                            >
+                                <img :src="opt.src" :alt="opt.key" class="h-full w-full object-cover" />
+                                <div
+                                    v-if="form.avatar_key === opt.key"
+                                    class="absolute inset-0 flex items-center justify-center bg-brand-secondary/20"
+                                >
+                                    <svg class="h-6 w-6 text-brand-secondary drop-shadow" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                            </button>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex flex-col gap-3 pt-1 sm:flex-row">
+                            <button
+                                type="button"
+                                class="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-brand-primary/20 bg-transparent px-6 text-sm font-black text-brand-primary/70 transition hover:border-brand-primary hover:text-brand-primary active:scale-95 sm:w-auto sm:px-8"
+                                @click="step = 1"
+                            >
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>
+                                </svg>
+                                Kembali
+                            </button>
+                            <button
+                                type="button"
+                                class="group relative flex min-h-12 flex-1 items-center justify-center gap-2 overflow-hidden rounded-xl bg-brand-primary px-6 text-sm font-black text-white shadow-figma transition-all hover:-translate-y-0.5 hover:bg-brand-secondary hover:shadow-figma-hover active:translate-y-0.5 active:shadow-none disabled:cursor-not-allowed disabled:opacity-50"
+                                :disabled="form.processing || !form.avatar_key"
+                                @click="submitFromAvatarStep"
+                            >
+                                <span v-if="form.processing" class="flex items-center gap-2">
+                                    <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                                    </svg>
+                                    Menghubungkan...
+                                </span>
+                                <span v-else class="flex items-center gap-2">
+                                    Masuk dan Mulai!
+                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
+                                        <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
+                                        <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
+                                        <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+                                    </svg>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
                 </section>
             </div>
         </div>

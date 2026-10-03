@@ -30,9 +30,13 @@ class ProfileController extends Controller
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $data = $request->validated();
-        if (isset($data['preferences']) && is_array($data['preferences'])) {
-            $currentPrefs = is_array($request->user()->preferences) ? $request->user()->preferences : [];
-            $data['preferences'] = array_merge($currentPrefs, $data['preferences']);
+        if (array_key_exists('preferences', $data)) {
+            if (is_array($data['preferences'])) {
+                $currentPrefs = is_array($request->user()->preferences) ? $request->user()->preferences : [];
+                $data['preferences'] = array_merge($currentPrefs, $data['preferences']);
+            }
+        } else {
+            unset($data['preferences']);
         }
 
         $request->user()->fill($data);
