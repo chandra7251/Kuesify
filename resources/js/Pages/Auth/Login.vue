@@ -51,20 +51,26 @@ const submit = () => {
             {{ status }}
         </div>
 
-        
         <!-- Quick Live Quiz Access Card -->
-        <div class="mb-6 rounded-2xl border-2 border-brand-secondary/40 bg-brand-secondary/10 p-4 transition-all hover:bg-brand-secondary/15 sm:p-5">
+        <div
+            class="mb-6 rounded-2xl border-2 border-brand-secondary/40 bg-brand-secondary/10 p-4 transition-all hover:bg-brand-secondary/15 sm:p-5"
+        >
             <div class="flex items-center justify-between gap-3">
                 <div>
-                    <span class="inline-flex items-center gap-1.5 rounded-full bg-brand-primary px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider text-white">
-                        <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-secondary"></span>
+                    <span
+                        class="inline-flex items-center gap-1.5 rounded-full bg-brand-primary px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider text-white"
+                    >
+                        <span
+                            class="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-secondary"
+                        ></span>
                         Peserta / Siswa
                     </span>
                     <h2 class="mt-1 text-sm font-black text-slate-900">
                         Mau ikut live quiz pakai PIN?
                     </h2>
                     <p class="mt-0.5 text-xs text-slate-600">
-                        Tidak perlu login akun jika hanya ingin menjawab kuis panggung.
+                        Tidak perlu login akun jika hanya ingin menjawab kuis
+                        panggung.
                     </p>
                 </div>
                 <Link

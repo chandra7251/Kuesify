@@ -60,130 +60,281 @@ function save(): void {
 function remove(id: number): void {
     router.delete(route('questions.destroy', id), { preserveScroll: true });
 }
+function questionTypeLabel(type: string): string {
+    return (
+        {
+            multiple_choice: 'Pilihan ganda',
+            true_false: 'Benar / salah',
+            fill_blank: 'Isian',
+            essay: 'Essay',
+        }[type] ?? type
+    );
+}
 </script>
 
 <template>
     <Head title="Question Bank Creator" />
     <AuthenticatedLayout>
-        <main class="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:px-6 lg:px-8">
-            <section class="ui-card-hover rounded-2xl bg-white p-6 shadow-sm">
-                <p
-                    class="text-xs font-bold uppercase tracking-[0.16em] text-brand-primary"
+        <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+            <section
+                class="overflow-hidden rounded-2xl bg-brand-primary p-6 text-white shadow-figma sm:p-8"
+            >
+                <div
+                    class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between"
                 >
-                    Creator
-                </p>
-                <h1 class="mt-2 text-3xl font-extrabold">Question Bank</h1>
-                <p class="mt-2 text-sm text-slate-600">
-                    Buat soal reusable dengan tag organisasi.
-                </p>
+                    <div>
+                        <p
+                            class="text-xs font-black uppercase tracking-[0.2em] text-brand-secondary"
+                        >
+                            Creator workspace
+                        </p>
+                        <h1
+                            class="mt-2 text-2xl font-black tracking-tight sm:text-3xl"
+                        >
+                            Bangun bank soalmu
+                        </h1>
+                        <p
+                            class="mt-2 max-w-2xl text-sm leading-6 text-white/75"
+                        >
+                            Buat soal reusable, rapikan berdasarkan tag, dan
+                            siapkan materi untuk kuis yang lebih hidup.
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 sm:w-64">
+                        <div
+                            class="rounded-xl border border-white/15 bg-white/10 p-3 backdrop-blur-sm"
+                        >
+                            <p class="text-xs font-bold text-white/70">
+                                Total soal
+                            </p>
+                            <p
+                                class="mt-1 text-2xl font-black text-brand-secondary"
+                            >
+                                {{ questions.length }}
+                            </p>
+                        </div>
+                        <div
+                            class="rounded-xl border border-white/15 bg-white/10 p-3 backdrop-blur-sm"
+                        >
+                            <p class="text-xs font-bold text-white/70">
+                                Status
+                            </p>
+                            <p class="mt-1 text-sm font-black text-white">
+                                Siap dipakai
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </section>
-            <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+
+            <div
+                class="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
+            >
                 <form
-                    class="ui-card-hover space-y-4 rounded-2xl bg-white p-6 shadow-sm"
+                    class="rounded-2xl border border-l-4 border-slate-200 border-l-brand-secondary bg-white p-6 shadow-figma-sm sm:p-7"
                     @submit.prevent="save"
                 >
-                    <h2 class="text-lg font-extrabold">Soal baru</h2>
-                    <select
-                        v-model="form.type"
-                        class="min-h-11 w-full rounded-lg border-slate-300"
-                    >
-                        <option value="multiple_choice">Pilihan ganda</option>
-                        <option value="true_false">Benar / salah</option>
-                        <option value="fill_blank">Isian</option>
-                        <option value="essay">Essay</option>
-                    </select>
-                    <textarea
-                        v-model="form.prompt"
-                        required
-                        rows="4"
-                        class="w-full rounded-lg border-slate-300"
-                        placeholder="Pertanyaan"
-                    />
-                    <input
-                        v-model="form.correct_answer"
-                        required
-                        class="min-h-11 w-full rounded-lg border-slate-300"
-                        placeholder="Jawaban benar"
-                    />
-                    <input
-                        v-model="form.hint"
-                        class="min-h-11 w-full rounded-lg border-slate-300"
-                        placeholder="Hint (opsional)"
-                    />
-                    <div class="relative">
-                        <input
-                            v-model="tagQuery"
-                            class="min-h-11 w-full rounded-lg border-slate-300"
-                            placeholder="Cari tag"
-                            @keydown.enter.prevent="
-                                tagQuery && addTag(tagQuery)
-                            "
-                        />
+                    <div class="flex items-start gap-3">
+                        <span
+                            class="grid h-10 w-10 place-items-center rounded-xl bg-brand-secondary/15 text-lg text-brand-primary"
+                            >＋</span
+                        >
+                        <div>
+                            <p
+                                class="text-xs font-black uppercase tracking-[0.18em] text-brand-primary"
+                            >
+                                Koleksi soal
+                            </p>
+                            <h2 class="mt-1 text-xl font-black text-slate-950">
+                                Buat soal baru
+                            </h2>
+                            <p class="mt-1 text-sm text-slate-600">
+                                Simpan satu soal untuk dipakai ulang di kuis.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 space-y-4">
+                        <label class="block">
+                            <span
+                                class="text-xs font-black uppercase tracking-wide text-slate-600"
+                                >Tipe soal</span
+                            >
+                            <select
+                                v-model="form.type"
+                                class="mt-2 min-h-11 w-full rounded-xl border-slate-300 text-sm focus:border-brand-primary focus:ring-brand-primary"
+                            >
+                                <option value="multiple_choice">
+                                    Pilihan ganda
+                                </option>
+                                <option value="true_false">
+                                    Benar / salah
+                                </option>
+                                <option value="fill_blank">Isian</option>
+                                <option value="essay">Essay</option>
+                            </select>
+                        </label>
+                        <label class="block">
+                            <span
+                                class="text-xs font-black uppercase tracking-wide text-slate-600"
+                                >Pertanyaan</span
+                            >
+                            <textarea
+                                v-model="form.prompt"
+                                required
+                                rows="4"
+                                class="mt-2 w-full rounded-xl border-slate-300 text-sm focus:border-brand-primary focus:ring-brand-primary"
+                                placeholder="Tulis pertanyaan yang ingin disimpan..."
+                            />
+                        </label>
+                        <label class="block">
+                            <span
+                                class="text-xs font-black uppercase tracking-wide text-slate-600"
+                                >Jawaban benar</span
+                            >
+                            <input
+                                v-model="form.correct_answer"
+                                required
+                                class="mt-2 min-h-11 w-full rounded-xl border-slate-300 text-sm focus:border-brand-primary focus:ring-brand-primary"
+                                placeholder="Masukkan jawaban"
+                            />
+                        </label>
+                        <label class="block">
+                            <span
+                                class="text-xs font-black uppercase tracking-wide text-slate-600"
+                                >Hint
+                                <span class="font-normal text-slate-400"
+                                    >(opsional)</span
+                                ></span
+                            >
+                            <input
+                                v-model="form.hint"
+                                class="mt-2 min-h-11 w-full rounded-xl border-slate-300 text-sm focus:border-brand-primary focus:ring-brand-primary"
+                                placeholder="Beri petunjuk singkat"
+                            />
+                        </label>
+                        <div class="relative">
+                            <label
+                                class="block text-xs font-black uppercase tracking-wide text-slate-600"
+                                for="creator-tag"
+                                >Tag organisasi</label
+                            >
+                            <input
+                                id="creator-tag"
+                                v-model="tagQuery"
+                                class="mt-2 min-h-11 w-full rounded-xl border-slate-300 text-sm focus:border-brand-primary focus:ring-brand-primary"
+                                placeholder="Cari atau ketik tag"
+                                @keydown.enter.prevent="
+                                    tagQuery && addTag(tagQuery)
+                                "
+                            />
+                            <div
+                                v-if="tagSuggestions.length"
+                                class="absolute z-10 mt-1 w-full rounded-xl border border-slate-200 bg-white p-1 shadow-lg"
+                            >
+                                <button
+                                    v-for="tag in tagSuggestions"
+                                    :key="tag.id"
+                                    type="button"
+                                    class="block w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-brand-accent"
+                                    @click="addTag(tag.name)"
+                                >
+                                    {{ tag.name }}
+                                </button>
+                            </div>
+                        </div>
                         <div
-                            v-if="tagSuggestions.length"
-                            class="absolute z-10 mt-1 w-full rounded-lg border border-slate-200 bg-white p-1 shadow-lg"
+                            v-if="form.tags.length"
+                            class="flex flex-wrap gap-2"
                         >
                             <button
-                                v-for="tag in tagSuggestions"
-                                :key="tag.id"
+                                v-for="tag in form.tags"
+                                :key="tag"
                                 type="button"
-                                class="block w-full rounded px-3 py-2 text-left text-sm hover:bg-slate-50"
-                                @click="addTag(tag.name)"
+                                class="rounded-full bg-brand-secondary/20 px-3 py-1 text-xs font-black text-brand-dark"
+                                @click="removeTag(tag)"
                             >
-                                {{ tag.name }}
+                                {{ tag }} ×
                             </button>
                         </div>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
                         <button
-                            v-for="tag in form.tags"
-                            :key="tag"
-                            type="button"
-                            class="rounded-full bg-brand-secondary px-3 py-1 text-xs font-bold"
-                            @click="removeTag(tag)"
+                            type="submit"
+                            class="min-h-12 w-full rounded-xl bg-brand-primary px-4 text-sm font-black text-white transition hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary disabled:cursor-not-allowed disabled:opacity-50"
+                            :disabled="form.processing"
                         >
-                            {{ tag }} ×
+                            {{
+                                form.processing ? 'Menyimpan...' : 'Simpan soal'
+                            }}
                         </button>
                     </div>
-                    <button
-                        type="submit"
-                        class="min-h-11 w-full rounded-xl bg-brand-primary px-4 font-extrabold text-white"
-                        :disabled="form.processing"
-                    >
-                        Simpan soal
-                    </button>
                 </form>
+
                 <section
-                    class="ui-card-hover rounded-2xl bg-white p-6 shadow-sm"
+                    class="rounded-2xl border border-slate-200 bg-white p-6 shadow-figma-sm sm:p-7"
                 >
-                    <h2 class="text-lg font-extrabold">Soal tersimpan</h2>
+                    <div class="flex items-end justify-between gap-4">
+                        <div>
+                            <p
+                                class="text-xs font-black uppercase tracking-[0.18em] text-brand-primary"
+                            >
+                                Perpustakaan soal
+                            </p>
+                            <h2 class="mt-1 text-xl font-black text-slate-950">
+                                Soal tersimpan
+                            </h2>
+                        </div>
+                        <span
+                            class="rounded-full bg-brand-accent px-3 py-1 text-xs font-black text-brand-primary"
+                            >{{ questions.length }} soal</span
+                        >
+                    </div>
                     <p
                         v-if="questions.length === 0"
-                        class="mt-5 rounded-xl bg-slate-50 p-5 text-center text-sm text-slate-500"
+                        class="mt-5 rounded-xl bg-slate-50 p-6 text-center text-sm text-slate-500"
                     >
-                        Belum ada soal.
+                        Belum ada soal. Buat soal pertama dari panel di sebelah
+                        kiri.
                     </p>
-                    <article
-                        v-for="question in questions"
-                        :key="question.id"
-                        class="flex items-start justify-between gap-3 border-b border-slate-100 py-4 last:border-0"
-                    >
-                        <div>
-                            <p class="font-bold text-slate-900">
-                                {{ question.prompt }}
-                            </p>
-                            <p class="mt-1 text-xs text-slate-500">
-                                {{ question.type }} · {{ question.points }} poin
-                            </p>
-                        </div>
-                        <button
-                            type="button"
-                            class="text-xs font-bold text-red-600"
-                            @click="remove(question.id)"
+                    <div v-else class="mt-5 divide-y divide-slate-100">
+                        <article
+                            v-for="question in questions"
+                            :key="question.id"
+                            class="group flex items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
                         >
-                            Hapus
-                        </button>
-                    </article>
+                            <div class="min-w-0">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span
+                                        class="rounded-full bg-brand-secondary/15 px-2.5 py-1 text-[11px] font-black text-brand-dark"
+                                        >{{
+                                            questionTypeLabel(question.type)
+                                        }}</span
+                                    >
+                                    <span
+                                        class="text-xs font-semibold text-slate-500"
+                                        >{{ question.points }} poin</span
+                                    >
+                                </div>
+                                <p
+                                    class="mt-2 font-black leading-6 text-slate-950"
+                                >
+                                    {{ question.prompt }}
+                                </p>
+                                <p
+                                    v-if="question.hint"
+                                    class="mt-1 text-xs text-slate-500"
+                                >
+                                    Hint tersedia
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                class="shrink-0 rounded-lg px-2 py-1 text-xs font-black text-red-600 opacity-70 transition hover:bg-red-50 hover:opacity-100"
+                                @click="remove(question.id)"
+                            >
+                                Hapus
+                            </button>
+                        </article>
+                    </div>
                 </section>
             </div>
         </main>

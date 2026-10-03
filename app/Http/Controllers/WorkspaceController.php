@@ -550,12 +550,18 @@ class WorkspaceController extends Controller
 
     private function requireAdmin(Request $request): void
     {
-        abort_unless(in_array($this->activeOrganization()->roleFor($request->user()), ['organization_admin', 'super_admin'], true), 403);
+        $isOrganizationAdmin = $this->activeOrganization()->roleFor($request->user()) === 'organization_admin';
+
+        abort_unless($isOrganizationAdmin || $this->isSuperAdmin($request), 403);
     }
 
     private function isSuperAdmin(Request $request): bool
     {
-        return $this->activeOrganization()->roleFor($request->user()) === 'super_admin';
+        return $this->activeOrganization()->roleFor($request->user()) === 'super_admin'
+            || $request->user()->organizations()
+                ->wherePivot('role', 'super_admin')
+                ->wherePivot('is_active', true)
+                ->exists();
     }
 
     private function activeOrganization(): Organization

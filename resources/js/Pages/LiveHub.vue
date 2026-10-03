@@ -60,22 +60,22 @@ function openSession(): void {
         <main class="mx-auto max-w-7xl space-y-5 px-4 py-6 sm:px-6 lg:px-8">
             <!-- Card Host Control: Buka Sesi Baru (Style Card Question Bank) -->
             <section
-                class="rounded-xl border border-slate-200 bg-white p-6 shadow-[0_2px_7px_rgba(15,23,42,0.09)] sm:p-7"
+                class="rounded-2xl border border-brand-primary bg-brand-primary p-6 text-white shadow-figma sm:p-7"
             >
                 <div
-                    class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5"
+                    class="flex flex-wrap items-center justify-between gap-3 border-b border-white/20 pb-5"
                 >
                     <div>
-                        <h2 class="text-lg font-extrabold text-slate-900">
+                        <h2 class="text-lg font-extrabold text-white">
                             Buka sesi baru
                         </h2>
-                        <p class="mt-1 text-sm text-slate-500">
+                        <p class="mt-1 text-sm text-white/80">
                             Pilih kuis published untuk memulai lobby live bagi
                             peserta.
                         </p>
                     </div>
                     <span
-                        class="rounded-full bg-brand-secondary/15 px-3 py-1 text-xs font-bold text-[#527A12]"
+                        class="rounded-full bg-brand-secondary px-3 py-1 text-xs font-bold text-brand-dark"
                     >
                         host-control
                     </span>
@@ -87,7 +87,7 @@ function openSession(): void {
                             <InputLabel
                                 for="quiz_id"
                                 value="Pilih Kuis Published"
-                                class="font-bold text-slate-800"
+                                class="font-bold text-white"
                             />
                             <select
                                 id="quiz_id"
@@ -114,7 +114,7 @@ function openSession(): void {
                             <InputLabel
                                 for="question_duration"
                                 value="Durasi / Soal (detik)"
-                                class="font-bold text-slate-800"
+                                class="font-bold text-white"
                             />
                             <input
                                 id="question_duration"
@@ -136,7 +136,7 @@ function openSession(): void {
                             <InputLabel
                                 for="speed_multiplier"
                                 value="Bonus Kecepatan"
-                                class="font-bold text-slate-800"
+                                class="font-bold text-white"
                             />
                             <input
                                 id="speed_multiplier"
@@ -158,13 +158,13 @@ function openSession(): void {
                     <div
                         class="flex flex-wrap items-center justify-between gap-4 pt-2"
                     >
-                        <p class="text-xs text-slate-500">
+                        <p class="text-xs text-white/75">
                             PIN 6 digit unik akan dibuat otomatis setelah lobby
                             dibuka.
                         </p>
                         <button
                             type="submit"
-                            class="inline-flex min-h-11 items-center justify-center rounded-md bg-[#3451b5] px-5 text-sm font-bold text-white transition hover:bg-[#29439d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3451b5] disabled:opacity-50"
+                            class="inline-flex min-h-11 items-center justify-center rounded-xl bg-brand-secondary px-5 text-sm font-bold text-brand-dark transition hover:brightness-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary disabled:opacity-50"
                             :disabled="form.processing"
                         >
                             {{ form.processing ? 'Membuka...' : 'Buka lobby' }}

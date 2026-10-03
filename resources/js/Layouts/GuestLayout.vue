@@ -77,7 +77,7 @@ withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
             class="auth-scroll relative flex min-h-screen justify-center px-4 py-5 sm:px-8 sm:py-10 lg:h-screen lg:min-h-0 lg:items-center"
             :class="
                 compact
-                    ? 'items-center overflow-hidden'
+                    ? 'items-start overflow-y-auto'
                     : 'items-start lg:overflow-y-auto'
             "
         >
@@ -104,10 +104,10 @@ withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
 
             <div
                 class="relative w-full"
-                :class="[contentClass, !compact ? 'pt-16 sm:pt-20' : '']"
+                :class="[contentClass, 'pt-16 sm:pt-20']"
             >
                 <div
-                    class="ui-reveal hover-lift rounded-[1.75rem] border border-white/70 bg-white p-5 shadow-figma sm:rounded-[2rem] sm:p-9"
+                    class="ui-reveal hover-lift rounded-2xl border border-white/70 bg-white p-4 shadow-figma sm:rounded-[2rem] sm:p-9"
                 >
                     <slot />
                 </div>
