@@ -216,21 +216,21 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
                         </h2>
                         <div class="mt-4 grid gap-3">
                             <Link
-                                href="/questions"
+                                href="/admin/members"
                                 class="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 hover:border-brand-secondary"
-                                >Question Bank
+                                >Kelola Anggota
                                 <span class="text-brand-primary">→</span></Link
                             >
                             <Link
-                                href="/organization"
+                                href="/admin/groups"
                                 class="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 hover:border-brand-secondary"
-                                >Anggota & Grup
+                                >Kelola Grup
                                 <span class="text-brand-primary">→</span></Link
                             >
                             <Link
-                                href="/reports"
+                                href="/admin/settings"
                                 class="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 hover:border-brand-secondary"
-                                >Laporan tenant
+                                >Pengaturan Organisasi
                                 <span class="text-brand-primary">→</span></Link
                             >
                         </div>

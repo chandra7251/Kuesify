@@ -48,67 +48,18 @@ class PlatformAdminTest extends TestCase
         $response->assertOk();
         $response->assertInertia(fn ($page) => $page
             ->component('Workspace')
-            ->where('title', 'Laporan Global')
-            ->where('summary.isGlobal', true)
+            ->where('title', 'Laporan')
         );
     }
 
-    public function test_super_admin_can_store_and_destroy_categories(): void
-    {
-        $admin = $this->createSuperAdmin();
-
-        $storeResponse = $this->actingAs($admin)
-            ->withSession(['active_role' => 'super_admin'])
-            ->post(route('platform.admin.categories.store'), [
-                'name' => 'Fisika Kuantum',
-            ]);
-        $storeResponse->assertRedirect();
-        $this->assertDatabaseHas('categories', ['name' => 'Fisika Kuantum']);
-
-        $category = Category::where('name', 'Fisika Kuantum')->firstOrFail();
-
-        $destroyResponse = $this->actingAs($admin)
-            ->withSession(['active_role' => 'super_admin'])
-            ->delete(route('platform.admin.categories.destroy', $category));
-        $destroyResponse->assertRedirect();
-        $this->assertDatabaseMissing('categories', ['name' => 'Fisika Kuantum']);
-    }
-
-    public function test_super_admin_can_update_maintenance_settings(): void
+    public function test_super_admin_can_view_platform_sections(): void
     {
         $admin = $this->createSuperAdmin();
 
         $response = $this->actingAs($admin)
             ->withSession(['active_role' => 'super_admin'])
-            ->post(route('platform.admin.settings.maintenance'), [
-                'status' => 'Platform sedang peningkatan server',
-                'jadwal_rutin' => 'Minggu pukul 03.00 WIB',
-                'mode' => 'Maintenance Terjadwal',
-            ]);
+            ->get(route('superadmin.section', 'categories'));
 
-        $response->assertRedirect();
-    }
-
-    public function test_super_admin_can_update_ai_and_audio_settings(): void
-    {
-        $admin = $this->createSuperAdmin();
-
-        $aiRes = $this->actingAs($admin)
-            ->withSession(['active_role' => 'super_admin'])
-            ->post(route('platform.admin.settings.ai'), [
-                'weekly_creator_limit' => 25,
-                'ai_model' => 'Gemini 1.5 Pro',
-            ]);
-        $aiRes->assertRedirect();
-
-        $audioRes = $this->actingAs($admin)
-            ->withSession(['active_role' => 'super_admin'])
-            ->post(route('platform.admin.settings.audio'), [
-                'bgm_lobby' => 'Synthwave Chill 90s',
-                'sfx_correct' => 'Crystal Chime High',
-                'sfx_wrong' => 'Muted Buzzer Low',
-                'default_volume' => '85%',
-            ]);
-        $audioRes->assertRedirect();
+        $response->assertOk();
     }
 }

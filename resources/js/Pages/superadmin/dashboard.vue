@@ -127,17 +127,17 @@ onMounted(() => {
                         type: 'line',
                         label: 'Avg Skor',
                         data: props.dailyAttempts.map((d) => d.avg_score ?? 0),
-                        borderColor: '#3154D5',
-                        backgroundColor: '#3154D5',
+                        borderColor: '#90CB31',
+                        backgroundColor: '#90CB31',
                         yAxisID: 'y1',
                         tension: 0.35,
-                        pointRadius: 3,
+                        pointRadius: 4,
                     },
                     {
                         type: 'bar',
                         label: 'Attempts',
                         data: props.dailyAttempts.map((d) => d.count),
-                        backgroundColor: 'rgba(144,203,49,0.85)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.85)',
                         borderRadius: 6,
                         yAxisID: 'y',
                     },
@@ -147,13 +147,27 @@ onMounted(() => {
                 responsive: true,
                 maintainAspectRatio: false,
                 interaction: { intersect: false, mode: 'index' },
-                plugins: { legend: { position: 'bottom' } },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: 'rgba(255, 255, 255, 0.9)' },
+                    },
+                },
                 scales: {
-                    y: { beginAtZero: true, ticks: { precision: 0 } },
+                    x: {
+                        ticks: { color: 'rgba(255, 255, 255, 0.8)' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: { precision: 0, color: 'rgba(255, 255, 255, 0.8)' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    },
                     y1: {
                         beginAtZero: true,
                         position: 'right',
                         grid: { drawOnChartArea: false },
+                        ticks: { color: 'rgba(255, 255, 255, 0.8)' },
                         max: 100,
                     },
                 },
@@ -172,11 +186,11 @@ onMounted(() => {
                     {
                         data: props.roleCounts.map((r) => r.count),
                         backgroundColor: [
-                            '#3154D5',
                             '#90CB31',
-                            '#233EA8',
-                            '#D7A928',
-                            '#7C869C',
+                            '#60A5FA',
+                            '#F59E0B',
+                            '#EC4899',
+                            '#A7F3D0',
                         ],
                         borderWidth: 0,
                     },
@@ -186,7 +200,12 @@ onMounted(() => {
                 responsive: true,
                 maintainAspectRatio: false,
                 cutout: '62%',
-                plugins: { legend: { position: 'bottom' } },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: 'rgba(255, 255, 255, 0.9)' },
+                    },
+                },
             },
         });
     }
@@ -200,13 +219,13 @@ onMounted(() => {
                     {
                         label: 'Attempts',
                         data: props.topOrgs.map((o) => o.attempts_count),
-                        backgroundColor: '#3154D5',
+                        backgroundColor: '#90CB31',
                         borderRadius: 6,
                     },
                     {
                         label: 'Members',
                         data: props.topOrgs.map((o) => o.users_count),
-                        backgroundColor: 'rgba(144,203,49,0.85)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.85)',
                         borderRadius: 6,
                     },
                 ],
@@ -215,8 +234,23 @@ onMounted(() => {
                 responsive: true,
                 maintainAspectRatio: false,
                 indexAxis: 'y',
-                plugins: { legend: { position: 'bottom' } },
-                scales: { x: { beginAtZero: true, ticks: { precision: 0 } } },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: 'rgba(255, 255, 255, 0.9)' },
+                    },
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: { precision: 0, color: 'rgba(255, 255, 255, 0.8)' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    },
+                    y: {
+                        ticks: { color: 'rgba(255, 255, 255, 0.8)' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    },
+                },
             },
         });
     }
@@ -254,7 +288,7 @@ onBeforeUnmount(() => {
                 <!-- Hero -->
                 <section
                     data-motion-item
-                    class="overflow-hidden rounded-2xl bg-brand-primary px-6 py-7 text-white shadow-figma sm:px-8"
+                    class="overflow-hidden rounded-2xl bg-brand-primary px-6 py-7 text-white shadow-figma sm:px-8 dark:bg-brand-primary"
                 >
                     <div
                         class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between"
@@ -327,16 +361,16 @@ onBeforeUnmount(() => {
                 <div class="grid gap-6 lg:grid-cols-3">
                     <section
                         data-motion-item
-                        class="ui-card-hover rounded-2xl border border-slate-200 bg-white p-5 shadow-figma lg:col-span-2"
+                        class="ui-card-hover rounded-2xl border border-brand-dark bg-brand-primary p-5 text-white shadow-figma lg:col-span-2 dark:border-brand-dark dark:bg-brand-primary"
                     >
                         <div
                             class="mb-4 flex items-start justify-between gap-4"
                         >
                             <div>
-                                <h2 class="text-base font-bold text-slate-900">
+                                <h2 class="text-base font-bold text-white">
                                     Tren 7 hari — Volume & Skor
                                 </h2>
-                                <p class="mt-1 text-xs text-slate-500">
+                                <p class="mt-1 text-xs text-white/80">
                                     Bar = attempts, garis = rata-rata skor
                                     harian.
                                 </p>
@@ -351,12 +385,12 @@ onBeforeUnmount(() => {
                     </section>
                     <section
                         data-motion-item
-                        class="ui-card-hover rounded-2xl border border-slate-200 bg-white p-5 shadow-figma"
+                        class="ui-card-hover rounded-2xl border border-brand-dark bg-brand-primary p-5 text-white shadow-figma dark:border-brand-dark dark:bg-brand-primary"
                     >
-                        <h2 class="text-base font-bold text-slate-900">
+                        <h2 class="text-base font-bold text-white">
                             Distribusi Role
                         </h2>
-                        <p class="mt-1 text-xs text-slate-500">
+                        <p class="mt-1 text-xs text-white/80">
                             Sebaran membership lintas tenant.
                         </p>
                         <div class="mt-4 h-[280px]">
@@ -371,12 +405,12 @@ onBeforeUnmount(() => {
                 <div class="grid gap-6 lg:grid-cols-3">
                     <section
                         data-motion-item
-                        class="ui-card-hover rounded-2xl border border-slate-200 bg-white p-5 shadow-figma lg:col-span-2"
+                        class="ui-card-hover rounded-2xl border border-brand-dark bg-brand-primary p-5 text-white shadow-figma lg:col-span-2 dark:border-brand-dark dark:bg-brand-primary"
                     >
-                        <h2 class="text-base font-bold text-slate-900">
+                        <h2 class="text-base font-bold text-white">
                             Top 5 Organisasi — Aktivitas
                         </h2>
-                        <p class="mt-1 text-xs text-slate-500">
+                        <p class="mt-1 text-xs text-white/80">
                             Urut by attempts terbanyak (tanpa global scope).
                         </p>
                         <div class="mt-4 h-[280px]">
@@ -389,69 +423,69 @@ onBeforeUnmount(() => {
                     <div class="grid gap-6">
                         <section
                             data-motion-item
-                            class="ui-card-hover rounded-2xl border border-slate-200 bg-white p-5 shadow-figma"
+                            class="ui-card-hover rounded-2xl border border-brand-dark bg-brand-primary p-5 text-white shadow-figma dark:border-brand-dark dark:bg-brand-primary"
                         >
-                            <h2 class="text-base font-bold text-slate-900">
+                            <h2 class="text-base font-bold text-white">
                                 Kesehatan Sistem
                             </h2>
                             <dl class="mt-4 grid grid-cols-3 gap-3 text-center">
                                 <div
-                                    class="rounded-xl bg-brand-accent px-2 py-3"
+                                    class="rounded-xl bg-white/10 px-2 py-3 backdrop-blur-sm"
                                 >
                                     <dt
-                                        class="text-xs font-semibold text-slate-500"
+                                        class="text-xs font-semibold text-white/80"
                                     >
                                         Queue
                                     </dt>
                                     <dd
-                                        class="mt-1 text-lg font-black text-brand-primary"
+                                        class="mt-1 text-lg font-black text-brand-secondary"
                                     >
                                         {{ health.queued_jobs }}
                                     </dd>
                                 </div>
                                 <div
-                                    class="rounded-xl bg-brand-accent px-2 py-3"
+                                    class="rounded-xl bg-white/10 px-2 py-3 backdrop-blur-sm"
                                 >
                                     <dt
-                                        class="text-xs font-semibold text-slate-500"
+                                        class="text-xs font-semibold text-white/80"
                                     >
                                         Failed
                                     </dt>
                                     <dd
-                                        class="mt-1 text-lg font-black text-status-danger"
+                                        class="mt-1 text-lg font-black text-rose-300"
                                     >
                                         {{ health.failed_jobs }}
                                     </dd>
                                 </div>
                                 <div
-                                    class="rounded-xl bg-brand-accent px-2 py-3"
+                                    class="rounded-xl bg-white/10 px-2 py-3 backdrop-blur-sm"
                                 >
                                     <dt
-                                        class="text-xs font-semibold text-slate-500"
+                                        class="text-xs font-semibold text-white/80"
                                     >
                                         AI Gagal
                                     </dt>
                                     <dd
-                                        class="mt-1 text-lg font-black text-[#7C869C]"
+                                        class="mt-1 text-lg font-black text-slate-200"
                                     >
                                         {{ health.ai_failures }}
                                     </dd>
                                 </div>
                             </dl>
-                            <p class="mt-3 text-xs text-slate-500">
+                            <p class="mt-3 text-xs text-white/80">
                                 Host Reverb: {{ reverbHealth.reverb_host }}
                             </p>
                         </section>
                         <section
                             data-motion-item
-                            class="ui-card-hover rounded-2xl border border-slate-200 bg-white p-5 shadow-figma"
+                            class="ui-card-hover rounded-2xl border border-brand-dark bg-brand-primary p-5 text-white shadow-figma dark:border-brand-dark dark:bg-brand-primary"
                         >
-                            <h2 class="text-base font-bold text-slate-900">
+                            <h2 class="text-base font-bold text-white">
                                 Live Feed — Attempt Terbaru
                             </h2>
                             <div
                                 v-if="recentAttempts.length"
-                                class="mt-3 divide-y divide-slate-100"
+                                class="mt-3 divide-y divide-white/10"
                             >
                                 <div
                                     v-for="a in recentAttempts"
@@ -460,23 +494,23 @@ onBeforeUnmount(() => {
                                 >
                                     <div class="min-w-0">
                                         <p
-                                            class="truncate text-sm font-semibold text-slate-900"
+                                            class="truncate text-sm font-semibold text-white"
                                         >
                                             {{ a.quiz }}
                                         </p>
                                         <p
-                                            class="truncate text-xs text-slate-500"
+                                            class="truncate text-xs text-white/80"
                                         >
                                             {{ a.participant }} · {{ a.status }}
                                         </p>
                                     </div>
                                     <span
-                                        class="shrink-0 rounded-full bg-brand-secondary/15 px-2.5 py-1 text-xs font-bold text-[#527A12]"
+                                        class="shrink-0 rounded-full bg-brand-secondary/20 px-2.5 py-1 text-xs font-bold text-brand-secondary"
                                         >{{ a.score ?? '—' }}</span
                                     >
                                 </div>
                             </div>
-                            <p v-else class="mt-3 text-sm text-slate-500">
+                            <p v-else class="mt-3 text-sm text-white/80">
                                 Belum ada attempt.
                             </p>
                         </section>

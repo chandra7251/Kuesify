@@ -84,7 +84,30 @@ const navigationItems = computed(() => {
         ];
     }
 
-    const items = [
+    if (role === 'organization_admin') {
+        return [
+            { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
+            { label: 'Organisasi', href: '/organization', icon: 'organization' },
+            { label: 'Anggota', href: '/admin/members', icon: 'members' },
+            { label: 'Group', href: '/admin/groups', icon: 'groups' },
+            { label: 'Pengaturan Org', href: '/admin/settings', icon: 'settings' },
+            { label: 'Notifikasi', href: '/notifications', icon: 'notifications' },
+        ];
+    }
+
+    if (role === 'super_admin') {
+        return [
+            { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
+            { label: 'Platform Admin', href: '/admin', icon: 'platform' },
+            { label: 'Tenants', href: '/superadmin/tenants', icon: 'tenants' },
+            { label: 'Moderasi', href: '/admin/moderation', icon: 'moderation' },
+            { label: 'Kategori', href: '/superadmin/categories', icon: 'categories' },
+            { label: 'AI Monitoring', href: '/superadmin/ai-monitoring', icon: 'monitoring' },
+            { label: 'Notifikasi', href: '/notifications', icon: 'notifications' },
+        ];
+    }
+
+    return [
         { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
         { label: 'Question Bank', href: '/questions', icon: 'bank' },
         {
@@ -98,59 +121,6 @@ const navigationItems = computed(() => {
         { label: 'Notifikasi', href: '/notifications', icon: 'notifications' },
         { label: 'Materi AI', href: '/materials', icon: 'ai' },
     ];
-
-    if (role === 'organization_admin' || role === 'super_admin') {
-        items.push({
-            label: 'Organisasi',
-            href: '/organization',
-            icon: 'organization',
-        });
-        items.push({
-            label: 'Anggota',
-            href: '/admin/members',
-            icon: 'members',
-        });
-        items.push({
-            label: 'Group',
-            href: '/admin/groups',
-            icon: 'groups',
-        });
-        items.push({
-            label: 'Pengaturan Org',
-            href: '/admin/settings',
-            icon: 'settings',
-        });
-    }
-
-    if (role === 'super_admin') {
-        items.push({
-            label: 'Platform Admin',
-            href: '/admin',
-            icon: 'platform',
-        });
-        items.push({
-            label: 'Moderasi',
-            href: '/admin/moderation',
-            icon: 'moderation',
-        });
-        items.push({
-            label: 'Tenants',
-            href: '/superadmin/tenants',
-            icon: 'tenants',
-        });
-        items.push({
-            label: 'Kategori',
-            href: '/superadmin/categories',
-            icon: 'categories',
-        });
-        items.push({
-            label: 'AI Monitoring',
-            href: '/superadmin/ai-monitoring',
-            icon: 'monitoring',
-        });
-    }
-
-    return items;
 });
 
 const mobileNavigation = computed(() => {
@@ -369,7 +339,7 @@ function closeMobileNav(): void {
 
             <!-- Middle Helpful Study Widget (Visible when expanded) -->
             <div
-                v-if="desktopSidebarExpanded"
+                v-if="desktopSidebarExpanded && currentRole !== 'organization_admin' && currentRole !== 'super_admin'"
                 class="mx-3 mb-3 mt-auto rounded-2xl border border-white/15 bg-white/10 p-3.5 backdrop-blur-sm transition-all"
             >
                 <div class="flex items-center gap-3">

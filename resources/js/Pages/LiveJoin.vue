@@ -11,6 +11,7 @@ const form = useForm({ pin: '', alias: '' });
 const root = ref<HTMLElement | null>(null);
 const canvasBg = ref<HTMLCanvasElement | null>(null);
 const mascotEl = ref<HTMLElement | null>(null);
+const hiddenInput = ref<HTMLInputElement | null>(null);
 const speechBubbleEl = ref<HTMLElement | null>(null);
 const pinContainerEl = ref<HTMLElement | null>(null);
 
@@ -307,7 +308,7 @@ function join(): void {
     <Head title="Masuk ke Sesi Live" />
     <main
         ref="root"
-        class="relative min-h-screen overflow-hidden bg-brand-accent text-brand-primary selection:bg-brand-secondary selection:text-white"
+        class="relative min-h-screen overflow-hidden bg-brand-accent text-brand-primary selection:bg-brand-secondary selection:text-white dark:bg-slate-950 dark:text-slate-100"
     >
         <!-- Ambient Background Blobs -->
         <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
@@ -401,13 +402,13 @@ function join(): void {
                 <!-- Arena Live Aktif Badge Removed -->
 
                 <h1
-                    class="text-4xl font-black leading-[1.1] tracking-[-0.05em] text-brand-primary sm:text-5xl lg:text-6xl"
+                    class="text-4xl font-black leading-[1.1] tracking-[-0.05em] text-brand-primary dark:text-white sm:text-5xl lg:text-6xl"
                 >
                     Masuk ke <br class="hidden lg:block" />Sesi Live!
                 </h1>
 
                 <p
-                    class="mt-4 max-w-sm text-base text-brand-primary/70 sm:text-lg"
+                    class="mt-4 max-w-sm text-base text-brand-primary/70 dark:text-slate-300 sm:text-lg"
                 >
                     Minta PIN dari gurumu, masukkan namamu, dan jadilah yang
                     tercepat di panggung.
@@ -431,13 +432,13 @@ function join(): void {
                     <!-- Speech Bubble -->
                     <div
                         ref="speechBubbleEl"
-                        class="absolute -right-32 -top-12 z-20 w-44 rounded-2xl bg-white p-3 shadow-figma sm:-right-16 sm:-top-4 lg:-right-24 lg:-top-6"
+                        class="absolute -right-32 -top-12 z-20 w-44 rounded-2xl bg-white p-3 shadow-figma dark:bg-slate-800 sm:-right-16 sm:-top-4 lg:-right-24 lg:-top-6"
                     >
                         <div
-                            class="absolute -bottom-2 left-6 h-4 w-4 rotate-45 bg-white"
+                            class="absolute -bottom-2 left-6 h-4 w-4 rotate-45 bg-white dark:bg-slate-800"
                         ></div>
                         <p
-                            class="relative z-10 text-xs font-bold leading-tight text-brand-primary"
+                            class="relative z-10 text-xs font-bold leading-tight text-brand-primary dark:text-white"
                         >
                             {{
                                 form.pin.length === 6
@@ -453,7 +454,7 @@ function join(): void {
             <div class="w-full max-w-md lg:w-1/2">
                 <section
                     data-anim-card
-                    class="relative rounded-3xl bg-white p-6 shadow-figma sm:p-8"
+                    class="relative rounded-3xl bg-white p-6 shadow-figma dark:bg-slate-900 dark:text-white sm:p-8"
                 >
                     <!-- Form -->
                     <form @submit.prevent="join" class="flex flex-col gap-6">
@@ -462,12 +463,12 @@ function join(): void {
                             <div class="mb-3 flex items-center justify-between">
                                 <label
                                     for="live-pin-input"
-                                    class="text-sm font-black text-brand-primary"
+                                    class="text-sm font-black text-brand-primary dark:text-slate-100"
                                 >
                                     PIN Game <span class="text-red-500">*</span>
                                 </label>
                                 <span
-                                    class="text-xs font-bold text-brand-primary/60"
+                                    class="text-xs font-bold text-brand-primary/60 dark:text-slate-400"
                                 >
                                     {{ form.pin.length }} / 6
                                 </span>
@@ -487,7 +488,7 @@ function join(): void {
                             <!-- Custom PIN Dots -->
                             <div
                                 class="flex cursor-text justify-between gap-2 sm:gap-3"
-                                @click="$refs.hiddenInput?.focus()"
+                                @click="hiddenInput?.focus()"
                                 ref="pinContainerEl"
                             >
                                 <div
@@ -498,8 +499,8 @@ function join(): void {
                                         form.pin.length >= i
                                             ? 'border-brand-secondary bg-brand-secondary text-white'
                                             : form.pin.length === i - 1
-                                              ? 'scale-105 border-brand-secondary bg-brand-secondary/10 text-brand-primary ring-4 ring-brand-secondary/20'
-                                              : 'border-brand-primary/20 bg-brand-accent text-brand-primary/30',
+                                              ? 'scale-105 border-brand-secondary bg-brand-secondary/10 text-brand-primary ring-4 ring-brand-secondary/20 dark:text-white'
+                                              : 'border-brand-primary/20 bg-brand-accent text-brand-primary/30 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500',
                                     ]"
                                 >
                                     {{ form.pin[i - 1] || '' }}
@@ -515,13 +516,13 @@ function join(): void {
                         </div>
 
                         <!-- Numpad -->
-                        <div class="rounded-2xl bg-brand-accent/50 p-4">
+                        <div class="rounded-2xl bg-brand-accent/50 p-4 dark:bg-slate-800/60">
                             <div class="grid grid-cols-3 gap-2 sm:gap-3">
                                 <button
                                     v-for="num in [1, 2, 3, 4, 5, 6, 7, 8, 9]"
                                     :key="num"
                                     type="button"
-                                    class="sm:h-13 flex h-12 items-center justify-center rounded-xl border border-brand-primary/10 bg-brand-accent text-lg font-black text-brand-primary transition hover:bg-brand-primary hover:text-white active:scale-95"
+                                    class="sm:h-13 flex h-12 items-center justify-center rounded-xl border border-brand-primary/10 bg-brand-accent text-lg font-black text-brand-primary transition hover:bg-brand-primary hover:text-white active:scale-95 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:hover:bg-brand-primary"
                                     @click="pressKey(num.toString())"
                                 >
                                     {{ num }}
@@ -535,7 +536,7 @@ function join(): void {
                                 </button>
                                 <button
                                     type="button"
-                                    class="sm:h-13 flex h-12 items-center justify-center rounded-xl border border-brand-primary/10 bg-brand-accent text-lg font-black text-brand-primary transition hover:bg-brand-primary hover:text-white active:scale-95"
+                                    class="sm:h-13 flex h-12 items-center justify-center rounded-xl border border-brand-primary/10 bg-brand-accent text-lg font-black text-brand-primary transition hover:bg-brand-primary hover:text-white active:scale-95 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:hover:bg-brand-primary"
                                     @click="pressKey('0')"
                                 >
                                     0
@@ -554,7 +555,7 @@ function join(): void {
                         <div>
                             <label
                                 for="live-alias-input"
-                                class="mb-2 block text-sm font-black text-brand-primary"
+                                class="mb-2 block text-sm font-black text-brand-primary dark:text-slate-100"
                             >
                                 Nama Panggilan Kamu
                                 <span class="text-red-500">*</span>
@@ -597,7 +598,7 @@ function join(): void {
                                     maxlength="25"
                                     placeholder="Contoh: Sang Juara"
                                     autocomplete="nickname"
-                                    class="block min-h-12 w-full rounded-xl border-2 border-brand-primary/20 bg-brand-accent/30 pl-11 pr-4 text-sm font-bold text-brand-primary transition placeholder:text-brand-primary/40 focus:border-brand-secondary focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-secondary/20"
+                                    class="block min-h-12 w-full rounded-xl border-2 border-brand-primary/20 bg-brand-accent/30 pl-11 pr-4 text-sm font-bold text-brand-primary transition placeholder:text-brand-primary/40 focus:border-brand-secondary focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-secondary/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500 dark:focus:bg-slate-900"
                                 />
                             </div>
                             <span
