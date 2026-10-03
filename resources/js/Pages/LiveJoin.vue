@@ -271,9 +271,9 @@ onMounted(() => {
             // Ambient continuous float
             if (mascotEl.value) {
                 gsap.to(mascotEl.value, {
-                    y: -14,
-                    rotation: 3,
-                    duration: 2.4,
+                    y: -4,
+                    rotation: 1,
+                    duration: 4.5,
                     repeat: -1,
                     yoyo: true,
                     ease: 'sine.inOut',
@@ -364,7 +364,7 @@ function join(): void {
         </div>
 
         <div
-            class="relative z-10 mx-auto flex min-h-[calc(100vh-5rem)] max-w-6xl flex-col items-center justify-center p-6 lg:flex-row lg:gap-16 lg:p-8"
+            class="relative z-10 mx-auto flex min-h-[calc(100vh-5rem)] max-w-2xl flex-col items-center justify-center p-4 sm:p-6 lg:max-w-6xl lg:flex-row lg:gap-16 lg:p-8"
         >
             <!-- Line Orbs (Copied from Welcome.vue) -->
             <div
@@ -396,18 +396,18 @@ function join(): void {
 
             <!-- Left Panel (Branding / Mascot) -->
             <div
-                class="mb-10 flex w-full flex-col items-center text-center lg:mb-0 lg:w-1/2 lg:items-start lg:text-left"
+                class="relative mb-4 flex w-full flex-col items-center text-center lg:mb-0 lg:w-1/2 lg:items-start lg:text-left"
             >
                 <!-- Arena Live Aktif Badge Removed -->
 
                 <h1
-                    class="text-4xl font-black leading-[1.1] tracking-[-0.05em] text-brand-primary sm:text-5xl lg:text-6xl"
+                    class="text-3xl font-black leading-[1.1] tracking-[-0.05em] text-brand-primary sm:text-4xl lg:text-6xl"
                 >
                     Masuk ke <br class="hidden lg:block" />Sesi Live!
                 </h1>
 
                 <p
-                    class="mt-4 max-w-sm text-base text-brand-primary/70 sm:text-lg"
+                    class="mt-3 max-w-sm text-sm text-brand-primary/70 sm:text-base lg:text-lg"
                 >
                     Minta PIN dari gurumu, masukkan namamu, dan jadilah yang
                     tercepat di panggung.
@@ -415,7 +415,7 @@ function join(): void {
 
                 <!-- Mascot -->
                 <div
-                    class="relative mt-16 max-w-[150px] -translate-x-16 sm:mt-8 sm:max-w-[200px] sm:translate-x-0 lg:max-w-[280px]"
+                    class="absolute left-4 top-full z-20 mt-3 w-20 sm:left-8 sm:w-24 lg:relative lg:left-auto lg:top-auto lg:mt-8 lg:w-[280px]"
                 >
                     <img
                         :src="
@@ -425,19 +425,19 @@ function join(): void {
                         "
                         alt="Kuesify Mascot"
                         ref="mascotEl"
-                        class="relative z-10 drop-shadow-2xl"
+                        class="relative z-10 w-full drop-shadow-2xl"
                     />
 
                     <!-- Speech Bubble -->
                     <div
                         ref="speechBubbleEl"
-                        class="absolute -right-32 -top-12 z-20 w-44 rounded-2xl bg-white p-3 shadow-figma sm:-right-16 sm:-top-4 lg:-right-24 lg:-top-6"
+                        class="absolute left-full top-0 z-20 ml-2 w-28 rounded-xl bg-white p-2 shadow-figma sm:w-32 lg:left-[88%] lg:top-14 lg:ml-0 lg:w-32"
                     >
                         <div
-                            class="absolute -bottom-2 left-6 h-4 w-4 rotate-45 bg-white"
+                            class="absolute -left-2 top-1/2 h-4 w-4 -translate-y-1/2 rotate-45 bg-white"
                         ></div>
                         <p
-                            class="relative z-10 text-xs font-bold leading-tight text-brand-primary"
+                            class="relative z-10 text-[9px] font-bold leading-tight text-brand-primary sm:text-[10px]"
                         >
                             {{
                                 form.pin.length === 6
@@ -450,13 +450,13 @@ function join(): void {
             </div>
 
             <!-- Right Panel (Form) -->
-            <div class="w-full max-w-md lg:w-1/2">
+            <div class="relative z-10 mt-24 w-full max-w-sm lg:mt-0 lg:w-1/2 lg:max-w-md">
                 <section
                     data-anim-card
-                    class="relative rounded-3xl bg-white p-6 shadow-figma sm:p-8"
+                    class="relative rounded-3xl bg-white p-4 shadow-figma sm:p-6 lg:p-8"
                 >
                     <!-- Form -->
-                    <form @submit.prevent="join" class="flex flex-col gap-6">
+                    <form @submit.prevent="join" class="flex flex-col gap-4 sm:gap-5">
                         <!-- PIN Section -->
                         <div>
                             <div class="mb-3 flex items-center justify-between">
@@ -493,7 +493,7 @@ function join(): void {
                                 <div
                                     v-for="i in 6"
                                     :key="i"
-                                    class="flex h-12 w-full items-center justify-center rounded-xl border-2 font-black transition-all sm:h-14 sm:text-xl"
+                                    class="flex h-10 w-full items-center justify-center rounded-lg border-2 text-sm font-black transition-all sm:h-12 sm:text-lg lg:h-14 lg:text-xl"
                                     :class="[
                                         form.pin.length >= i
                                             ? 'border-brand-secondary bg-brand-secondary text-white'
@@ -515,34 +515,34 @@ function join(): void {
                         </div>
 
                         <!-- Numpad -->
-                        <div class="rounded-2xl bg-brand-accent/50 p-4">
-                            <div class="grid grid-cols-3 gap-2 sm:gap-3">
+                        <div class="rounded-2xl bg-brand-accent/50 p-3 lg:p-4">
+                            <div class="grid grid-cols-3 gap-2">
                                 <button
                                     v-for="num in [1, 2, 3, 4, 5, 6, 7, 8, 9]"
                                     :key="num"
                                     type="button"
-                                    class="sm:h-13 flex h-12 items-center justify-center rounded-xl border border-brand-primary/10 bg-brand-accent text-lg font-black text-brand-primary transition hover:bg-brand-primary hover:text-white active:scale-95"
+                                    class="flex h-10 items-center justify-center rounded-lg border border-brand-primary/10 bg-brand-accent text-base font-black text-brand-primary transition hover:bg-brand-primary hover:text-white active:scale-95 sm:h-11 lg:h-13 lg:text-lg"
                                     @click="pressKey(num.toString())"
                                 >
                                     {{ num }}
                                 </button>
                                 <button
                                     type="button"
-                                    class="sm:h-13 flex h-12 items-center justify-center rounded-xl border border-red-100 bg-red-50 text-sm font-black text-red-500 transition hover:bg-red-500 hover:text-white active:scale-95"
+                                    class="flex h-10 items-center justify-center rounded-lg border border-red-100 bg-red-50 text-sm font-black text-red-500 transition hover:bg-red-500 hover:text-white active:scale-95 sm:h-11 lg:h-13"
                                     @click="pressKey('clear')"
                                 >
                                     C
                                 </button>
                                 <button
                                     type="button"
-                                    class="sm:h-13 flex h-12 items-center justify-center rounded-xl border border-brand-primary/10 bg-brand-accent text-lg font-black text-brand-primary transition hover:bg-brand-primary hover:text-white active:scale-95"
+                                    class="flex h-10 items-center justify-center rounded-lg border border-brand-primary/10 bg-brand-accent text-base font-black text-brand-primary transition hover:bg-brand-primary hover:text-white active:scale-95 sm:h-11 lg:h-13 lg:text-lg"
                                     @click="pressKey('0')"
                                 >
                                     0
                                 </button>
                                 <button
                                     type="button"
-                                    class="sm:h-13 flex h-12 items-center justify-center rounded-xl border border-amber-100 bg-amber-50 text-sm font-black text-amber-600 transition hover:bg-amber-500 hover:text-white active:scale-95"
+                                    class="flex h-10 items-center justify-center rounded-lg border border-amber-100 bg-amber-50 text-sm font-black text-amber-600 transition hover:bg-amber-500 hover:text-white active:scale-95 sm:h-11 lg:h-13"
                                     @click="pressKey('back')"
                                 >
                                     ⌫
