@@ -18,7 +18,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    public const AVATAR_KEYS = ['book', 'cap', 'globe', 'lamp', 'microscope', 'pencil', 'rocket', 'laptop'];
+    public const AVATAR_KEYS = ['profile_1', 'profile_2', 'profile_3', 'profile_4', 'profile_5', 'profile_6', 'profile_7', 'profile_8', 'profile_9', 'profile_10', 'profile_11', 'profile_12', 'profile_13'];
 
     /**
      * Get the attributes that should be cast.

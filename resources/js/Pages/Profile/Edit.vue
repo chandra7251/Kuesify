@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import AvatarIcon from '@/Components/AvatarIcon.vue';
 import type { PageProps } from '@/types';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import DeleteUserForm from './Partials/DeleteUserForm.vue';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm.vue';
@@ -14,22 +14,17 @@ defineProps<{
 }>();
 
 const page = usePage<PageProps>();
-const user = page.props.auth.user;
-const avatarOptions = [
-    { key: 'book', name: 'Buku', description: 'Suka membaca' },
-    { key: 'cap', name: 'Lulusan', description: 'Siap berkembang' },
-    { key: 'globe', name: 'Globe', description: 'Suka menjelajah' },
-    { key: 'lamp', name: 'Ide', description: 'Penuh gagasan' },
-    { key: 'microscope', name: 'Peneliti', description: 'Teliti belajar' },
-    { key: 'pencil', name: 'Kreator', description: 'Suka berkarya' },
-    { key: 'rocket', name: 'Roket', description: 'Maju cepat' },
-    { key: 'laptop', name: 'Digital', description: 'Belajar modern' },
-];
+const user = computed(() => page.props.auth.user);
+const avatarOptions = Array.from({ length: 13 }, (_, index) => ({
+    key: `profile_${index + 1}`,
+    name: `Profil ${index + 1}`,
+    description: 'Karakter pilihanmu',
+}));
 
 const avatarForm = useForm({
-    name: user.name,
-    email: user.email,
-    avatar_key: user.avatar_key ?? '',
+    name: user.value.name,
+    email: user.value.email,
+    avatar_key: user.value.avatar_key ?? '',
 });
 
 const isAvatarModalOpen = ref(false);
@@ -145,7 +140,7 @@ function saveAvatar(): void {
             @click.self="isAvatarModalOpen = false"
         >
             <section
-                class="max-h-[min(680px,calc(100vh-2rem))] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl sm:p-7"
+                class="avatar-modal-scroll max-h-[min(720px,calc(100vh-2rem))] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl sm:p-7"
             >
                 <div class="flex items-start justify-between gap-4">
                     <div>
@@ -170,12 +165,12 @@ function saveAvatar(): void {
                     Pilih avatar baru untuk profil kamu.
                 </p>
 
-                <div class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
                     <button
                         v-for="option in avatarOptions"
                         :key="option.key"
                         type="button"
-                        class="flex min-h-28 flex-col items-center justify-center rounded-xl border p-3 text-center transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
+                        class="flex min-h-40 flex-col items-center justify-center rounded-xl border p-4 text-center transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
                         :class="avatarForm.avatar_key === option.key ? 'border-brand-primary bg-brand-primary/10 text-brand-primary' : 'border-slate-200 bg-white text-slate-700 hover:border-brand-primary'"
                         :aria-pressed="avatarForm.avatar_key === option.key"
                         @click="selectAvatar(option.key)"
@@ -183,7 +178,7 @@ function saveAvatar(): void {
                         <AvatarIcon
                             :avatar-key="option.key"
                             :label="`Avatar ${option.name}`"
-                            class="h-11 w-11 p-2"
+                            class="h-24 w-24 p-0"
                         />
                         <span class="mt-2 text-sm font-semibold">{{ option.name }}</span>
                         <span class="mt-0.5 text-xs text-slate-500">{{ option.description }}</span>
@@ -215,3 +210,29 @@ function saveAvatar(): void {
         </div>
     </AuthenticatedLayout>
 </template>
+
+<style scoped>
+.avatar-modal-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(49 84 213 / 0.7) rgb(226 232 240 / 0.8);
+}
+
+.avatar-modal-scroll::-webkit-scrollbar {
+    width: 10px;
+}
+
+.avatar-modal-scroll::-webkit-scrollbar-track {
+    border-radius: 9999px;
+    background: rgb(226 232 240 / 0.8);
+}
+
+.avatar-modal-scroll::-webkit-scrollbar-thumb {
+    border: 2px solid rgb(226 232 240 / 0.8);
+    border-radius: 9999px;
+    background: rgb(49 84 213 / 0.7);
+}
+
+.avatar-modal-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgb(49 84 213);
+}
+</style>

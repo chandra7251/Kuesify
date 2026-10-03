@@ -2,7 +2,7 @@
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { Link } from '@inertiajs/vue3';
 
-withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
+withDefaults(defineProps<{ contentClass?: string; compact?: boolean; centered?: boolean }>(), {
     contentClass: 'max-w-md',
 });
 </script>
@@ -77,8 +77,10 @@ withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
             class="auth-scroll relative flex min-h-screen justify-center px-4 py-5 sm:px-8 sm:py-10 lg:h-screen lg:min-h-0 lg:items-center"
             :class="
                 compact
-                    ? 'items-start overflow-y-auto'
-                    : 'items-start lg:overflow-y-auto'
+                ? 'items-start overflow-y-auto'
+                : centered
+                  ? 'items-center lg:overflow-y-auto'
+                  : 'items-start lg:overflow-y-auto'
             "
         >
             <Link
@@ -104,10 +106,10 @@ withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
 
             <div
                 class="relative w-full"
-                :class="[contentClass, 'pt-16 sm:pt-20']"
+                :class="[contentClass, centered ? 'pt-6 sm:pt-8' : 'pt-16 sm:pt-20']"
             >
                 <div
-                    class="ui-reveal hover-lift rounded-2xl border border-white/70 bg-white p-4 shadow-figma sm:rounded-[2rem] sm:p-9"
+                    class="ui-reveal hover-lift rounded-2xl border border-white/70 bg-white p-4 shadow-figma sm:rounded-[2rem] sm:p-6"
                 >
                     <slot />
                 </div>

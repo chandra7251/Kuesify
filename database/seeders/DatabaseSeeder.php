@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Demo Organization Admin', 'email' => 'admin@kuesify.test', 'role' => 'organization_admin'],
             ['name' => 'Demo Super Admin', 'email' => 'superadmin@kuesify.test', 'role' => 'super_admin'],
         ] as $account) {
-            $user = User::firstOrCreate(['email' => $account['email']], ['name' => $account['name'], 'password' => 'password', 'avatar_key' => 'book']);
+            $user = User::firstOrCreate(['email' => $account['email']], ['name' => $account['name'], 'password' => 'password', 'avatar_key' => 'profile_1']);
             if ($user->email_verified_at === null) {
                 $user->forceFill(['email_verified_at' => now()])->save();
             }

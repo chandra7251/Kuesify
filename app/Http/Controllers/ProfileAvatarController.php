@@ -13,7 +13,7 @@ class ProfileAvatarController extends Controller
 {
     public function create(Request $request): Response|RedirectResponse
     {
-        if ($request->user()->avatar_key !== null) {
+        if (in_array($request->user()->avatar_key, User::AVATAR_KEYS, true)) {
             return redirect()->route('dashboard');
         }
 

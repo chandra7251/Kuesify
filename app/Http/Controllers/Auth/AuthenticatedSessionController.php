@@ -33,7 +33,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        if ($request->user()->avatar_key === null) {
+        if (! in_array($request->user()->avatar_key, \App\Models\User::AVATAR_KEYS, true)) {
             return redirect('/choose-avatar');
         }
 
