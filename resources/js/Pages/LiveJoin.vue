@@ -12,7 +12,7 @@ const root = ref<HTMLElement | null>(null);
 const canvasBg = ref<HTMLCanvasElement | null>(null);
 const mascotEl = ref<HTMLElement | null>(null);
 const speechBubbleEl = ref<HTMLElement | null>(null);
-const pinContainerEl = ref<HTMLElement | null>(null);
+const hiddenInput = ref<HTMLInputElement | null>(null);
 
 const mascotSpeech = ref('Halo jagoan! Masukkan 6 digit Game PIN dari gurumu!');
 const currentHint = ref('Ketik PIN langsung atau gunakan numpad');
@@ -487,7 +487,7 @@ function join(): void {
                             <!-- Custom PIN Dots -->
                             <div
                                 class="flex cursor-text justify-between gap-2 sm:gap-3"
-                                @click="$refs.hiddenInput?.focus()"
+                                @click="hiddenInput?.focus()"
                                 ref="pinContainerEl"
                             >
                                 <div

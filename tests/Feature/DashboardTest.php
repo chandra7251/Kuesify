@@ -157,11 +157,10 @@ it('renders executive dashboard with platform analytics for super admin', functi
     $this->get(route('dashboard'))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
-            ->component('Dashboard')
-            ->where('isSuperAdmin', true)
-            ->has('adminAnalytics.kpi.total_organizations')
-            ->has('adminAnalytics.charts.attempts_trend')
-            ->has('adminAnalytics.charts.role_distribution')
-            ->has('adminAnalytics.charts.top_organizations')
+            ->component('superadmin/dashboard')
+            ->has('stats.organizations')
+            ->has('dailyAttempts')
+            ->has('roleCounts')
+            ->has('topOrgs')
         );
 });
