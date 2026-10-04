@@ -16,7 +16,7 @@ const props = defineProps<{
             participants: unknown[];
         }[];
     };
-    quizzes: { id: number; title: string }[];
+    quizzes: { id: number; title: string; has_essay_questions: boolean }[];
 }>();
 
 const form = useForm({
@@ -24,6 +24,14 @@ const form = useForm({
     question_duration: 30,
     speed_multiplier: 10,
 });
+
+const selectedQuiz = computed(() =>
+    props.quizzes.find((quiz) => String(quiz.id) === String(form.quiz_id)),
+);
+
+const ineligibleQuizCount = computed(
+    () => props.quizzes.filter((quiz) => quiz.has_essay_questions).length,
+);
 
 const lobbyCount = computed(
     () => props.sessions.data.filter((s) => s.status === 'lobby').length,
@@ -100,10 +108,23 @@ function openSession(): void {
                                     v-for="quiz in quizzes"
                                     :key="quiz.id"
                                     :value="quiz.id"
+                                    :disabled="quiz.has_essay_questions"
                                 >
-                                    {{ quiz.title }}
+                                    {{ quiz.title }}{{ quiz.has_essay_questions ? ' - Tidak tersedia untuk Live Quiz (mengandung soal essay)' : '' }}
                                 </option>
                             </select>
+                            <p
+                                v-if="ineligibleQuizCount"
+                                class="mt-1.5 text-xs font-medium text-white/75"
+                            >
+                                {{ ineligibleQuizCount }} quiz mengandung soal essay dan belum bisa dipakai untuk Live Quiz.
+                            </p>
+                            <p
+                                v-if="selectedQuiz?.has_essay_questions"
+                                class="mt-1.5 rounded-lg bg-white/10 px-3 py-2 text-xs font-semibold text-brand-secondary"
+                            >
+                                Tidak tersedia untuk Live Quiz. Mengandung soal essay.
+                            </p>
                             <InputError
                                 :message="form.errors.quiz_id"
                                 class="mt-1.5"
@@ -165,7 +186,7 @@ function openSession(): void {
                         <button
                             type="submit"
                             class="inline-flex min-h-11 items-center justify-center rounded-xl bg-brand-secondary px-5 text-sm font-bold text-brand-dark transition hover:brightness-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary disabled:opacity-50"
-                            :disabled="form.processing"
+                            :disabled="form.processing || !form.quiz_id || selectedQuiz?.has_essay_questions"
                         >
                             {{ form.processing ? 'Membuka...' : 'Buka lobby' }}
                         </button>
@@ -524,3 +545,4 @@ function openSession(): void {
         </main>
     </AuthenticatedLayout>
 </template>
+

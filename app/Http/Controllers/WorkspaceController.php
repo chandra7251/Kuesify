@@ -99,7 +99,9 @@ class WorkspaceController extends Controller
     {
         return Inertia::render('LiveHub', [
             'sessions' => LiveSession::with(['quiz:id,title', 'participants:id,live_session_id,alias,score,kicked_at'])->latest()->paginate(15),
-            'quizzes' => Quiz::where('status', 'published')->get(['id', 'title']),
+            'quizzes' => Quiz::where('status', 'published')
+                ->withExists(['questions as has_essay_questions' => fn ($query) => $query->where('type', 'essay')])
+                ->get(['id', 'title']),
         ]);
     }
 

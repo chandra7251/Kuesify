@@ -8,6 +8,7 @@ use App\Models\Question;
 use App\Models\Quiz;
 use App\Events\LiveSessionStateChanged;
 use App\Services\LiveSessionPresenter;
+use DomainException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -26,7 +27,18 @@ class LiveSessionController extends Controller
         ]);
         $quiz = Quiz::findOrFail($data['quiz_id']);
 
-        $session = LiveSession::open($quiz, $request->user(), $data['question_duration'] ?? 30, $data['speed_multiplier'] ?? 10);
+        try {
+            $session = LiveSession::open($quiz, $request->user(), $data['question_duration'] ?? 30, $data['speed_multiplier'] ?? 10);
+        } catch (DomainException $exception) {
+            if ($exception->getMessage() !== 'Essay questions are not supported in live sessions.') {
+                throw $exception;
+            }
+
+            return back()
+                ->withErrors(['quiz_id' => 'Quiz ini memiliki soal essay dan belum dapat digunakan dalam Live Quiz.'])
+                ->withInput();
+        }
+
         LiveSessionStateChanged::dispatch($session);
 
         return redirect()->route('live-sessions.play', $session);
