@@ -26,6 +26,15 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'avatar_key' => ['nullable', 'string', Rule::in(User::AVATAR_KEYS)],
+            'preferences' => ['nullable', 'array'],
+            'preferences.sound_effects' => ['nullable', 'boolean'],
+            'preferences.reduced_motion' => ['nullable', 'boolean'],
+            'preferences.leaderboard_privacy' => ['nullable', 'string', Rule::in(['real_name', 'alias', 'anonymous'])],
+            'preferences.daily_streak_reminder' => ['nullable', 'boolean'],
+            'preferences.show_badges_public' => ['nullable', 'boolean'],
+            'preferences.question_font_size' => ['nullable', 'string', Rule::in(['normal', 'large'])],
+            'preferences.time_format' => ['nullable', 'string', Rule::in(['24h', '12h'])],
         ];
     }
 }

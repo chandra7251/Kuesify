@@ -27,3 +27,8 @@ Thumbs.db
 /test-results
 /dump.rdb
 
+
+# Agent & Codex skills metadata
+/.agents
+/.codex
+skills-lock.json

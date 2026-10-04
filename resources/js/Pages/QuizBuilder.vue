@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import QuizListSkeleton from '@/Components/QuizListSkeleton.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
 type Question = {
@@ -8,7 +9,7 @@ type Question = {
     prompt: string;
     type: string;
     points: number;
-    category?: { name: string } | null;
+    category?: { name: string; theme_key?: string | null } | null;
 };
 type Quiz = {
     id: number;
@@ -17,19 +18,30 @@ type Quiz = {
     status: string;
     visibility: string;
     category_id?: number | null;
+    category?: { name: string; theme_key?: string | null } | null;
     max_attempts?: number | null;
+    allow_retry?: boolean;
     deadline_at?: string | null;
     show_explanations: boolean;
     questions: Question[];
     questions_count: number;
+    collaborators?: { id: number; name: string }[];
 };
 
 const props = defineProps<{
     quizzes: Quiz[];
     questions: Question[];
     categories: { id: number; name: string }[];
+    members: { id: number; name: string; role: string }[];
+    filters?: { search?: string; status?: string; category?: number | string };
 }>();
 const createForm = useForm({ title: '' });
+const loadingQuizzes = ref(false);
+const filters = ref({
+    search: props.filters?.search ?? '',
+    status: props.filters?.status ?? '',
+    category: props.filters?.category ? String(props.filters.category) : '',
+});
 const selectedQuizId = ref<number | null>(props.quizzes[0]?.id ?? null);
 const selectedQuestionIds = ref<number[]>([]);
 const metadata = useForm({
@@ -38,6 +50,7 @@ const metadata = useForm({
     visibility: 'organization',
     category_id: '',
     max_attempts: '',
+    allow_retry: false,
     deadline_at: '',
     show_explanations: false,
 });
@@ -46,6 +59,17 @@ const selectedQuiz = computed(
     () =>
         props.quizzes.find((quiz) => quiz.id === selectedQuizId.value) ?? null,
 );
+const themeClass = computed(() => {
+    const theme = selectedQuiz.value?.category?.theme_key;
+    return theme === 'ocean'
+        ? 'ring-2 ring-sky-200'
+        : theme === 'forest'
+          ? 'ring-2 ring-brand-secondary'
+          : theme === 'sunset'
+            ? 'ring-2 ring-orange-200'
+            : '';
+});
+
 const selectedQuestions = computed(() =>
     selectedQuestionIds.value
         .map((id) => props.questions.find((question) => question.id === id))
@@ -62,11 +86,36 @@ function selectQuiz(quiz: Quiz): void {
     metadata.visibility = quiz.visibility;
     metadata.category_id = quiz.category_id ? String(quiz.category_id) : '';
     metadata.max_attempts = quiz.max_attempts ? String(quiz.max_attempts) : '';
+    metadata.allow_retry = quiz.allow_retry ?? false;
     metadata.deadline_at = quiz.deadline_at?.slice(0, 16) ?? '';
     metadata.show_explanations = quiz.show_explanations;
 }
 
 if (selectedQuiz.value) selectQuiz(selectedQuiz.value);
+
+function applyFilters(): void {
+    loadingQuizzes.value = true;
+    router.get(
+        route('quizzes.index'),
+        {
+            search: filters.value.search || undefined,
+            status: filters.value.status || undefined,
+            category: filters.value.category || undefined,
+        },
+        {
+            preserveState: true,
+            replace: true,
+            onFinish: () => {
+                loadingQuizzes.value = false;
+            },
+        },
+    );
+}
+
+function clearFilters(): void {
+    filters.value = { search: '', status: '', category: '' };
+    applyFilters();
+}
 
 function createQuiz(): void {
     createForm.post(route('quizzes.store'), {
@@ -112,6 +161,22 @@ function cloneQuiz(): void {
     });
 }
 
+function addCollaborator(userId: string): void {
+    if (!selectedQuiz.value || !userId) return;
+    useForm({ user_id: Number(userId) }).post(
+        route('quizzes.collaborators.store', selectedQuiz.value.id),
+        { preserveScroll: true },
+    );
+}
+
+function removeCollaborator(userId: number): void {
+    if (!selectedQuiz.value) return;
+    useForm({}).delete(
+        route('quizzes.collaborators.destroy', [selectedQuiz.value.id, userId]),
+        { preserveScroll: true },
+    );
+}
+
 function archiveQuiz(): void {
     if (!selectedQuiz.value) return;
     useForm({}).post(route('quizzes.archive', selectedQuiz.value.id), {
@@ -123,174 +188,89 @@ function archiveQuiz(): void {
 <template>
     <Head title="Quiz Builder" />
     <AuthenticatedLayout>
-        <main class="mx-auto max-w-[90rem] px-4 py-6 sm:px-6 lg:px-8">
-            <div class="grid gap-5 lg:grid-cols-[17rem_minmax(0,1fr)]">
-                <aside class="space-y-4 lg:self-start">
-                    <form
-                        class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-                        @submit.prevent="createQuiz"
-                    >
-                        <div>
-                            <p
-                                class="text-xs font-extrabold uppercase tracking-[0.16em] text-[#527A12]"
-                            >
-                                Draft baru
-                            </p>
-                            <h2 class="mt-1 font-extrabold text-slate-950">
-                                Buat quiz
-                            </h2>
-                        </div>
-                        <label for="new-quiz" class="sr-only"
-                            >Judul quiz baru</label
-                        >
-                        <input
-                            id="new-quiz"
-                            v-model="createForm.title"
-                            class="mt-4 min-h-11 w-full rounded-lg border-slate-300 text-sm focus:border-brand-secondary focus:ring-brand-secondary"
-                            placeholder="Contoh: Kuis Ekosistem"
-                            required
-                        />
-                        <p
-                            v-if="createForm.errors.title"
-                            class="mt-2 text-sm font-medium text-red-700"
-                        >
-                            {{ createForm.errors.title }}
-                        </p>
-                        <button
-                            class="mt-3 min-h-11 w-full rounded-md bg-[#3451b5] px-4 text-sm font-bold text-white transition hover:bg-[#29439d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3451b5] disabled:cursor-not-allowed disabled:opacity-50"
-                            :disabled="createForm.processing"
-                        >
-                            Buat draft
-                        </button>
-                    </form>
+        <main class="min-h-full bg-brand-accent/30 px-4 py-6 sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-[90rem]">
+                <header
+                    class="mb-6 flex flex-wrap items-end justify-between gap-4"
+                >
+                </header>
 
-                    <section
-                        class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
-                    >
-                        <div
-                            class="flex items-center justify-between border-b border-slate-100 px-4 py-3"
+                <div class="grid gap-6 lg:grid-cols-[17rem_minmax(0,1fr)]">
+                    <aside class="space-y-4 lg:self-start">
+                        <form
+                            class="rounded-2xl border border-brand-primary bg-brand-primary p-5 text-white shadow-figma"
+                            @submit.prevent="createQuiz"
                         >
-                            <h2
-                                class="text-xs font-extrabold uppercase tracking-[0.14em] text-slate-500"
-                            >
-                                Daftar quiz
-                            </h2>
-                            <span
-                                class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold tabular-nums text-slate-600"
-                                >{{ quizzes.length }}</span
-                            >
-                        </div>
-                        <div class="space-y-1 p-2">
-                            <button
-                                v-for="quiz in quizzes"
-                                :key="quiz.id"
-                                type="button"
-                                class="group w-full rounded-lg px-3 py-3 text-left transition-colors"
-                                :class="
-                                    quiz.id === selectedQuizId
-                                        ? 'bg-brand-secondary/15 text-[#3F5F0D] ring-1 ring-inset ring-brand-secondary/40'
-                                        : 'text-slate-700 hover:bg-slate-50 hover:text-slate-950'
-                                "
-                                @click="selectQuiz(quiz)"
-                            >
-                                <span class="block truncate font-bold">{{
-                                    quiz.title
-                                }}</span>
-                                <span
-                                    class="mt-1 flex items-center gap-2 text-xs text-slate-500"
-                                >
-                                    <span
-                                        class="h-1.5 w-1.5 rounded-full"
-                                        :class="
-                                            quiz.status === 'published'
-                                                ? 'bg-brand-secondary'
-                                                : 'bg-amber-400'
-                                        "
-                                    ></span>
-                                    {{ quiz.status }} ·
-                                    {{ quiz.questions_count }} soal
-                                </span>
-                            </button>
-                            <p
-                                v-if="quizzes.length === 0"
-                                class="px-3 py-8 text-center text-sm text-slate-500"
-                            >
-                                Belum ada quiz.
-                            </p>
-                        </div>
-                    </section>
-                </aside>
-
-                <section v-if="selectedQuiz" class="min-w-0 space-y-5">
-                    <header
-                        class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
-                    >
-                        <div class="min-w-0">
-                            <div class="flex flex-wrap items-center gap-2">
+                            <div>
                                 <p
-                                    class="text-xs font-extrabold uppercase tracking-[0.16em] text-[#527A12]"
+                                    class="text-xs font-extrabold uppercase tracking-[0.16em] text-brand-secondary"
                                 >
-                                    Quiz aktif
+                                    Draft baru
                                 </p>
-                                <span
-                                    class="rounded-full bg-brand-secondary/15 px-2.5 py-1 text-xs font-bold text-[#527A12]"
-                                    >{{ selectedQuiz.status }}</span
-                                >
+                                <h2 class="mt-1 font-extrabold text-white">
+                                    Buat quiz
+                                </h2>
                             </div>
-                            <h2
-                                class="mt-2 truncate text-2xl font-extrabold tracking-tight text-slate-950"
+                            <label for="new-quiz" class="sr-only"
+                                >Judul quiz baru</label
                             >
-                                {{ selectedQuiz.title }}
-                            </h2>
-                            <p class="mt-1 text-sm text-slate-500">
-                                {{ selectedQuestionIds.length }} soal ·
-                                {{ metadata.visibility }}
+                            <input
+                                id="new-quiz"
+                                v-model="createForm.title"
+                                class="mt-4 min-h-11 w-full rounded-lg border-slate-300 text-sm focus:border-brand-secondary focus:ring-brand-secondary"
+                                placeholder="Contoh: Kuis Ekosistem"
+                                required
+                            />
+                            <p
+                                v-if="createForm.errors.title"
+                                class="mt-2 text-sm font-medium text-red-700"
+                            >
+                                {{ createForm.errors.title }}
                             </p>
-                        </div>
-                        <div class="flex flex-wrap gap-2">
                             <button
-                                type="button"
-                                class="min-h-11 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
-                                @click="cloneQuiz"
+                                class="mt-3 min-h-11 w-full rounded-xl bg-brand-secondary px-4 text-sm font-bold text-brand-dark transition hover:brightness-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary disabled:cursor-not-allowed disabled:opacity-50"
+                                :disabled="createForm.processing"
                             >
-                                Duplikat
+                                Buat draft
                             </button>
-                            <button
-                                type="button"
-                                class="min-h-11 rounded-lg px-3 text-sm font-bold text-red-700 transition-colors hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-                                @click="archiveQuiz"
-                            >
-                                Arsipkan
-                            </button>
-                        </div>
-                    </header>
+                        </form>
 
-                    <form
-                        class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
-                        @submit.prevent="saveMetadata"
-                    >
-                        <div class="border-b border-slate-100 px-5 py-4">
-                            <h2 class="font-extrabold text-slate-950">
-                                Pengaturan quiz
-                            </h2>
-                            <p class="mt-1 text-sm text-slate-500">
-                                Atur informasi, akses, dan batas pengerjaan.
-                            </p>
-                        </div>
-                        <div class="grid gap-4 p-5 md:grid-cols-2">
-                            <label class="text-sm font-bold text-slate-800"
-                                >Judul<input
-                                    v-model="metadata.title"
-                                    :class="fieldClass"
-                                    placeholder="Masukkan judul quiz"
-                                    required
-                            /></label>
-                            <label class="text-sm font-bold text-slate-800"
-                                >Kategori<select
-                                    v-model="metadata.category_id"
-                                    :class="fieldClass"
+                        <section
+                            class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-figma"
+                        >
+                            <form
+                                class="space-y-2 border-b border-slate-100 p-3"
+                                @submit.prevent="applyFilters"
+                            >
+                                <label class="sr-only" for="quiz-search"
+                                    >Cari quiz</label
                                 >
-                                    <option value="">Tanpa kategori</option>
+                                <input
+                                    id="quiz-search"
+                                    v-model="filters.search"
+                                    class="min-h-10 w-full rounded-lg border-slate-300 text-sm"
+                                    placeholder="Cari quiz"
+                                />
+                                <select
+                                    v-model="filters.status"
+                                    class="min-h-10 w-full rounded-lg border-slate-300 text-sm"
+                                    aria-label="Filter status"
+                                >
+                                    <option value="">Semua status</option>
+                                    <option value="draft">Draft</option>
+                                    <option value="pending_moderation">
+                                        Menunggu moderasi
+                                    </option>
+                                    <option value="published">Published</option>
+                                    <option value="rejected">Ditolak</option>
+                                    <option value="archived">Diarsipkan</option>
+                                </select>
+                                <select
+                                    v-model="filters.category"
+                                    class="min-h-10 w-full rounded-lg border-slate-300 text-sm"
+                                    aria-label="Filter kategori"
+                                >
+                                    <option value="">Semua kategori</option>
                                     <option
                                         v-for="category in categories"
                                         :key="category.id"
@@ -298,278 +278,517 @@ function archiveQuiz(): void {
                                     >
                                         {{ category.name }}
                                     </option>
-                                </select></label
+                                </select>
+                                <div class="flex gap-2">
+                                    <button
+                                        type="submit"
+                                        class="min-h-9 flex-1 rounded-lg bg-brand-primary px-3 text-xs font-bold text-white"
+                                    >
+                                        Terapkan
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="min-h-9 rounded-lg border border-slate-300 px-3 text-xs font-bold text-slate-700"
+                                        @click="clearFilters"
+                                    >
+                                        Reset
+                                    </button>
+                                </div>
+                            </form>
+                            <div
+                                class="flex items-center justify-between border-b border-slate-100 px-4 py-3"
                             >
-                            <label
-                                class="text-sm font-bold text-slate-800 md:col-span-2"
-                                >Deskripsi<textarea
-                                    v-model="metadata.description"
-                                    :class="fieldClass"
-                                    class="min-h-24 resize-y"
-                                    placeholder="Masukkan deskripsi quiz"
-                                />
-                            </label>
-                            <label class="text-sm font-bold text-slate-800"
-                                >Visibilitas<select
-                                    v-model="metadata.visibility"
-                                    :class="fieldClass"
+                                <h2
+                                    class="text-xs font-extrabold uppercase tracking-[0.14em] text-slate-500"
                                 >
-                                    <option value="private">Private</option>
-                                    <option value="organization">
-                                        Organisasi
-                                    </option>
-                                    <option value="public">Public</option>
-                                </select></label
-                            >
-                            <label class="text-sm font-bold text-slate-800"
-                                >Maksimal percobaan<input
-                                    v-model="metadata.max_attempts"
-                                    :class="fieldClass"
-                                    type="number"
-                                    min="1"
-                                    placeholder="Tanpa batas"
-                            /></label>
-                            <label class="text-sm font-bold text-slate-800"
-                                >Deadline<input
-                                    v-model="metadata.deadline_at"
-                                    :class="fieldClass"
-                                    type="datetime-local"
-                            /></label>
-                            <label
-                                class="flex min-h-11 cursor-pointer items-center gap-3 self-end rounded-lg border border-slate-200 px-4 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50"
-                                ><input
-                                    v-model="metadata.show_explanations"
-                                    type="checkbox"
-                                    class="h-5 w-5 rounded border-slate-300 text-brand-secondary focus:ring-brand-secondary"
-                                />Tampilkan pembahasan</label
-                            >
-                        </div>
-                        <div
-                            class="flex justify-end border-t border-slate-100 bg-slate-50 px-5 py-4"
-                        >
-                            <button
-                                class="min-h-11 rounded-md bg-[#3451b5] px-5 text-sm font-bold text-white transition hover:bg-[#29439d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3451b5] disabled:cursor-not-allowed disabled:opacity-50"
-                                :disabled="metadata.processing"
-                            >
-                                Simpan detail
-                            </button>
-                        </div>
-                    </form>
-
-                    <section
-                        class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
-                    >
-                        <div
-                            class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4"
-                        >
-                            <div>
-                                <h2 class="font-extrabold text-slate-950">
-                                    Susunan soal
+                                    Daftar quiz
                                 </h2>
-                                <p class="mt-1 text-sm text-slate-500">
-                                    Pilih soal, atur urutan, lalu publikasikan.
+                                <span
+                                    class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold tabular-nums text-slate-600"
+                                    >{{ quizzes.length }}</span
+                                >
+                            </div>
+                            <div v-if="loadingQuizzes" class="p-2">
+                                <QuizListSkeleton :count="3" />
+                            </div>
+                            <div v-else class="space-y-1 p-2">
+                                <button
+                                    v-for="quiz in quizzes"
+                                    :key="quiz.id"
+                                    type="button"
+                                    class="group w-full rounded-lg px-3 py-3 text-left transition-colors"
+                                    :class="
+                                        quiz.id === selectedQuizId
+                                            ? 'bg-brand-secondary/15 text-[#3F5F0D] ring-1 ring-inset ring-brand-secondary/40'
+                                            : 'text-slate-700 hover:bg-slate-50 hover:text-slate-950'
+                                    "
+                                    @click="selectQuiz(quiz)"
+                                >
+                                    <span class="block truncate font-bold">{{
+                                        quiz.title
+                                    }}</span>
+                                    <span
+                                        class="mt-1 flex items-center gap-2 text-xs text-slate-500"
+                                    >
+                                        <span
+                                            class="h-1.5 w-1.5 rounded-full"
+                                            :class="
+                                                quiz.status === 'published'
+                                                    ? 'bg-brand-secondary'
+                                                    : 'bg-amber-400'
+                                            "
+                                        ></span>
+                                        {{ quiz.status }} ·
+                                        {{ quiz.questions_count }} soal
+                                    </span>
+                                </button>
+                                <p
+                                    v-if="quizzes.length === 0"
+                                    class="px-3 py-8 text-center text-sm text-slate-500"
+                                >
+                                    Belum ada quiz.
                                 </p>
                             </div>
-                            <span
-                                class="rounded-full bg-brand-secondary/15 px-3 py-1 text-xs font-bold text-[#527A12]"
-                                >{{ selectedQuestionIds.length }} dipilih</span
-                            >
-                        </div>
+                        </section>
+                    </aside>
 
-                        <div
-                            class="grid xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.82fr)]"
+                    <section
+                        v-if="selectedQuiz"
+                        class="min-w-0 space-y-5"
+                        :class="themeClass"
+                    >
+                        <header
+                            class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-brand-primary bg-brand-primary p-5 text-white shadow-figma"
                         >
-                            <div class="p-5 xl:border-r xl:border-slate-100">
-                                <div
-                                    class="flex items-center justify-between gap-3"
-                                >
-                                    <h3 class="font-bold text-slate-900">
-                                        Bank soal
-                                    </h3>
-                                    <span class="text-xs text-slate-500"
-                                        >{{ questions.length }} tersedia</span
+                            <div class="min-w-0">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <p
+                                        class="text-xs font-extrabold uppercase tracking-[0.16em] text-brand-secondary"
+                                    >
+                                        Quiz aktif
+                                    </p>
+                                    <span
+                                        class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-bold text-brand-dark"
+                                        >{{ selectedQuiz.status }}</span
                                     >
                                 </div>
-                                <div
-                                    v-if="questions.length"
-                                    class="mt-3 max-h-[32rem] space-y-2 overflow-y-auto pr-1"
+                                <h2
+                                    class="mt-2 truncate text-2xl font-extrabold tracking-tight text-white"
                                 >
-                                    <label
-                                        v-for="question in questions"
-                                        :key="question.id"
-                                        class="flex cursor-pointer gap-3 rounded-lg border border-slate-200 p-3 transition-colors hover:border-brand-secondary hover:bg-brand-secondary/10 has-[:checked]:border-brand-secondary has-[:checked]:bg-brand-secondary/15"
-                                    >
-                                        <input
-                                            v-model="selectedQuestionIds"
-                                            :value="question.id"
-                                            type="checkbox"
-                                            class="mt-0.5 h-5 w-5 shrink-0 rounded border-slate-300 text-brand-secondary focus:ring-brand-secondary"
-                                        />
-                                        <span class="min-w-0">
-                                            <span
-                                                class="block font-bold leading-6 text-slate-900"
-                                                >{{ question.prompt }}</span
-                                            >
-                                            <span
-                                                class="mt-1 block text-xs text-slate-500"
-                                                >{{ question.type }} ·
-                                                {{ question.points }} poin<span
-                                                    v-if="question.category"
-                                                >
-                                                    ·
-                                                    {{
-                                                        question.category.name
-                                                    }}</span
-                                                ></span
-                                            >
-                                        </span>
-                                    </label>
-                                </div>
-                                <p
-                                    v-else
-                                    class="mt-3 rounded-lg border border-dashed border-slate-300 px-4 py-10 text-center text-sm text-slate-500"
-                                >
-                                    Bank soal masih kosong.
+                                    {{ selectedQuiz.title }}
+                                </h2>
+                                <p class="mt-1 text-sm text-white/75">
+                                    {{ selectedQuestionIds.length }} soal ·
+                                    {{ metadata.visibility }}
                                 </p>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
                                 <button
                                     type="button"
-                                    class="mt-4 min-h-11 w-full rounded-md bg-[#3451b5] px-4 text-sm font-bold text-white transition hover:bg-[#29439d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3451b5] disabled:cursor-not-allowed disabled:opacity-50"
-                                    :disabled="selectedQuestionIds.length === 0"
-                                    @click="syncQuestions"
+                                    class="min-h-11 rounded-xl border border-white/30 bg-white px-4 text-sm font-bold text-brand-primary transition-colors hover:bg-brand-secondary hover:text-brand-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
+                                    @click="cloneQuiz"
                                 >
-                                    Simpan susunan soal
+                                    Duplikat
                                 </button>
+                                <button
+                                    type="button"
+                                    class="min-h-11 rounded-xl px-3 text-sm font-bold text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
+                                    @click="archiveQuiz"
+                                >
+                                    Arsipkan
+                                </button>
+                            </div>
+                        </header>
+
+                        <section
+                            class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+                        >
+                            <h2 class="font-extrabold text-slate-950">
+                                Co-creator
+                            </h2>
+                            <p class="mt-1 text-sm text-slate-500">
+                                Tambahkan creator organisasi untuk mengedit quiz
+                                ini.
+                            </p>
+                            <div class="mt-4 flex flex-wrap gap-2">
+                                <select
+                                    class="min-h-10 rounded-lg border-slate-300 text-sm"
+                                    aria-label="Pilih co-creator"
+                                    @change="
+                                        addCollaborator(
+                                            ($event.target as HTMLSelectElement)
+                                                .value,
+                                        )
+                                    "
+                                >
+                                    <option value="">Tambah co-creator</option>
+                                    <option
+                                        v-for="member in members.filter(
+                                            (item) => item.role === 'creator',
+                                        )"
+                                        :key="member.id"
+                                        :value="member.id"
+                                    >
+                                        {{ member.name }}
+                                    </option>
+                                </select>
+                                <span
+                                    v-for="collaborator in selectedQuiz.collaborators ??
+                                    []"
+                                    :key="collaborator.id"
+                                    class="rounded-full bg-brand-secondary px-3 py-2 text-xs font-bold"
+                                    >{{ collaborator.name }}
+                                    <button
+                                        type="button"
+                                        class="ml-1"
+                                        @click="
+                                            removeCollaborator(collaborator.id)
+                                        "
+                                    >
+                                        ×
+                                    </button></span
+                                >
+                            </div>
+                        </section>
+
+                        <form
+                            class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+                            @submit.prevent="saveMetadata"
+                        >
+                            <div class="border-b border-slate-100 px-5 py-4">
+                                <h2 class="font-extrabold text-slate-950">
+                                    Pengaturan quiz
+                                </h2>
+                                <p class="mt-1 text-sm text-slate-500">
+                                    Atur informasi, akses, dan batas pengerjaan.
+                                </p>
+                            </div>
+                            <div class="grid gap-4 p-5 md:grid-cols-2">
+                                <label class="text-sm font-bold text-slate-800"
+                                    >Judul<input
+                                        v-model="metadata.title"
+                                        :class="fieldClass"
+                                        placeholder="Masukkan judul quiz"
+                                        required
+                                /></label>
+                                <label class="text-sm font-bold text-slate-800"
+                                    >Kategori<select
+                                        v-model="metadata.category_id"
+                                        :class="fieldClass"
+                                    >
+                                        <option value="">Tanpa kategori</option>
+                                        <option
+                                            v-for="category in categories"
+                                            :key="category.id"
+                                            :value="String(category.id)"
+                                        >
+                                            {{ category.name }}
+                                        </option>
+                                    </select></label
+                                >
+                                <label
+                                    class="text-sm font-bold text-slate-800 md:col-span-2"
+                                    >Deskripsi<textarea
+                                        v-model="metadata.description"
+                                        :class="fieldClass"
+                                        class="min-h-24 resize-y"
+                                        placeholder="Masukkan deskripsi quiz"
+                                    />
+                                </label>
+                                <label class="text-sm font-bold text-slate-800"
+                                    >Visibilitas<select
+                                        v-model="metadata.visibility"
+                                        :class="fieldClass"
+                                    >
+                                        <option value="private">Private</option>
+                                        <option value="organization">
+                                            Organisasi
+                                        </option>
+                                        <option value="public">Public</option>
+                                    </select></label
+                                >
+                                <label class="text-sm font-bold text-slate-800"
+                                    >Maksimal percobaan<input
+                                        v-model="metadata.max_attempts"
+                                        :class="fieldClass"
+                                        type="number"
+                                        min="1"
+                                        placeholder="Tanpa batas"
+                                /></label>
+                                <label
+                                    class="flex min-h-11 cursor-pointer items-center gap-3 self-end rounded-lg border border-slate-200 px-4 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50"
+                                >
+                                    <input
+                                        v-model="metadata.allow_retry"
+                                        type="checkbox"
+                                        class="h-5 w-5 rounded border-slate-300 text-brand-secondary focus:ring-brand-secondary"
+                                    />
+                                    Izinkan peserta mengulang kuis
+                                </label>
+                                <label class="text-sm font-bold text-slate-800"
+                                    >Deadline<input
+                                        v-model="metadata.deadline_at"
+                                        :class="fieldClass"
+                                        type="datetime-local"
+                                /></label>
+                                <label
+                                    class="flex min-h-11 cursor-pointer items-center gap-3 self-end rounded-lg border border-slate-200 px-4 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50"
+                                    ><input
+                                        v-model="metadata.show_explanations"
+                                        type="checkbox"
+                                        class="h-5 w-5 rounded border-slate-300 text-brand-secondary focus:ring-brand-secondary"
+                                    />Tampilkan pembahasan</label
+                                >
+                            </div>
+                            <div
+                                class="flex justify-end border-t border-slate-100 bg-slate-50 px-5 py-4"
+                            >
+                                <button
+                                    class="min-h-11 rounded-md bg-[#3451b5] px-5 text-sm font-bold text-white transition hover:bg-[#29439d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3451b5] disabled:cursor-not-allowed disabled:opacity-50"
+                                    :disabled="metadata.processing"
+                                >
+                                    Simpan detail
+                                </button>
+                            </div>
+                        </form>
+
+                        <section
+                            class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+                        >
+                            <div
+                                class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4"
+                            >
+                                <div>
+                                    <h2 class="font-extrabold text-slate-950">
+                                        Susunan soal
+                                    </h2>
+                                    <p class="mt-1 text-sm text-slate-500">
+                                        Pilih soal, atur urutan, lalu
+                                        publikasikan.
+                                    </p>
+                                </div>
+                                <span
+                                    class="rounded-full bg-brand-secondary/15 px-3 py-1 text-xs font-bold text-[#527A12]"
+                                    >{{
+                                        selectedQuestionIds.length
+                                    }}
+                                    dipilih</span
+                                >
                             </div>
 
                             <div
-                                class="border-t border-slate-100 bg-slate-50/70 p-5 xl:border-t-0"
+                                class="grid xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.82fr)]"
                             >
                                 <div
-                                    class="flex items-center justify-between gap-3"
+                                    class="p-5 xl:border-r xl:border-slate-100"
                                 >
-                                    <h3 class="font-bold text-slate-900">
-                                        Urutan dan preview
-                                    </h3>
-                                    <span class="text-xs text-slate-500"
-                                        >Atur dengan tombol</span
+                                    <div
+                                        class="flex items-center justify-between gap-3"
                                     >
-                                </div>
-                                <div
-                                    v-if="selectedQuestions.length"
-                                    class="mt-3 space-y-2"
-                                >
-                                    <article
-                                        v-for="(
-                                            question, index
-                                        ) in selectedQuestions"
-                                        :key="question.id"
-                                        class="flex items-start gap-3 rounded-lg border border-slate-200 bg-white p-3"
-                                    >
-                                        <span
-                                            class="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-brand-secondary/15 text-xs font-extrabold tabular-nums text-[#527A12]"
-                                            >{{ index + 1 }}</span
+                                        <h3 class="font-bold text-slate-900">
+                                            Bank soal
+                                        </h3>
+                                        <span class="text-xs text-slate-500"
+                                            >{{
+                                                questions.length
+                                            }}
+                                            tersedia</span
                                         >
-                                        <div class="min-w-0 flex-1">
-                                            <p
-                                                class="font-bold leading-6 text-slate-900"
-                                            >
-                                                {{ question.prompt }}
-                                            </p>
-                                            <p
-                                                class="mt-1 text-xs text-slate-500"
-                                            >
-                                                {{ question.type }} ·
-                                                {{ question.points }} poin
-                                            </p>
-                                        </div>
-                                        <div class="flex shrink-0 gap-1">
-                                            <button
-                                                type="button"
-                                                class="grid h-9 w-9 place-items-center rounded-md text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-30"
-                                                :disabled="index === 0"
-                                                :aria-label="`Naikkan soal ${index + 1}`"
-                                                @click="moveQuestion(index, -1)"
-                                            >
-                                                <svg
-                                                    aria-hidden="true"
-                                                    class="h-4 w-4"
-                                                    fill="none"
-                                                    viewBox="0 0 24 24"
-                                                    stroke="currentColor"
-                                                    stroke-width="2"
+                                    </div>
+                                    <div
+                                        v-if="questions.length"
+                                        class="mt-3 max-h-[32rem] space-y-2 overflow-y-auto pr-1"
+                                    >
+                                        <label
+                                            v-for="question in questions"
+                                            :key="question.id"
+                                            class="flex cursor-pointer gap-3 rounded-lg border border-slate-200 p-3 transition-colors hover:border-brand-secondary hover:bg-brand-secondary/10 has-[:checked]:border-brand-secondary has-[:checked]:bg-brand-secondary/15"
+                                        >
+                                            <input
+                                                v-model="selectedQuestionIds"
+                                                :value="question.id"
+                                                type="checkbox"
+                                                class="mt-0.5 h-5 w-5 shrink-0 rounded border-slate-300 text-brand-secondary focus:ring-brand-secondary"
+                                            />
+                                            <span class="min-w-0">
+                                                <span
+                                                    class="block font-bold leading-6 text-slate-900"
+                                                    >{{ question.prompt }}</span
                                                 >
-                                                    <path
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        d="m6 15 6-6 6 6"
-                                                    />
-                                                </svg>
-                                            </button>
-                                            <button
-                                                type="button"
-                                                class="grid h-9 w-9 place-items-center rounded-md text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-30"
-                                                :disabled="
-                                                    index ===
-                                                    selectedQuestions.length - 1
-                                                "
-                                                :aria-label="`Turunkan soal ${index + 1}`"
-                                                @click="moveQuestion(index, 1)"
-                                            >
-                                                <svg
-                                                    aria-hidden="true"
-                                                    class="h-4 w-4"
-                                                    fill="none"
-                                                    viewBox="0 0 24 24"
-                                                    stroke="currentColor"
-                                                    stroke-width="2"
+                                                <span
+                                                    class="mt-1 block text-xs text-slate-500"
+                                                    >{{ question.type }} ·
+                                                    {{ question.points }}
+                                                    poin<span
+                                                        v-if="question.category"
+                                                    >
+                                                        ·
+                                                        {{
+                                                            question.category
+                                                                .name
+                                                        }}</span
+                                                    ></span
                                                 >
-                                                    <path
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        d="m6 9 6 6 6-6"
-                                                    />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </article>
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <p
+                                        v-else
+                                        class="mt-3 rounded-lg border border-dashed border-slate-300 px-4 py-10 text-center text-sm text-slate-500"
+                                    >
+                                        Bank soal masih kosong.
+                                    </p>
+                                    <button
+                                        type="button"
+                                        class="mt-4 min-h-11 w-full rounded-md bg-[#3451b5] px-4 text-sm font-bold text-white transition hover:bg-[#29439d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3451b5] disabled:cursor-not-allowed disabled:opacity-50"
+                                        :disabled="
+                                            selectedQuestionIds.length === 0
+                                        "
+                                        @click="syncQuestions"
+                                    >
+                                        Simpan susunan soal
+                                    </button>
                                 </div>
+
                                 <div
-                                    v-else
-                                    class="mt-3 rounded-lg border border-dashed border-slate-300 bg-white px-5 py-10 text-center"
+                                    class="border-t border-slate-100 bg-slate-50/70 p-5 xl:border-t-0"
                                 >
-                                    <p class="font-bold text-slate-700">
-                                        Belum ada soal dipilih
-                                    </p>
-                                    <p class="mt-1 text-sm text-slate-500">
-                                        Pilih soal dari bank di sebelah kiri.
-                                    </p>
+                                    <div
+                                        class="flex items-center justify-between gap-3"
+                                    >
+                                        <h3 class="font-bold text-slate-900">
+                                            Urutan dan preview
+                                        </h3>
+                                        <span class="text-xs text-slate-500"
+                                            >Atur dengan tombol</span
+                                        >
+                                    </div>
+                                    <div
+                                        v-if="selectedQuestions.length"
+                                        class="mt-3 space-y-2"
+                                    >
+                                        <article
+                                            v-for="(
+                                                question, index
+                                            ) in selectedQuestions"
+                                            :key="question.id"
+                                            class="flex items-start gap-3 rounded-lg border border-slate-200 bg-white p-3"
+                                        >
+                                            <span
+                                                class="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-brand-secondary/15 text-xs font-extrabold tabular-nums text-[#527A12]"
+                                                >{{ index + 1 }}</span
+                                            >
+                                            <div class="min-w-0 flex-1">
+                                                <p
+                                                    class="font-bold leading-6 text-slate-900"
+                                                >
+                                                    {{ question.prompt }}
+                                                </p>
+                                                <p
+                                                    class="mt-1 text-xs text-slate-500"
+                                                >
+                                                    {{ question.type }} ·
+                                                    {{ question.points }} poin
+                                                </p>
+                                            </div>
+                                            <div class="flex shrink-0 gap-1">
+                                                <button
+                                                    type="button"
+                                                    class="grid h-9 w-9 place-items-center rounded-md text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-30"
+                                                    :disabled="index === 0"
+                                                    :aria-label="`Naikkan soal ${index + 1}`"
+                                                    @click="
+                                                        moveQuestion(index, -1)
+                                                    "
+                                                >
+                                                    <svg
+                                                        aria-hidden="true"
+                                                        class="h-4 w-4"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                    >
+                                                        <path
+                                                            stroke-linecap="round"
+                                                            stroke-linejoin="round"
+                                                            d="m6 15 6-6 6 6"
+                                                        />
+                                                    </svg>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    class="grid h-9 w-9 place-items-center rounded-md text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-30"
+                                                    :disabled="
+                                                        index ===
+                                                        selectedQuestions.length -
+                                                            1
+                                                    "
+                                                    :aria-label="`Turunkan soal ${index + 1}`"
+                                                    @click="
+                                                        moveQuestion(index, 1)
+                                                    "
+                                                >
+                                                    <svg
+                                                        aria-hidden="true"
+                                                        class="h-4 w-4"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                    >
+                                                        <path
+                                                            stroke-linecap="round"
+                                                            stroke-linejoin="round"
+                                                            d="m6 9 6 6 6-6"
+                                                        />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </article>
+                                    </div>
+                                    <div
+                                        v-else
+                                        class="mt-3 rounded-lg border border-dashed border-slate-300 bg-white px-5 py-10 text-center"
+                                    >
+                                        <p class="font-bold text-slate-700">
+                                            Belum ada soal dipilih
+                                        </p>
+                                        <p class="mt-1 text-sm text-slate-500">
+                                            Pilih soal dari bank di sebelah
+                                            kiri.
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        class="mt-4 min-h-11 w-full rounded-md bg-brand-secondary px-4 text-sm font-bold text-[#102449] transition hover:brightness-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary disabled:cursor-not-allowed disabled:opacity-50"
+                                        :disabled="
+                                            selectedQuestionIds.length === 0
+                                        "
+                                        @click="publish"
+                                    >
+                                        Publish
+                                    </button>
                                 </div>
-                                <button
-                                    type="button"
-                                    class="mt-4 min-h-11 w-full rounded-md bg-brand-secondary px-4 text-sm font-bold text-[#102449] transition hover:brightness-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary disabled:cursor-not-allowed disabled:opacity-50"
-                                    :disabled="selectedQuestionIds.length === 0"
-                                    @click="publish"
-                                >
-                                    Publish
-                                </button>
                             </div>
+                        </section>
+                    </section>
+
+                    <section
+                        v-else
+                        class="grid min-h-96 place-items-center rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm"
+                    >
+                        <div class="max-w-sm">
+                            <h2 class="text-xl font-extrabold text-slate-950">
+                                Belum ada quiz
+                            </h2>
+                            <p class="mt-2 text-slate-500">
+                                Buat draft di panel kiri untuk mulai menyusun
+                                soal.
+                            </p>
                         </div>
                     </section>
-                </section>
-
-                <section
-                    v-else
-                    class="grid min-h-96 place-items-center rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm"
-                >
-                    <div class="max-w-sm">
-                        <h2 class="text-xl font-extrabold text-slate-950">
-                            Belum ada quiz
-                        </h2>
-                        <p class="mt-2 text-slate-500">
-                            Buat draft di panel kiri untuk mulai menyusun soal.
-                        </p>
-                    </div>
-                </section>
+                </div>
             </div>
         </main>
     </AuthenticatedLayout>

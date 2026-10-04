@@ -125,7 +125,7 @@ Password semua akun: `password`.
 | --- | --- |
 | Siswa / Peserta | `participant@kuesify.test` |
 | Guru / Pengajar | `creator@kuesify.test` |
-| Admin Organisasi | `admin@kuesify.test` |
+| Admin Organisasi | `  ` |
 | Admin Platform | `superadmin@kuesify.test` |
 
 Guest dapat masuk sesi live memakai PIN dan nama panggilan tanpa akun.

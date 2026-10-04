@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppIcon from '@/Components/AppIcon.vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import AvatarIcon from '@/Components/AvatarIcon.vue';
 import TopNavBar from '@/Components/TopNavBar.vue';
@@ -40,65 +41,161 @@ const navigationItems = computed(() => {
     if (role === 'participant') {
         return [
             { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
-            { label: 'Kuis Mandiri', href: '/attempts', icon: 'results' },
+            {
+                label: 'Katalog Kuis',
+                href: '/participant/quizzes',
+                icon: 'catalog',
+            },
+            { label: 'Materi', href: '/participant/materials', icon: 'ai' },
+            { label: 'Lencana', href: '/participant/badges', icon: 'badge' },
             { label: 'Gabung Live', href: '/join', icon: 'live' },
             { label: 'Hasil Belajar', href: '/attempts', icon: 'results' },
+            { label: 'Notifikasi', href: '/notifications', icon: 'notifications' },
         ];
     }
 
     const items = [
         { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
         { label: 'Question Bank', href: '/questions', icon: 'bank' },
+        {
+            label: 'Creator Bank',
+            href: '/creator/question-bank',
+            icon: 'creatorBank',
+        },
         { label: 'Quiz Builder', href: '/quizzes', icon: 'builder' },
         { label: 'Live Quiz', href: '/live-sessions', icon: 'live' },
+        { label: 'Penilaian Essay', href: '/attempts', icon: 'results' },
         { label: 'Hasil', href: '/reports', icon: 'results' },
+        { label: 'Notifikasi', href: '/notifications', icon: 'notifications' },
         { label: 'Materi AI', href: '/materials', icon: 'ai' },
     ];
 
-    if (role === 'organization_admin' || role === 'super_admin') {
-        items.push({
-            label: 'Organisasi',
-            href: '/organization',
-            icon: 'organization',
-        });
+    if (role === 'organization_admin') {
+        return [
+            { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
+            {
+                label: 'Anggota',
+                href: '/admin/members',
+                icon: 'members',
+            },
+            {
+                label: 'Group',
+                href: '/admin/groups',
+                icon: 'groups',
+            },
+            { label: 'Laporan Tenant', href: '/reports', icon: 'results' },
+            {
+                label: 'Pengaturan Org',
+                href: '/admin/settings',
+                icon: 'settings',
+            },
+        ];
     }
 
     if (role === 'super_admin') {
-        items.push({
-            label: 'Platform Admin',
-            href: '/admin',
-            icon: 'admin',
-        });
+        return [
+            { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
+            {
+                label: 'Platform Admin',
+                href: '/admin',
+                icon: 'platform',
+            },
+            {
+                label: 'Tenants',
+                href: '/superadmin/tenants',
+                icon: 'tenants',
+            },
+            {
+                label: 'Kategori',
+                href: '/superadmin/categories',
+                icon: 'categories',
+            },
+            {
+                label: 'AI Monitoring',
+                href: '/superadmin/ai-monitoring',
+                icon: 'monitoring',
+            },
+            {
+                label: 'Moderasi',
+                href: '/admin/moderation',
+                icon: 'moderation',
+            },
+        ];
     }
 
     return items;
 });
 
-const mobileNavigation = [
-    {
-        label: 'Beranda',
-        href: '/dashboard',
-        icon: 'm3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z',
-    },
-    {
-        label: 'Soal',
-        href: '/questions',
-        icon: 'M5 4h14v16H5zM8 8h8M8 12h8M8 16h5',
-    },
-    { label: 'Live', href: '/live-sessions', icon: 'M8 5v14l11-7z' },
-    { label: 'Hasil', href: '/attempts', icon: 'M5 20V10m7 10V4m7 16v-7' },
-    {
-        label: 'Materi AI',
-        href: '/materials',
-        icon: 'm12 3 1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3Z',
-    },
-];
+const mobileNavigation = computed(() => {
+    const base = [
+        {
+            label: 'Beranda',
+            href: '/dashboard',
+            icon: 'm3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z',
+        },
+    ];
+
+    if (currentRole.value === 'participant') {
+        return [
+            ...base,
+            {
+                label: 'Kuis',
+                href: '/participant/quizzes',
+                icon: 'M5 4h14v16H5zM8 8h8M8 12h8M8 16h5',
+            },
+            {
+                label: 'Materi',
+                href: '/participant/materials',
+                icon: 'm12 3 1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3Z',
+            },
+            { label: 'Gabung', href: '/join', icon: 'M8 5v14l11-7z' },
+            {
+                label: 'Hasil',
+                href: '/attempts',
+                icon: 'M5 20V10m7 10V4m7 16v-7',
+            },
+        ];
+    }
+
+    return [
+        ...base,
+        {
+            label: 'Soal',
+            href: '/questions',
+            icon: 'M5 4h14v16H5zM8 8h8M8 12h8M8 16h5',
+        },
+        { label: 'Live', href: '/live-sessions', icon: 'M8 5v14l11-7z' },
+        { label: 'Hasil', href: '/attempts', icon: 'M5 20V10m7 10V4m7 16v-7' },
+        {
+            label: 'Materi AI',
+            href: '/materials',
+            icon: 'm12 3 1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3Z',
+        },
+    ];
+});
 
 function isCurrent(href: string): boolean {
-    if (href === '/dashboard') {
-        return page.url === '/dashboard';
+    const path =
+        page.url.split('?')[0].split('#')[0].replace(/\/+$/, '') || '/';
+    const target = href.replace(/\/+$/, '') || '/';
+    if (target === '/dashboard' || target === '/admin') {
+        return path === target;
     }
-    return page.url.startsWith(href);
+    if (path === target) {
+        return true;
+    }
+    if (path.startsWith(target + '/')) {
+        const hasMoreSpecific = navigationItems.value.some((item) => {
+            const itemTarget = item.href.replace(/\/+$/, '') || '/';
+            return (
+                itemTarget !== target &&
+                (path === itemTarget || path.startsWith(itemTarget + '/')) &&
+                itemTarget.length > target.length
+            );
+        });
+        return !hasMoreSpecific;
+    }
+    return false;
 }
 
 function toggleDesktopSidebar(): void {
@@ -112,7 +209,8 @@ function closeMobileNav(): void {
 
 <template>
     <div
-        class="min-h-screen w-full max-w-full overflow-x-hidden bg-brand-accent text-slate-900"
+        class="min-h-screen w-full max-w-full overflow-x-hidden text-slate-900"
+        :class="currentRole === 'participant' ? 'bg-[#F5F8FA]' : 'bg-white'"
     >
         <!-- ========================================================================= -->
         <!-- 1. DESKTOP SIDEBAR: FIXED TO VIEWPORT (Never scrolls with the page!)      -->
@@ -140,7 +238,7 @@ function closeMobileNav(): void {
                     <div
                         class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white shadow-sm"
                     >
-                        <ApplicationLogo class="h-6 w-6 text-brand-secondary" />
+                        <ApplicationLogo class="h-8 w-8 text-brand-secondary" />
                     </div>
                     <div class="min-w-0 flex-1 truncate">
                         <span
@@ -194,7 +292,7 @@ function closeMobileNav(): void {
                     <ApplicationLogo class="h-6 w-6 text-brand-secondary" />
                     <span
                         role="tooltip"
-                        class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-white px-3 py-2 text-xs font-bold text-brand-primary opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+                        class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
                     >
                         Buka sidebar
                     </span>
@@ -202,12 +300,14 @@ function closeMobileNav(): void {
             </div>
 
             <!-- Scrollable Navigation Items Container (Only this scrolls if height is small!) -->
-            <div class="flex-1 space-y-1.5 overflow-visible p-3">
+            <div
+                class="custom-scrollbar min-h-0 w-full flex-1 space-y-1.5 overflow-y-auto overflow-x-hidden p-3"
+            >
                 <Link
                     v-for="item in navigationItems"
                     :key="item.label"
                     :href="item.href"
-                    class="group relative flex min-h-11 items-center rounded-xl transition-all duration-150"
+                    class="group relative flex min-h-11 w-full items-center rounded-xl transition-all duration-150"
                     :class="[
                         desktopSidebarExpanded
                             ? 'gap-3.5 px-3.5'
@@ -216,155 +316,81 @@ function closeMobileNav(): void {
                             ? 'bg-brand-secondary font-bold text-white shadow-sm'
                             : 'font-semibold text-white/75 hover:bg-white/10 hover:text-white',
                     ]"
-                    :title="!desktopSidebarExpanded ? item.label : undefined"
                 >
-                    <!-- Navigation Icons -->
-                    <svg
-                        v-if="item.icon === 'dashboard'"
+                    <AppIcon
+                        :name="item.icon"
                         class="h-5 w-5 shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <rect width="7" height="7" x="3" y="3" rx="1" />
-                        <rect width="7" height="7" x="14" y="3" rx="1" />
-                        <rect width="7" height="7" x="14" y="14" rx="1" />
-                        <rect width="7" height="7" x="3" y="14" rx="1" />
-                    </svg>
-                    <svg
-                        v-else-if="item.icon === 'bank'"
-                        class="h-5 w-5 shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path
-                            d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4"
-                        />
-                    </svg>
-                    <svg
-                        v-else-if="item.icon === 'builder'"
-                        class="h-5 w-5 shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                        <path d="M12 17h.01" />
-                    </svg>
-                    <svg
-                        v-else-if="item.icon === 'live'"
-                        class="h-5 w-5 shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path
-                            d="M4.93 19.07a10 10 0 0 1 0-14.14M2 12h.01M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07M8.46 15.54a5 5 0 0 1 0-7.07M12 12a1 1 0 1 0 0 .01"
-                        />
-                    </svg>
-                    <svg
-                        v-else-if="item.icon === 'results'"
-                        class="h-5 w-5 shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path
-                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
-                        />
-                        <polyline points="14 2 14 8 20 8" />
-                        <line x1="16" y1="13" x2="8" y2="13" />
-                        <line x1="16" y1="17" x2="8" y2="17" />
-                        <polyline points="10 9 9 9 8 9" />
-                    </svg>
-                    <svg
-                        v-else-if="item.icon === 'ai'"
-                        class="h-5 w-5 shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path
-                            d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"
-                        />
-                    </svg>
-                    <svg
-                        v-else-if="item.icon === 'reports'"
-                        class="h-5 w-5 shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path d="M3 3v18h18" />
-                        <path d="M18 17V9" />
-                        <path d="M13 17V5" />
-                        <path d="M8 17v-3" />
-                    </svg>
-                    <svg
-                        v-else-if="item.icon === 'organization'"
-                        class="h-5 w-5 shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                        <circle cx="9" cy="7" r="4" />
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                    </svg>
-                    <svg
-                        v-else-if="item.icon === 'admin'"
-                        class="h-5 w-5 shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                        <polyline points="9 12 11 14 15 10" />
-                    </svg>
+                        :stroke-width="2"
+                    />
 
                     <!-- Text Label (Visible only when Expanded) -->
                     <span
                         v-if="desktopSidebarExpanded"
-                        class="truncate text-sm"
+                        class="truncate text-sm flex-1"
                     >
                         {{ item.label }}
+                    </span>
+                    <!-- Unread Badge indicator for Notifikasi -->
+                    <span
+                        v-if="item.icon === 'notifications' && (page.props.auth?.unreadNotificationsCount ?? 0) > 0"
+                        class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-black text-white shadow-sm"
+                        :class="!desktopSidebarExpanded ? 'absolute -top-1 -right-1' : ''"
+                    >
+                        {{ page.props.auth.unreadNotificationsCount }}
                     </span>
                     <span
+                        v-if="!desktopSidebarExpanded"
                         role="tooltip"
-                        class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-white px-3 py-2 text-xs font-bold text-brand-primary opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+                        class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
                     >
                         {{ item.label }}
                     </span>
+                </Link>
+            </div>
+
+            <!-- Middle Helpful Study Widget (Visible when expanded) -->
+            <div
+                v-if="desktopSidebarExpanded && currentRole !== 'organization_admin' && currentRole !== 'super_admin'"
+                class="mx-3 mb-3 mt-auto rounded-2xl border border-white/15 bg-white/10 p-3.5 backdrop-blur-sm transition-all"
+            >
+                <div class="flex items-center gap-3">
+                    <img
+                        src="/assets/kuesify/characters/image-14.svg"
+                        alt="Maskot Kuesify"
+                        class="animate-float-gentle h-10 w-10 shrink-0 object-contain drop-shadow"
+                    />
+                    <div class="min-w-0">
+                        <p class="truncate text-xs font-black text-white">
+                            {{
+                                currentRole === 'participant'
+                                    ? 'Siap Kuis Live?'
+                                    : 'Ruang Creator'
+                            }}
+                        </p>
+                        <p
+                            class="truncate text-[11px] font-semibold text-brand-secondary"
+                        >
+                            {{
+                                currentRole === 'participant'
+                                    ? 'Masuk pakai PIN ruang'
+                                    : 'Kelola kuis & materi'
+                            }}
+                        </p>
+                    </div>
+                </div>
+                <Link
+                    v-if="currentRole === 'participant'"
+                    href="/join"
+                    class="btn-shimmer mt-3 flex items-center justify-center gap-1.5 rounded-xl bg-brand-secondary px-3 py-2 text-center text-xs font-black text-brand-dark shadow-sm transition hover:brightness-105 active:scale-95"
+                >
+                    <span>⚡ Gabung via PIN</span>
+                </Link>
+                <Link
+                    v-else-if="currentRole === 'creator'"
+                    href="/quizzes"
+                    class="btn-shimmer mt-3 flex items-center justify-center gap-1.5 rounded-xl bg-brand-secondary px-3 py-2 text-center text-xs font-black text-brand-dark shadow-sm transition hover:brightness-105 active:scale-95"
+                >
+                    <span>+ Buat Kuis Baru</span>
                 </Link>
             </div>
 
@@ -420,8 +446,8 @@ function closeMobileNav(): void {
                 <div v-else class="flex flex-col items-center gap-1">
                     <Link
                         :href="route('profile.edit')"
-                        class="grid h-10 w-10 place-items-center rounded-lg text-white/80 transition hover:bg-white/10 hover:text-brand-secondary"
-                        title="Settings"
+                        class="group relative grid h-10 w-10 place-items-center rounded-lg text-white/80 transition hover:bg-white/10 hover:text-brand-secondary"
+                        aria-label="Settings"
                     >
                         <svg
                             class="h-5 w-5"
@@ -439,7 +465,7 @@ function closeMobileNav(): void {
                         </svg>
                         <span
                             role="tooltip"
-                            class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-white px-3 py-2 text-xs font-bold text-brand-primary opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+                            class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
                         >
                             Settings
                         </span>
@@ -448,8 +474,8 @@ function closeMobileNav(): void {
                         :href="route('logout')"
                         method="post"
                         as="button"
-                        class="grid h-10 w-10 place-items-center rounded-lg text-white/80 transition hover:bg-white/10 hover:text-brand-secondary"
-                        title="Logout"
+                        class="group relative grid h-10 w-10 place-items-center rounded-lg text-white/80 transition hover:bg-white/10 hover:text-brand-secondary"
+                        aria-label="Logout"
                     >
                         <svg
                             class="h-5 w-5"
@@ -466,7 +492,7 @@ function closeMobileNav(): void {
                         </svg>
                         <span
                             role="tooltip"
-                            class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-white px-3 py-2 text-xs font-bold text-brand-primary opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+                            class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
                         >
                             Logout
                         </span>
@@ -479,10 +505,12 @@ function closeMobileNav(): void {
         <!-- 2. MAIN VIEWPORT WRAPPER (Offset by sidebar width on desktop)              -->
         <!-- ========================================================================= -->
         <div
-            class="flex min-h-screen flex-col transition-all duration-300 ease-in-out"
+            class="flex min-h-screen min-w-0 flex-col transition-all duration-300 ease-in-out"
             :class="desktopSidebarExpanded ? 'lg:pl-72' : 'lg:pl-20'"
         >
-            <TopNavBar />
+            <TopNavBar
+                @toggle-mobile-sidebar="mobileSidebarOpen = true"
+            />
 
             <!-- Custom Subheader Slot (if page provides one) -->
             <div
@@ -493,8 +521,12 @@ function closeMobileNav(): void {
             </div>
 
             <!-- Main Body: Scrolls naturally while Sidebar & Navbar stay completely pinned! -->
-            <main class="flex-1 pb-24 lg:pb-12">
-                <slot />
+            <main class="flex-1 pb-8 lg:pb-12">
+                <Transition name="page" mode="out-in">
+                    <div :key="$page.url" class="page-content">
+                        <slot />
+                    </div>
+                </Transition>
             </main>
         </div>
 
@@ -511,7 +543,7 @@ function closeMobileNav(): void {
         >
             <div
                 v-if="mobileSidebarOpen"
-                class="fixed inset-0 z-40 bg-brand-primary/70 backdrop-blur-sm lg:hidden"
+                class="fixed inset-0 z-40 bg-slate-700/25 backdrop-blur-[2px] lg:hidden"
                 @click="closeMobileNav"
             />
         </transition>
@@ -529,14 +561,14 @@ function closeMobileNav(): void {
                 class="fixed inset-y-0 left-0 z-50 flex w-72 flex-col justify-between bg-brand-primary p-4 text-white shadow-2xl lg:hidden"
                 aria-label="Navigasi mobile drawer"
             >
-                <div class="flex flex-col gap-6">
+                <div class="flex min-h-0 flex-1 flex-col gap-6">
                     <!-- Drawer Header -->
                     <div class="flex items-center justify-between px-2 pt-2">
                         <div class="flex items-center gap-3">
                             <div
                                 class="grid h-10 w-10 place-items-center rounded-xl bg-brand-secondary shadow-sm"
                             >
-                                <ApplicationLogo class="h-6 w-6 text-white" />
+                                <ApplicationLogo class="h-8 w-8 text-white" />
                             </div>
                             <span class="text-xl font-black text-white"
                                 >Kuesify</span
@@ -561,7 +593,10 @@ function closeMobileNav(): void {
                     </div>
 
                     <!-- Drawer Nav Links -->
-                    <nav class="flex flex-col gap-1.5" aria-label="Menu drawer">
+                    <nav
+                        class="custom-scrollbar min-h-0 overflow-y-auto pr-1"
+                        aria-label="Menu drawer"
+                    >
                         <Link
                             v-for="item in navigationItems"
                             :key="item.label"
@@ -575,6 +610,24 @@ function closeMobileNav(): void {
                             @click="closeMobileNav"
                         >
                             <!-- Icons -->
+                            <AppIcon
+                                v-if="
+                                    ![
+                                        'dashboard',
+                                        'bank',
+                                        'builder',
+                                        'live',
+                                        'results',
+                                        'ai',
+                                        'reports',
+                                        'organization',
+                                        'admin',
+                                    ].includes(item.icon)
+                                "
+                                :name="item.icon"
+                                class="h-5 w-5 shrink-0"
+                                :stroke-width="2"
+                            />
                             <svg
                                 v-if="item.icon === 'dashboard'"
                                 class="h-5 w-5 shrink-0"
@@ -731,13 +784,19 @@ function closeMobileNav(): void {
                                 />
                                 <polyline points="9 12 11 14 15 10" />
                             </svg>
-                            <span class="truncate">{{ item.label }}</span>
+                            <span class="truncate flex-1">{{ item.label }}</span>
+                            <span
+                                v-if="item.icon === 'notifications' && (page.props.auth?.unreadNotificationsCount ?? 0) > 0"
+                                class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-black text-white shadow-sm"
+                            >
+                                {{ page.props.auth.unreadNotificationsCount }}
+                            </span>
                         </Link>
                     </nav>
                 </div>
 
                 <!-- Bottom Actions in Mobile Drawer -->
-                <div class="border-t border-white/15 pt-4">
+                <div class="shrink-0 pt-4">
                     <!-- Profile Info -->
                     <div class="flex items-center gap-3 px-2 pb-3">
                         <div
@@ -759,90 +818,60 @@ function closeMobileNav(): void {
                             </p>
                         </div>
                     </div>
-                    <!-- Settings -->
-                    <Link
-                        :href="route('profile.edit')"
-                        class="grid h-10 w-10 place-items-center rounded-lg text-white/80 transition hover:bg-white/10 hover:text-brand-secondary"
-                        @click="closeMobileNav"
-                    >
-                        <svg
-                            class="h-5 w-5 shrink-0"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        >
-                            <path d="M12 20h9" />
-                            <path
-                                d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
-                            />
-                        </svg>
-                        <span>Settings</span>
-                    </Link>
-                    <!-- Logout -->
-                    <Link
-                        :href="route('logout')"
-                        method="post"
-                        as="button"
-                        class="grid h-10 w-10 place-items-center rounded-lg text-white/80 transition hover:bg-white/10 hover:text-brand-secondary"
-                        @click="closeMobileNav"
-                    >
-                        <svg
-                            class="h-5 w-5 shrink-0"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        >
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                            <polyline points="16 17 21 12 16 7" />
-                            <line x1="21" y1="12" x2="9" y2="12" />
-                        </svg>
-                        <span>Keluar</span>
-                    </Link>
+                    <div class="border-t border-white/15 pt-3">
+                        <div class="flex gap-2">
+                            <!-- Settings -->
+                            <Link
+                                :href="route('profile.edit')"
+                                class="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-white/80 transition hover:bg-white/10 hover:text-brand-secondary"
+                                @click="closeMobileNav"
+                            >
+                                <svg
+                                    class="h-5 w-5 shrink-0"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path d="M12 20h9" />
+                                    <path
+                                        d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+                                    />
+                                </svg>
+                                <span>Settings</span>
+                            </Link>
+                            <!-- Logout -->
+                            <Link
+                                :href="route('logout')"
+                                method="post"
+                                as="button"
+                                class="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-white/80 transition hover:bg-white/10 hover:text-brand-secondary"
+                                @click="closeMobileNav"
+                            >
+                                <svg
+                                    class="h-5 w-5 shrink-0"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path
+                                        d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
+                                    />
+                                    <polyline points="16 17 21 12 16 7" />
+                                    <line x1="21" y1="12" x2="9" y2="12" />
+                                </svg>
+                                <span>Keluar</span>
+                            </Link>
+                        </div>
+                    </div>
                 </div>
             </aside>
         </transition>
-
-        <!-- ========================================================================= -->
-        <!-- 4. MOBILE BOTTOM BAR (Fixed Bottom for Thumb Access)                       -->
-        <!-- ========================================================================= -->
-        <nav
-            class="fixed bottom-4 left-1/2 z-30 grid w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 grid-cols-5 rounded-2xl border border-slate-200 bg-white/95 p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_8px_24px_rgba(15,23,42,0.16)] backdrop-blur lg:hidden"
-            aria-label="Navigasi bawah"
-        >
-            <Link
-                v-for="item in mobileNavigation"
-                :key="item.href"
-                :href="item.href"
-                class="flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl px-1 text-center text-[10px] transition"
-                :class="
-                    $page.url.startsWith(item.href)
-                        ? 'bg-brand-primary font-bold text-brand-secondary'
-                        : 'font-semibold text-slate-600'
-                "
-            >
-                <svg
-                    class="h-5 w-5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    aria-hidden="true"
-                >
-                    <path
-                        :d="item.icon"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    />
-                </svg>
-                <span>{{ item.label }}</span>
-            </Link>
-        </nav>
     </div>
 </template>
 
@@ -860,5 +889,25 @@ function closeMobileNav(): void {
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.4);
+}
+
+.page-enter-active,
+.page-leave-active {
+    transition:
+        opacity 240ms ease,
+        transform 240ms ease;
+}
+
+.page-enter-from,
+.page-leave-to {
+    opacity: 0;
+    transform: translateY(8px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .page-enter-active,
+    .page-leave-active {
+        transition: none;
+    }
 }
 </style>

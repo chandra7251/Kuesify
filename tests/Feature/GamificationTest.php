@@ -25,7 +25,38 @@ it('awards XP and badges once for a completed attempt', function () {
     app(GamificationService::class)->recordAttempt($attempt);
     app(GamificationService::class)->recordAttempt($attempt);
 
-    $this->assertDatabaseHas('user_progresses', ['organization_id' => $organization->id, 'user_id' => $participant->id, 'xp' => 100, 'level' => 1]);
+    $this->assertDatabaseHas('user_progresses', ['organization_id' => $organization->id, 'user_id' => $participant->id, 'xp' => 125, 'level' => 1]);
     $this->assertDatabaseCount('xp_events', 1);
     $this->assertDatabaseHas('badge_awards', ['user_id' => $participant->id]);
+});
+
+it('uses progressive cumulative thresholds for levels', function () {
+    $organization = Organization::factory()->create();
+    $creator = User::factory()->create();
+    $participant = User::factory()->create();
+    app(TenantContext::class)->set($organization);
+    $quiz = Quiz::create([
+        'organization_id' => $organization->id,
+        'creator_id' => $creator->id,
+        'title' => 'Progressive level',
+        'status' => 'published',
+    ]);
+    $question = Question::create(['organization_id' => $organization->id, 'creator_id' => $creator->id, 'type' => 'true_false', 'prompt' => 'Progress?', 'correct_answer' => 'true', 'points' => 2000]);
+    $quiz->questions()->attach($question, ['position' => 1]);
+    $attempt = QuizAttempt::create([
+        'organization_id' => $organization->id,
+        'quiz_id' => $quiz->id,
+        'participant_id' => $participant->id,
+        'status' => 'completed',
+        'score' => 2000,
+    ]);
+
+    app(GamificationService::class)->recordAttempt($attempt);
+
+    $this->assertDatabaseHas('user_progresses', [
+        'organization_id' => $organization->id,
+        'user_id' => $participant->id,
+        'xp' => 2025,
+        'level' => 2,
+    ]);
 });

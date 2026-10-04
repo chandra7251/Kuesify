@@ -55,13 +55,17 @@ class LiveSession extends Model
         return $this->hasMany(LiveParticipant::class);
     }
 
-    public function joinGuest(string $alias): LiveParticipant
+    public function joinGuest(string $alias, ?string $avatarKey = null): LiveParticipant
     {
         if (! in_array($this->status, ['lobby', 'live'], true) || $this->lobby_locked) {
             throw new DomainException('Lobby is closed.');
         }
 
-        return $this->participants()->create(['alias' => $alias, 'reconnect_token' => Str::uuid()->toString()]);
+        return $this->participants()->create([
+            'alias'          => $alias,
+            'avatar_key'     => $avatarKey,
+            'reconnect_token' => Str::uuid()->toString(),
+        ]);
     }
 
     public function lockLobby(): void
@@ -92,8 +96,48 @@ class LiveSession extends Model
             : $this->update(['status' => 'ended', 'current_question_id' => null, 'question_started_at' => null]);
     }
 
+    public function showIntermission(): void
+    {
+        if ($this->status !== 'live') {
+            throw new DomainException('Only a live session can show intermission.');
+        }
+
+        // status tetap 'live' tapi question_started_at = null sebagai sinyal intermission
+        $this->update(['question_started_at' => null]);
+    }
+
+    public function isIntermission(): bool
+    {
+        return $this->status === 'live' && $this->question_started_at === null;
+    }
+
+    public function isLastQuestion(): bool
+    {
+        if (! $this->current_question_id || ! $this->relationLoaded('quiz') && ! $this->quiz) {
+            return false;
+        }
+
+        $quiz = $this->quiz;
+        if (! $quiz) {
+            return false;
+        }
+
+        $current = $quiz->questions()->whereKey($this->current_question_id)->first();
+        if (! $current || ! $current->pivot) {
+            return false;
+        }
+
+        $next = $quiz->questions()->wherePivot('position', '>', $current->pivot->position)->first();
+
+        return $next === null;
+    }
+
     public function end(): void
     {
+        if ($this->status === 'ended') {
+            return;
+        }
+
         if (! in_array($this->status, ['lobby', 'live'], true)) {
             throw new DomainException('Only an open session can end.');
         }
@@ -119,8 +163,11 @@ class LiveSession extends Model
                 throw new DomainException('Question is not active.');
             }
 
+            // Beri grace period 2 detik untuk latency jaringan/clock skew
+            $gracePeriodSeconds = 2;
+            $deadline = $session->question_started_at->copy()->addSeconds($session->question_duration + $gracePeriodSeconds);
             $remaining = (int) max(0, now()->diffInSeconds($session->question_started_at->copy()->addSeconds($session->question_duration), false));
-            if ($remaining === 0) {
+            if (now()->isAfter($deadline)) {
                 throw new DomainException('Answer window has closed.');
             }
 

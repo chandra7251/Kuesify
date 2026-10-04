@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['alias', 'reconnect_token', 'score', 'kicked_at'])]
+#[Fillable(['alias', 'avatar_key', 'reconnect_token', 'score', 'kicked_at'])]
 class LiveParticipant extends Model
 {
     protected function casts(): array

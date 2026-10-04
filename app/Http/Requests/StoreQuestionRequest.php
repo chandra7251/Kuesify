@@ -20,6 +20,7 @@ class StoreQuestionRequest extends FormRequest
             'options' => ['nullable', 'array', 'required_if:type,multiple_choice', 'min:2'],
             'options.*' => ['string', 'max:500', 'distinct'],
             'correct_answer' => ['nullable', 'string', 'max:4000', 'required_unless:type,essay'],
+            'hint' => ['nullable', 'string', 'max:1000'],
             'points' => ['nullable', 'integer', 'min:0', 'max:100000'],
             'tags' => ['nullable', 'array', 'max:10'],
             'tags.*' => ['string', 'max:50', 'distinct'],

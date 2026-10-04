@@ -10,8 +10,8 @@ const accounts = {
 async function login(page: Page, account: typeof accounts.participant): Promise<void> {
     await page.goto("/login");
     await page.getByLabel("Email").fill(account.email);
-    await page.getByLabel("Password").fill(account.password);
-    await page.getByRole("button", { name: "Log in" }).click();
+    await page.locator("#password").fill(account.password);
+    await page.getByRole("button", { name: "Masuk" }).click();
     await expect(page).toHaveURL(/\/dashboard$/);
 }
 
@@ -32,19 +32,19 @@ test.describe("Role-based E2E Flow", () => {
     test("Guru: login, buka question bank, cek workspace", async ({ page }) => {
         await login(page, accounts.creator);
         await page.goto("/dashboard");
-        await expect(page.getByText("Aksi cepat")).toBeVisible();
-        await page.getByRole("link", { name: "Question Bank", exact: true }).click();
+        await expect(page.getByRole("heading", { name: "Pusat kontrol pembelajaran" })).toBeVisible();
+        await page.goto("/questions");
         await expect(page).toHaveURL(/\/questions$/);
         await expect(page.getByText("Bank materi").first()).toBeVisible();
-        await page.getByRole("link", { name: "Quiz Builder", exact: true }).click();
+        await page.goto("/quizzes");
         await expect(page).toHaveURL(/\/quizzes$/);
-        await expect(page.getByRole("heading", { name: "Quiz Builder" })).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Buat quiz" })).toBeVisible();
     });
 
     test("Admin Organisasi: login, akses questions dan organization", async ({ page }) => {
         await page.setViewportSize({ width: 1280, height: 800 });
         await login(page, accounts.admin);
-        await expect(page.getByText("Admin Organisasi")).toBeVisible();
+        await expect(page.getByText("Admin Organisasi", { exact: true }).first()).toBeVisible();
         await page.goto("/questions");
         await expect(page).toHaveURL(/\/questions$/);
         await expect(page.getByText("Bank materi").first()).toBeVisible();
@@ -53,7 +53,7 @@ test.describe("Role-based E2E Flow", () => {
         await expect(page.getByText("Organisasi").first()).toBeVisible();
         await page.goto("/dashboard");
         await expect(page).toHaveURL(/\/dashboard$/);
-        await expect(page.getByText("Admin Organisasi")).toBeVisible();
+        await expect(page.getByText("Admin Organisasi", { exact: true }).first()).toBeVisible();
     });
 
     test("Admin Platform: login, akses platform admin dan health check", async ({ page }) => {
@@ -63,7 +63,6 @@ test.describe("Role-based E2E Flow", () => {
         await expect(page).toHaveURL(/\/admin$/);
         await expect(page.locator("h1").filter({ hasText: "Platform Admin" })).toBeVisible();
         await expect(page.getByText(/reverb status/)).toBeVisible();
-        await page.getByRole("button", { name: /Avatar/ }).click();
-        await expect(page.getByRole("button", { name: "Keluar" })).toBeVisible();
+        await expect(page.getByRole("button", { name: "Logout" })).toBeVisible();
     });
 });

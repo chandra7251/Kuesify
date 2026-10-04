@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreQuestionRequest;
 use App\Models\Question;
 use App\Models\Tag;
-use App\Models\Quiz;
 use App\Services\QuestionImportService;
 use App\Support\TenantContext;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use RuntimeException;
@@ -29,6 +30,7 @@ class QuestionController extends Controller
                 'prompt' => $data['prompt'],
                 'options' => $data['options'] ?? null,
                 'correct_answer' => $data['correct_answer'] ?? null,
+                'hint' => $data['hint'] ?? null,
                 'points' => $data['points'] ?? 1000,
             ]);
 
@@ -49,7 +51,7 @@ class QuestionController extends Controller
 
         $question->update([
             'type' => $data['type'], 'prompt' => $data['prompt'], 'options' => $data['options'] ?? null,
-            'correct_answer' => $data['correct_answer'] ?? null, 'points' => $data['points'] ?? $question->points,
+            'correct_answer' => $data['correct_answer'] ?? null, 'hint' => $data['hint'] ?? null, 'points' => $data['points'] ?? $question->points,
         ]);
         $tagIds = collect($data['tags'] ?? [])->map(fn (string $name) => Tag::firstOrCreate(['organization_id' => $question->organization_id, 'name' => trim($name)])->id);
         $question->tags()->sync($tagIds);
@@ -66,7 +68,7 @@ class QuestionController extends Controller
         return back();
     }
 
-    public function previewImport(\Illuminate\Http\Request $request, QuestionImportService $import): \Illuminate\Http\JsonResponse
+    public function previewImport(Request $request, QuestionImportService $import): JsonResponse
     {
         Gate::authorize('create', Question::class);
         $data = $request->validate(['file' => ['required', 'file', 'mimes:csv,txt,xlsx', 'max:5120'], 'mapping' => ['nullable', 'array'], 'mapping.*' => ['string', 'in:type,prompt,options,correct_answer,points,tags']]);
@@ -75,7 +77,21 @@ class QuestionController extends Controller
         return response()->json(['valid_rows' => count($result['rows']), 'invalid_rows' => count($result['errors']), 'rows' => $result['rows'], 'errors' => $result['errors']]);
     }
 
-    public function import(\Illuminate\Http\Request $request, QuestionImportService $import): \Illuminate\Http\JsonResponse
+    public function tags(Request $request): JsonResponse
+    {
+        Gate::authorize('create', Question::class);
+        $search = $request->validate(['q' => ['nullable', 'string', 'max:60']])['q'] ?? '';
+
+        return response()->json([
+            'data' => Tag::query()
+                ->when($search !== '', fn ($query) => $query->where('name', 'like', '%'.$search.'%'))
+                ->orderBy('name')
+                ->limit(10)
+                ->get(['id', 'name']),
+        ]);
+    }
+
+    public function import(Request $request, QuestionImportService $import): JsonResponse
     {
         Gate::authorize('create', Question::class);
         $data = $request->validate(['file' => ['required', 'file', 'mimes:csv,txt,xlsx', 'max:5120'], 'mapping' => ['nullable', 'array'], 'mapping.*' => ['string', 'in:type,prompt,options,correct_answer,points,tags']]);

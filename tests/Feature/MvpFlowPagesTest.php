@@ -52,4 +52,26 @@ it('renders participant player, creator gradebook, and tenant CSV export', funct
     $this->actingAs($creator)->post(route('organizations.switch', $organization));
     $this->get(route('attempts.index'))->assertOk()->assertInertia(fn ($page) => $page->component('Attempts')->where('gradebook', true));
     $this->get(route('attempts.export'))->assertOk()->assertHeader('content-type', 'text/csv; charset=UTF-8');
+    expect($this->get(route('attempts.export', ['format' => 'xlsx']))->assertOk()->streamedContent())->toStartWith('PK')->toContain('Mandiri');
+});
+
+it('filters creator quiz builder by search and status', function () {
+    $organization = Organization::factory()->create();
+    $creator = User::factory()->create();
+    $organization->members()->attach($creator, ['role' => 'creator']);
+
+    app(TenantContext::class)->set($organization);
+    Quiz::create(['organization_id' => $organization->id, 'creator_id' => $creator->id, 'title' => 'Aljabar', 'status' => 'draft']);
+    Quiz::create(['organization_id' => $organization->id, 'creator_id' => $creator->id, 'title' => 'Biologi', 'status' => 'published']);
+    app(TenantContext::class)->clear();
+
+    $this->actingAs($creator)->post(route('organizations.switch', $organization));
+    $this->get(route('quizzes.index', ['search' => 'bio', 'status' => 'published']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('QuizBuilder')
+            ->has('quizzes', 1)
+            ->where('quizzes.0.title', 'Biologi')
+            ->where('filters.search', 'bio')
+        );
 });

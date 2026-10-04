@@ -3,6 +3,7 @@
 use App\Models\Organization;
 use App\Models\Question;
 use App\Models\Quiz;
+use App\Models\QuizAttempt;
 use App\Models\User;
 use App\Support\TenantContext;
 
@@ -75,7 +76,7 @@ it('blocks cross-tenant attempt play (participant A cannot see participant B att
 
     app(TenantContext::class)->set($orgB);
     $quiz = Quiz::create(['organization_id' => $orgB->id, 'creator_id' => $creatorB->id, 'title' => 'QB', 'status' => 'published']);
-    $attempt = \App\Models\QuizAttempt::create(['organization_id' => $orgB->id, 'quiz_id' => $quiz->id, 'participant_id' => $participantB->id, 'status' => 'in_progress']);
+    $attempt = QuizAttempt::create(['organization_id' => $orgB->id, 'quiz_id' => $quiz->id, 'participant_id' => $participantB->id, 'status' => 'in_progress']);
     app(TenantContext::class)->clear();
 
     $this->actingAs($participantA)->post(route('organizations.switch', $orgA));
@@ -103,6 +104,7 @@ it('creator can export report but participant cannot', function () {
 
     $this->actingAs($creator)->post(route('organizations.switch', $organization));
     $this->get(route('reports.export'))->assertOk()->assertHeader('content-type', 'text/csv; charset=UTF-8');
+    expect($this->get(route('reports.export', ['format' => 'xlsx']))->assertOk()->streamedContent())->toStartWith('PK')->toContain('Rata-rata Skor');
 
     $this->actingAs($participant)->post(route('organizations.switch', $organization));
     $this->get(route('reports.export'))->assertForbidden();

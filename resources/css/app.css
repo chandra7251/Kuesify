@@ -3,7 +3,468 @@
 @tailwind utilities;
 
 @layer base {
-    html { @apply bg-[#f8fafc] max-w-full overflow-x-hidden; }
-    body { @apply min-w-[320px] max-w-full overflow-x-hidden bg-[#f8fafc] font-sans antialiased text-slate-900; }
-    button, a { -webkit-tap-highlight-color: transparent; }
+    :focus-visible {
+        outline: 2px solid #90CB31;
+        outline-offset: 2px;
+    }
+    html {
+        @apply max-w-full overflow-x-hidden bg-brand-accent;
+        color-scheme: light;
+    }
+    body {
+        @apply min-w-[320px] max-w-full overflow-x-hidden bg-brand-accent font-sans text-slate-900 antialiased;
+        overscroll-behavior-x: none;
+    }
+    button,
+    a {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+}
+
+@layer base {
+    html.dark-mode {
+        color-scheme: dark;
+    }
+    html.dark-mode,
+    html.dark-mode body {
+        background: #233EA8;
+    }
+    html.dark-mode body {
+        color: #E6F1F5;
+    }
+}
+@layer components {
+    html.dark-mode .bg-brand-accent,
+    html.dark-mode .bg-slate-50 {
+        background-color: #233EA8 !important;
+    }
+
+    html.dark-mode .bg-white,
+    html.dark-mode .bg-gray-50 {
+        background-color: #2645B8 !important;
+    }
+
+    html.dark-mode .bg-white\/95 {
+        background-color: rgb(15 23 42 / 0.94) !important;
+    }
+
+    html.dark-mode .bg-brand-primary .bg-white {
+        background-color: #FFFFFF !important;
+    }
+
+    html.dark-mode input:not([type='checkbox']):not([type='radio']),
+    html.dark-mode select,
+    html.dark-mode textarea {
+        border-color: #2645B8 !important;
+        background-color: #2645B8 !important;
+        color: #E6F1F5 !important;
+        color-scheme: dark;
+    }
+
+    html.dark-mode input::placeholder,
+    html.dark-mode textarea::placeholder {
+        color: #E6F1F5 !important;
+    }
+
+    html.dark-mode .text-slate-900,
+    html.dark-mode .text-slate-950,
+    html.dark-mode .text-brand-dark {
+        color: #E6F1F5 !important;
+    }
+
+    html.dark-mode .text-slate-700,
+    html.dark-mode .text-slate-600,
+    html.dark-mode .text-slate-500,
+    html.dark-mode .text-gray-700,
+    html.dark-mode .text-gray-600,
+    html.dark-mode .text-gray-500 {
+        color: #E6F1F5 !important;
+    }
+
+    html.dark-mode .text-gray-900,
+    html.dark-mode .text-gray-800 {
+        color: #E6F1F5 !important;
+    }
+
+    html.dark-mode .border-slate-300,
+    html.dark-mode .border-gray-300,
+    html.dark-mode .border-slate-200,
+    html.dark-mode .border-slate-100 {
+        border-color: rgb(71 85 105 / 0.95) !important;
+    }
+
+    html.dark-mode .bg-slate-100,
+    html.dark-mode .bg-slate-200,
+    html.dark-mode .bg-gray-100 {
+        background-color: #2645B8 !important;
+    }
+
+    html.dark-mode .shadow-sm,
+    html.dark-mode .shadow-xl,
+    html.dark-mode .shadow-\[0_8px_24px_rgba\(15\,23\,42\,0\.16\)\] {
+        box-shadow: 0 18px 48px rgb(0 0 0 / 0.32) !important;
+    }
+
+    html.dark-mode .dark-ui-toggle,
+    html.dark-mode .mobile-bottom-nav {
+        border-color: rgb(71 85 105 / 0.95) !important;
+        background-color: rgb(15 23 42 / 0.94) !important;
+        color: #E6F1F5 !important;
+    }
+
+    html.dark-mode .mobile-bottom-nav a:not(.bg-brand-primary) {
+        color: #E6F1F5 !important;
+    }
+
+    html.dark-mode .mobile-bottom-nav a.bg-brand-primary {
+        color: #90CB31 !important;
+    }
+
+    html.dark-mode .mobile-bottom-nav a[aria-current='page'] {
+        --tw-ring-offset-color: #233EA8;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+.app-icon {
+    transition:
+        transform 180ms ease,
+        color 180ms ease,
+        filter 180ms ease;
+}
+
+.app-icon--interactive:hover,
+.group:hover .app-icon--interactive,
+.group:focus-visible .app-icon--interactive {
+    transform: translateY(-1px) rotate(-4deg) scale(1.08);
+    filter: drop-shadow(0 3px 6px rgb(35 62 168 / 0.2));
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .app-icon {
+        transition: none;
+    }
+}
+
+@layer components {
+    .ui-card-hover {
+        transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+    .ui-card-hover:hover {
+        transform: translateY(-3px);
+        border-color: rgb(144 203 49 / 0.7);
+        box-shadow: 0 12px 28px rgb(35 62 168 / 0.12);
+    }
+    .ui-reveal {
+        animation: ui-reveal 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .ui-progress-glow {
+        box-shadow: 0 0 0 4px rgb(144 203 49 / 0.12);
+    }
+    .ui-reward-pop {
+        animation: ui-reward-pop 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+}
+
+@keyframes ui-reveal {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ui-reward-pop {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    65% { opacity: 1; transform: translateY(-2px) scale(1.01); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ========================================================================= */
+/* GLOBAL PLAYFUL MICRO-INTERACTIONS & MOTION (ANTI-AI-SLOP)                 */
+/* ========================================================================= */
+
+@keyframes float-gentle {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-6px) rotate(1.5deg);
+    }
+}
+
+.animate-float-gentle {
+    animation: float-gentle 3.5s ease-in-out infinite;
+}
+
+@keyframes shimmer-sweep {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(200%);
+    }
+}
+
+.btn-shimmer {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.28),
+        transparent
+    );
+    transform: translateX(-100%);
+    animation: shimmer-sweep 2.8s infinite;
+}
+
+.hover-lift {
+    transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 220ms ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 28px -8px rgba(35, 62, 168, 0.16);
+}
+
+button:not(:disabled):active,
+a[role="button"]:active {
+    transform: scale(0.97);
+    transition: transform 100ms ease;
+}
+
+@keyframes pulse-ring {
+    0% {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.4;
+    }
+    100% {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
+}
+
+.animate-pulse-ring {
+    animation: pulse-ring 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-float-gentle,
+    .btn-shimmer::after,
+    .animate-pulse-ring {
+        animation: none !important;
+    }
+    .hover-lift:hover {
+        transform: none !important;
+    }
+    button:active,
+    a[role="button"]:active {
+        transform: none !important;
+    }
+}
+
+/* ========================================================================= */
+/* RPG / MMORPG BADGE RARITY GLOWS & ANIMATIONS (TAILWIND TOKENS)            */
+/* ========================================================================= */
+
+@keyframes pulse-epic {
+    0%, 100% {
+        box-shadow: 0 0 16px rgba(49, 84, 213, 0.4), inset 0 0 8px rgba(49, 84, 213, 0.15);
+        border-color: rgba(49, 84, 213, 0.6);
+        transform: translateY(0);
+    }
+    50% {
+        box-shadow: 0 0 28px rgba(49, 84, 213, 0.75), inset 0 0 16px rgba(35, 62, 168, 0.3);
+        border-color: rgba(49, 84, 213, 1);
+        transform: translateY(-1.5px);
+    }
+}
+
+@keyframes pulse-legendary {
+    0%, 100% {
+        box-shadow: 0 0 18px rgba(215, 169, 40, 0.45), 0 4px 14px rgba(0, 0, 0, 0.08);
+        border-color: rgba(215, 169, 40, 0.7);
+        transform: translateY(0);
+    }
+    50% {
+        box-shadow: 0 0 34px rgba(215, 169, 40, 0.85), 0 8px 24px rgba(215, 169, 40, 0.3);
+        border-color: #D7A928;
+        transform: translateY(-2.5px);
+    }
+}
+
+@keyframes pulse-mythic {
+    0%, 100% {
+        box-shadow: 0 0 22px rgba(144, 203, 49, 0.6), 0 0 38px rgba(49, 84, 213, 0.4);
+        border-color: #90CB31;
+        transform: translateY(0);
+    }
+    50% {
+        box-shadow: 0 0 38px rgba(215, 169, 40, 0.8), 0 0 55px rgba(144, 203, 49, 0.65);
+        border-color: #D7A928;
+        transform: translateY(-3.5px);
+    }
+}
+
+@keyframes rpg-foil-sheen {
+    0% {
+        transform: translateX(-160%) skewX(-25deg);
+        opacity: 0;
+    }
+    20% {
+        opacity: 0.55;
+    }
+    40% {
+        transform: translateX(260%) skewX(-25deg);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(260%) skewX(-25deg);
+        opacity: 0;
+    }
+}
+
+@keyframes mythic-aurora-spin {
+    0% {
+        filter: hue-rotate(0deg);
+        transform: rotate(0deg);
+    }
+    50% {
+        filter: hue-rotate(35deg);
+    }
+    100% {
+        filter: hue-rotate(0deg);
+        transform: rotate(360deg);
+    }
+}
+
+.rpg-badge-epic {
+    animation: pulse-epic 3s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.rpg-badge-epic::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        60deg,
+        transparent 35%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 65%
+    );
+    animation: rpg-foil-sheen 5s infinite;
+    pointer-events: none;
+}
+
+.rpg-badge-legendary {
+    animation: pulse-legendary 2.8s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.rpg-badge-legendary::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        60deg,
+        transparent 30%,
+        rgba(255, 235, 170, 0.55) 50%,
+        transparent 70%
+    );
+    animation: rpg-foil-sheen 4s infinite;
+    pointer-events: none;
+}
+
+.rpg-badge-mythic {
+    animation: pulse-mythic 2.4s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.rpg-badge-mythic::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, #90CB31, #3154D5, #D7A928, #90CB31);
+    z-index: -1;
+    filter: blur(6px);
+    opacity: 0.85;
+}
+
+.rpg-badge-mythic::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        60deg,
+        transparent 25%,
+        rgba(255, 255, 255, 0.65) 50%,
+        transparent 75%
+    );
+    animation: rpg-foil-sheen 3.2s infinite;
+    pointer-events: none;
+}
+
+.rpg-crest-epic {
+    box-shadow: 0 0 20px rgba(49, 84, 213, 0.55);
+    animation: pulse-epic 3s ease-in-out infinite;
+}
+
+.rpg-crest-legendary {
+    box-shadow: 0 0 26px rgba(215, 169, 40, 0.65);
+    animation: pulse-legendary 2.8s ease-in-out infinite;
+}
+
+.rpg-crest-mythic {
+    box-shadow: 0 0 32px rgba(144, 203, 49, 0.6), 0 0 50px rgba(49, 84, 213, 0.4);
+    animation: pulse-mythic 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rpg-badge-epic,
+    .rpg-badge-legendary,
+    .rpg-badge-mythic,
+    .rpg-badge-epic::after,
+    .rpg-badge-legendary::after,
+    .rpg-badge-mythic::after,
+    .rpg-crest-epic,
+    .rpg-crest-legendary,
+    .rpg-crest-mythic {
+        animation: none !important;
+    }
 }

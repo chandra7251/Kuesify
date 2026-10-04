@@ -2,7 +2,7 @@
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { Link } from '@inertiajs/vue3';
 
-withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
+withDefaults(defineProps<{ contentClass?: string; compact?: boolean; centered?: boolean }>(), {
     contentClass: 'max-w-md',
 });
 </script>
@@ -31,19 +31,19 @@ withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
                 <span
                     class="grid h-11 w-11 place-items-center rounded-2xl bg-white shadow-sm"
                 >
-                    <ApplicationLogo class="h-7 w-7 text-brand-secondary" />
+                    <ApplicationLogo class="h-8 w-8 text-brand-secondary" />
                 </span>
                 <span class="text-xl font-extrabold tracking-tight"
                     >Kuesify</span
                 >
             </Link>
 
-            <div class="relative my-auto max-w-xl py-16">
-                <p
-                    class="mb-5 inline-flex rounded-full bg-brand-secondary px-3 py-1 text-sm font-extrabold text-[#102449]"
-                >
-                    Platform belajar interaktif
-                </p>
+            <div class="relative my-auto max-w-xl py-12">
+                <div class="mb-5">
+                    <p class="text-sm font-extrabold text-brand-secondary">
+                        Platform belajar interaktif
+                    </p>
+                </div>
                 <h2
                     class="max-w-xl text-4xl font-black leading-tight tracking-tight xl:text-5xl"
                 >
@@ -77,18 +77,18 @@ withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
             class="auth-scroll relative flex min-h-screen justify-center px-4 py-5 sm:px-8 sm:py-10 lg:h-screen lg:min-h-0 lg:items-center"
             :class="
                 compact
-                    ? 'items-center overflow-hidden'
-                    : 'items-start lg:overflow-y-auto'
+                ? 'items-start overflow-y-auto'
+                : centered
+                  ? 'items-center lg:overflow-y-auto'
+                  : 'items-start lg:overflow-y-auto'
             "
         >
             <Link
                 href="/"
                 class="absolute left-4 top-5 z-10 inline-flex items-center gap-1 sm:left-8 sm:top-10 lg:hidden"
             >
-                <span
-                    class="grid h-10 w-10 place-items-center"
-                >
-                    <ApplicationLogo class="h-6 w-6 text-brand-secondary" />
+                <span class="grid h-10 w-10 place-items-center">
+                    <ApplicationLogo class="h-7 w-7 text-brand-secondary" />
                 </span>
                 <span
                     class="text-lg font-extrabold tracking-tight text-brand-secondary"
@@ -106,10 +106,10 @@ withDefaults(defineProps<{ contentClass?: string; compact?: boolean }>(), {
 
             <div
                 class="relative w-full"
-                :class="[contentClass, !compact ? 'pt-16 sm:pt-20' : '']"
+                :class="[contentClass, centered ? 'pt-6 sm:pt-8' : 'pt-16 sm:pt-20']"
             >
                 <div
-                    class="rounded-[1.75rem] border border-white/70 bg-white p-5 shadow-figma sm:rounded-[2rem] sm:p-9"
+                    class="ui-reveal hover-lift rounded-2xl border border-white/70 bg-white p-4 shadow-figma sm:rounded-[2rem] sm:p-6"
                 >
                     <slot />
                 </div>

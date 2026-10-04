@@ -29,15 +29,40 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $data = $request->validated();
+        if (array_key_exists('preferences', $data)) {
+            if (is_array($data['preferences'])) {
+                $currentPrefs = is_array($request->user()->preferences) ? $request->user()->preferences : [];
+                $data['preferences'] = array_merge($currentPrefs, $data['preferences']);
+            }
+        } else {
+            unset($data['preferences']);
+        }
 
-        if ($request->user()->isDirty('email')) {
+        $request->user()->fill($data);
+
+        $emailChanged = $request->user()->isDirty('email');
+        if ($emailChanged) {
             $request->user()->email_verified_at = null;
+            $request->user()->sendEmailVerificationNotification();
         }
 
         $request->user()->save();
 
+        if ($emailChanged) {
+            return Redirect::route('verification.notice')->with('status', 'verification-link-sent');
+        }
+
         return Redirect::route('profile.edit');
+    }
+
+    public function locale(Request $request): RedirectResponse
+    {
+        $data = $request->validate(['locale' => ['required', 'in:id,en']]);
+        $request->user()->update(['locale' => $data['locale']]);
+        app()->setLocale($data['locale']);
+
+        return back();
     }
 
     /**

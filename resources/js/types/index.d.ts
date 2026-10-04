@@ -3,6 +3,7 @@ export interface User {
     name: string;
     email: string;
     avatar_key?: string | null;
+    locale?: 'id' | 'en';
     email_verified_at?: string;
 }
 
@@ -17,6 +18,12 @@ export type PageProps<
 > = T & {
     auth: {
         user: User;
+        unreadNotificationsCount?: number;
     };
     currentOrganization?: OrganizationInfo | null;
+    flash?: {
+        success?: string | null;
+        error?: string | null;
+        status?: string | null;
+    };
 };

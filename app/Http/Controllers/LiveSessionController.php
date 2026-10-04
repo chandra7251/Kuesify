@@ -34,9 +34,27 @@ class LiveSessionController extends Controller
 
     public function join(Request $request): RedirectResponse
     {
-        $data = $request->validate(['pin' => ['required', 'digits:6'], 'alias' => ['required', 'string', 'max:40']]);
-        $session = LiveSession::withoutGlobalScopes()->where('pin', $data['pin'])->whereIn('status', ['lobby', 'live'])->firstOrFail();
-        $participant = $session->joinGuest($data['alias']);
+        $data = $request->validate([
+            'pin'        => ['required', 'digits:6'],
+            'alias'      => ['required', 'string', 'max:40'],
+            'avatar_key' => ['nullable', 'string', 'regex:/^profile_(1[0-3]|[1-9])$/'],
+        ]);
+
+        $session = LiveSession::withoutGlobalScopes()
+            ->where('pin', $data['pin'])
+            ->whereIn('status', ['lobby', 'live'])
+            ->first();
+
+        if (! $session) {
+            return back()
+                ->withErrors(['pin' => 'Kode PIN tidak ditemukan atau sesi sudah berakhir. Coba cek ulang PIN-nya ya.'])
+                ->withInput();
+        }
+
+        $participant = $session->joinGuest($data['alias'], $data['avatar_key'] ?? null);
+
+        // Broadcast event realtime agar host/lobby langsung melihat peserta baru
+        LiveSessionStateChanged::dispatch($session);
 
         $request->session()->put('live_participant', ['session_id' => $session->id, 'participant_id' => $participant->id, 'token' => $participant->reconnect_token]);
 
@@ -67,7 +85,15 @@ class LiveSessionController extends Controller
     {
         $session = LiveSession::findOrFail($session);
         Gate::authorize('update', $session->quiz);
-        $session->nextQuestion();
+
+        // Jika sedang intermission (question_started_at null), lanjut ke soal berikutnya
+        // Jika sedang live (ada soal berjalan), masuk intermission dulu
+        if ($session->isIntermission()) {
+            $session->nextQuestion();
+        } else {
+            $session->showIntermission();
+        }
+
         LiveSessionStateChanged::dispatch($session);
 
         return back();
@@ -113,10 +139,14 @@ class LiveSessionController extends Controller
         $data = $request->validate(['answer' => ['required', 'string', 'max:4000']]);
         $question = Question::withoutGlobalScopes()->findOrFail($session->current_question_id);
         abort_unless($question->organization_id === $session->organization_id, 404);
-        $session->submit($participant, $question, $data['answer']);
+        $liveAnswer = $session->submit($participant, $question, $data['answer']);
         LiveSessionStateChanged::dispatch($session);
 
-        return back();
+        return back()->with('answerResult', [
+            'is_correct'     => $liveAnswer->is_correct,
+            'correct_answer' => $question->correct_answer,
+            'points_awarded' => $liveAnswer->points_awarded,
+        ]);
     }
 
     public function joinPage(): Response

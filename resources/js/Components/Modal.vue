@@ -6,15 +6,17 @@ const props = withDefaults(
         show?: boolean;
         maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
         closeable?: boolean;
+        title?: string;
     }>(),
     {
         show: false,
         maxWidth: '2xl',
         closeable: true,
+        title: '',
     },
 );
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'focusin', 'focusout']);
 const dialog = ref();
 const showSlot = ref(props.show);
 
@@ -74,6 +76,8 @@ const maxWidthClass = computed(() => {
 
 <template>
     <dialog
+        aria-modal="true"
+        role="dialog"
         class="z-50 m-0 min-h-full min-w-full overflow-y-auto bg-transparent backdrop:bg-transparent"
         ref="dialog"
     >
@@ -91,6 +95,7 @@ const maxWidthClass = computed(() => {
             >
                 <div
                     v-show="show"
+                    aria-hidden="true"
                     class="fixed inset-0 transform transition-all"
                     @click="close"
                 >
@@ -108,9 +113,17 @@ const maxWidthClass = computed(() => {
             >
                 <div
                     v-show="show"
+                    :inert="!show"
+                    role="document"
+                    aria-labelledby="modal-title"
+                    aria-describedby="modal-description"
+                    tabindex="-1"
                     class="mb-6 transform overflow-hidden rounded-lg bg-white shadow-xl transition-all sm:mx-auto sm:w-full"
                     :class="maxWidthClass"
+                    @focusin="$emit('focusin')"
+                    @focusout="$emit('focusout')"
                 >
+                    <h2 id="modal-title" class="sr-only">{{ title }}</h2>
                     <slot v-if="showSlot" />
                 </div>
             </Transition>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppIcon from '@/Components/AppIcon.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
@@ -113,426 +114,509 @@ function sizeKb(bytes: number): string {
 <template>
     <Head title="Materi AI" />
     <AuthenticatedLayout>
-        <main class="mx-auto max-w-7xl space-y-5 px-4 py-6 sm:px-6 lg:px-8">
-            <section class="grid gap-5 lg:grid-cols-2">
-                <article
-                    class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
-                >
-                    <div class="border-b border-slate-200 px-5 py-4 sm:px-6">
-                        <p
-                            class="text-xs font-bold uppercase tracking-[0.16em] text-[#527A12]"
-                        >
-                            Langkah 1
-                        </p>
-                        <h1 class="mt-1 text-xl font-extrabold text-slate-950">
-                            Upload materi
-                        </h1>
-                        <p class="mt-1 text-sm leading-6 text-slate-600">
-                            Unggah PDF, PPT, atau PPTX maksimal 25 MB untuk
-                            diekstrak menjadi sumber soal.
-                        </p>
-                    </div>
-                    <form class="space-y-4 p-5 sm:p-6" @submit.prevent="upload">
-                        <label
-                            for="material-file"
-                            class="block text-sm font-bold text-slate-800"
-                        >
-                            File materi
-                        </label>
-                        <input
-                            id="material-file"
-                            type="file"
-                            accept=".pdf,.ppt,.pptx"
-                            class="block min-h-11 w-full rounded-lg border border-slate-300 bg-white text-sm text-slate-600 file:mr-3 file:min-h-11 file:border-0 file:border-r file:border-slate-200 file:bg-brand-secondary/15 file:px-4 file:text-sm file:font-bold file:text-[#527A12] hover:file:bg-brand-secondary/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
-                            @change="
-                                (event: Event) => {
-                                    uploadForm.file =
-                                        (event.target as HTMLInputElement)
-                                            .files?.[0] ?? null;
-                                }
-                            "
-                        />
-                        <p
-                            v-if="uploadForm.errors.file"
-                            class="text-sm font-medium text-red-700"
-                        >
-                            {{ uploadForm.errors.file }}
-                        </p>
-                        <button
-                            type="submit"
-                            class="min-h-11 rounded-lg bg-brand-primary px-5 text-sm font-bold text-white transition hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary disabled:cursor-not-allowed disabled:opacity-50"
-                            :disabled="
-                                !uploadForm.file || uploadForm.processing
-                            "
-                        >
-                            {{
-                                uploadForm.processing
-                                    ? 'Mengunggah...'
-                                    : 'Upload materi'
-                            }}
-                        </button>
-                    </form>
-                </article>
-
-                <article
-                    class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+        <main class="min-h-full bg-brand-accent/30 px-4 py-6 sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-7xl space-y-6">
+                <section
+                    class="relative overflow-hidden rounded-3xl bg-brand-primary p-6 text-white shadow-figma sm:p-8"
                 >
                     <div
-                        class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 px-5 py-4 sm:px-6"
+                        class="pointer-events-none absolute -right-12 -top-16 h-44 w-44 rounded-full bg-brand-secondary/20"
+                    />
+                    <div
+                        class="relative flex flex-wrap items-end justify-between gap-4"
                     >
                         <div>
                             <p
+                                class="text-xs font-black uppercase tracking-[0.18em] text-brand-secondary"
+                            >
+                                Ruang belajar berbasis AI
+                            </p>
+                            <h1
+                                class="mt-2 text-3xl font-black tracking-tight sm:text-4xl"
+                            >
+                                Materi AI
+                            </h1>
+                            <p
+                                class="mt-2 max-w-2xl text-sm leading-6 text-white/75"
+                            >
+                                Ubah dokumen pembelajaran menjadi draft soal
+                                yang siap ditinjau dan disusun ulang.
+                            </p>
+                        </div>
+                        <div
+                            v-if="quota"
+                            class="rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-right"
+                        >
+                            <p class="text-xs font-bold text-white/70">
+                                Kuota mingguan
+                            </p>
+                            <p
+                                class="mt-1 text-xl font-black text-brand-secondary"
+                            >
+                                {{ quota.weekly_remaining }}
+                                <span class="text-sm text-white/70"
+                                    >/ {{ quota.weekly_limit }}</span
+                                >
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="grid gap-5 lg:grid-cols-2">
+                    <article
+                        class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-figma"
+                    >
+                        <div
+                            class="border-b border-slate-200 px-5 py-4 sm:px-6"
+                        >
+                            <p
                                 class="text-xs font-bold uppercase tracking-[0.16em] text-[#527A12]"
                             >
-                                Langkah 2
+                                Langkah 1
                             </p>
-                            <h2
+                            <h1
                                 class="mt-1 text-xl font-extrabold text-slate-950"
                             >
-                                Generate soal AI
-                            </h2>
+                                Upload materi
+                            </h1>
                             <p class="mt-1 text-sm leading-6 text-slate-600">
-                                Atur jumlah, tingkat kesulitan, dan tipe soal.
+                                Unggah PDF, PPT, atau PPTX maksimal 25 MB untuk
+                                diekstrak menjadi sumber soal.
+                            </p>
+                        </div>
+                        <form
+                            class="space-y-4 p-5 sm:p-6"
+                            @submit.prevent="upload"
+                        >
+                            <label
+                                for="material-file"
+                                class="block text-sm font-bold text-slate-800"
+                            >
+                                File materi
+                            </label>
+                            <input
+                                id="material-file"
+                                type="file"
+                                accept=".pdf,.ppt,.pptx"
+                                class="block min-h-11 w-full rounded-lg border border-slate-300 bg-white text-sm text-slate-600 file:mr-3 file:min-h-11 file:border-0 file:border-r file:border-slate-200 file:bg-brand-secondary/15 file:px-4 file:text-sm file:font-bold file:text-[#527A12] hover:file:bg-brand-secondary/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
+                                @change="
+                                    (event: Event) => {
+                                        uploadForm.file =
+                                            (event.target as HTMLInputElement)
+                                                .files?.[0] ?? null;
+                                    }
+                                "
+                            />
+                            <p
+                                v-if="uploadForm.errors.file"
+                                class="text-sm font-medium text-red-700"
+                            >
+                                {{ uploadForm.errors.file }}
+                            </p>
+                            <button
+                                type="submit"
+                                class="min-h-11 rounded-lg bg-brand-primary px-5 text-sm font-bold text-white transition hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary disabled:cursor-not-allowed disabled:opacity-50"
+                                :disabled="
+                                    !uploadForm.file || uploadForm.processing
+                                "
+                            >
+                                {{
+                                    uploadForm.processing
+                                        ? 'Mengunggah...'
+                                        : 'Upload materi'
+                                }}
+                            </button>
+                        </form>
+                    </article>
+
+                    <article
+                        class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-figma"
+                    >
+                        <div
+                            class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 px-5 py-4 sm:px-6"
+                        >
+                            <div>
+                                <p
+                                    class="text-xs font-bold uppercase tracking-[0.16em] text-[#527A12]"
+                                >
+                                    Langkah 2
+                                </p>
+                                <h2
+                                    class="mt-1 text-xl font-extrabold text-slate-950"
+                                >
+                                    Generate soal AI
+                                </h2>
+                                <p
+                                    class="mt-1 text-sm leading-6 text-slate-600"
+                                >
+                                    Atur jumlah, tingkat kesulitan, dan tipe
+                                    soal.
+                                </p>
+                            </div>
+                            <span
+                                v-if="quota"
+                                class="rounded-full px-3 py-1 text-xs font-bold"
+                                :class="
+                                    quota.weekly_remaining > 0
+                                        ? 'bg-brand-secondary/15 text-[#527A12]'
+                                        : 'bg-red-50 text-red-700'
+                                "
+                            >
+                                {{ quota.weekly_remaining }}/{{
+                                    quota.weekly_limit
+                                }}
+                                tersisa
+                            </span>
+                        </div>
+
+                        <form
+                            class="space-y-4 p-5 sm:p-6"
+                            @submit.prevent="generate"
+                        >
+                            <div
+                                v-if="quota && quota.weekly_remaining <= 0"
+                                class="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-900"
+                            >
+                                <strong>Batas kuota tercapai.</strong> Kuota
+                                mingguan akan direset setiap hari Senin.
+                            </div>
+
+                            <label
+                                class="block text-sm font-bold text-slate-800"
+                            >
+                                Materi sumber
+                                <select
+                                    v-model="generateForm.material_id"
+                                    class="mt-1.5 min-h-11 w-full rounded-lg border-slate-300 text-sm text-slate-900 focus:border-brand-secondary focus:ring-brand-secondary"
+                                >
+                                    <option value="">
+                                        Pilih materi terekstrak
+                                    </option>
+                                    <option
+                                        v-for="material in extractedMaterials"
+                                        :key="material.id"
+                                        :value="material.id"
+                                    >
+                                        {{ material.original_name }}
+                                    </option>
+                                </select>
+                            </label>
+
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <label class="text-sm font-bold text-slate-800">
+                                    Jumlah soal
+                                    <select
+                                        v-model.number="
+                                            generateForm.question_count
+                                        "
+                                        class="mt-1.5 min-h-11 w-full rounded-lg border-slate-300 text-sm text-slate-900 focus:border-brand-secondary focus:ring-brand-secondary"
+                                    >
+                                        <option :value="5">5 soal</option>
+                                        <option :value="10">10 soal</option>
+                                        <option :value="20">20 soal</option>
+                                    </select>
+                                </label>
+                                <label class="text-sm font-bold text-slate-800">
+                                    Kesulitan
+                                    <select
+                                        v-model="generateForm.difficulty"
+                                        class="mt-1.5 min-h-11 w-full rounded-lg border-slate-300 text-sm text-slate-900 focus:border-brand-secondary focus:ring-brand-secondary"
+                                    >
+                                        <option value="easy">Mudah</option>
+                                        <option value="medium">Sedang</option>
+                                        <option value="hard">Sulit</option>
+                                    </select>
+                                </label>
+                            </div>
+
+                            <fieldset>
+                                <legend
+                                    class="text-sm font-bold text-slate-800"
+                                >
+                                    Tipe soal
+                                </legend>
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    <label
+                                        v-for="type in questionTypes"
+                                        :key="type.value"
+                                        class="flex min-h-10 cursor-pointer items-center gap-2 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-600 transition hover:border-brand-secondary hover:bg-brand-secondary/10 has-[:checked]:border-brand-secondary has-[:checked]:bg-brand-secondary/15 has-[:checked]:text-[#3F5F0D]"
+                                    >
+                                        <input
+                                            v-model="generateForm.types"
+                                            :value="type.value"
+                                            type="checkbox"
+                                            class="rounded border-slate-300 text-brand-secondary focus:ring-brand-secondary"
+                                        />
+                                        {{ type.label }}
+                                    </label>
+                                </div>
+                            </fieldset>
+
+                            <button
+                                type="submit"
+                                class="min-h-11 rounded-lg bg-brand-primary px-5 text-sm font-bold text-white transition hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary disabled:cursor-not-allowed disabled:opacity-50"
+                                :disabled="
+                                    generateForm.processing ||
+                                    !generateForm.material_id ||
+                                    generateForm.types.length === 0 ||
+                                    (quota
+                                        ? quota.weekly_remaining <= 0
+                                        : false)
+                                "
+                            >
+                                {{
+                                    generateForm.processing
+                                        ? 'Membuat soal...'
+                                        : 'Generate soal'
+                                }}
+                            </button>
+                        </form>
+                    </article>
+                </section>
+
+                <section
+                    aria-labelledby="materials-title"
+                    class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-figma"
+                >
+                    <div
+                        class="flex items-center justify-between gap-4 border-b border-slate-200 px-5 py-4 sm:px-6"
+                    >
+                        <div>
+                            <h2
+                                id="materials-title"
+                                class="font-extrabold text-slate-950"
+                            >
+                                Materi saya
+                            </h2>
+                            <p class="mt-1 text-sm text-slate-500">
+                                Dokumen yang tersedia untuk pembuatan soal AI.
                             </p>
                         </div>
                         <span
-                            v-if="quota"
-                            class="rounded-full px-3 py-1 text-xs font-bold"
-                            :class="
-                                quota.weekly_remaining > 0
-                                    ? 'bg-brand-secondary/15 text-[#527A12]'
-                                    : 'bg-red-50 text-red-700'
-                            "
+                            class="rounded-full bg-brand-primary px-2.5 py-1 text-xs font-bold tabular-nums text-white"
                         >
-                            {{ quota.weekly_remaining }}/{{
-                                quota.weekly_limit
-                            }}
-                            tersisa
+                            {{ materials.length }}
                         </span>
                     </div>
 
-                    <form
-                        class="space-y-4 p-5 sm:p-6"
-                        @submit.prevent="generate"
+                    <p
+                        v-if="materials.length === 0"
+                        class="flex min-h-48 flex-col items-center justify-center px-5 py-10 text-center text-sm text-slate-500"
                     >
-                        <div
-                            v-if="quota && quota.weekly_remaining <= 0"
-                            class="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-900"
+                        <span
+                            class="grid h-12 w-12 place-items-center rounded-2xl bg-brand-primary text-brand-secondary"
                         >
-                            <strong>Batas kuota tercapai.</strong> Kuota
-                            mingguan akan direset setiap hari Senin.
-                        </div>
-
-                        <label class="block text-sm font-bold text-slate-800">
-                            Materi sumber
-                            <select
-                                v-model="generateForm.material_id"
-                                class="mt-1.5 min-h-11 w-full rounded-lg border-slate-300 text-sm text-slate-900 focus:border-brand-secondary focus:ring-brand-secondary"
+                            <AppIcon
+                                name="material"
+                                class="h-6 w-6"
+                                :stroke-width="2"
+                            />
+                        </span>
+                        <span class="mt-4 font-bold text-slate-900"
+                            >Belum ada materi</span
+                        >
+                        <span class="mt-1"
+                            >Unggah dokumen pertama untuk memulai.</span
+                        >
+                    </p>
+                    <div v-else class="grid gap-3 p-4 sm:p-5">
+                        <article
+                            v-for="material in materials"
+                            :key="material.id"
+                            class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-brand-accent/25 p-4 transition hover:-translate-y-0.5 hover:border-brand-primary/30 hover:bg-white hover:shadow-sm"
+                        >
+                            <span
+                                class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-primary text-brand-secondary"
                             >
-                                <option value="">
-                                    Pilih materi terekstrak
-                                </option>
-                                <option
-                                    v-for="material in extractedMaterials"
-                                    :key="material.id"
-                                    :value="material.id"
-                                >
+                                <AppIcon
+                                    name="material"
+                                    class="h-5 w-5"
+                                    :stroke-width="2"
+                                />
+                            </span>
+                            <div class="min-w-0 flex-1">
+                                <p class="truncate font-black text-slate-900">
                                     {{ material.original_name }}
-                                </option>
-                            </select>
-                        </label>
-
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            <label class="text-sm font-bold text-slate-800">
-                                Jumlah soal
-                                <select
-                                    v-model.number="generateForm.question_count"
-                                    class="mt-1.5 min-h-11 w-full rounded-lg border-slate-300 text-sm text-slate-900 focus:border-brand-secondary focus:ring-brand-secondary"
+                                </p>
+                                <div
+                                    class="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500"
                                 >
-                                    <option :value="5">5 soal</option>
-                                    <option :value="10">10 soal</option>
-                                    <option :value="20">20 soal</option>
-                                </select>
-                            </label>
-                            <label class="text-sm font-bold text-slate-800">
-                                Kesulitan
-                                <select
-                                    v-model="generateForm.difficulty"
-                                    class="mt-1.5 min-h-11 w-full rounded-lg border-slate-300 text-sm text-slate-900 focus:border-brand-secondary focus:ring-brand-secondary"
-                                >
-                                    <option value="easy">Mudah</option>
-                                    <option value="medium">Sedang</option>
-                                    <option value="hard">Sulit</option>
-                                </select>
-                            </label>
-                        </div>
-
-                        <fieldset>
-                            <legend class="text-sm font-bold text-slate-800">
-                                Tipe soal
-                            </legend>
-                            <div class="mt-2 flex flex-wrap gap-2">
-                                <label
-                                    v-for="type in questionTypes"
-                                    :key="type.value"
-                                    class="flex min-h-10 cursor-pointer items-center gap-2 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-600 transition hover:border-brand-secondary hover:bg-brand-secondary/10 has-[:checked]:border-brand-secondary has-[:checked]:bg-brand-secondary/15 has-[:checked]:text-[#3F5F0D]"
-                                >
-                                    <input
-                                        v-model="generateForm.types"
-                                        :value="type.value"
-                                        type="checkbox"
-                                        class="rounded border-slate-300 text-brand-secondary focus:ring-brand-secondary"
-                                    />
-                                    {{ type.label }}
-                                </label>
+                                    <span>{{ sizeKb(material.size) }}</span>
+                                    <span class="text-slate-300">•</span>
+                                    <span
+                                        >Oleh {{ material.creator.name }}</span
+                                    >
+                                </div>
                             </div>
-                        </fieldset>
-
-                        <button
-                            type="submit"
-                            class="min-h-11 rounded-lg bg-brand-primary px-5 text-sm font-bold text-white transition hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary disabled:cursor-not-allowed disabled:opacity-50"
-                            :disabled="
-                                generateForm.processing ||
-                                !generateForm.material_id ||
-                                generateForm.types.length === 0 ||
-                                (quota ? quota.weekly_remaining <= 0 : false)
-                            "
-                        >
-                            {{
-                                generateForm.processing
-                                    ? 'Membuat soal...'
-                                    : 'Generate soal'
-                            }}
-                        </button>
-                    </form>
-                </article>
-            </section>
-
-            <section
-                aria-labelledby="materials-title"
-                class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
-            >
-                <div
-                    class="flex items-center justify-between gap-4 border-b border-slate-200 px-5 py-4 sm:px-6"
-                >
-                    <div>
-                        <h2
-                            id="materials-title"
-                            class="font-extrabold text-slate-950"
-                        >
-                            Materi saya
-                        </h2>
-                        <p class="mt-1 text-sm text-slate-500">
-                            Dokumen yang tersedia untuk pembuatan soal AI.
-                        </p>
+                            <span
+                                :class="
+                                    material.status === 'extracted'
+                                        ? 'bg-brand-secondary/20 text-brand-dark'
+                                        : 'bg-slate-100 text-slate-600'
+                                "
+                                class="shrink-0 rounded-full px-2.5 py-1 text-xs font-bold"
+                            >
+                                {{ material.status }}
+                            </span>
+                        </article>
                     </div>
-                    <span
-                        class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold tabular-nums text-slate-600"
-                    >
-                        {{ materials.length }}
-                    </span>
-                </div>
+                </section>
 
-                <p
-                    v-if="materials.length === 0"
-                    class="px-5 py-12 text-center text-sm text-slate-500"
+                <section
+                    v-for="gen in generations"
+                    :key="gen.id"
+                    class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
                 >
-                    Belum ada materi. Unggah dokumen pertama untuk memulai.
-                </p>
-                <div v-else class="overflow-x-auto">
-                    <table class="w-full min-w-[42rem] text-sm">
-                        <thead class="bg-slate-50">
-                            <tr
-                                class="border-b border-slate-200 text-left text-xs font-bold uppercase tracking-wide text-slate-500"
+                    <div
+                        class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+                    >
+                        <div class="min-w-0">
+                            <h2 class="font-extrabold text-slate-950">
+                                {{ gen.material.original_name }} ·
+                                {{ gen.question_count }} soal ·
+                                {{ gen.difficulty }}
+                            </h2>
+                            <p
+                                class="mt-2 inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600"
                             >
-                                <th class="px-5 py-3 sm:px-6">Nama</th>
-                                <th class="px-4 py-3">Ukuran</th>
-                                <th class="px-4 py-3">Status</th>
-                                <th class="px-5 py-3 sm:px-6">Diupload oleh</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            <tr
-                                v-for="material in materials"
-                                :key="material.id"
-                                class="transition-colors hover:bg-slate-50/70"
+                                {{ gen.status }}
+                            </p>
+                            <p
+                                v-if="
+                                    gen.status === 'failed' &&
+                                    gen.failure_reason
+                                "
+                                class="mt-1 text-sm font-medium text-red-700"
                             >
-                                <td
-                                    class="px-5 py-4 font-bold text-slate-900 sm:px-6"
-                                >
-                                    {{ material.original_name }}
-                                </td>
-                                <td class="px-4 py-4 text-slate-500">
-                                    {{ sizeKb(material.size) }}
-                                </td>
-                                <td class="px-4 py-4">
+                                {{ gen.failure_reason }}
+                            </p>
+                        </div>
+                        <div class="flex shrink-0 flex-wrap items-center gap-2">
+                            <button
+                                v-if="gen.status === 'failed'"
+                                type="button"
+                                class="min-h-10 rounded-lg bg-brand-primary px-4 text-sm font-bold text-white transition hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+                                @click="retry(gen.id)"
+                            >
+                                Coba lagi
+                            </button>
+                            <button
+                                type="button"
+                                class="min-h-10 rounded-lg border border-slate-300 px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
+                                :aria-expanded="expandedGen === gen.id"
+                                @click="
+                                    expandedGen =
+                                        expandedGen === gen.id ? null : gen.id
+                                "
+                            >
+                                {{
+                                    expandedGen === gen.id
+                                        ? 'Tutup'
+                                        : 'Lihat draft'
+                                }}
+                            </button>
+                        </div>
+                    </div>
+                    <div
+                        v-if="expandedGen === gen.id"
+                        class="mt-5 space-y-4 border-t border-slate-200 pt-5"
+                    >
+                        <p
+                            v-if="gen.drafts.length === 0"
+                            class="text-sm text-slate-500"
+                        >
+                            Belum ada draft. Tunggu proses queue.
+                        </p>
+                        <article
+                            v-for="draft in gen.drafts"
+                            :key="draft.id"
+                            class="rounded-lg border border-slate-200 p-4"
+                        >
+                            <div
+                                v-if="
+                                    editDraft.editing &&
+                                    editDraft.id === draft.id
+                                "
+                                class="space-y-3"
+                            >
+                                <textarea
+                                    v-model="editDraft.prompt"
+                                    class="w-full rounded-lg border-slate-300 text-sm focus:border-brand-secondary focus:ring-brand-secondary"
+                                    rows="3"
+                                />
+                                <input
+                                    v-model="editDraft.correct_answer"
+                                    class="w-full rounded-lg border-slate-300 text-sm focus:border-brand-secondary focus:ring-brand-secondary"
+                                    placeholder="Jawaban benar"
+                                />
+                                <input
+                                    v-model.number="editDraft.points"
+                                    type="number"
+                                    class="w-32 rounded-lg border-slate-300 text-sm focus:border-brand-secondary focus:ring-brand-secondary"
+                                />
+                                <div class="flex gap-2">
+                                    <button
+                                        type="button"
+                                        class="min-h-10 rounded-lg bg-brand-primary px-4 text-sm font-bold text-white hover:bg-brand-hover"
+                                        @click="saveEdit(draft.id)"
+                                    >
+                                        Simpan</button
+                                    ><button
+                                        type="button"
+                                        class="min-h-10 rounded-lg border border-slate-300 px-4 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                                        @click="editDraft.editing = false"
+                                    >
+                                        Batal
+                                    </button>
+                                </div>
+                            </div>
+                            <div v-else>
+                                <p class="font-bold">{{ draft.prompt }}</p>
+                                <p class="mt-1 text-xs text-slate-500">
+                                    {{ draft.type }} · {{ draft.points }} poin ·
                                     <span
                                         :class="
-                                            material.status === 'extracted'
-                                                ? 'bg-brand-secondary/15 text-[#527A12]'
-                                                : 'bg-slate-100 text-slate-600'
+                                            draft.status === 'pending'
+                                                ? 'text-amber-600'
+                                                : draft.status === 'approved'
+                                                  ? 'text-[#527A12]'
+                                                  : 'text-red-600'
                                         "
-                                        class="rounded-full px-2.5 py-1 text-xs font-bold"
+                                        class="font-bold"
+                                        >{{ draft.status }}</span
                                     >
-                                        {{ material.status }}
-                                    </span>
-                                </td>
-                                <td class="px-5 py-4 text-slate-500 sm:px-6">
-                                    {{ material.creator.name }}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <section
-                v-for="gen in generations"
-                :key="gen.id"
-                class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
-            >
-                <div
-                    class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
-                >
-                    <div class="min-w-0">
-                        <h2 class="font-extrabold text-slate-950">
-                            {{ gen.material.original_name }} ·
-                            {{ gen.question_count }} soal · {{ gen.difficulty }}
-                        </h2>
-                        <p
-                            class="mt-2 inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600"
-                        >
-                            {{ gen.status }}
-                        </p>
-                        <p
-                            v-if="gen.status === 'failed' && gen.failure_reason"
-                            class="mt-1 text-sm font-medium text-red-700"
-                        >
-                            {{ gen.failure_reason }}
-                        </p>
-                    </div>
-                    <div class="flex shrink-0 flex-wrap items-center gap-2">
-                        <button
-                            v-if="gen.status === 'failed'"
-                            type="button"
-                            class="min-h-10 rounded-lg bg-brand-primary px-4 text-sm font-bold text-white transition hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
-                            @click="retry(gen.id)"
-                        >
-                            Coba lagi
-                        </button>
-                        <button
-                            type="button"
-                            class="min-h-10 rounded-lg border border-slate-300 px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
-                            :aria-expanded="expandedGen === gen.id"
-                            @click="
-                                expandedGen =
-                                    expandedGen === gen.id ? null : gen.id
-                            "
-                        >
-                            {{
-                                expandedGen === gen.id ? 'Tutup' : 'Lihat draft'
-                            }}
-                        </button>
-                    </div>
-                </div>
-                <div
-                    v-if="expandedGen === gen.id"
-                    class="mt-5 space-y-4 border-t border-slate-200 pt-5"
-                >
-                    <p
-                        v-if="gen.drafts.length === 0"
-                        class="text-sm text-slate-500"
-                    >
-                        Belum ada draft. Tunggu proses queue.
-                    </p>
-                    <article
-                        v-for="draft in gen.drafts"
-                        :key="draft.id"
-                        class="rounded-lg border border-slate-200 p-4"
-                    >
-                        <div
-                            v-if="
-                                editDraft.editing && editDraft.id === draft.id
-                            "
-                            class="space-y-3"
-                        >
-                            <textarea
-                                v-model="editDraft.prompt"
-                                class="w-full rounded-lg border-slate-300 text-sm focus:border-brand-secondary focus:ring-brand-secondary"
-                                rows="3"
-                            />
-                            <input
-                                v-model="editDraft.correct_answer"
-                                class="w-full rounded-lg border-slate-300 text-sm focus:border-brand-secondary focus:ring-brand-secondary"
-                                placeholder="Jawaban benar"
-                            />
-                            <input
-                                v-model.number="editDraft.points"
-                                type="number"
-                                class="w-32 rounded-lg border-slate-300 text-sm focus:border-brand-secondary focus:ring-brand-secondary"
-                            />
-                            <div class="flex gap-2">
-                                <button
-                                    type="button"
-                                    class="min-h-10 rounded-lg bg-brand-primary px-4 text-sm font-bold text-white hover:bg-brand-hover"
-                                    @click="saveEdit(draft.id)"
+                                </p>
+                                <div
+                                    v-if="draft.status === 'pending'"
+                                    class="mt-3 flex gap-2"
                                 >
-                                    Simpan</button
-                                ><button
-                                    type="button"
-                                    class="min-h-10 rounded-lg border border-slate-300 px-4 text-sm font-bold text-slate-700 hover:bg-slate-50"
-                                    @click="editDraft.editing = false"
-                                >
-                                    Batal
-                                </button>
+                                    <button
+                                        type="button"
+                                        class="min-h-10 rounded-lg bg-brand-primary px-4 text-sm font-bold text-white hover:bg-brand-hover"
+                                        @click="approve(draft.id)"
+                                    >
+                                        Approve
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="min-h-10 rounded-lg border border-slate-300 px-4 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                                        @click="startEdit(draft)"
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="min-h-10 rounded-lg border border-red-200 px-4 text-sm font-bold text-red-700 hover:bg-red-50"
+                                        @click="reject(draft.id)"
+                                    >
+                                        Tolak
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                        <div v-else>
-                            <p class="font-bold">{{ draft.prompt }}</p>
-                            <p class="mt-1 text-xs text-slate-500">
-                                {{ draft.type }} · {{ draft.points }} poin ·
-                                <span
-                                    :class="
-                                        draft.status === 'pending'
-                                            ? 'text-amber-600'
-                                            : draft.status === 'approved'
-                                              ? 'text-[#527A12]'
-                                              : 'text-red-600'
-                                    "
-                                    class="font-bold"
-                                    >{{ draft.status }}</span
-                                >
-                            </p>
-                            <div
-                                v-if="draft.status === 'pending'"
-                                class="mt-3 flex gap-2"
-                            >
-                                <button
-                                    type="button"
-                                    class="min-h-10 rounded-lg bg-brand-primary px-4 text-sm font-bold text-white hover:bg-brand-hover"
-                                    @click="approve(draft.id)"
-                                >
-                                    Approve
-                                </button>
-                                <button
-                                    type="button"
-                                    class="min-h-10 rounded-lg border border-slate-300 px-4 text-sm font-bold text-slate-700 hover:bg-slate-50"
-                                    @click="startEdit(draft)"
-                                >
-                                    Edit
-                                </button>
-                                <button
-                                    type="button"
-                                    class="min-h-10 rounded-lg border border-red-200 px-4 text-sm font-bold text-red-700 hover:bg-red-50"
-                                    @click="reject(draft.id)"
-                                >
-                                    Tolak
-                                </button>
-                            </div>
-                        </div>
-                    </article>
-                </div>
-            </section>
+                        </article>
+                    </div>
+                </section>
+            </div>
         </main>
     </AuthenticatedLayout>
 </template>

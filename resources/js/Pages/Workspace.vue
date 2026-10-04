@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { roleLabel } from '@/utils/roleLabel';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 const props = defineProps<{
@@ -25,8 +25,8 @@ const sectionMeta: Record<
         eyebrow: 'Bank materi',
         description:
             'Simpan, cari, impor, dan gunakan ulang pertanyaan terbaik.',
-        tone: 'bg-white text-slate-900',
-        action: ['Export CSV', '/questions/export'],
+        tone: 'bg-brand-primary text-white',
+        action: ['Export', '/questions/export'],
     },
     quizzes: {
         eyebrow: 'Ruang kreator',
@@ -48,13 +48,13 @@ const sectionMeta: Record<
         eyebrow: 'Laporan hasil',
         description:
             'Pantau progres pengerjaan kuis, analisis performa, dan evaluasi hasil belajar peserta.',
-        tone: 'bg-white text-slate-900',
-        action: ['Export CSV', '/reports/export'],
+        tone: 'bg-brand-primary text-white',
+        action: ['Export', '/reports/export'],
     },
     organization: {
-        eyebrow: 'Pengaturan',
-        description: 'Atur member, role, dan group organisasi.',
-        tone: 'bg-emerald-800 text-white',
+        eyebrow: 'Workspace organisasi',
+        description: 'Kelola group dan data organisasi dalam satu ruang kerja.',
+        tone: 'bg-brand-primary text-white',
     },
     admin: {
         eyebrow: 'Platform',
@@ -69,21 +69,48 @@ const meta = computed(
         sectionMeta[props.section] ?? {
             eyebrow: 'Workspace',
             description: 'Kelola data Kuesify.',
-            tone: 'bg-teal-800 text-white',
+            tone: 'bg-brand-primary text-white',
         },
 );
 const isQuestions = computed(() => props.section === 'questions');
 const isReports = computed(() => props.section === 'reports');
+const isOrganization = computed(() => props.section === 'organization');
+const organizationGroups = computed(
+    () =>
+        (Array.isArray(props.summary.groups) ? props.summary.groups : []) as {
+            id: number;
+            name: string;
+        }[],
+);
+const groupForm = useForm({ name: '' });
+const memberGroup = useForm({ user_id: 0 });
+function createGroup(): void {
+    groupForm.post(route('organization.groups.store'), {
+        preserveScroll: true,
+        onSuccess: () => groupForm.reset(),
+    });
+}
+function addMember(groupId: number, userId: number): void {
+    memberGroup.user_id = userId;
+    memberGroup.post(route('organization.groups.members.store', groupId), {
+        preserveScroll: true,
+    });
+}
 const isAdmin = computed(() => props.section === 'admin');
 const isStyledSection = computed(
-    () => isQuestions.value || isReports.value || isAdmin.value,
+    () => isAdmin.value,
 );
+const isBrandHero = computed(() => isQuestions.value || isReports.value);
 const adminCategories = computed(
     () =>
         (Array.isArray(props.summary.categories)
             ? props.summary.categories
             : []) as { id: number; name: string }[],
 );
+function exportHref(path: string, format: 'csv' | 'xlsx'): string {
+    return `${path}?format=${format}`;
+}
+
 const adminHealth = computed(
     () =>
         (typeof props.summary.health === 'object' &&
@@ -101,520 +128,848 @@ const summarySize = (value: unknown) =>
 <template>
     <Head :title="title" />
     <AuthenticatedLayout>
-        <template v-if="!isStyledSection" #header>
+        <template
+            v-if="
+                !isStyledSection &&
+                !isOrganization &&
+                !isReports &&
+                !isQuestions
+            "
+            #header
+        >
             <div>
                 <p
-                    class="text-xs font-bold uppercase tracking-[0.18em] text-teal-700"
+                    class="text-xs font-bold uppercase tracking-[0.18em] text-brand-primary"
                 >
                     {{ meta.eyebrow }}
                 </p>
-                <h2 class="mt-1 text-xl font-extrabold text-teal-950">
+                <h2 class="mt-1 text-xl font-extrabold text-slate-950">
                     {{ title }}
                 </h2>
             </div>
         </template>
 
-        <main class="mx-auto max-w-7xl space-y-5 px-4 py-6 sm:px-6 lg:px-8">
-            <!-- Header Section (Top Banner) -->
-            <section
-                class="p-6 sm:p-7"
-                :class="[
-                    meta.tone,
-                    isStyledSection
-                        ? 'rounded-xl border border-slate-200 shadow-sm'
-                        : 'rounded-3xl',
-                ]"
-            >
-                <div class="flex flex-wrap items-center justify-between gap-5">
-                    <div>
-                        <p
-                            class="text-xs font-extrabold uppercase tracking-[0.18em]"
-                            :class="
-                                isStyledSection
-                                    ? 'text-[#3154D5]'
-                                    : 'opacity-75'
-                            "
-                        >
-                            {{ meta.eyebrow }}
-                        </p>
-                        <h1
-                            class="mt-2 font-extrabold tracking-tight"
-                            :class="
-                                isStyledSection
-                                    ? 'text-2xl text-slate-900 sm:text-3xl'
-                                    : 'text-3xl sm:text-4xl'
-                            "
-                        >
-                            {{ isReports ? 'Laporan Hasil' : title }}
-                        </h1>
-                        <p
-                            class="mt-2 max-w-2xl text-sm leading-6"
-                            :class="
-                                isStyledSection
-                                    ? 'text-slate-600'
-                                    : 'opacity-90'
-                            "
-                        >
-                            {{ meta.description }}
-                        </p>
-                    </div>
-                    <a
-                        v-if="meta.action"
-                        :href="meta.action[1]"
-                        class="inline-flex min-h-11 items-center justify-center px-4 text-sm font-bold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                        :class="
-                            isStyledSection
-                                ? 'rounded-md bg-[#3451b5] text-white hover:bg-[#29439d] focus-visible:outline-[#3451b5]'
-                                : 'rounded-xl bg-white text-slate-900 hover:bg-slate-100 focus-visible:outline-white'
-                        "
-                    >
-                        {{ meta.action[0] }}
-                    </a>
-                </div>
-            </section>
-
-            <!-- 3 Stat Cards untuk Reports (Persis Question Bank & Live Quiz) -->
-            <section
-                v-if="isReports"
-                class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-            >
-                <!-- Card 1: Total Penyelesaian -->
-                <article
-                    class="min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]"
+        <main class="min-h-full bg-brand-accent/30 px-4 py-6 sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-7xl space-y-6">
+                <!-- Header Section (Top Banner) -->
+                <section
+                    v-if="!isReports"
+                    class="relative overflow-hidden p-6 sm:p-7"
+                    :class="[
+                        meta.tone,
+                        isBrandHero
+                            ? 'rounded-3xl'
+                            : isStyledSection
+                              ? 'rounded-xl border border-slate-200 shadow-sm'
+                              : 'rounded-3xl',
+                    ]"
                 >
-                    <div class="flex items-center justify-between gap-3">
-                        <p
-                            class="text-xs font-bold uppercase tracking-wide text-white"
-                        >
-                            TOTAL SELESAI
-                        </p>
-                        <span
-                            class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#102449]"
-                        >
-                            {{ summary.completionCount ?? 0 }}
-                        </span>
-                    </div>
-
                     <div
-                        v-if="summary.completionCount"
-                        class="mt-3 space-y-2 text-xs text-brand-secondary"
-                    >
-                        <div
-                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
-                        >
-                            <span class="font-medium text-brand-secondary"
-                                >Attempt terkumpul</span
-                            >
-                            <span class="font-bold text-brand-secondary">{{
-                                summary.completionCount
-                            }}</span>
-                        </div>
-                        <div
-                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
-                        >
-                            <span class="font-medium text-brand-secondary"
-                                >Status data</span
-                            >
-                            <span class="font-bold text-brand-secondary"
-                                >Tersedia</span
-                            >
-                        </div>
-                        <div
-                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
-                        >
-                            <span class="font-medium text-brand-secondary"
-                                >Mode evaluasi</span
-                            >
-                            <span class="font-bold text-brand-secondary"
-                                >Otomatis</span
-                            >
-                        </div>
-                    </div>
-
-                    <div
-                        v-else
-                        class="grid min-h-32 place-items-center text-center"
+                        class="flex flex-wrap items-center justify-between gap-5"
                     >
                         <div>
-                            <svg
-                                class="mx-auto h-8 w-8 text-brand-secondary"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1.7"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    d="M5 7h14v12H5zM8 4h8v3M9 12h6"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
                             <p
-                                class="mt-2 text-sm font-semibold text-brand-secondary/70"
-                            >
-                                Belum ada data
-                            </p>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Card 2: Rata-rata Skor -->
-                <article
-                    class="min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)] sm:col-span-2 lg:col-span-1"
-                >
-                    <div class="flex items-center justify-between gap-3">
-                        <p
-                            class="text-xs font-bold uppercase tracking-wide text-white"
-                        >
-                            RATA-RATA SKOR
-                        </p>
-                        <span
-                            class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#102449]"
-                        >
-                            {{ summary.averageScore ?? 0 }} pts
-                        </span>
-                    </div>
-
-                    <div
-                        v-if="summary.completionCount"
-                        class="mt-3 space-y-2 text-xs text-brand-secondary"
-                    >
-                        <div
-                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
-                        >
-                            <span class="font-medium text-brand-secondary"
-                                >Rata-rata kelas</span
-                            >
-                            <span class="font-bold text-brand-secondary"
-                                >{{ summary.averageScore }} / 100</span
-                            >
-                        </div>
-                        <div
-                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
-                        >
-                            <span class="font-medium text-brand-secondary"
-                                >Penguasaan materi</span
-                            >
-                            <span class="font-bold text-brand-secondary">
-                                {{
-                                    Number(summary.averageScore) >= 75
-                                        ? 'Optimal'
-                                        : Number(summary.averageScore) >= 50
-                                          ? 'Cukup'
-                                          : 'Perlu Evaluasi'
-                                }}
-                            </span>
-                        </div>
-                        <div
-                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
-                        >
-                            <span class="font-medium text-brand-secondary"
-                                >Kuis diuji</span
-                            >
-                            <span class="font-bold text-brand-secondary"
-                                >{{ rows.length }} kuis</span
-                            >
-                        </div>
-                    </div>
-
-                    <div
-                        v-else
-                        class="grid min-h-32 place-items-center text-center"
-                    >
-                        <div>
-                            <svg
-                                class="mx-auto h-8 w-8 text-brand-secondary"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1.7"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    d="M5 7h14v12H5zM8 4h8v3M9 12h6"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
-                            <p
-                                class="mt-2 text-sm font-semibold text-brand-secondary/70"
-                            >
-                                Belum ada data
-                            </p>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Card 3: Analisis Soal -->
-                <article
-                    class="min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)] sm:col-span-2 lg:col-span-1"
-                >
-                    <div class="flex items-center justify-between gap-3">
-                        <p
-                            class="text-xs font-bold uppercase tracking-wide text-white"
-                        >
-                            ANALISIS SOAL
-                        </p>
-                        <span
-                            class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#102449]"
-                        >
-                            {{
-                                Array.isArray(summary.questions)
-                                    ? summary.questions.length
-                                    : 0
-                            }}
-                        </span>
-                    </div>
-
-                    <div
-                        v-if="
-                            Array.isArray(summary.questions) &&
-                            summary.questions.length
-                        "
-                        class="mt-3 space-y-2 text-xs text-brand-secondary"
-                    >
-                        <div
-                            v-for="q in (summary.questions as any[]).slice(
-                                0,
-                                3,
-                            )"
-                            :key="q.id"
-                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
-                        >
-                            <span
-                                class="truncate pr-2 font-medium text-brand-secondary"
-                                >{{ q.prompt }}</span
-                            >
-                            <span
-                                class="shrink-0 rounded-full bg-brand-secondary px-2 py-0.5 text-[10px] font-bold text-[#102449]"
-                            >
-                                {{
-                                    q.correct_rate !== null
-                                        ? `${q.correct_rate}% benar`
-                                        : `${q.points} pts`
-                                }}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div
-                        v-else
-                        class="grid min-h-32 place-items-center text-center"
-                    >
-                        <div>
-                            <svg
-                                class="mx-auto h-8 w-8 text-brand-secondary"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1.7"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    d="M5 7h14v12H5zM8 4h8v3M9 12h6"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
-                            <p
-                                class="mt-2 text-sm font-semibold text-brand-secondary/70"
-                            >
-                                Belum ada data
-                            </p>
-                        </div>
-                    </div>
-                </article>
-            </section>
-
-            <section v-else-if="isAdmin" class="grid gap-4 lg:grid-cols-2">
-                <article
-                    class="rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)] sm:p-6"
-                >
-                    <div class="flex items-center justify-between gap-3">
-                        <div>
-                            <p
-                                class="text-xs font-extrabold uppercase tracking-[0.16em] text-white"
-                            >
-                                Kategori
-                            </p>
-                            <h2 class="mt-2 text-xl font-extrabold text-white">
-                                Kategori soal
-                            </h2>
-                        </div>
-                        <span
-                            class="rounded-full bg-brand-secondary px-3 py-1 text-xs font-extrabold text-[#102449]"
-                        >
-                            {{ adminCategories.length }} kategori
-                        </span>
-                    </div>
-                    <div
-                        v-if="adminCategories.length"
-                        class="mt-5 flex flex-wrap gap-2"
-                    >
-                        <span
-                            v-for="category in adminCategories"
-                            :key="category.id"
-                            class="rounded-full bg-white/10 px-3 py-1.5 text-sm font-semibold text-brand-secondary"
-                        >
-                            {{ category.name }}
-                        </span>
-                    </div>
-                    <p v-else class="mt-5 text-sm text-brand-secondary/80">
-                        Belum ada kategori soal.
-                    </p>
-                </article>
-
-                <article
-                    class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
-                >
-                    <div>
-                        <p
-                            class="text-xs font-extrabold uppercase tracking-[0.16em] text-brand-primary"
-                        >
-                            Kesehatan sistem
-                        </p>
-                        <h2 class="mt-2 text-xl font-extrabold text-slate-900">
-                            Status layanan
-                        </h2>
-                    </div>
-                    <dl class="mt-5 divide-y divide-slate-100 text-sm">
-                        <div
-                            v-for="(value, key) in adminHealth"
-                            :key="String(key)"
-                            class="flex items-center justify-between gap-4 py-2.5 first:pt-0 last:pb-0"
-                        >
-                            <dt class="text-slate-500">
-                                {{ String(key).replaceAll('_', ' ') }}
-                            </dt>
-                            <dd
-                                v-if="key === 'reverb_status'"
-                                class="rounded-full px-2.5 py-1 text-xs font-extrabold"
+                                class="text-xs font-extrabold uppercase tracking-[0.18em]"
                                 :class="
-                                    value === 'online'
-                                        ? 'bg-emerald-100 text-emerald-800'
-                                        : 'bg-rose-100 text-rose-800'
+                                    isBrandHero
+                                        ? 'text-brand-secondary'
+                                        : isStyledSection
+                                          ? 'text-[#3154D5]'
+                                          : 'opacity-75'
                                 "
                             >
-                                {{ value }}
-                            </dd>
-                            <dd v-else class="font-bold text-slate-900">
-                                {{ value ?? '-' }}
-                            </dd>
+                                {{ meta.eyebrow }}
+                            </p>
+                            <h1
+                                class="mt-2 font-extrabold tracking-tight"
+                                :class="
+                                    isBrandHero
+                                        ? 'text-3xl text-white sm:text-4xl'
+                                        : isStyledSection
+                                          ? 'text-2xl text-slate-900 sm:text-3xl'
+                                          : 'text-3xl sm:text-4xl'
+                                "
+                            >
+                                {{ isReports ? 'Laporan Hasil' : title }}
+                            </h1>
+                            <p
+                                class="mt-2 max-w-2xl text-sm leading-6"
+                                :class="
+                                    isBrandHero
+                                        ? 'text-white/85'
+                                        : isStyledSection
+                                          ? 'text-slate-600'
+                                          : 'opacity-90'
+                                "
+                            >
+                                {{ meta.description }}
+                            </p>
                         </div>
-                    </dl>
-                </article>
-            </section>
+                        <div v-if="meta.action" class="flex flex-wrap gap-2">
+                            <a
+                                v-for="format in ['csv', 'xlsx'] as const"
+                                :key="format"
+                                :href="exportHref(meta.action[1], format)"
+                                class="inline-flex min-h-11 items-center justify-center px-4 text-sm font-bold uppercase transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                                :class="
+                                    isBrandHero
+                                        ? 'rounded-xl bg-white text-brand-primary hover:bg-brand-secondary hover:text-brand-dark focus-visible:outline-white'
+                                        : isStyledSection
+                                          ? 'rounded-md bg-brand-primary text-white hover:bg-brand-hover focus-visible:outline-brand-primary'
+                                          : 'rounded-xl bg-white text-slate-900 hover:bg-slate-100 focus-visible:outline-white'
+                                "
+                            >
+                                {{ meta.action[0] }} {{ format }}
+                            </a>
+                        </div>
+                    </div>
+                </section>
 
-            <!-- General Summary Section untuk section lain -->
-            <section
-                v-else-if="!isAdmin && Object.keys(summary).length"
-                class="grid sm:grid-cols-2"
-                :class="
-                    isQuestions
-                        ? 'gap-4 lg:grid-cols-3'
-                        : 'gap-3 lg:grid-cols-4'
-                "
-            >
-                <article
-                    v-for="(value, key) in summary"
-                    :key="String(key)"
-                    class="border"
+                <!-- 3 Stat Cards untuk Reports (Persis Question Bank & Live Quiz) -->
+                <section
+                    v-if="isReports"
+                    class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                >
+                    <!-- Card 1: Total Penyelesaian -->
+                    <article
+                        class="rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]"
+                    >
+                        <div class="flex items-center justify-between gap-3">
+                            <p
+                                class="text-xs font-bold uppercase tracking-wide text-white"
+                            >
+                                TOTAL SELESAI
+                            </p>
+                            <span
+                                class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#102449]"
+                            >
+                                {{ summary.completionCount ?? 0 }}
+                            </span>
+                        </div>
+
+                        <div
+                            v-if="summary.completionCount"
+                            class="mt-3 space-y-2 text-xs text-brand-secondary"
+                        >
+                            <div
+                                class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
+                            >
+                                <span class="font-medium text-brand-secondary"
+                                    >Attempt terkumpul</span
+                                >
+                                <span class="font-bold text-brand-secondary">{{
+                                    summary.completionCount
+                                }}</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
+                            >
+                                <span class="font-medium text-brand-secondary"
+                                    >Status data</span
+                                >
+                                <span class="font-bold text-brand-secondary"
+                                    >Tersedia</span
+                                >
+                            </div>
+                            <div
+                                class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
+                            >
+                                <span class="font-medium text-brand-secondary"
+                                    >Mode evaluasi</span
+                                >
+                                <span class="font-bold text-brand-secondary"
+                                    >Otomatis</span
+                                >
+                            </div>
+                        </div>
+
+                        <div
+                            v-else
+                            class="grid min-h-32 place-items-center text-center"
+                        >
+                            <div>
+                                <svg
+                                    class="mx-auto h-8 w-8 text-brand-secondary"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.7"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M5 7h14v12H5zM8 4h8v3M9 12h6"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                                <p
+                                    class="mt-2 text-sm font-semibold text-brand-secondary/70"
+                                >
+                                    Belum ada data
+                                </p>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Card 2: Rata-rata Skor -->
+                    <article
+                        class="rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]"
+                    >
+                        <div class="flex items-center justify-between gap-3">
+                            <p
+                                class="text-xs font-bold uppercase tracking-wide text-white"
+                            >
+                                RATA-RATA SKOR
+                            </p>
+                            <span
+                                class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#102449]"
+                            >
+                                {{ summary.averageScore ?? 0 }} pts
+                            </span>
+                        </div>
+
+                        <div
+                            v-if="summary.completionCount"
+                            class="mt-3 space-y-2 text-xs text-brand-secondary"
+                        >
+                            <div
+                                class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
+                            >
+                                <span class="font-medium text-brand-secondary"
+                                    >Rata-rata kelas</span
+                                >
+                                <span class="font-bold text-brand-secondary"
+                                    >{{ summary.averageScore }} / 100</span
+                                >
+                            </div>
+                            <div
+                                class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
+                            >
+                                <span class="font-medium text-brand-secondary"
+                                    >Penguasaan materi</span
+                                >
+                                <span class="font-bold text-brand-secondary">
+                                    {{
+                                        Number(summary.averageScore) >= 75
+                                            ? 'Optimal'
+                                            : Number(summary.averageScore) >= 50
+                                              ? 'Cukup'
+                                              : 'Perlu Evaluasi'
+                                    }}
+                                </span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
+                            >
+                                <span class="font-medium text-brand-secondary"
+                                    >Kuis diuji</span
+                                >
+                                <span class="font-bold text-brand-secondary"
+                                    >{{ rows.length }} kuis</span
+                                >
+                            </div>
+                        </div>
+
+                        <div
+                            v-else
+                            class="grid min-h-32 place-items-center text-center"
+                        >
+                            <div>
+                                <svg
+                                    class="mx-auto h-8 w-8 text-brand-secondary"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.7"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M5 7h14v12H5zM8 4h8v3M9 12h6"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                                <p
+                                    class="mt-2 text-sm font-semibold text-brand-secondary/70"
+                                >
+                                    Belum ada data
+                                </p>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Card 3: Analisis Soal -->
+                    <article
+                        class="rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]"
+                    >
+                        <div class="flex items-center justify-between gap-3">
+                            <p
+                                class="text-xs font-bold uppercase tracking-wide text-white"
+                            >
+                                ANALISIS SOAL
+                            </p>
+                            <span
+                                class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#102449]"
+                            >
+                                {{
+                                    Array.isArray(summary.questions)
+                                        ? summary.questions.length
+                                        : 0
+                                }}
+                            </span>
+                        </div>
+
+                        <div
+                            v-if="
+                                Array.isArray(summary.questions) &&
+                                summary.questions.length
+                            "
+                            class="mt-3 space-y-2 text-xs text-brand-secondary"
+                        >
+                            <div
+                                v-for="q in (summary.questions as any[]).slice(
+                                    0,
+                                    3,
+                                )"
+                                :key="q.id"
+                                class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
+                            >
+                                <span
+                                    class="truncate pr-2 font-medium text-brand-secondary"
+                                    >{{ q.prompt }}</span
+                                >
+                                <span
+                                    class="shrink-0 rounded-full bg-brand-secondary px-2 py-0.5 text-[10px] font-bold text-[#102449]"
+                                >
+                                    {{
+                                        q.correct_rate !== null
+                                            ? `${q.correct_rate}% benar`
+                                            : `${q.points} pts`
+                                    }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div
+                            v-else
+                            class="grid min-h-32 place-items-center text-center"
+                        >
+                            <div>
+                                <svg
+                                    class="mx-auto h-8 w-8 text-brand-secondary"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.7"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M5 7h14v12H5zM8 4h8v3M9 12h6"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                                <p
+                                    class="mt-2 text-sm font-semibold text-brand-secondary/70"
+                                >
+                                    Belum ada data
+                                </p>
+                            </div>
+                        </div>
+                    </article>
+                </section>
+
+                <section v-else-if="isAdmin" class="grid gap-4 lg:grid-cols-2">
+                    <article
+                        class="rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)] sm:p-6"
+                    >
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <p
+                                    class="text-xs font-extrabold uppercase tracking-[0.16em] text-white"
+                                >
+                                    Kategori
+                                </p>
+                                <h2
+                                    class="mt-2 text-xl font-extrabold text-white"
+                                >
+                                    Kategori soal
+                                </h2>
+                            </div>
+                            <span
+                                class="rounded-full bg-brand-secondary px-3 py-1 text-xs font-extrabold text-[#102449]"
+                            >
+                                {{ adminCategories.length }} kategori
+                            </span>
+                        </div>
+                        <div
+                            v-if="adminCategories.length"
+                            class="mt-5 flex flex-wrap gap-2"
+                        >
+                            <span
+                                v-for="category in adminCategories"
+                                :key="category.id"
+                                class="rounded-full bg-white/10 px-3 py-1.5 text-sm font-semibold text-brand-secondary"
+                            >
+                                {{ category.name }}
+                            </span>
+                        </div>
+                        <p v-else class="mt-5 text-sm text-brand-secondary/80">
+                            Belum ada kategori soal.
+                        </p>
+                    </article>
+
+                    <article
+                        class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
+                    >
+                        <div>
+                            <p
+                                class="text-xs font-extrabold uppercase tracking-[0.16em] text-brand-primary"
+                            >
+                                Kesehatan sistem
+                            </p>
+                            <h2
+                                class="mt-2 text-xl font-extrabold text-slate-900"
+                            >
+                                Status layanan
+                            </h2>
+                        </div>
+                        <dl class="mt-5 divide-y divide-slate-100 text-sm">
+                            <div
+                                v-for="(value, key) in adminHealth"
+                                :key="String(key)"
+                                class="flex items-center justify-between gap-4 py-2.5 first:pt-0 last:pb-0"
+                            >
+                                <dt class="text-slate-500">
+                                    {{ String(key).replaceAll('_', ' ') }}
+                                </dt>
+                                <dd
+                                    v-if="key === 'reverb_status'"
+                                    class="rounded-full px-2.5 py-1 text-xs font-extrabold"
+                                    :class="
+                                        value === 'online'
+                                            ? 'bg-brand-secondary/15 text-brand-primary'
+                                            : 'bg-rose-100 text-rose-800'
+                                    "
+                                >
+                                    {{ value }}
+                                </dd>
+                                <dd v-else class="font-bold text-slate-900">
+                                    {{ value ?? '-' }}
+                                </dd>
+                            </div>
+                        </dl>
+                    </article>
+                </section>
+
+                <!-- General Summary Section untuk section lain -->
+                <section
+                    v-else-if="!isAdmin && Object.keys(summary).length"
+                    class="grid sm:grid-cols-2"
                     :class="
                         isQuestions
-                            ? 'min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]'
-                            : 'rounded-2xl border-slate-100 bg-white p-4 shadow-sm'
+                            ? 'gap-4 lg:grid-cols-3'
+                            : 'gap-3 lg:grid-cols-4'
                     "
                 >
-                    <div class="flex items-center justify-between gap-3">
-                        <p
-                            class="text-xs font-bold uppercase tracking-wide"
+                    <article
+                        v-for="(value, key) in summary"
+                        :key="String(key)"
+                        class="border"
+                        :class="
+                            isQuestions
+                                ? 'min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]'
+                                : 'rounded-2xl border-slate-100 bg-white p-4 shadow-sm'
+                        "
+                    >
+                        <div class="flex items-center justify-between gap-3">
+                            <p
+                                class="text-xs font-bold uppercase tracking-wide"
+                                :class="
+                                    isQuestions
+                                        ? 'text-white'
+                                        : 'text-slate-500'
+                                "
+                            >
+                                {{ String(key).replaceAll('_', ' ') }}
+                            </p>
+                            <span
+                                v-if="
+                                    isQuestions &&
+                                    typeof value === 'object' &&
+                                    value !== null
+                                "
+                                class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#102449]"
+                            >
+                                {{ summarySize(value) }}
+                            </span>
+                        </div>
+                        <div
+                            v-if="
+                                typeof value === 'object' &&
+                                value !== null &&
+                                (!isQuestions || summarySize(value))
+                            "
+                            class="mt-3 text-xs"
                             :class="
-                                isQuestions ? 'text-white' : 'text-slate-500'
+                                isQuestions
+                                    ? 'space-y-2 text-brand-secondary'
+                                    : 'space-y-1.5 text-slate-700'
                             "
                         >
-                            {{ String(key).replaceAll('_', ' ') }}
-                        </p>
-                        <span
-                            v-if="
+                            <div
+                                v-for="(subVal, subKey) in value as Record<
+                                    string,
+                                    unknown
+                                >"
+                                :key="String(subKey)"
+                                class="flex items-center justify-between"
+                                :class="
+                                    isQuestions
+                                        ? 'rounded-lg bg-white/10 px-3 py-2'
+                                        : 'border-b border-slate-50 py-0.5 last:border-none'
+                                "
+                            >
+                                <span
+                                    class="font-medium"
+                                    :class="
+                                        isQuestions
+                                            ? 'text-brand-secondary'
+                                            : 'text-slate-500'
+                                    "
+                                    >{{
+                                        String(subKey).replaceAll('_', ' ')
+                                    }}</span
+                                >
+                                <span
+                                    v-if="subKey === 'reverb_status'"
+                                    :class="
+                                        subVal === 'online'
+                                            ? 'bg-brand-secondary/15 text-brand-primary'
+                                            : 'bg-rose-100 text-rose-800'
+                                    "
+                                    class="rounded-full px-2 py-0.5 font-extrabold"
+                                >
+                                    {{ subVal }}
+                                </span>
+                                <span
+                                    v-else
+                                    class="font-bold"
+                                    :class="
+                                        isQuestions
+                                            ? 'text-brand-secondary'
+                                            : 'text-slate-900'
+                                    "
+                                    >{{ String(subVal ?? '-') }}</span
+                                >
+                            </div>
+                        </div>
+                        <div
+                            v-else-if="
                                 isQuestions &&
                                 typeof value === 'object' &&
                                 value !== null
                             "
-                            class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#102449]"
+                            class="grid min-h-32 place-items-center text-center"
                         >
-                            {{ summarySize(value) }}
-                        </span>
-                    </div>
-                    <div
-                        v-if="
-                            typeof value === 'object' &&
-                            value !== null &&
-                            (!isQuestions || summarySize(value))
-                        "
-                        class="mt-3 text-xs"
-                        :class="
-                            isQuestions
-                                ? 'space-y-2 text-brand-secondary'
-                                : 'space-y-1.5 text-slate-700'
-                        "
-                    >
-                        <div
-                            v-for="(subVal, subKey) in value as Record<
-                                string,
-                                unknown
-                            >"
-                            :key="String(subKey)"
-                            class="flex items-center justify-between"
+                            <div>
+                                <svg
+                                    class="mx-auto h-8 w-8 text-brand-secondary/100"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.7"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M5 7h14v12H5zM8 4h8v3M9 12h6"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                                <p
+                                    class="mt-2 text-sm font-semibold text-brand-secondary/70"
+                                >
+                                    Belum ada data
+                                </p>
+                            </div>
+                        </div>
+                        <p
+                            v-else
+                            class="mt-3 break-words text-2xl font-extrabold"
                             :class="
                                 isQuestions
-                                    ? 'rounded-lg bg-white/10 px-3 py-2'
-                                    : 'border-b border-slate-50 py-0.5 last:border-none'
+                                    ? 'text-brand-secondary'
+                                    : 'text-slate-900'
                             "
                         >
-                            <span
-                                class="font-medium"
-                                :class="
-                                    isQuestions
-                                        ? 'text-brand-secondary'
-                                        : 'text-slate-500'
-                                "
-                                >{{ String(subKey).replaceAll('_', ' ') }}</span
+                            {{ value }}
+                        </p>
+                    </article>
+                </section>
+
+                <section
+                    v-if="isOrganization"
+                    class="grid gap-5 lg:grid-cols-2"
+                >
+                    <form
+                        class="rounded-2xl border border-t-4 border-brand-secondary/40 bg-white p-5 shadow-figma"
+                        @submit.prevent="createGroup"
+                    >
+                        <h2 class="font-extrabold text-slate-900">
+                            Buat group / departemen
+                        </h2>
+                        <div class="mt-3 flex gap-2">
+                            <input
+                                v-model="groupForm.name"
+                                required
+                                class="min-h-11 min-w-0 flex-1 rounded-lg border-slate-300 text-sm"
+                                placeholder="Nama group"
+                            /><button
+                                type="submit"
+                                class="min-h-11 rounded-xl bg-brand-secondary px-4 text-sm font-bold text-brand-dark transition hover:brightness-105"
                             >
+                                Tambah
+                            </button>
+                        </div>
+                    </form>
+                    <section
+                        class="rounded-2xl border border-t-4 border-brand-secondary/40 bg-white p-5 shadow-figma"
+                    >
+                        <h2 class="font-extrabold text-slate-900">
+                            Group aktif
+                        </h2>
+                        <div
+                            v-if="organizationGroups.length"
+                            class="mt-3 flex flex-wrap gap-2"
+                        >
                             <span
-                                v-if="subKey === 'reverb_status'"
-                                :class="
-                                    subVal === 'online'
-                                        ? 'bg-emerald-100 text-emerald-800'
-                                        : 'bg-rose-100 text-rose-800'
-                                "
-                                class="rounded-full px-2 py-0.5 font-extrabold"
-                            >
-                                {{ subVal }}
-                            </span>
-                            <span
-                                v-else
-                                class="font-bold"
-                                :class="
-                                    isQuestions
-                                        ? 'text-brand-secondary'
-                                        : 'text-slate-900'
-                                "
-                                >{{ String(subVal ?? '-') }}</span
+                                v-for="group in organizationGroups"
+                                :key="group.id"
+                                class="rounded-full bg-brand-secondary px-3 py-1 text-xs font-bold"
+                                >{{ group.name }}</span
                             >
                         </div>
-                    </div>
+                        <p v-else class="mt-3 text-sm text-slate-500">
+                            Belum ada group.
+                        </p>
+                    </section>
+                </section>
+
+                <!-- Data Workspace List (Persis Question Bank) -->
+                <section
+                    class="overflow-hidden border bg-white"
+                    :class="
+                        isStyledSection
+                            ? 'rounded-xl border-slate-200 shadow-[0_2px_7px_rgba(15,23,42,0.09)]'
+                            : 'rounded-2xl border-slate-100 shadow-sm'
+                    "
+                >
                     <div
-                        v-else-if="
-                            isQuestions &&
-                            typeof value === 'object' &&
-                            value !== null
+                        class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100"
+                        :class="
+                            isStyledSection ? 'bg-white px-6 py-5' : 'px-5 py-4'
                         "
-                        class="grid min-h-32 place-items-center text-center"
                     >
                         <div>
+                            <h2 class="font-extrabold text-slate-900">
+                                {{ isAdmin ? 'Organisasi' : 'Data workspace' }}
+                            </h2>
+                            <p class="mt-1 text-sm text-slate-500">
+                                {{
+                                    isAdmin
+                                        ? `${rows.length} organisasi terdaftar.`
+                                        : `${rows.length} item pada halaman ini.`
+                                }}
+                            </p>
+                        </div>
+                        <span
+                            class="rounded-full px-3 py-1 text-xs font-bold"
+                            :class="
+                                isOrganization
+                                    ? 'bg-brand-secondary text-brand-dark'
+                                    : isStyledSection
+                                      ? 'bg-brand-primary/15 text-[#3154D5]'
+                                      : 'bg-brand-primary/15 text-brand-primary'
+                            "
+                            >{{ section }}</span
+                        >
+                    </div>
+                    <div
+                        v-if="rows.length"
+                        :class="
+                            isStyledSection
+                                ? 'divide-y divide-slate-100 bg-white'
+                                : 'divide-y divide-slate-100'
+                        "
+                    >
+                        <article
+                            v-for="item in rows"
+                            :key="String(item.id)"
+                            class="group flex min-h-20 gap-3 transition-colors duration-150"
+                            :class="
+                                isStyledSection
+                                    ? 'question-row items-center border-l-4 border-l-transparent bg-white px-6 py-5 hover:bg-slate-50'
+                                    : isReports
+                                      ? 'flex-col gap-2 border-l-2 border-l-transparent px-5 py-4 hover:bg-brand-accent/40 sm:flex-row sm:items-center sm:justify-between'
+                                      : 'flex-col justify-center border-l-2 border-l-transparent px-5 py-4 hover:bg-brand-accent/40 sm:flex-row sm:items-center sm:justify-between'
+                            "
+                        >
+                            <div
+                                class="min-w-0 flex-1"
+                                :class="
+                                    isStyledSection &&
+                                    'sm:flex sm:items-center sm:justify-between sm:gap-6'
+                                "
+                            >
+                                <div>
+                                    <p
+                                        class="truncate font-extrabold text-slate-900"
+                                    >
+                                        {{
+                                            item.title ||
+                                            item.prompt ||
+                                            item.name ||
+                                            item.alias ||
+                                            `#${item.id}`
+                                        }}
+                                    </p>
+                                    <p
+                                        v-if="isReports"
+                                        class="mt-1 text-xs text-slate-500"
+                                    >
+                                        {{ item.questions_count ?? 0 }} Soal
+                                        terdaftar
+                                        <span v-if="item.deadline_at">
+                                            Â· Batas
+                                            {{ item.deadline_at }}</span
+                                        >
+                                    </p>
+                                </div>
+                                <p
+                                    :class="
+                                        isStyledSection
+                                            ? 'question-type mt-2 inline-flex shrink-0 rounded-full bg-brand-primary/15 px-3 py-1 text-xs font-bold text-[#3154D5] sm:mt-0'
+                                            : 'mt-1 text-sm text-slate-500'
+                                    "
+                                >
+                                    {{
+                                        item.type ||
+                                        item.status ||
+                                        (isAdmin
+                                            ? 'Tenant organisasi'
+                                            : 'Data workspace')
+                                    }}
+                                </p>
+                            </div>
+                            <div
+                                class="flex items-center gap-2"
+                                :class="isStyledSection && 'ml-auto'"
+                            >
+                                <span
+                                    v-if="
+                                        !isStyledSection &&
+                                        (item.status || item.role)
+                                    "
+                                    class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600"
+                                    >{{
+                                        item.status ||
+                                        roleLabel(
+                                            item.role as string | undefined,
+                                        )
+                                    }}</span
+                                >
+                                <span
+                                    v-if="
+                                        !isReports &&
+                                        (item.score ||
+                                            item.questions_count ||
+                                            item.members_count)
+                                    "
+                                    class="text-sm font-bold"
+                                    :class="
+                                        isQuestions
+                                            ? 'text-[#3154D5]'
+                                            : 'text-brand-primary'
+                                    "
+                                >
+                                    {{
+                                        item.score ??
+                                        item.questions_count ??
+                                        item.members_count ??
+                                        ''
+                                    }}
+                                </span>
+                                <div
+                                    v-if="
+                                        isOrganization &&
+                                        organizationGroups.length
+                                    "
+                                    class="flex flex-wrap items-center gap-2"
+                                >
+                                    <select
+                                        class="min-h-9 rounded-md border-slate-300 text-xs"
+                                        aria-label="Pilih group"
+                                        @change="
+                                            addMember(
+                                                Number(
+                                                    (
+                                                        $event.target as HTMLSelectElement
+                                                    ).value,
+                                                ),
+                                                Number(item.id),
+                                            )
+                                        "
+                                    >
+                                        <option value="">
+                                            Tambah ke group
+                                        </option>
+                                        <option
+                                            v-for="group in organizationGroups"
+                                            :key="group.id"
+                                            :value="group.id"
+                                        >
+                                            {{ group.name }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div
+                                    v-if="isReports"
+                                    class="flex flex-col gap-2 sm:flex-row sm:flex-wrap"
+                                >
+                                    <a
+                                        v-for="format in [
+                                            'csv',
+                                            'xlsx',
+                                        ] as const"
+                                        :key="format"
+                                        :href="
+                                            exportHref(
+                                                '/reports/export',
+                                                format,
+                                            )
+                                        "
+                                        class="inline-flex w-full min-h-9 items-center justify-center rounded-md bg-brand-primary px-3.5 text-xs font-bold uppercase text-white transition hover:bg-brand-hover sm:w-auto"
+                                    >
+                                        Unduh {{ format }}
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                    <div v-else class="px-5 py-12 text-center">
+                        <div
+                            v-if="!isStyledSection"
+                            class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-brand-accent text-lg font-extrabold text-brand-primary"
+                        >
+                            +
+                        </div>
+                        <div
+                            v-else
+                            class="mx-auto grid h-12 w-12 place-items-center text-slate-300"
+                        >
                             <svg
-                                class="mx-auto h-8 w-8 text-brand-secondary/100"
+                                class="h-8 w-8 text-slate-300"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -627,222 +982,32 @@ const summarySize = (value: unknown) =>
                                     stroke-linejoin="round"
                                 />
                             </svg>
-                            <p
-                                class="mt-2 text-sm font-semibold text-brand-secondary/70"
-                            >
-                                Belum ada data
-                            </p>
                         </div>
-                    </div>
-                    <p
-                        v-else
-                        class="mt-3 break-words text-2xl font-extrabold"
-                        :class="
-                            isQuestions
-                                ? 'text-brand-secondary'
-                                : 'text-slate-900'
-                        "
-                    >
-                        {{ value }}
-                    </p>
-                </article>
-            </section>
-
-            <!-- Data Workspace List (Persis Question Bank) -->
-            <section
-                class="overflow-hidden border bg-white"
-                :class="
-                    isStyledSection
-                        ? 'rounded-xl border-slate-200 shadow-[0_2px_7px_rgba(15,23,42,0.09)]'
-                        : 'rounded-2xl border-slate-100 shadow-sm'
-                "
-            >
-                <div
-                    class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100"
-                    :class="
-                        isStyledSection ? 'bg-white px-6 py-5' : 'px-5 py-4'
-                    "
-                >
-                    <div>
-                        <h2 class="font-extrabold text-slate-900">
-                            {{ isAdmin ? 'Organisasi' : 'Data workspace' }}
-                        </h2>
-                        <p class="mt-1 text-sm text-slate-500">
-                            {{
-                                isAdmin
-                                    ? `${rows.length} organisasi terdaftar.`
-                                    : `${rows.length} item pada halaman ini.`
-                            }}
+                        <h3
+                            class="mt-2 text-sm font-semibold text-brand-secondary/70"
+                        >
+                            Belum ada data
+                        </h3>
+                        <p
+                            class="mx-auto mt-2 max-w-sm text-sm leading-6 text-slate-500"
+                        >
+                            Mulai dari langkah kecil. Data baru akan muncul di
+                            halaman ini.
                         </p>
-                    </div>
-                    <span
-                        class="rounded-full px-3 py-1 text-xs font-bold"
-                        :class="
-                            isStyledSection
-                                ? 'bg-brand-primary/15 text-[#3154D5]'
-                                : 'bg-brand-primary/15 text-brand-primary'
-                        "
-                        >{{ section }}</span
-                    >
-                </div>
-                <div
-                    v-if="rows.length"
-                    :class="
-                        isStyledSection
-                            ? 'divide-y divide-slate-100 bg-white'
-                            : 'divide-y divide-slate-100'
-                    "
-                >
-                    <article
-                        v-for="item in rows"
-                        :key="String(item.id)"
-                        class="group flex min-h-20 gap-3 transition-colors duration-150"
-                        :class="
-                            isStyledSection
-                                ? 'question-row items-center border-l-4 border-l-transparent bg-white px-6 py-5 hover:bg-slate-50'
-                                : 'flex-col justify-center border-l-2 border-l-transparent px-5 py-4 hover:bg-teal-50/40 sm:flex-row sm:items-center sm:justify-between'
-                        "
-                    >
-                        <div
-                            class="min-w-0 flex-1"
+                        <Link
+                            href="/dashboard"
+                            class="mt-4 inline-flex text-xs font-bold hover:underline"
                             :class="
-                                isStyledSection &&
-                                'sm:flex sm:items-center sm:justify-between sm:gap-6'
+                                isStyledSection
+                                    ? 'text-[#3154D5]'
+                                    : 'text-brand-primary'
                             "
                         >
-                            <div>
-                                <p
-                                    class="truncate font-extrabold text-slate-900"
-                                >
-                                    {{
-                                        item.title ||
-                                        item.prompt ||
-                                        item.name ||
-                                        item.alias ||
-                                        `#${item.id}`
-                                    }}
-                                </p>
-                                <p
-                                    v-if="isReports"
-                                    class="mt-1 text-xs text-slate-500"
-                                >
-                                    {{ item.questions_count ?? 0 }} Soal
-                                    terdaftar
-                                    <span v-if="item.deadline_at">
-                                        · Batas {{ item.deadline_at }}</span
-                                    >
-                                </p>
-                            </div>
-                            <p
-                                :class="
-                                    isStyledSection
-                                        ? 'question-type mt-2 inline-flex shrink-0 rounded-full bg-brand-primary/15 px-3 py-1 text-xs font-bold text-[#3154D5] sm:mt-0'
-                                        : 'mt-1 text-sm text-slate-500'
-                                "
-                            >
-                                {{
-                                    item.type ||
-                                    item.status ||
-                                    (isAdmin
-                                        ? 'Tenant organisasi'
-                                        : 'Data workspace')
-                                }}
-                            </p>
-                        </div>
-                        <div
-                            class="flex items-center gap-2"
-                            :class="isStyledSection && 'ml-auto'"
-                        >
-                            <span
-                                v-if="
-                                    !isStyledSection &&
-                                    (item.status || item.role)
-                                "
-                                class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600"
-                                >{{
-                                    item.status ||
-                                    roleLabel(item.role as string | undefined)
-                                }}</span
-                            >
-                            <span
-                                v-if="
-                                    !isReports &&
-                                    (item.score ||
-                                        item.questions_count ||
-                                        item.members_count)
-                                "
-                                class="text-sm font-bold"
-                                :class="
-                                    isQuestions
-                                        ? 'text-[#3154D5]'
-                                        : 'text-teal-800'
-                                "
-                            >
-                                {{
-                                    item.score ??
-                                    item.questions_count ??
-                                    item.members_count ??
-                                    ''
-                                }}
-                            </span>
-                            <a
-                                v-if="isReports"
-                                href="/reports/export"
-                                class="inline-flex min-h-9 items-center justify-center rounded-md bg-[#3451b5] px-3.5 text-xs font-bold text-white transition hover:bg-[#29439d]"
-                            >
-                                Unduh CSV
-                            </a>
-                        </div>
-                    </article>
-                </div>
-                <div v-else class="px-5 py-12 text-center">
-                    <div
-                        v-if="!isStyledSection"
-                        class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-teal-50 text-lg font-extrabold text-teal-700"
-                    >
-                        +
+                            Kembali ke dashboard
+                        </Link>
                     </div>
-                    <div
-                        v-else
-                        class="mx-auto grid h-12 w-12 place-items-center text-slate-300"
-                    >
-                        <svg
-                            class="h-8 w-8 text-slate-300"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.7"
-                            aria-hidden="true"
-                        >
-                            <path
-                                d="M5 7h14v12H5zM8 4h8v3M9 12h6"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            />
-                        </svg>
-                    </div>
-                    <h3
-                        class="mt-2 text-sm font-semibold text-brand-secondary/70"
-                    >
-                        Belum ada data
-                    </h3>
-                    <p
-                        class="mx-auto mt-2 max-w-sm text-sm leading-6 text-slate-500"
-                    >
-                        Mulai dari langkah kecil. Data baru akan muncul di
-                        halaman ini.
-                    </p>
-                    <Link
-                        href="/dashboard"
-                        class="mt-4 inline-flex text-xs font-bold hover:underline"
-                        :class="
-                            isStyledSection ? 'text-[#3154D5]' : 'text-teal-700'
-                        "
-                    >
-                        Kembali ke dashboard
-                    </Link>
-                </div>
-            </section>
+                </section>
+            </div>
         </main>
     </AuthenticatedLayout>
 </template>
