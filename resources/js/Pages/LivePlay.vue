@@ -41,7 +41,7 @@ const clock = window.setInterval(() => {
 
 // Intermission countdown — 3 detik setelah podium muncul, tombol "Lanjut Soal" aktif
 const intermissionCountdown = ref(0);
-let intermissionTimer: ReturnType<typeof window.setInterval> | null = null;
+let intermissionTimer: ReturnType<typeof setInterval> | number | null = null;
 
 function startIntermissionCountdown(): void {
     intermissionCountdown.value = 3;

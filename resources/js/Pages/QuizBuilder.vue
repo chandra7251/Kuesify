@@ -13,6 +13,7 @@ type Question = {
 };
 type Quiz = {
     id: number;
+    creator_id?: number;
     title: string;
     description?: string | null;
     status: string;
@@ -161,11 +162,17 @@ function cloneQuiz(): void {
     });
 }
 
-function addCollaborator(userId: string): void {
+function addCollaborator(target: HTMLSelectElement): void {
+    const userId = target.value;
     if (!selectedQuiz.value || !userId) return;
     useForm({ user_id: Number(userId) }).post(
         route('quizzes.collaborators.store', selectedQuiz.value.id),
-        { preserveScroll: true },
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                target.value = '';
+            },
+        },
     );
 }
 
@@ -416,15 +423,14 @@ function archiveQuiz(): void {
                                     aria-label="Pilih co-creator"
                                     @change="
                                         addCollaborator(
-                                            ($event.target as HTMLSelectElement)
-                                                .value,
+                                            $event.target as HTMLSelectElement,
                                         )
                                     "
                                 >
                                     <option value="">Tambah co-creator</option>
                                     <option
                                         v-for="member in members.filter(
-                                            (item) => item.role === 'creator',
+                                            (item) => item.role === 'creator' && item.id !== selectedQuiz?.creator_id && !(selectedQuiz?.collaborators ?? []).some((c) => c.id === item.id),
                                         )"
                                         :key="member.id"
                                         :value="member.id"
