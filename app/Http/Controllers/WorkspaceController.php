@@ -90,7 +90,7 @@ class WorkspaceController extends Controller
             'quizzes' => $quizzes,
             'questions' => Question::with('category:id,name,theme_key')->latest()->get(['id', 'category_id', 'type', 'prompt', 'points']),
             'categories' => Category::orderBy('name')->get(['id', 'name', 'theme_key']),
-            'members' => $this->activeOrganization()->members()->select('users.id', 'users.name', 'organization_user.role')->wherePivot('is_active', true)->get(),
+            'members' => $this->activeOrganization()->members()->select('users.id', 'users.name', 'organization_user.role')->wherePivot('is_active', true)->wherePivotNotIn('role', ['super_admin'])->get(),
             'filters' => $filters,
         ]);
     }
@@ -215,7 +215,7 @@ class WorkspaceController extends Controller
         $this->requireAdmin($request);
         $organization = $this->activeOrganization();
 
-        return $this->page('Organisasi', 'organization', $organization->members()->select('users.id', 'users.name', 'users.email', 'organization_user.role', 'organization_user.is_active')->paginate(20), [], [
+        return $this->page('Organisasi', 'organization', $organization->members()->select('users.id', 'users.name', 'users.email', 'organization_user.role', 'organization_user.is_active')->wherePivotNotIn('role', ['super_admin'])->paginate(20), [], [
             'groups' => $organization->groups()->orderBy('name')->get(['id', 'name']),
         ]);
     }
@@ -243,7 +243,7 @@ class WorkspaceController extends Controller
         $organization = $this->activeOrganization();
 
         return Inertia::render('admin/'.$section, [
-            'members' => $organization->members()->select('users.id', 'users.name', 'users.email', 'organization_user.role', 'organization_user.is_active')->get(),
+            'members' => $organization->members()->select('users.id', 'users.name', 'users.email', 'organization_user.role', 'organization_user.is_active')->wherePivotNotIn('role', ['super_admin'])->get(),
             'groups' => $organization->groups()->orderBy('name')->get(['id', 'name']),
             'organization' => ['id' => $organization->id, 'name' => $organization->name],
         ]);
