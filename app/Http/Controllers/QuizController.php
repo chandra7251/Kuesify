@@ -120,18 +120,46 @@ class QuizController extends Controller
     {
         $this->authorizePlatformModeration($request);
 
-        $data = Quiz::withoutGlobalScopes()
-            ->with(['creator:id,name', 'category:id,name,theme_key'])
+        $pending = Quiz::withoutGlobalScopes()
+            ->with([
+                'creator:id,name',
+                'category:id,name,theme_key',
+                'questions' => function ($q) {
+                    $q->select('questions.id', 'questions.prompt', 'questions.type', 'questions.points', 'questions.options')
+                        ->orderBy('quiz_question.position');
+                },
+            ])
             ->where('visibility', 'public')
             ->where('status', 'pending_moderation')
             ->latest()
-            ->get(['id', 'organization_id', 'creator_id', 'category_id', 'title', 'description', 'status', 'visibility', 'created_at']);
+            ->get(['id', 'organization_id', 'creator_id', 'category_id', 'title', 'description', 'status', 'visibility', 'created_at', 'updated_at']);
+
+        $history = Quiz::withoutGlobalScopes()
+            ->with([
+                'creator:id,name',
+                'category:id,name,theme_key',
+                'questions' => function ($q) {
+                    $q->select('questions.id', 'questions.prompt', 'questions.type', 'questions.points', 'questions.options')
+                        ->orderBy('quiz_question.position');
+                },
+            ])
+            ->where('visibility', 'public')
+            ->whereIn('status', ['published', 'rejected'])
+            ->latest('updated_at')
+            ->limit(50)
+            ->get(['id', 'organization_id', 'creator_id', 'category_id', 'title', 'description', 'status', 'visibility', 'created_at', 'updated_at']);
 
         if (! $request->expectsJson()) {
-            return Inertia::render('superadmin/Moderation', ['quizzes' => $data]);
+            return Inertia::render('superadmin/Moderation', [
+                'quizzes' => $pending,
+                'history' => $history,
+            ]);
         }
 
-        return response()->json(['data' => $data]);
+        return response()->json([
+            'data' => $pending,
+            'history' => $history,
+        ]);
     }
 
     public function approveModeration(Request $request, int $quiz): RedirectResponse

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppIcon from "@/Components/AppIcon.vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head } from "@inertiajs/vue3";
+import { Head, useForm, router } from "@inertiajs/vue3";
 import { computed, ref } from "vue";
 
 type Organization = {
@@ -24,6 +24,54 @@ const props = defineProps<{
 }>();
 
 const searchQuery = ref("");
+
+const showCreateModal = ref(false);
+const editingCategory = ref<Category | null>(null);
+
+const form = useForm({
+    name: "",
+    theme_key: "",
+});
+
+function openCreateModal() {
+    editingCategory.value = null;
+    form.reset();
+    form.clearErrors();
+    showCreateModal.value = true;
+}
+
+function openEditModal(category: Category) {
+    editingCategory.value = category;
+    form.name = category.name;
+    form.theme_key = category.theme_key ?? "";
+    form.clearErrors();
+    showCreateModal.value = true;
+}
+
+function closeModal() {
+    showCreateModal.value = false;
+    editingCategory.value = null;
+    form.reset();
+    form.clearErrors();
+}
+
+function submitForm() {
+    if (editingCategory.value) {
+        form.put(route('superadmin.categories.update', editingCategory.value.id), {
+            onSuccess: () => closeModal(),
+        });
+    } else {
+        form.post(route('superadmin.categories.store'), {
+            onSuccess: () => closeModal(),
+        });
+    }
+}
+
+function confirmDelete(category: Category) {
+    if (confirm(`Apakah kamu yakin ingin menghapus kategori "${category.name}"?`)) {
+        router.delete(route('superadmin.categories.destroy', category.id));
+    }
+}
 
 const filteredCategories = computed(() => {
     const query = searchQuery.value.trim().toLowerCase();
@@ -99,37 +147,16 @@ const totalTenants = computed(
                             </p>
                         </div>
 
-                        <!-- Mini Card Highlight -->
-                        <div
-                            class="rounded-2xl border border-brand-secondary/70 bg-brand-secondary p-5 text-brand-dark shadow-figma-sm"
-                        >
-                            <div class="flex items-center justify-between">
-                                <span
-                                    class="inline-flex items-center gap-1.5 text-xs font-black text-brand-primary"
-                                >
-                                    <AppIcon name="categories" :size="16" />
-                                    TOTAL TAKSONOMI
-                                </span>
-                                <span
-                                    class="rounded-full bg-brand-primary/10 px-2.5 py-0.5 text-[11px] font-black text-brand-primary"
-                                >
-                                    Sinkron
-                                </span>
-                            </div>
-                            <div class="mt-3 flex items-baseline justify-between">
-                                <p class="text-3xl font-black text-brand-primary">
-                                    {{ categories.length }}
-                                    <span class="text-xs font-bold text-brand-dark">
-                                        kategori aktif
-                                    </span>
-                                </p>
-                            </div>
-                            <p class="mt-2 text-xs font-semibold text-brand-dark/80">
-                                Kategori dengan tema visual custom:
-                                <strong class="text-brand-primary font-black">
-                                    {{ themedCount }} tema
-                                </strong>
-                            </p>
+                        <!-- CTA Tambah Kategori Baru -->
+                        <div class="flex items-center justify-start lg:justify-end">
+                            <button
+                                type="button"
+                                @click="openCreateModal"
+                                class="inline-flex items-center gap-2 rounded-2xl bg-brand-secondary px-5 py-3 text-sm font-black text-slate-900 shadow-md transition hover:bg-brand-secondary/90 hover:scale-[1.02] active:scale-[0.98]"
+                            >
+                                <AppIcon name="plus" :size="18" />
+                                Tambah Kategori Baru
+                            </button>
                         </div>
                     </div>
                 </section>
@@ -284,6 +311,25 @@ const totalTenants = computed(
                                     >
                                         ID: {{ item.id }}
                                     </span>
+
+                                    <div class="flex items-center gap-1.5 rounded-xl border border-slate-100 bg-slate-50 p-1">
+                                        <button
+                                            type="button"
+                                            @click="openEditModal(item)"
+                                            class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-brand-primary hover:shadow-xs transition"
+                                            title="Edit Kategori"
+                                        >
+                                            <AppIcon name="pencil" :size="15" />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            @click="confirmDelete(item)"
+                                            class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition"
+                                            title="Hapus Kategori"
+                                        >
+                                            <AppIcon name="trash" :size="15" />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div
@@ -357,6 +403,73 @@ const totalTenants = computed(
                     </div>
                 </section>
             </main>
+        </div>
+
+        <!-- Modal Form Create / Edit Category -->
+        <div
+            v-if="showCreateModal"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm"
+        >
+            <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-black text-slate-900">
+                        {{ editingCategory ? "Edit Kategori" : "Tambah Kategori Baru" }}
+                    </h3>
+                    <button
+                        type="button"
+                        @click="closeModal"
+                        class="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                    >
+                        ✕
+                    </button>
+                </div>
+
+                <form @submit.prevent="submitForm" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700">Nama Kategori</label>
+                        <input
+                            v-model="form.name"
+                            type="text"
+                            required
+                            placeholder="Contoh: Matematika Dasar"
+                            class="mt-1 w-full rounded-xl border border-slate-200 px-3.5 py-2 text-sm font-semibold text-slate-800 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+                        />
+                        <p v-if="form.errors.name" class="mt-1 text-xs font-semibold text-rose-600">
+                            {{ form.errors.name }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700">Tema Visual (Opsional)</label>
+                        <input
+                            v-model="form.theme_key"
+                            type="text"
+                            placeholder="Contoh: math, science, history"
+                            class="mt-1 w-full rounded-xl border border-slate-200 px-3.5 py-2 text-sm font-semibold text-slate-800 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+                        />
+                        <p v-if="form.errors.theme_key" class="mt-1 text-xs font-semibold text-rose-600">
+                            {{ form.errors.theme_key }}
+                        </p>
+                    </div>
+
+                    <div class="flex justify-end gap-2 pt-2">
+                        <button
+                            type="button"
+                            @click="closeModal"
+                            class="rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50"
+                        >
+                            Batal
+                        </button>
+                        <button
+                            type="submit"
+                            :disabled="form.processing"
+                            class="rounded-xl bg-brand-primary px-5 py-2 text-xs font-bold text-white hover:bg-brand-primary/90 disabled:opacity-50"
+                        >
+                            {{ form.processing ? "Menyimpan..." : (editingCategory ? "Perbarui" : "Simpan") }}
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </AuthenticatedLayout>
 </template>

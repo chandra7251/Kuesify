@@ -10,6 +10,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\OrganizationMemberController;
 use App\Http\Controllers\ProfileAvatarController;
+use App\Http\Controllers\PlatformAdminController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuizAttemptController;
@@ -71,6 +72,10 @@ Route::post('/quizzes/{quiz}/cover', [QuizController::class, 'cover'])
     ->name('quizzes.cover');
 
 Route::middleware(['auth', 'organization.context'])->group(function () {
+    Route::post('/superadmin/categories', [PlatformAdminController::class, 'storeCategory'])->name('superadmin.categories.store');
+    Route::put('/superadmin/categories/{category}', [PlatformAdminController::class, 'updateCategory'])->name('superadmin.categories.update');
+    Route::delete('/superadmin/categories/{category}', [PlatformAdminController::class, 'destroyCategory'])->name('superadmin.categories.destroy');
+
     Route::get('/questions', [WorkspaceController::class, 'questions'])->name('questions.index');
     Route::get('/creator/question-bank', [WorkspaceController::class, 'creatorQuestionBank'])->name('creator.question-bank');
     Route::get('/questions/export', [WorkspaceController::class, 'exportQuestions'])->name('questions.export');

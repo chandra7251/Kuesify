@@ -133,14 +133,34 @@ class PlatformAdminController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:60', 'unique:categories,name'],
+            'theme_key' => ['nullable', 'string', 'max:50'],
         ]);
 
         Category::create([
             'name' => $validated['name'],
             'slug' => Str::slug($validated['name']),
+            'theme_key' => $validated['theme_key'] ?? null,
         ]);
 
         return back()->with('status', 'Kategori baru berhasil ditambahkan.');
+    }
+
+    public function updateCategory(Request $request, Category $category): RedirectResponse
+    {
+        $this->requireSuperAdmin($request);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:60', 'unique:categories,name,'.$category->id],
+            'theme_key' => ['nullable', 'string', 'max:50'],
+        ]);
+
+        $category->update([
+            'name' => $validated['name'],
+            'slug' => Str::slug($validated['name']),
+            'theme_key' => $validated['theme_key'] ?? null,
+        ]);
+
+        return back()->with('status', 'Kategori berhasil diperbarui.');
     }
 
     public function destroyCategory(Request $request, Category $category): RedirectResponse
