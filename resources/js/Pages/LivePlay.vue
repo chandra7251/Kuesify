@@ -3,13 +3,16 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Modal from '@/Components/Modal.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { useEchoPublic } from '@laravel/echo-vue';
+import { Chart, registerables } from 'chart.js';
 import QRCode from 'qrcode';
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+
+Chart.register(...registerables);
 
 interface LiveState {
     id: number;
     title: string;
-    status: string;
+    status: 'lobby' | 'live' | 'ended';
     intermission: boolean;
     isLastQuestion: boolean;
     questionIndex: number;
@@ -23,17 +26,56 @@ interface LiveState {
         id: number;
         type: string;
         prompt: string;
-        options: string[] | null;
-        correct_answer?: string;
+        options: string[];
+        correct_answer: string;
     } | null;
     participants: { id: number; alias: string; avatar_key: string | null; score: number }[];
-    leaderboard: { id: number; alias: string; avatar_key: string | null; score: number }[];
+    leaderboard: { id: number; alias: string; avatar_key: string | null; score: number; correct_count?: number; wrong_count?: number; total_answered?: number }[];
+    myStats?: { correctCount: number; wrongCount: number; totalAnswered: number } | null | undefined;
 }
 const props = defineProps<{ session: LiveState; isHost: boolean }>();
 const state = ref<LiveState>(props.session);
 const answer = useForm({ answer: '' });
 const hasAnswered = ref(false);
 const answerResult = ref<{ is_correct: boolean; correct_answer: string; points_awarded: number } | null>(null);
+
+// Dynamic Participant Performance computed directly from live WebSocket state
+const myLeaderboardEntry = computed(() => {
+    return state.value.leaderboard?.find(p => p.alias === (props.session as any).alias || p.score === (props.session as any).score) 
+        || state.value.leaderboard?.[0];
+});
+
+// Dynamic reactive stats reading directly from WebSocket payload state
+const participantStats = computed(() => {
+    // 1. Ambil dari broadcast leaderboard item jika server menyediakan count-nya
+    if (myLeaderboardEntry.value && typeof myLeaderboardEntry.value.correct_count === 'number') {
+        return {
+            correctCount: myLeaderboardEntry.value.correct_count ?? 0,
+            wrongCount: myLeaderboardEntry.value.wrong_count ?? 0,
+            totalAnswered: myLeaderboardEntry.value.total_answered ?? 0,
+        };
+    }
+
+    // 2. Fallback ke myStats dari session presenter
+    if (state.value.myStats) {
+        return {
+            correctCount: state.value.myStats.correctCount,
+            wrongCount: state.value.myStats.wrongCount,
+            totalAnswered: state.value.myStats.totalAnswered,
+        };
+    }
+
+    // 3. Counter in-memory lokal
+    return localAnswerStats.value;
+});
+
+const localAnswerStats = ref({
+    correctCount: props.session.myStats?.correctCount ?? 0,
+    wrongCount: props.session.myStats?.wrongCount ?? 0,
+    totalAnswered: props.session.myStats?.totalAnswered ?? 0,
+});
+const donutCanvas = ref<HTMLCanvasElement | null>(null);
+let doughnutChartInstance: Chart | null = null;
 const now = ref(Date.now());
 const clock = window.setInterval(() => {
     now.value = Date.now();
@@ -55,13 +97,75 @@ function startIntermissionCountdown(): void {
     }, 1000);
 }
 
+function renderDoughnutChart(): void {
+    if (!donutCanvas.value) return;
+    if (doughnutChartInstance) {
+        doughnutChartInstance.destroy();
+        doughnutChartInstance = null;
+    }
+
+    const { correctCount, wrongCount } = participantStats.value;
+    const hasData = correctCount > 0 || wrongCount > 0;
+
+    doughnutChartInstance = new Chart(donutCanvas.value, {
+        type: 'doughnut',
+        data: {
+            labels: ['Benar', 'Salah'],
+            datasets: [
+                {
+                    data: hasData ? [correctCount, wrongCount] : [0, 1],
+                    backgroundColor: hasData
+                        ? wrongCount === 0
+                            ? ['#10B981', '#10B981']
+                            : ['#10B981', '#EF4444']
+                        : ['#CBD5E1'],
+                    borderWidth: 3,
+                    borderColor: '#FFFFFF',
+                    hoverOffset: 4,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '72%',
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    enabled: hasData,
+                    callbacks: {
+                        label: (ctx) => ` ${ctx.label}: ${ctx.raw} Soal`,
+                    },
+                },
+            },
+        },
+    });
+}
+
+watch(
+    () => state.value.status,
+    async (newStatus) => {
+        if (newStatus === 'ended' && !props.isHost) {
+            await nextTick();
+            renderDoughnutChart();
+            setTimeout(() => {
+                renderDoughnutChart();
+            }, 200);
+        }
+    },
+    { immediate: true },
+);
 onMounted(() => {
     window.addEventListener('keydown', handleShortcut);
     if (state.value.intermission) startIntermissionCountdown();
+    if (state.value.status === 'ended' && !props.isHost) {
+        nextTick(() => renderDoughnutChart());
+    }
 });
 onBeforeUnmount(() => {
     window.clearInterval(clock);
     if (intermissionTimer) window.clearInterval(intermissionTimer);
+    if (doughnutChartInstance) doughnutChartInstance.destroy();
     window.removeEventListener('keydown', handleShortcut);
 });
 useEchoPublic<LiveState>(
@@ -71,7 +175,23 @@ useEchoPublic<LiveState>(
         if (payload) {
             const wasIntermission = state.value.intermission;
             const currentQId = state.value.question?.id;
-            state.value = payload;
+            
+            // Pertahankan myStats jika payload broadcast dari server tidak membawanya
+            const existingMyStats = state.value.myStats;
+            state.value = {
+                ...payload,
+                myStats: payload.myStats ?? existingMyStats,
+            };
+            
+            // Trigger auto-render doughnut chart secara otomatis pas status berpindah ke ended via WebSocket!
+            if (payload.status === 'ended' && !props.isHost) {
+                nextTick(() => {
+                    renderDoughnutChart();
+                });
+                setTimeout(() => {
+                    renderDoughnutChart();
+                }, 300);
+            }
             
             // Reset status jawaban saat berpindah ke pertanyaan baru
             if (payload.question?.id !== currentQId) {
@@ -110,11 +230,22 @@ function choose(value: string): void {
     if (answer.processing || secondsLeft.value === 0 || hasAnswered.value) return;
     answer.answer = value;
     hasAnswered.value = true;
+
     answer.post(route('live-sessions.answers.store', state.value.id), {
+        preserveScroll: true,
+        preserveState: true,
         onSuccess: (page) => {
             const flash = (page.props as any).flash;
             if (flash?.answerResult) {
                 answerResult.value = flash.answerResult;
+                
+                // Update localAnswerStats secara in-memory begitu server mengonfirmasi jawaban
+                localAnswerStats.value.totalAnswered += 1;
+                if (flash.answerResult.is_correct) {
+                    localAnswerStats.value.correctCount += 1;
+                } else {
+                    localAnswerStats.value.wrongCount += 1;
+                }
             }
         },
     });
@@ -985,6 +1116,79 @@ async function loadQr(): Promise<void> {
                     </button>
                 </form>
             </section>
+            <!-- Ringkasan Performa Peserta (Chart.js Circular Donut & Stat Cards) saat Sesi Selesai -->
+            <section
+                v-if="state.status === 'ended' && !isHost"
+                class="mt-5 overflow-hidden rounded-3xl border border-slate-200/90 bg-white p-6 shadow-figma-sm"
+            >
+                <div class="text-center">
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-brand-primary/10 px-3 py-1 text-xs font-black text-brand-primary">
+                        🎯 Performa Kamu
+                    </span>
+                    <h2 class="mt-2 text-2xl font-black text-slate-900">
+                        Hasil Akhir Kuis
+                    </h2>
+                    <p class="mt-1 text-xs font-semibold text-slate-500">
+                        Rincian ketepatan jawaban yang kamu jawab selama sesi live.
+                    </p>
+                </div>
+
+                <!-- Donut Chart & Center Metric -->
+                <div class="relative my-6 flex items-center justify-center">
+                    <div class="h-48 w-48 relative">
+                        <canvas ref="donutCanvas" />
+                        <!-- Center Label Metric inside Doughnut -->
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                            <span class="text-3xl font-black text-slate-900">
+                                {{ participantStats.totalAnswered > 0 ? Math.round((participantStats.correctCount / participantStats.totalAnswered) * 100) : 0 }}%
+                            </span>
+                            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                                Akurasi
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stat Cards Breakdown (Benar / Salah / Total) -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="rounded-2xl border border-emerald-200/80 bg-emerald-50/70 p-3.5 text-center">
+                        <div class="mx-auto flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500 text-xs font-black text-white">
+                            ✓
+                        </div>
+                        <p class="mt-2 text-xl font-black text-emerald-950">
+                            {{ participantStats.correctCount }}
+                        </p>
+                        <p class="text-[11px] font-bold text-emerald-700">
+                            Jawaban Benar
+                        </p>
+                    </div>
+
+                    <div class="rounded-2xl border border-rose-200/80 bg-rose-50/70 p-3.5 text-center">
+                        <div class="mx-auto flex h-7 w-7 items-center justify-center rounded-full bg-rose-500 text-xs font-black text-white">
+                            ✕
+                        </div>
+                        <p class="mt-2 text-xl font-black text-rose-950">
+                            {{ participantStats.wrongCount }}
+                        </p>
+                        <p class="text-[11px] font-bold text-rose-700">
+                            Jawaban Salah
+                        </p>
+                    </div>
+
+                    <div class="rounded-2xl border border-slate-200/80 bg-slate-50 p-3.5 text-center">
+                        <div class="mx-auto flex h-7 w-7 items-center justify-center rounded-full bg-brand-primary text-xs text-white">
+                            <i class="fa-solid fa-clipboard-list text-sm"></i>
+                        </div>
+                        <p class="mt-2 text-xl font-black text-slate-900">
+                            {{ participantStats.totalAnswered }}
+                        </p>
+                        <p class="text-[11px] font-bold text-slate-500">
+                            Total Dijawab
+                        </p>
+                    </div>
+                </div>
+            </section>
+
             <!-- Podium sementara hanya tampil saat intermission atau sesi selesai -->
             <section
                 v-if="state.intermission || state.status === 'ended'"

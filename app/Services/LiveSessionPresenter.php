@@ -8,7 +8,7 @@ use App\Models\Quiz;
 
 class LiveSessionPresenter
 {
-    public function present(LiveSession $session): array
+    public function present(LiveSession $session, ?int $participantId = null): array
     {
         $session = LiveSession::withoutGlobalScopes()->with('participants:id,live_session_id,alias,avatar_key,score,kicked_at')->findOrFail($session->id);
         $quiz = Quiz::withoutGlobalScopes()->findOrFail($session->quiz_id);
@@ -20,6 +20,23 @@ class LiveSessionPresenter
         $questionIndex = $question
             ? $allQuestions->search(fn ($q) => $q->id === $question->id) + 1
             : 0;
+
+        $myStats = null;
+        if ($participantId) {
+            $participant = $session->participants()->find($participantId);
+            if ($participant) {
+                $answers = $participant->answers()->get(['is_correct']);
+                $totalAnswered = $answers->count();
+                $correctCount = $answers->where('is_correct', true)->count();
+                $wrongCount = $answers->where('is_correct', false)->count();
+
+                $myStats = [
+                    'correctCount'  => $correctCount,
+                    'wrongCount'    => $wrongCount,
+                    'totalAnswered' => $totalAnswered,
+                ];
+            }
+        }
 
         return [
             'id' => $session->id,
@@ -43,6 +60,7 @@ class LiveSessionPresenter
             ] : null,
             'participants' => $session->participants->whereNull('kicked_at')->values()->map(fn ($participant) => ['id' => $participant->id, 'alias' => $participant->alias, 'avatar_key' => $participant->avatar_key, 'score' => $participant->score]),
             'leaderboard' => app(LiveLeaderboardService::class)->for($session),
+            'myStats' => $myStats,
         ];
     }
 }

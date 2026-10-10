@@ -170,11 +170,20 @@ class LiveSessionController extends Controller
     {
         $session = LiveSession::withoutGlobalScopes()->findOrFail($session);
         $identity = $request->session()->get('live_participant');
-        $isGuest = $identity && $identity['session_id'] === $session->id && $session->participants()->whereKey($identity['participant_id'])->where('reconnect_token', $identity['token'])->exists();
+        $participantId = null;
+        $isGuest = false;
+
+        if ($identity && $identity['session_id'] === $session->id) {
+            $participant = $session->participants()->whereKey($identity['participant_id'])->where('reconnect_token', $identity['token'])->first();
+            if ($participant) {
+                $isGuest = true;
+                $participantId = $participant->id;
+            }
+        }
         $isHost = $request->user()?->id === $session->host_id;
         abort_unless($isGuest || $isHost, 403);
 
-        return Inertia::render('LivePlay', ['session' => $presenter->present($session), 'isHost' => $isHost]);
+        return Inertia::render('LivePlay', ['session' => $presenter->present($session, $participantId), 'isHost' => $isHost]);
     }
 
     public function reconnectUrl(Request $request, int $session): \Illuminate\Http\JsonResponse
