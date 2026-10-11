@@ -247,7 +247,11 @@ function parseDeadline(value?: string | null): Date | null {
 function canDeleteQuiz(quiz: Quiz): boolean {
     const deadline = parseDeadline(quiz.deadline_at);
 
-    return quiz.status === 'published' && deadline !== null && deadline < new Date();
+    return (
+        quiz.status === 'published' &&
+        deadline !== null &&
+        deadline < new Date()
+    );
 }
 
 function formatDeadline(value?: string | null): string {
