@@ -67,6 +67,9 @@ Route::post('/quizzes/{quiz}/clone', [QuizController::class, 'clone'])
 Route::post('/quizzes/{quiz}/archive', [QuizController::class, 'archive'])
     ->middleware(['auth', 'organization.context'])
     ->name('quizzes.archive');
+Route::delete('/quizzes/{quiz}', [QuizController::class, 'destroy'])
+    ->middleware(['auth', 'organization.context'])
+    ->name('quizzes.destroy');
 Route::post('/quizzes/{quiz}/cover', [QuizController::class, 'cover'])
     ->middleware(['auth', 'organization.context', 'throttle:10,1'])
     ->name('quizzes.cover');

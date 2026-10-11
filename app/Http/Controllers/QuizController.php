@@ -116,6 +116,15 @@ class QuizController extends Controller
         return back();
     }
 
+    public function destroy(int $quiz): RedirectResponse
+    {
+        $quiz = Quiz::withoutGlobalScopes()->findOrFail($quiz);
+        Gate::authorize('delete', $quiz);
+        $quiz->delete();
+
+        return back();
+    }
+
     public function moderation(Request $request): JsonResponse|Response
     {
         $this->authorizePlatformModeration($request);

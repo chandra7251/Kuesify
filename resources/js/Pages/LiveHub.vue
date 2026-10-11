@@ -65,484 +65,534 @@ function openSession(): void {
     <Head title="Live Quiz" />
 
     <AuthenticatedLayout>
-        <main class="mx-auto max-w-7xl space-y-5 px-4 py-6 sm:px-6 lg:px-8">
-            <!-- Card Host Control: Buka Sesi Baru (Style Card Question Bank) -->
-            <section
-                class="rounded-2xl border border-brand-primary bg-brand-primary p-6 text-white shadow-figma sm:p-7"
-            >
-                <div
-                    class="flex flex-wrap items-center justify-between gap-3 border-b border-white/20 pb-5"
+        <main class="relative min-h-screen px-4 py-6 sm:px-6 lg:px-8">
+            <div
+                class="pointer-events-none fixed inset-0 -z-0 bg-brand-accent/30"
+                aria-hidden="true"
+            ></div>
+            <div class="relative z-10 mx-auto max-w-7xl space-y-5">
+                <!-- Card Host Control: Buka Sesi Baru (Style Card Question Bank) -->
+                <section
+                    class="rounded-2xl border border-brand-primary bg-brand-primary p-6 text-white shadow-figma sm:p-7"
                 >
-                    <div>
-                        <h2 class="text-lg font-extrabold text-white">
-                            Buka sesi baru
-                        </h2>
-                        <p class="mt-1 text-sm text-white/80">
-                            Pilih kuis published untuk memulai lobby live bagi
-                            peserta.
-                        </p>
-                    </div>
-                    <span
-                        class="rounded-full bg-brand-secondary px-3 py-1 text-xs font-bold text-brand-dark"
+                    <div
+                        class="flex flex-wrap items-center justify-between gap-3 border-b border-white/20 pb-5"
                     >
-                        host-control
-                    </span>
-                </div>
+                        <div>
+                            <h2 class="text-lg font-extrabold text-white">
+                                Buka sesi baru
+                            </h2>
+                            <p class="mt-1 text-sm text-white/80">
+                                Pilih kuis published untuk memulai lobby live
+                                bagi peserta.
+                            </p>
+                        </div>
+                        <span
+                            class="rounded-full bg-brand-secondary px-3 py-1 text-xs font-bold text-brand-dark"
+                        >
+                            host-control
+                        </span>
+                    </div>
 
-                <form class="mt-6 space-y-5" @submit.prevent="openSession">
-                    <div class="grid gap-4 md:grid-cols-12">
-                        <div class="md:col-span-6">
-                            <InputLabel
-                                for="quiz_id"
-                                value="Pilih Kuis Published"
-                                class="font-bold text-white"
-                            />
-                            <select
-                                id="quiz_id"
-                                v-model="form.quiz_id"
-                                class="mt-2 block min-h-11 w-full rounded-md border border-slate-300 bg-white px-3.5 text-sm text-slate-900 shadow-sm transition focus:border-[#3451b5] focus:outline-none focus:ring-1 focus:ring-[#3451b5]"
-                                required
-                            >
-                                <option value="">Pilih kuis published</option>
-                                <option
-                                    v-for="quiz in quizzes"
-                                    :key="quiz.id"
-                                    :value="quiz.id"
-                                    :disabled="quiz.has_essay_questions"
+                    <form class="mt-6 space-y-5" @submit.prevent="openSession">
+                        <div class="grid gap-4 md:grid-cols-12">
+                            <div class="md:col-span-6">
+                                <InputLabel
+                                    for="quiz_id"
+                                    value="Pilih Kuis Published"
+                                    class="font-bold text-white"
+                                />
+                                <select
+                                    id="quiz_id"
+                                    v-model="form.quiz_id"
+                                    class="mt-2 block min-h-11 w-full rounded-md border border-slate-300 bg-white px-3.5 text-sm text-slate-900 shadow-sm transition focus:border-[#3451b5] focus:outline-none focus:ring-1 focus:ring-[#3451b5]"
+                                    required
                                 >
-                                    {{ quiz.title }}{{ quiz.has_essay_questions ? ' - Tidak tersedia untuk Live Quiz (mengandung soal essay)' : '' }}
-                                </option>
-                            </select>
-                            <p
-                                v-if="ineligibleQuizCount"
-                                class="mt-1.5 text-xs font-medium text-white/75"
-                            >
-                                {{ ineligibleQuizCount }} quiz mengandung soal essay dan belum bisa dipakai untuk Live Quiz.
-                            </p>
-                            <p
-                                v-if="selectedQuiz?.has_essay_questions"
-                                class="mt-1.5 rounded-lg bg-white/10 px-3 py-2 text-xs font-semibold text-brand-secondary"
-                            >
-                                Tidak tersedia untuk Live Quiz. Mengandung soal essay.
-                            </p>
-                            <InputError
-                                :message="form.errors.quiz_id"
-                                class="mt-1.5"
-                            />
-                        </div>
-
-                        <div class="md:col-span-3">
-                            <InputLabel
-                                for="question_duration"
-                                value="Durasi / Soal (detik)"
-                                class="font-bold text-white"
-                            />
-                            <input
-                                id="question_duration"
-                                v-model.number="form.question_duration"
-                                min="5"
-                                max="300"
-                                type="number"
-                                aria-label="Durasi per soal"
-                                class="mt-2 block min-h-11 w-full rounded-md border border-slate-300 bg-white px-3.5 text-sm text-slate-900 shadow-sm transition focus:border-[#3451b5] focus:outline-none focus:ring-1 focus:ring-[#3451b5]"
-                                required
-                            />
-                            <InputError
-                                :message="form.errors.question_duration"
-                                class="mt-1.5"
-                            />
-                        </div>
-
-                        <div class="md:col-span-3">
-                            <InputLabel
-                                for="speed_multiplier"
-                                value="Bonus Kecepatan"
-                                class="font-bold text-white"
-                            />
-                            <input
-                                id="speed_multiplier"
-                                v-model.number="form.speed_multiplier"
-                                min="0"
-                                max="1000"
-                                type="number"
-                                aria-label="Speed multiplier"
-                                class="mt-2 block min-h-11 w-full rounded-md border border-slate-300 bg-white px-3.5 text-sm text-slate-900 shadow-sm transition focus:border-[#3451b5] focus:outline-none focus:ring-1 focus:ring-[#3451b5]"
-                                required
-                            />
-                            <InputError
-                                :message="form.errors.speed_multiplier"
-                                class="mt-1.5"
-                            />
-                        </div>
-                    </div>
-
-                    <div
-                        class="flex flex-wrap items-center justify-between gap-4 pt-2"
-                    >
-                        <p class="text-xs text-white/75">
-                            PIN 6 digit unik akan dibuat otomatis setelah lobby
-                            dibuka.
-                        </p>
-                        <button
-                            type="submit"
-                            class="inline-flex min-h-11 items-center justify-center rounded-xl bg-brand-secondary px-5 text-sm font-bold text-brand-dark transition hover:brightness-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary disabled:opacity-50"
-                            :disabled="form.processing || !form.quiz_id || selectedQuiz?.has_essay_questions"
-                        >
-                            {{ form.processing ? 'Membuka...' : 'Buka lobby' }}
-                        </button>
-                    </div>
-                </form>
-            </section>
-
-            <!-- 3 Stat Cards (Persis dengan Card Types, Categories, Tags Question Bank) -->
-            <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <!-- Card 1: Status Sesi -->
-                <article
-                    class="min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]"
-                >
-                    <div class="flex items-center justify-between gap-3">
-                        <p
-                            class="text-xs font-bold uppercase tracking-wide text-white"
-                        >
-                            STATUS SESI
-                        </p>
-                        <span
-                            class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#102449]"
-                        >
-                            {{ sessions.data.length }}
-                        </span>
-                    </div>
-                    <div
-                        v-if="sessions.data.length"
-                        class="mt-3 space-y-2 text-xs text-brand-secondary"
-                    >
-                        <div
-                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
-                        >
-                            <span class="font-medium text-brand-secondary"
-                                >Lobby</span
-                            >
-                            <span class="font-bold text-brand-secondary">{{
-                                lobbyCount
-                            }}</span>
-                        </div>
-                        <div
-                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
-                        >
-                            <span class="font-medium text-brand-secondary"
-                                >Sedang berlangsung</span
-                            >
-                            <span class="font-bold text-brand-secondary">{{
-                                liveCount
-                            }}</span>
-                        </div>
-                        <div
-                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
-                        >
-                            <span class="font-medium text-brand-secondary"
-                                >Selesai</span
-                            >
-                            <span class="font-bold text-brand-secondary">{{
-                                endedCount
-                            }}</span>
-                        </div>
-                    </div>
-                    <div
-                        v-else
-                        class="grid min-h-32 place-items-center text-center"
-                    >
-                        <div>
-                            <svg
-                                class="mx-auto h-8 w-8 text-brand-secondary/100"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1.7"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    d="M5 7h14v12H5zM8 4h8v3M9 12h6"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
+                                    <option value="">
+                                        Pilih kuis published
+                                    </option>
+                                    <option
+                                        v-for="quiz in quizzes"
+                                        :key="quiz.id"
+                                        :value="quiz.id"
+                                        :disabled="quiz.has_essay_questions"
+                                    >
+                                        {{ quiz.title
+                                        }}{{
+                                            quiz.has_essay_questions
+                                                ? ' - Tidak tersedia untuk Live Quiz (mengandung soal essay)'
+                                                : ''
+                                        }}
+                                    </option>
+                                </select>
+                                <p
+                                    v-if="ineligibleQuizCount"
+                                    class="mt-1.5 text-xs font-medium text-white/75"
+                                >
+                                    {{ ineligibleQuizCount }} quiz mengandung
+                                    soal essay dan belum bisa dipakai untuk Live
+                                    Quiz.
+                                </p>
+                                <p
+                                    v-if="selectedQuiz?.has_essay_questions"
+                                    class="mt-1.5 rounded-lg bg-white/10 px-3 py-2 text-xs font-semibold text-brand-secondary"
+                                >
+                                    Tidak tersedia untuk Live Quiz. Mengandung
+                                    soal essay.
+                                </p>
+                                <InputError
+                                    :message="form.errors.quiz_id"
+                                    class="mt-1.5"
                                 />
-                            </svg>
-                            <p
-                                class="mt-2 text-sm font-semibold text-brand-secondary/70"
-                            >
-                                Belum ada data
-                            </p>
-                        </div>
-                    </div>
-                </article>
+                            </div>
 
-                <!-- Card 2: Kuis Published -->
-                <article
-                    class="min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]"
-                >
-                    <div class="flex items-center justify-between gap-3">
-                        <p
-                            class="text-xs font-bold uppercase tracking-wide text-white"
-                        >
-                            KUIS PUBLISHED
-                        </p>
-                        <span
-                            class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#102449]"
-                        >
-                            {{ quizzes.length }}
-                        </span>
-                    </div>
-                    <div
-                        v-if="quizzes.length"
-                        class="mt-3 space-y-2 text-xs text-brand-secondary"
-                    >
-                        <div
-                            v-for="quiz in quizzes.slice(0, 3)"
-                            :key="quiz.id"
-                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
-                        >
-                            <span
-                                class="truncate pr-2 font-medium text-brand-secondary"
-                                >{{ quiz.title }}</span
-                            >
-                            <span
-                                class="shrink-0 rounded-full bg-brand-secondary px-2 py-0.5 text-[10px] font-bold text-[#102449]"
-                            >
-                                published
-                            </span>
-                        </div>
-                    </div>
-                    <div
-                        v-else
-                        class="grid min-h-32 place-items-center text-center"
-                    >
-                        <div>
-                            <svg
-                                class="mx-auto h-8 w-8 text-brand-secondary/100"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1.7"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    d="M5 7h14v12H5zM8 4h8v3M9 12h6"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
+                            <div class="md:col-span-3">
+                                <InputLabel
+                                    for="question_duration"
+                                    value="Durasi / Soal (detik)"
+                                    class="font-bold text-white"
                                 />
-                            </svg>
-                            <p
-                                class="mt-2 text-sm font-semibold text-brand-secondary/70"
-                            >
-                                Belum ada data
-                            </p>
-                        </div>
-                    </div>
-                </article>
+                                <input
+                                    id="question_duration"
+                                    v-model.number="form.question_duration"
+                                    min="5"
+                                    max="300"
+                                    type="number"
+                                    aria-label="Durasi per soal"
+                                    class="mt-2 block min-h-11 w-full rounded-md border border-slate-300 bg-white px-3.5 text-sm text-slate-900 shadow-sm transition focus:border-[#3451b5] focus:outline-none focus:ring-1 focus:ring-[#3451b5]"
+                                    required
+                                />
+                                <InputError
+                                    :message="form.errors.question_duration"
+                                    class="mt-1.5"
+                                />
+                            </div>
 
-                <!-- Card 3: Partisipasi -->
-                <article
-                    class="min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)] sm:col-span-2 lg:col-span-1"
-                >
-                    <div class="flex items-center justify-between gap-3">
-                        <p
-                            class="text-xs font-bold uppercase tracking-wide text-white"
-                        >
-                            PARTISIPASI
-                        </p>
-                        <span
-                            class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#102449]"
-                        >
-                            {{ totalParticipantsCount }}
-                        </span>
-                    </div>
-                    <div
-                        v-if="sessions.data.length"
-                        class="mt-3 space-y-2 text-xs text-brand-secondary"
-                    >
-                        <div
-                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
-                        >
-                            <span class="font-medium text-brand-secondary"
-                                >Total peserta</span
-                            >
-                            <span class="font-bold text-brand-secondary">{{
-                                totalParticipantsCount
-                            }}</span>
+                            <div class="md:col-span-3">
+                                <InputLabel
+                                    for="speed_multiplier"
+                                    value="Bonus Kecepatan"
+                                    class="font-bold text-white"
+                                />
+                                <input
+                                    id="speed_multiplier"
+                                    v-model.number="form.speed_multiplier"
+                                    min="0"
+                                    max="1000"
+                                    type="number"
+                                    aria-label="Speed multiplier"
+                                    class="mt-2 block min-h-11 w-full rounded-md border border-slate-300 bg-white px-3.5 text-sm text-slate-900 shadow-sm transition focus:border-[#3451b5] focus:outline-none focus:ring-1 focus:ring-[#3451b5]"
+                                    required
+                                />
+                                <InputError
+                                    :message="form.errors.speed_multiplier"
+                                    class="mt-1.5"
+                                />
+                            </div>
                         </div>
+
                         <div
-                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
+                            class="flex flex-wrap items-center justify-between gap-4 pt-2"
                         >
-                            <span class="font-medium text-brand-secondary"
-                                >Rata-rata / sesi</span
+                            <p class="text-xs text-white/75">
+                                PIN 6 digit unik akan dibuat otomatis setelah
+                                lobby dibuka.
+                            </p>
+                            <button
+                                type="submit"
+                                class="inline-flex min-h-11 items-center justify-center rounded-xl bg-brand-secondary px-5 text-sm font-bold text-brand-dark transition hover:brightness-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary disabled:opacity-50"
+                                :disabled="
+                                    form.processing ||
+                                    !form.quiz_id ||
+                                    selectedQuiz?.has_essay_questions
+                                "
                             >
-                            <span class="font-bold text-brand-secondary">
                                 {{
-                                    sessions.data.length
-                                        ? Math.round(
-                                              totalParticipantsCount /
-                                                  sessions.data.length,
-                                          )
-                                        : 0
+                                    form.processing
+                                        ? 'Membuka...'
+                                        : 'Buka lobby'
                                 }}
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- 3 Stat Cards (Persis dengan Card Types, Categories, Tags Question Bank) -->
+                <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <!-- Card 1: Status Sesi -->
+                    <article
+                        class="min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]"
+                    >
+                        <div class="flex items-center justify-between gap-3">
+                            <p
+                                class="text-xs font-bold uppercase tracking-wide text-white"
+                            >
+                                STATUS SESI
+                            </p>
+                            <span
+                                class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#102449]"
+                            >
+                                {{ sessions.data.length }}
                             </span>
                         </div>
                         <div
-                            class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
+                            v-if="sessions.data.length"
+                            class="mt-3 space-y-2 text-xs text-brand-secondary"
                         >
-                            <span class="font-medium text-brand-secondary"
-                                >Akses gabung</span
+                            <div
+                                class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
                             >
-                            <span class="font-bold text-brand-secondary"
-                                >PIN 6 digit</span
+                                <span class="font-medium text-brand-secondary"
+                                    >Lobby</span
+                                >
+                                <span class="font-bold text-brand-secondary">{{
+                                    lobbyCount
+                                }}</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
                             >
+                                <span class="font-medium text-brand-secondary"
+                                    >Sedang berlangsung</span
+                                >
+                                <span class="font-bold text-brand-secondary">{{
+                                    liveCount
+                                }}</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
+                            >
+                                <span class="font-medium text-brand-secondary"
+                                    >Selesai</span
+                                >
+                                <span class="font-bold text-brand-secondary">{{
+                                    endedCount
+                                }}</span>
+                            </div>
                         </div>
-                    </div>
-                    <div
-                        v-else
-                        class="grid min-h-32 place-items-center text-center"
-                    >
-                        <div>
-                            <svg
-                                class="mx-auto h-8 w-8 text-brand-secondary/100"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1.7"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    d="M5 7h14v12H5zM8 4h8v3M9 12h6"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
-                            <p
-                                class="mt-2 text-sm font-semibold text-brand-secondary/70"
-                            >
-                                Belum ada data
-                            </p>
-                        </div>
-                    </div>
-                </article>
-            </section>
-
-            <!-- Card Sesi Terbaru (Persis dengan Card Data Workspace Question Bank) -->
-            <section
-                class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_2px_7px_rgba(15,23,42,0.09)]"
-            >
-                <div
-                    class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-white px-6 py-5"
-                >
-                    <div>
-                        <h2 class="font-extrabold text-slate-900">
-                            Data workspace
-                        </h2>
-                        <p class="mt-1 text-sm text-slate-500">
-                            {{ sessions.data.length }} item pada halaman ini.
-                        </p>
-                    </div>
-                    <span
-                        class="rounded-full bg-brand-secondary/15 px-3 py-1 text-xs font-bold text-[#527A12]"
-                    >
-                        live-sessions
-                    </span>
-                </div>
-
-                <div
-                    v-if="sessions.data.length"
-                    class="divide-y divide-slate-100 bg-white"
-                >
-                    <article
-                        v-for="session in sessions.data"
-                        :key="session.id"
-                        class="group flex min-h-20 items-center justify-between gap-4 border-l-4 border-l-transparent bg-white px-6 py-5 transition-colors duration-150 hover:bg-slate-50"
-                    >
                         <div
-                            class="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between sm:gap-6"
+                            v-else
+                            class="grid min-h-32 place-items-center text-center"
                         >
                             <div>
-                                <p
-                                    class="truncate font-extrabold text-slate-900"
+                                <svg
+                                    class="mx-auto h-8 w-8 text-brand-secondary/100"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.7"
+                                    aria-hidden="true"
                                 >
-                                    {{ session.quiz.title }}
+                                    <path
+                                        d="M5 7h14v12H5zM8 4h8v3M9 12h6"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                                <p
+                                    class="mt-2 text-sm font-semibold text-brand-secondary/70"
+                                >
+                                    Belum ada data
                                 </p>
-                                <p class="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                                    <span>
-                                        PIN <strong class="tracking-widest text-slate-800">{{ session.pin }}</strong>
-                                    </span>
-                                    <span>·</span>
-                                    <span class="flex items-center gap-1.5">
-                                        <span class="flex -space-x-1.5 overflow-hidden">
-                                            <template v-for="(p, i) in (session.participants as any[]).slice(0, 4)" :key="p.id">
-                                                <img
-                                                    v-if="p.avatar_key"
-                                                    :src="`/images/photo_profile/${p.avatar_key}.png`"
-                                                    :alt="p.alias"
-                                                    class="inline-block h-5 w-5 rounded-full border border-white object-cover ring-1 ring-slate-200"
-                                                />
-                                                <span
-                                                    v-else
-                                                    class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-white bg-brand-primary/10 text-[9px] font-black text-brand-primary ring-1 ring-slate-200"
-                                                >
-                                                    {{ p.alias.charAt(0).toUpperCase() }}
-                                                </span>
-                                            </template>
-                                        </span>
-                                        <strong>{{ session.participants.length }} peserta</strong>
-                                    </span>
-                                    <span
-                                        v-if="session.lobby_locked"
-                                        class="font-semibold text-amber-700"
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Card 2: Kuis Published -->
+                    <article
+                        class="min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]"
+                    >
+                        <div class="flex items-center justify-between gap-3">
+                            <p
+                                class="text-xs font-bold uppercase tracking-wide text-white"
+                            >
+                                KUIS PUBLISHED
+                            </p>
+                            <span
+                                class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#102449]"
+                            >
+                                {{ quizzes.length }}
+                            </span>
+                        </div>
+                        <div
+                            v-if="quizzes.length"
+                            class="mt-3 space-y-2 text-xs text-brand-secondary"
+                        >
+                            <div
+                                v-for="quiz in quizzes.slice(0, 3)"
+                                :key="quiz.id"
+                                class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
+                            >
+                                <span
+                                    class="truncate pr-2 font-medium text-brand-secondary"
+                                    >{{ quiz.title }}</span
+                                >
+                                <span
+                                    class="shrink-0 rounded-full bg-brand-secondary px-2 py-0.5 text-[10px] font-bold text-[#102449]"
+                                >
+                                    published
+                                </span>
+                            </div>
+                        </div>
+                        <div
+                            v-else
+                            class="grid min-h-32 place-items-center text-center"
+                        >
+                            <div>
+                                <svg
+                                    class="mx-auto h-8 w-8 text-brand-secondary/100"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.7"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M5 7h14v12H5zM8 4h8v3M9 12h6"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                                <p
+                                    class="mt-2 text-sm font-semibold text-brand-secondary/70"
+                                >
+                                    Belum ada data
+                                </p>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Card 3: Partisipasi -->
+                    <article
+                        class="min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)] sm:col-span-2 lg:col-span-1"
+                    >
+                        <div class="flex items-center justify-between gap-3">
+                            <p
+                                class="text-xs font-bold uppercase tracking-wide text-white"
+                            >
+                                PARTISIPASI
+                            </p>
+                            <span
+                                class="rounded-full bg-brand-secondary px-2.5 py-1 text-xs font-extrabold tabular-nums text-[#102449]"
+                            >
+                                {{ totalParticipantsCount }}
+                            </span>
+                        </div>
+                        <div
+                            v-if="sessions.data.length"
+                            class="mt-3 space-y-2 text-xs text-brand-secondary"
+                        >
+                            <div
+                                class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
+                            >
+                                <span class="font-medium text-brand-secondary"
+                                    >Total peserta</span
+                                >
+                                <span class="font-bold text-brand-secondary">{{
+                                    totalParticipantsCount
+                                }}</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
+                            >
+                                <span class="font-medium text-brand-secondary"
+                                    >Rata-rata / sesi</span
+                                >
+                                <span class="font-bold text-brand-secondary">
+                                    {{
+                                        sessions.data.length
+                                            ? Math.round(
+                                                  totalParticipantsCount /
+                                                      sessions.data.length,
+                                              )
+                                            : 0
+                                    }}
+                                </span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between rounded-lg bg-white/10 px-3 py-2"
+                            >
+                                <span class="font-medium text-brand-secondary"
+                                    >Akses gabung</span
+                                >
+                                <span class="font-bold text-brand-secondary"
+                                    >PIN 6 digit</span
+                                >
+                            </div>
+                        </div>
+                        <div
+                            v-else
+                            class="grid min-h-32 place-items-center text-center"
+                        >
+                            <div>
+                                <svg
+                                    class="mx-auto h-8 w-8 text-brand-secondary/100"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.7"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M5 7h14v12H5zM8 4h8v3M9 12h6"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                                <p
+                                    class="mt-2 text-sm font-semibold text-brand-secondary/70"
+                                >
+                                    Belum ada data
+                                </p>
+                            </div>
+                        </div>
+                    </article>
+                </section>
+
+                <!-- Card Sesi Terbaru (Persis dengan Card Data Workspace Question Bank) -->
+                <section
+                    class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_2px_7px_rgba(15,23,42,0.09)]"
+                >
+                    <div
+                        class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-white px-6 py-5"
+                    >
+                        <div>
+                            <h2 class="font-extrabold text-slate-900">
+                                Data workspace
+                            </h2>
+                            <p class="mt-1 text-sm text-slate-500">
+                                {{ sessions.data.length }} item pada halaman
+                                ini.
+                            </p>
+                        </div>
+                        <span
+                            class="rounded-full bg-brand-secondary/15 px-3 py-1 text-xs font-bold text-[#527A12]"
+                        >
+                            live-sessions
+                        </span>
+                    </div>
+
+                    <div
+                        v-if="sessions.data.length"
+                        class="divide-y divide-slate-100 bg-white"
+                    >
+                        <article
+                            v-for="session in sessions.data"
+                            :key="session.id"
+                            class="group flex min-h-20 items-center justify-between gap-4 border-l-4 border-l-transparent bg-white px-6 py-5 transition-colors duration-150 hover:bg-slate-50"
+                        >
+                            <div
+                                class="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between sm:gap-6"
+                            >
+                                <div>
+                                    <p
+                                        class="truncate font-extrabold text-slate-900"
                                     >
-                                        · Lobby terkunci
-                                    </span>
+                                        {{ session.quiz.title }}
+                                    </p>
+                                    <p
+                                        class="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500"
+                                    >
+                                        <span>
+                                            PIN
+                                            <strong
+                                                class="tracking-widest text-slate-800"
+                                                >{{ session.pin }}</strong
+                                            >
+                                        </span>
+                                        <span>·</span>
+                                        <span class="flex items-center gap-1.5">
+                                            <span
+                                                class="flex -space-x-1.5 overflow-hidden"
+                                            >
+                                                <template
+                                                    v-for="(p, i) in (
+                                                        session.participants as any[]
+                                                    ).slice(0, 4)"
+                                                    :key="p.id"
+                                                >
+                                                    <img
+                                                        v-if="p.avatar_key"
+                                                        :src="`/images/photo_profile/${p.avatar_key}.png`"
+                                                        :alt="p.alias"
+                                                        class="inline-block h-5 w-5 rounded-full border border-white object-cover ring-1 ring-slate-200"
+                                                    />
+                                                    <span
+                                                        v-else
+                                                        class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-white bg-brand-primary/10 text-[9px] font-black text-brand-primary ring-1 ring-slate-200"
+                                                    >
+                                                        {{
+                                                            p.alias
+                                                                .charAt(0)
+                                                                .toUpperCase()
+                                                        }}
+                                                    </span>
+                                                </template>
+                                            </span>
+                                            <strong
+                                                >{{
+                                                    session.participants.length
+                                                }}
+                                                peserta</strong
+                                            >
+                                        </span>
+                                        <span
+                                            v-if="session.lobby_locked"
+                                            class="font-semibold text-amber-700"
+                                        >
+                                            · Lobby terkunci
+                                        </span>
+                                    </p>
+                                </div>
+
+                                <p
+                                    class="mt-2 inline-flex shrink-0 rounded-full bg-brand-secondary/15 px-3 py-1 text-xs font-bold text-[#527A12] sm:mt-0"
+                                >
+                                    {{ session.status }}
                                 </p>
                             </div>
 
-                            <p
-                                class="mt-2 inline-flex shrink-0 rounded-full bg-brand-secondary/15 px-3 py-1 text-xs font-bold text-[#527A12] sm:mt-0"
+                            <div class="flex items-center gap-2">
+                                <Link
+                                    :href="
+                                        route('live-sessions.play', session.id)
+                                    "
+                                    class="inline-flex min-h-9 items-center justify-center rounded-md bg-[#3451b5] px-4 text-xs font-bold text-white transition hover:bg-[#29439d]"
+                                >
+                                    Kelola
+                                </Link>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div
+                        v-else
+                        class="grid min-h-36 place-items-center py-12 text-center"
+                    >
+                        <div>
+                            <svg
+                                class="mx-auto h-8 w-8 text-slate-300"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.7"
+                                aria-hidden="true"
                             >
-                                {{ session.status }}
+                                <path
+                                    d="M5 7h14v12H5zM8 4h8v3M9 12h6"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                            <p
+                                class="mt-2 text-sm font-semibold text-slate-500"
+                            >
+                                Belum ada data
                             </p>
                         </div>
-
-                        <div class="flex items-center gap-2">
-                            <Link
-                                :href="route('live-sessions.play', session.id)"
-                                class="inline-flex min-h-9 items-center justify-center rounded-md bg-[#3451b5] px-4 text-xs font-bold text-white transition hover:bg-[#29439d]"
-                            >
-                                Kelola
-                            </Link>
-                        </div>
-                    </article>
-                </div>
-
-                <div
-                    v-else
-                    class="grid min-h-36 place-items-center py-12 text-center"
-                >
-                    <div>
-                        <svg
-                            class="mx-auto h-8 w-8 text-slate-300"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.7"
-                            aria-hidden="true"
-                        >
-                            <path
-                                d="M5 7h14v12H5zM8 4h8v3M9 12h6"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            />
-                        </svg>
-                        <p class="mt-2 text-sm font-semibold text-slate-500">
-                            Belum ada data
-                        </p>
                     </div>
-                </div>
-            </section>
+                </section>
+            </div>
         </main>
     </AuthenticatedLayout>
 </template>
-

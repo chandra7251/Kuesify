@@ -127,11 +127,15 @@ onUnmounted(() => {
     <Head title="Dashboard Creator" />
 
     <AuthenticatedLayout>
-        <div class="min-h-[calc(100vh-4rem)] bg-brand-accent">
+        <div class="relative min-h-screen">
+            <div
+                class="pointer-events-none fixed inset-0 -z-0 bg-brand-accent/30"
+                aria-hidden="true"
+            ></div>
             <main
                 ref="motionRoot"
                 data-motion="creator-dashboard"
-                class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8"
+                class="relative z-10 mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8"
             >
                 <section
                     data-motion-item

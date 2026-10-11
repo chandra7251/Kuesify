@@ -97,9 +97,7 @@ function addMember(groupId: number, userId: number): void {
     });
 }
 const isAdmin = computed(() => props.section === 'admin');
-const isStyledSection = computed(
-    () => isAdmin.value,
-);
+const isStyledSection = computed(() => isAdmin.value);
 const isBrandHero = computed(() => isQuestions.value || isReports.value);
 const adminCategories = computed(
     () =>
@@ -149,8 +147,12 @@ const summarySize = (value: unknown) =>
             </div>
         </template>
 
-        <main class="min-h-full bg-brand-accent/30 px-4 py-6 sm:px-6 lg:px-8">
-            <div class="mx-auto max-w-7xl space-y-6">
+        <main class="relative min-h-screen px-4 py-6 sm:px-6 lg:px-8">
+            <div
+                class="pointer-events-none fixed inset-0 -z-0 bg-brand-accent/30"
+                aria-hidden="true"
+            ></div>
+            <div class="relative z-10 mx-auto max-w-7xl space-y-6">
                 <!-- Header Section (Top Banner) -->
                 <section
                     v-if="!isReports"
@@ -228,7 +230,7 @@ const summarySize = (value: unknown) =>
                 <!-- 3 Stat Cards untuk Reports (Persis Question Bank & Live Quiz) -->
                 <section
                     v-if="isReports"
-                    class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                    class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
                 >
                     <!-- Card 1: Total Penyelesaian -->
                     <article
@@ -949,7 +951,7 @@ const summarySize = (value: unknown) =>
                                                 format,
                                             )
                                         "
-                                        class="inline-flex w-full min-h-9 items-center justify-center rounded-md bg-brand-primary px-3.5 text-xs font-bold uppercase text-white transition hover:bg-brand-hover sm:w-auto"
+                                        class="inline-flex min-h-9 w-full items-center justify-center rounded-md bg-brand-primary px-3.5 text-xs font-bold uppercase text-white transition hover:bg-brand-hover sm:w-auto"
                                     >
                                         Unduh {{ format }}
                                     </a>

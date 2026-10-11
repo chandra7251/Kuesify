@@ -114,8 +114,12 @@ function sizeKb(bytes: number): string {
 <template>
     <Head title="Materi AI" />
     <AuthenticatedLayout>
-        <main class="min-h-full bg-brand-accent/30 px-4 py-6 sm:px-6 lg:px-8">
-            <div class="mx-auto max-w-7xl space-y-6">
+        <main class="relative min-h-screen px-4 py-6 sm:px-6 lg:px-8">
+            <div
+                class="pointer-events-none fixed inset-0 -z-0 bg-brand-accent/30"
+                aria-hidden="true"
+            ></div>
+            <div class="relative z-10 mx-auto max-w-7xl space-y-6">
                 <section
                     class="relative overflow-hidden rounded-3xl bg-brand-primary p-6 text-white shadow-figma sm:p-8"
                 >

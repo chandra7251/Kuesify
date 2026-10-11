@@ -24,4 +24,14 @@ class QuizPolicy
 
         return $this->create($user) && ($quiz->creator_id === $user->id || $quiz->collaborators()->whereKey($user)->exists() || in_array($role, [OrganizationRole::OrganizationAdmin->value, OrganizationRole::SuperAdmin->value], true));
     }
+
+    public function delete(User $user, Quiz $quiz): bool
+    {
+        $deadline = $quiz->getRawOriginal('deadline_at');
+
+        return $this->update($user, $quiz)
+            && $quiz->status === 'published'
+            && $deadline !== null
+            && Carbon::createFromFormat('Y-m-d H:i:s', substr($deadline, 0, 19), 'Asia/Jakarta')->isPast();
+    }
 }
