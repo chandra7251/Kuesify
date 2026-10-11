@@ -11,7 +11,7 @@ class LiveSessionPresenter
     public function present(LiveSession $session, ?int $participantId = null): array
     {
         $session = LiveSession::withoutGlobalScopes()->with('participants:id,live_session_id,alias,avatar_key,score,kicked_at')->findOrFail($session->id);
-        $quiz = Quiz::withoutGlobalScopes()->findOrFail($session->quiz_id);
+        $quiz = Quiz::withoutGlobalScope('organization')->findOrFail($session->quiz_id);
         $question = $session->current_question_id ? Question::withoutGlobalScopes()->find($session->current_question_id) : null;
 
         // Hitung nomor soal & total soal dari pivot position

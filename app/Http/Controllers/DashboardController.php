@@ -54,7 +54,7 @@ class DashboardController extends Controller
         $stats = [
             'organizations' => Organization::withoutGlobalScopes()->count(),
             'users' => DB::table('users')->count(),
-            'quizzes' => Quiz::withoutGlobalScopes()->count(),
+            'quizzes' => Quiz::withoutGlobalScope('organization')->count(),
             'questions' => Question::withoutGlobalScopes()->count(),
             'attempts' => QuizAttempt::withoutGlobalScopes()->count(),
             'liveSessions' => LiveSession::withoutGlobalScopes()->whereIn('status', ['lobby', 'live'])->count(),

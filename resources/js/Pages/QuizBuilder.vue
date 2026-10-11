@@ -40,6 +40,7 @@ const props = defineProps<{
 const createForm = useForm({ title: '' });
 const loadingQuizzes = ref(false);
 const showDetails = ref(false);
+const pendingDeleteQuiz = ref<Quiz | null>(null);
 const detailMode = ref<'read' | 'manage'>('read');
 const prefersReducedMotion = () =>
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -266,8 +267,18 @@ function formatDeadline(value?: string | null): string {
 
 function deleteQuiz(quiz: Quiz): void {
     if (!canDeleteQuiz(quiz)) return;
-    if (!window.confirm(`Hapus quiz "${quiz.title}" secara permanen?`)) return;
+    pendingDeleteQuiz.value = quiz;
+}
 
+function cancelDeleteQuiz(): void {
+    pendingDeleteQuiz.value = null;
+}
+
+function confirmDeleteQuiz(): void {
+    const quiz = pendingDeleteQuiz.value;
+    if (!quiz || !canDeleteQuiz(quiz)) return;
+
+    pendingDeleteQuiz.value = null;
     router.delete(route('quizzes.destroy', quiz.id), {
         preserveScroll: true,
         onSuccess: () => {
@@ -1405,6 +1416,103 @@ function archiveQuiz(): void {
                 </section>
             </div>
         </main>
+        <Teleport to="body">
+            <Transition name="delete-confirm">
+                <div
+                    v-if="pendingDeleteQuiz"
+                    class="fixed inset-0 z-[100] grid place-items-center bg-slate-500/35 px-4 backdrop-blur-sm"
+                    role="presentation"
+                    @click.self="cancelDeleteQuiz"
+                >
+                    <section
+                        class="w-full max-w-lg overflow-hidden rounded-2xl border border-red-100 bg-white shadow-2xl"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="delete-quiz-title"
+                    >
+                        <div
+                            class="flex items-start justify-between gap-4 border-b border-red-100 bg-red-50/80 px-6 py-5"
+                        >
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-red-600 text-white shadow-sm"
+                                    aria-hidden="true"
+                                >
+                                    <svg
+                                        class="h-5 w-5"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <path d="M3 6h18" />
+                                        <path d="M8 6V4h8v2" />
+                                        <path d="M19 6l-1 14H6L5 6" />
+                                        <path d="M10 11v5M14 11v5" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p
+                                        class="text-xs font-extrabold uppercase tracking-[0.16em] text-red-600"
+                                    >
+                                        Konfirmasi hapus
+                                    </p>
+                                    <h2
+                                        id="delete-quiz-title"
+                                        class="mt-1 text-xl font-black text-slate-950"
+                                    >
+                                        Hapus quiz ini?
+                                    </h2>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                class="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-slate-400 transition hover:bg-red-100 hover:text-red-600"
+                                aria-label="Tutup konfirmasi hapus"
+                                @click="cancelDeleteQuiz"
+                            >
+                                <span class="text-xl leading-none"
+                                    >&times;</span
+                                >
+                            </button>
+                        </div>
+                        <div class="px-6 py-5">
+                            <p class="text-base leading-7 text-slate-600">
+                                Quiz
+                                <span class="font-black text-slate-900"
+                                    >“{{ pendingDeleteQuiz.title }}”</span
+                                >
+                                akan dihapus dari daftar quiz.
+                            </p>
+                            <div
+                                class="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-semibold leading-5 text-amber-800"
+                            >
+                                Quiz tidak akan tampil di workspace setelah
+                                dihapus.
+                            </div>
+                        </div>
+                        <div
+                            class="flex flex-col-reverse gap-3 border-t border-slate-100 bg-slate-50/70 px-6 py-4 sm:flex-row sm:justify-end"
+                        >
+                            <button
+                                type="button"
+                                class="min-h-11 rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-600 transition hover:border-slate-300 hover:bg-slate-100"
+                                @click="cancelDeleteQuiz"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                type="button"
+                                class="min-h-11 rounded-xl bg-red-600 px-5 text-sm font-black text-white shadow-sm transition hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                                @click="confirmDeleteQuiz"
+                            >
+                                Hapus quiz
+                            </button>
+                        </div>
+                    </section>
+                </div>
+            </Transition>
+        </Teleport>
     </AuthenticatedLayout>
 </template>
 
@@ -1439,5 +1547,28 @@ function archiveQuiz(): void {
         animation: none;
         transition: none;
     }
+}
+
+.delete-confirm-enter-active,
+.delete-confirm-leave-active {
+    transition: opacity 180ms ease;
+}
+
+.delete-confirm-enter-active section,
+.delete-confirm-leave-active section {
+    transition:
+        transform 180ms ease,
+        opacity 180ms ease;
+}
+
+.delete-confirm-enter-from,
+.delete-confirm-leave-to {
+    opacity: 0;
+}
+
+.delete-confirm-enter-from section,
+.delete-confirm-leave-to section {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
 }
 </style>

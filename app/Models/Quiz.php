@@ -8,12 +8,14 @@ use DomainException;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 #[Fillable(['organization_id', 'creator_id', 'category_id', 'title', 'description', 'status', 'visibility', 'cover_image', 'deadline_at', 'max_attempts', 'allow_retry', 'show_explanations', 'settings'])]
 class Quiz extends Model
 {
+    use SoftDeletes;
     protected function casts(): array
     {
         return ['settings' => 'array', 'deadline_at' => 'datetime', 'allow_retry' => 'boolean', 'show_explanations' => 'boolean'];

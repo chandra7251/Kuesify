@@ -33,7 +33,7 @@ class QuizController extends Controller
 
     public function update(Request $request, int $quiz): RedirectResponse
     {
-        $quiz = Quiz::withoutGlobalScopes()->findOrFail($quiz);
+        $quiz = Quiz::withoutGlobalScope('organization')->findOrFail($quiz);
         Gate::authorize('update', $quiz);
         $data = $request->validate([
             'title' => ['required', 'string', 'max:120'], 'description' => ['nullable', 'string', 'max:4000'],
@@ -47,7 +47,7 @@ class QuizController extends Controller
 
     public function syncQuestions(Request $request, int $quiz): RedirectResponse
     {
-        $quiz = Quiz::withoutGlobalScopes()->findOrFail($quiz);
+        $quiz = Quiz::withoutGlobalScope('organization')->findOrFail($quiz);
         Gate::authorize('update', $quiz);
         $data = $request->validate(['question_ids' => ['required', 'array', 'min:1'], 'question_ids.*' => ['integer', 'distinct']]);
         $ids = $data['question_ids'];
@@ -59,7 +59,7 @@ class QuizController extends Controller
 
     public function attachCollaborator(Request $request, int $quiz): RedirectResponse
     {
-        $quiz = Quiz::withoutGlobalScopes()->findOrFail($quiz);
+        $quiz = Quiz::withoutGlobalScope('organization')->findOrFail($quiz);
         $this->authorizeCollaboratorManagement($request, $quiz);
         $data = $request->validate(['user_id' => ['required', 'integer']]);
         abort_unless(Organization::findOrFail(app(TenantContext::class)->id())->members()->whereKey($data['user_id'])->exists(), 422);
@@ -71,7 +71,7 @@ class QuizController extends Controller
 
     public function detachCollaborator(Request $request, int $quiz, int $user): RedirectResponse
     {
-        $quiz = Quiz::withoutGlobalScopes()->findOrFail($quiz);
+        $quiz = Quiz::withoutGlobalScope('organization')->findOrFail($quiz);
         $this->authorizeCollaboratorManagement($request, $quiz);
         $quiz->collaborators()->detach($user);
 
@@ -86,7 +86,7 @@ class QuizController extends Controller
 
     public function publish(int $quiz): RedirectResponse
     {
-        $quiz = Quiz::withoutGlobalScopes()->findOrFail($quiz);
+        $quiz = Quiz::withoutGlobalScope('organization')->findOrFail($quiz);
         Gate::authorize('update', $quiz);
         $quiz->publish();
 
@@ -95,7 +95,7 @@ class QuizController extends Controller
 
     public function clone(int $quiz): RedirectResponse
     {
-        $quiz = Quiz::withoutGlobalScopes()->with('questions')->findOrFail($quiz);
+        $quiz = Quiz::withoutGlobalScope('organization')->with('questions')->findOrFail($quiz);
         Gate::authorize('update', $quiz);
         $copy = $quiz->replicate(['status', 'created_at', 'updated_at']);
         $copy->title = $quiz->title.' (copy)';
@@ -109,7 +109,7 @@ class QuizController extends Controller
 
     public function archive(int $quiz): RedirectResponse
     {
-        $quiz = Quiz::withoutGlobalScopes()->findOrFail($quiz);
+        $quiz = Quiz::withoutGlobalScope('organization')->findOrFail($quiz);
         Gate::authorize('update', $quiz);
         $quiz->update(['status' => 'archived']);
 
@@ -118,7 +118,7 @@ class QuizController extends Controller
 
     public function destroy(int $quiz): RedirectResponse
     {
-        $quiz = Quiz::withoutGlobalScopes()->findOrFail($quiz);
+        $quiz = Quiz::withoutGlobalScope('organization')->findOrFail($quiz);
         Gate::authorize('delete', $quiz);
         $quiz->delete();
 
@@ -129,7 +129,7 @@ class QuizController extends Controller
     {
         $this->authorizePlatformModeration($request);
 
-        $pending = Quiz::withoutGlobalScopes()
+        $pending = Quiz::withoutGlobalScope('organization')
             ->with([
                 'creator:id,name',
                 'category:id,name,theme_key',
@@ -143,7 +143,7 @@ class QuizController extends Controller
             ->latest()
             ->get(['id', 'organization_id', 'creator_id', 'category_id', 'title', 'description', 'status', 'visibility', 'created_at', 'updated_at']);
 
-        $history = Quiz::withoutGlobalScopes()
+        $history = Quiz::withoutGlobalScope('organization')
             ->with([
                 'creator:id,name',
                 'category:id,name,theme_key',
@@ -174,7 +174,7 @@ class QuizController extends Controller
     public function approveModeration(Request $request, int $quiz): RedirectResponse
     {
         $this->authorizePlatformModeration($request);
-        Quiz::withoutGlobalScopes()->where('visibility', 'public')->where('status', 'pending_moderation')->findOrFail($quiz)->update(['status' => 'published']);
+        Quiz::withoutGlobalScope('organization')->where('visibility', 'public')->where('status', 'pending_moderation')->findOrFail($quiz)->update(['status' => 'published']);
 
         return back();
     }
@@ -182,7 +182,7 @@ class QuizController extends Controller
     public function rejectModeration(Request $request, int $quiz): RedirectResponse
     {
         $this->authorizePlatformModeration($request);
-        Quiz::withoutGlobalScopes()->where('visibility', 'public')->where('status', 'pending_moderation')->findOrFail($quiz)->update(['status' => 'rejected']);
+        Quiz::withoutGlobalScope('organization')->where('visibility', 'public')->where('status', 'pending_moderation')->findOrFail($quiz)->update(['status' => 'rejected']);
 
         return back();
     }
@@ -194,7 +194,7 @@ class QuizController extends Controller
 
     public function cover(Request $request, int $quiz): RedirectResponse
     {
-        $quiz = Quiz::withoutGlobalScopes()->findOrFail($quiz);
+        $quiz = Quiz::withoutGlobalScope('organization')->findOrFail($quiz);
         Gate::authorize('update', $quiz);
         $data = $request->validate(['cover' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048']]);
         $quiz->update(['cover_image' => $data['cover']->store('quiz-covers/'.$quiz->organization_id, 'public')]);
