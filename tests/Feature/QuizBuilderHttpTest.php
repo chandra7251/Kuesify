@@ -78,9 +78,28 @@ it('queues public quizzes for super admin moderation before publication', functi
     $this->getJson(route('admin.moderation.index'))
         ->assertOk()
         ->assertJsonPath('data.0.title', 'Publik');
-    $this->post(route('admin.moderation.approve', $quiz))->assertRedirect();
+    $this->post(route('admin.moderation.approve', $quiz))->assertRedirect()->assertSessionHas('success');
 
     $this->assertDatabaseHas('quizzes', ['id' => $quiz->id, 'status' => 'published']);
+});
+
+it('records a success receipt when rejecting public quiz moderation', function () {
+    $organization = Organization::factory()->create();
+    $creator = User::factory()->create();
+    $superAdmin = User::factory()->create();
+    $organization->members()->attach([
+        $creator->id => ['role' => 'creator'],
+        $superAdmin->id => ['role' => 'super_admin'],
+    ]);
+
+    app(TenantContext::class)->set($organization);
+    $quiz = Quiz::create(['organization_id' => $organization->id, 'creator_id' => $creator->id, 'title' => 'Ditolak', 'status' => 'pending_moderation', 'visibility' => 'public']);
+    app(TenantContext::class)->clear();
+
+    $this->actingAs($superAdmin)->post(route('organizations.switch', $organization));
+    $this->post(route('admin.moderation.reject', $quiz))->assertRedirect()->assertSessionHas('success');
+
+    $this->assertDatabaseHas('quizzes', ['id' => $quiz->id, 'status' => 'rejected']);
 });
 
 it('lets quiz owners add collaborator creators who can edit the quiz', function () {

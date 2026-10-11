@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\Cache;
 
 class NotificationController extends Controller
 {
@@ -25,6 +26,7 @@ class NotificationController extends Controller
     public function read(Request $request, string $notification): RedirectResponse
     {
         $request->user()->notifications()->whereKey($notification)->firstOrFail()->markAsRead();
+        Cache::forget("notif_count.{$request->user()->id}");
 
         return back();
     }

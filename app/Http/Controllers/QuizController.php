@@ -174,17 +174,19 @@ class QuizController extends Controller
     public function approveModeration(Request $request, int $quiz): RedirectResponse
     {
         $this->authorizePlatformModeration($request);
-        Quiz::withoutGlobalScope('organization')->where('visibility', 'public')->where('status', 'pending_moderation')->findOrFail($quiz)->update(['status' => 'published']);
+        $quizModel = Quiz::withoutGlobalScope('organization')->where('visibility', 'public')->where('status', 'pending_moderation')->findOrFail($quiz);
+        $quizModel->update(['status' => 'published']);
 
-        return back();
+        return back()->with('success', "Quiz {$quizModel->title} disetujui dan tampil publik.");
     }
 
     public function rejectModeration(Request $request, int $quiz): RedirectResponse
     {
         $this->authorizePlatformModeration($request);
-        Quiz::withoutGlobalScope('organization')->where('visibility', 'public')->where('status', 'pending_moderation')->findOrFail($quiz)->update(['status' => 'rejected']);
+        $quizModel = Quiz::withoutGlobalScope('organization')->where('visibility', 'public')->where('status', 'pending_moderation')->findOrFail($quiz);
+        $quizModel->update(['status' => 'rejected']);
 
-        return back();
+        return back()->with('success', "Quiz {$quizModel->title} ditolak dari publikasi.");
     }
 
     private function authorizePlatformModeration(Request $request): void

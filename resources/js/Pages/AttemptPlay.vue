@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import AppIcon from '@/Components/AppIcon.vue';
+import Modal from '@/Components/Modal.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import Modal from '@/Components/Modal.vue';
 import { gsap } from 'gsap';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
@@ -57,7 +57,9 @@ const props = defineProps<{
 }>();
 const index = ref(0);
 
-const isOffline = ref(typeof navigator !== "undefined" ? !navigator.onLine : false);
+const isOffline = ref(
+    typeof navigator !== 'undefined' ? !navigator.onLine : false,
+);
 
 function handleOnlineStatus(): void {
     isOffline.value = false;
@@ -73,15 +75,17 @@ let resultMedia: gsap.MatchMedia | undefined;
 const showHint = ref(false);
 const isSubmitting = ref(false);
 const submission = useForm({});
-const answer = useForm({ answer: "" });
+const answer = useForm({ answer: '' });
 
 const showSubmitConfirm = ref(false);
-const confirmationMessage = ref("");
+const confirmationMessage = ref('');
 function confirmSubmit(): void {
     showSubmitConfirm.value = false;
     isSubmitProcessing.value = true;
-    submission.post(route("attempts.submit", props.attempt.id), {
-        onFinish: () => { isSubmitProcessing.value = false; },
+    submission.post(route('attempts.submit', props.attempt.id), {
+        onFinish: () => {
+            isSubmitProcessing.value = false;
+        },
     });
 }
 const isSubmitProcessing = ref(false);
@@ -258,11 +262,14 @@ function submit(): void {
     if (isSubmitting.value) return;
     const unanswered =
         props.attempt.quiz.questions.length - props.attempt.answers.length;
-    const message =
+    confirmationMessage.value =
         unanswered > 0
             ? `Masih ada ${unanswered} soal belum dijawab. Tetap kumpulkan?`
             : 'Kumpulkan kuis sekarang?';
-    if (finished.value) { showSubmitConfirm.value = true; return; }
+    if (finished.value) {
+        showSubmitConfirm.value = true;
+        return;
+    }
     isSubmitting.value = true;
     if (submitButton.value) {
         gsap.timeline({ defaults: { duration: 0.18, ease: 'power2.out' } })
@@ -289,7 +296,6 @@ function submit(): void {
     <Head :title="attempt.quiz.title" />
     <AuthenticatedLayout>
         <main ref="resultRoot" class="mx-auto max-w-3xl px-4 py-6 sm:px-6">
-
             <!-- Offline Connection Indicator Banner -->
             <transition
                 enter-active-class="transition duration-300 ease-out"
@@ -305,17 +311,24 @@ function submit(): void {
                     role="alert"
                 >
                     <div class="flex items-center gap-3">
-                        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-200 text-amber-900 font-bold">
+                        <span
+                            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-200 font-bold text-amber-900"
+                        >
                             ⚠️
                         </span>
                         <div>
-                            <p class="text-xs font-black sm:text-sm">Koneksi Internet Terputus</p>
+                            <p class="text-xs font-black sm:text-sm">
+                                Koneksi Internet Terputus
+                            </p>
                             <p class="text-[11px] text-amber-800">
-                                Jawaban kamu tetap aman di layar ini. Sistem akan mencoba mengirim ulang saat koneksi pulih.
+                                Jawaban kamu tetap aman di layar ini. Sistem
+                                akan mencoba mengirim ulang saat koneksi pulih.
                             </p>
                         </div>
                     </div>
-                    <span class="shrink-0 rounded-full bg-amber-200/80 px-2.5 py-1 text-[10px] font-black uppercase text-amber-950">
+                    <span
+                        class="shrink-0 rounded-full bg-amber-200/80 px-2.5 py-1 text-[10px] font-black uppercase text-amber-950"
+                    >
                         Offline
                     </span>
                 </div>
@@ -371,28 +384,18 @@ function submit(): void {
                 <div
                     class="gsap-stat rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
                 >
-                    <p
-                        class="text-xs font-bold text-slate-500"
-                    >
-                        Persentase
-                    </p>
-                    <p
-                        class="mt-1 text-2xl font-black text-slate-900"
-                    >
+                    <p class="text-xs font-bold text-slate-500">Persentase</p>
+                    <p class="mt-1 text-2xl font-black text-slate-900">
                         {{ attempt.result.percentage ?? 0 }}%
                     </p>
                 </div>
                 <div
                     class="gsap-stat rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
                 >
-                    <p
-                        class="text-xs font-bold text-slate-500"
-                    >
+                    <p class="text-xs font-bold text-slate-500">
                         Benar / salah
                     </p>
-                    <p
-                        class="mt-1 text-2xl font-black text-slate-900"
-                    >
+                    <p class="mt-1 text-2xl font-black text-slate-900">
                         {{ attempt.result.correct_answers ?? 0 }} /
                         {{ attempt.result.incorrect_answers ?? 0 }}
                     </p>
@@ -400,14 +403,8 @@ function submit(): void {
                 <div
                     class="gsap-stat rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
                 >
-                    <p
-                        class="text-xs font-bold text-slate-500"
-                    >
-                        Attempt
-                    </p>
-                    <p
-                        class="mt-1 text-2xl font-black text-slate-900"
-                    >
+                    <p class="text-xs font-bold text-slate-500">Attempt</p>
+                    <p class="mt-1 text-2xl font-black text-slate-900">
                         {{ attempt.attempts_used
                         }}<span
                             v-if="attempt.attempts_remaining !== null"
@@ -439,9 +436,7 @@ function submit(): void {
                         <AppIcon name="xp" :size="20" :interactive="false" />
                     </span>
                     <div class="min-w-0 flex-1">
-                        <p
-                            class="text-sm font-black text-slate-900"
-                        >
+                        <p class="text-sm font-black text-slate-900">
                             Reward belajar
                         </p>
                         <p
@@ -486,14 +481,10 @@ function submit(): void {
                         ><AppIcon name="level" :size="20" :interactive="false"
                     /></span>
                     <div>
-                        <p
-                            class="text-sm font-black text-slate-900"
-                        >
+                        <p class="text-sm font-black text-slate-900">
                             Level naik!
                         </p>
-                        <p
-                            class="mt-1 text-sm font-bold text-slate-700"
-                        >
+                        <p class="mt-1 text-sm font-bold text-slate-700">
                             Level {{ attempt.result.level_after }} terbuka.
                             Teruskan ritmemu.
                         </p>
@@ -650,40 +641,33 @@ function submit(): void {
                 </article>
             </section>
         </main>
-    
-<!-- Submit Confirmation Modal -->
-<Modal
-    :show="showSubmitConfirm"
-    title="Konfirmasi Pengumpulan"
-    @close="showSubmitConfirm = false"
->
-    <div class="p-6">
-        <p class="text-slate-600">
-            {{ confirmationMessage }}
-        </p>
-        <div class="mt-6 flex justify-end gap-3">
-            <button
-                class="rounded-xl border border-slate-200 px-4 font-bold text-slate-700"
-                @click="showSubmitConfirm = false"
-            >
-                Batal
-            </button>
-            <button
-                class="rounded-xl bg-brand-primary px-4 font-extrabold text-white"
-                @click="confirmSubmit"
-                :disabled="isSubmitProcessing"
-            >
-                {{ isSubmitProcessing ? "Mengumpulkan…" : "Kumpulkan" }}
-            </button>
-        </div>
-    </div>
-</Modal>
 
+        <!-- Submit Confirmation Modal -->
+        <Modal
+            :show="showSubmitConfirm"
+            title="Konfirmasi Pengumpulan"
+            @close="showSubmitConfirm = false"
+        >
+            <div class="p-6">
+                <p class="text-slate-600">
+                    {{ confirmationMessage }}
+                </p>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button
+                        class="rounded-xl border border-slate-200 px-4 font-bold text-slate-700"
+                        @click="showSubmitConfirm = false"
+                    >
+                        Batal
+                    </button>
+                    <button
+                        class="rounded-xl bg-brand-primary px-4 font-extrabold text-white"
+                        :disabled="isSubmitProcessing"
+                        @click="confirmSubmit"
+                    >
+                        {{ isSubmitProcessing ? 'Mengumpulkan…' : 'Kumpulkan' }}
+                    </button>
+                </div>
+            </div>
+        </Modal>
     </AuthenticatedLayout>
 </template>
-
-
-
-
-
-

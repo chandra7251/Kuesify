@@ -134,7 +134,6 @@ class DashboardController extends Controller
     {
         $stats = [
             'members' => $organization->members()->count(),
-            'groups' => $organization->groups()->count(),
             'quizzes' => $organization->quizzes()->count(),
             'questions' => Question::count(),
             'liveSessions' => LiveSession::whereIn('status', ['lobby', 'live'])->count(),
@@ -229,22 +228,29 @@ class DashboardController extends Controller
         })->values()->all();
 
         $gamification = app(GamificationService::class);
-        foreach ($gamification->missionDefinitions() as $definition) {
-            Mission::updateOrCreate(['key' => $definition['key']], $definition);
-        }
+        $missionDefinitions = $gamification->missionDefinitions();
+        Mission::upsert(
+            array_map(fn (array $definition) => array_merge($definition, ['is_active' => true, 'created_at' => now(), 'updated_at' => now()]), $missionDefinitions),
+            ['key'],
+            ['kind', 'title', 'description', 'goal', 'reward_xp', 'is_active', 'updated_at'],
+        );
         $missionDate = Carbon::now($organization->timezone ?: 'UTC');
-        $missions = Mission::where('is_active', true)->get()->map(function (Mission $mission) use ($organization, $user, $missionDate): array {
-            $periodKey = match ($mission->kind) {
-                'daily' => $missionDate->toDateString(),
-                'weekly' => $missionDate->copy()->startOfWeek()->toDateString(),
-                default => 'lifetime',
-            };
-            $progress = UserMission::withoutGlobalScopes()->where([
-                'organization_id' => $organization->id,
-                'user_id' => $user->id,
-                'mission_id' => $mission->id,
-                'period_key' => $periodKey,
-            ])->first();
+        $activeMissions = Mission::where('is_active', true)->get();
+        $periodKeys = $activeMissions->mapWithKeys(fn (Mission $mission) => [$mission->id => match ($mission->kind) {
+            'daily' => $missionDate->toDateString(),
+            'weekly' => $missionDate->copy()->startOfWeek()->toDateString(),
+            default => 'lifetime',
+        }]);
+        $missionProgress = UserMission::withoutGlobalScopes()
+            ->where('organization_id', $organization->id)
+            ->where('user_id', $user->id)
+            ->whereIn('mission_id', $activeMissions->pluck('id'))
+            ->whereIn('period_key', $periodKeys->values()->unique())
+            ->get()
+            ->keyBy(fn (UserMission $progress) => $progress->mission_id.'|'.$progress->period_key);
+        $missions = $activeMissions->map(function (Mission $mission) use ($missionProgress, $periodKeys): array {
+            $periodKey = $periodKeys[$mission->id];
+            $progress = $missionProgress->get($mission->id.'|'.$periodKey);
 
             return [
                 'key' => $mission->key,
@@ -262,9 +268,9 @@ class DashboardController extends Controller
         return Inertia::render('participant/dashboard', [
             'organization' => ['id' => $organization->id, 'name' => $organization->name, 'role' => 'participant'],
             'stats' => [
-                'availableQuizzes' => Quiz::where('status', 'published')->count(),
-                'attempts' => QuizAttempt::where('participant_id', $user->id)->count(),
-                'completedAttempts' => QuizAttempt::where('participant_id', $user->id)->where('status', 'completed')->count(),
+                'availableQuizzes' => Quiz::where('status', 'published')->where('organization_id', $organization->id)->count(),
+                'attempts' => QuizAttempt::where('organization_id', $organization->id)->where('participant_id', $user->id)->count(),
+                'completedAttempts' => QuizAttempt::where('organization_id', $organization->id)->where('participant_id', $user->id)->where('status', 'completed')->count(),
                 'xp' => $progress?->xp ?? 0,
                 'streak' => $progress?->streak ?? 0,
                 'level' => $progress?->level ?? 1,

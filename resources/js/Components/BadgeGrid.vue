@@ -221,38 +221,38 @@ function equipTitle() {
         >
             <button
                 type="button"
-                @click="activeFilter = 'all'"
                 class="rounded-lg px-2.5 py-1 transition"
                 :class="
                     activeFilter === 'all'
                         ? 'bg-brand-primary text-white'
                         : 'text-[#64748b] hover:bg-[#f1f5f9]'
                 "
+                @click="activeFilter = 'all'"
             >
                 Semua ({{ badges.length }})
             </button>
             <button
                 type="button"
-                @click="activeFilter = 'earned'"
                 class="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 transition"
                 :class="
                     activeFilter === 'earned'
                         ? 'bg-brand-primary text-white'
                         : 'text-[#64748b] hover:bg-[#f1f5f9]'
                 "
+                @click="activeFilter = 'earned'"
             >
                 <AppIcon name="badge" :size="13" />
                 <span>Terbuka ({{ earnedCount }})</span>
             </button>
             <button
                 type="button"
-                @click="activeFilter = 'locked'"
                 class="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 transition"
                 :class="
                     activeFilter === 'locked'
                         ? 'bg-brand-primary text-white'
                         : 'text-brand-primary hover:bg-[#f1f5f9]'
                 "
+                @click="activeFilter = 'locked'"
             >
                 <AppIcon name="lock" :size="12" />
                 <span>Terkunci ({{ lockedCount }})</span>
@@ -264,13 +264,13 @@ function equipTitle() {
             <article
                 v-for="badge in displayBadges"
                 :key="badge.key"
-                @click="openInspect(badge)"
-                class="group relative cursor-pointer rounded-xl border p-3 transition duration-200 hover:-translate-y-0.5 hover:shadow-md flex flex-col justify-between h-[116px]"
+                class="group relative flex h-[116px] cursor-pointer flex-col justify-between rounded-xl border p-3 transition duration-200 hover:-translate-y-0.5 hover:shadow-md"
                 :class="[
                     badge.earned
                         ? 'border-[#d9f99d] bg-[#ecfccb] shadow-md'
                         : 'border-[#e2e8f0] bg-[#f8fafc]',
                 ]"
+                @click="openInspect(badge)"
             >
                 <div class="flex items-center gap-3">
                     <span
@@ -403,8 +403,8 @@ function equipTitle() {
             >
                 <button
                     type="button"
-                    @click="inspectedBadge = null"
                     class=":text-slate-200 absolute right-4 top-4 text-slate-400 hover:text-slate-600"
+                    @click="inspectedBadge = null"
                 >
                     ✕
                 </button>
@@ -494,8 +494,8 @@ function equipTitle() {
                     <template v-if="inspectedBadge.earned">
                         <button
                             type="button"
-                            @click="copyBragText"
                             class="flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-brand-hover active:scale-95"
+                            @click="copyBragText"
                         >
                             <AppIcon name="badge" :size="15" />
                             <span>{{
@@ -506,8 +506,8 @@ function equipTitle() {
                         </button>
                         <button
                             type="button"
-                            @click="equipTitle"
                             class="flex items-center justify-center gap-1.5 rounded-xl border border-brand-primary/40 bg-brand-accent/20 px-4 py-2 text-xs font-bold text-brand-primary transition hover:bg-brand-accent/40"
+                            @click="equipTitle"
                         >
                             <AppIcon name="trophy" :size="14" />
                             <span>{{
@@ -524,7 +524,7 @@ function equipTitle() {
                     <a
                         v-else
                         href="/participant/badges"
-                        class="hover flex items-center justify-center gap-1 rounded-xl bg-brand-primary hover:bg-brand-hover px-4 py-2.5 text-xs font-bold text-white shadow-sm transition"
+                        class="hover flex items-center justify-center gap-1 rounded-xl bg-brand-primary px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-brand-hover"
                     >
                         <span>Lihat Panduan & Misi Terkait</span>
                         <AppIcon name="arrow-right" :size="14" />
@@ -532,8 +532,8 @@ function equipTitle() {
 
                     <button
                         type="button"
-                        @click="inspectedBadge = null"
                         class="rounded-xl px-4 py-1.5 text-xs font-semibold text-[#64748b] hover:bg-[#f1f5f9]"
+                        @click="inspectedBadge = null"
                     >
                         Tutup
                     </button>

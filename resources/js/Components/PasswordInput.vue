@@ -16,8 +16,8 @@ const visible = ref(false);
 <template>
     <div class="relative">
         <TextInput
-            v-model="model"
             :id="id"
+            v-model="model"
             :type="visible ? 'text' : 'password'"
             :autocomplete="autocomplete"
             :autofocus="autofocus"

@@ -5,6 +5,7 @@ use App\Models\Organization;
 use App\Models\Question;
 use App\Models\Quiz;
 use App\Models\User;
+use App\Services\LiveSessionPresenter;
 use App\Support\TenantContext;
 use Illuminate\Support\Facades\Event;
 
@@ -54,4 +55,29 @@ it('lets host lock, advance, kick, end, and guest reconnect with token', functio
 
     $this->post(route('live-sessions.reconnect', $session), ['token' => $guest->reconnect_token])->assertRedirect();
     $this->assertDatabaseHas('live_sessions', ['id' => $session->id, 'status' => 'ended', 'lobby_locked' => true]);
+});
+
+it('presents final live result data for the active guest', function () {
+    $organization = Organization::factory()->create();
+    $host = User::factory()->create();
+    app(TenantContext::class)->set($organization);
+
+    $quiz = Quiz::create(['organization_id' => $organization->id, 'creator_id' => $host->id, 'title' => 'Final', 'status' => 'published']);
+    $question = Question::create(['organization_id' => $organization->id, 'creator_id' => $host->id, 'type' => 'true_false', 'prompt' => 'Benar?', 'correct_answer' => 'true', 'points' => 100]);
+    $quiz->questions()->attach($question, ['position' => 1]);
+
+    $session = LiveSession::open($quiz, $host, 30, 0);
+    $rani = $session->joinGuest('Rani');
+    $budi = $session->joinGuest('Budi');
+    $session->start();
+    $session->submit($rani, $question, 'true');
+    $session->submit($budi, $question, 'false');
+    $session->end();
+
+    $result = app(LiveSessionPresenter::class)->present($session, $rani->id);
+
+    expect($result['status'])->toBe('ended')
+        ->and($result['currentParticipant']['id'])->toBe($rani->id)
+        ->and($result['myStats'])->toMatchArray(['correctCount' => 1, 'wrongCount' => 0, 'totalAnswered' => 1])
+        ->and($result['leaderboard'][0])->toMatchArray(['id' => $rani->id, 'score' => 100, 'correct_count' => 1]);
 });

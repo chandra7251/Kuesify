@@ -22,6 +22,26 @@
     }
 }
 
+@layer components {
+    input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='color']),
+    select,
+    textarea {
+        color: #0f172a !important;
+        caret-color: #3154D5;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+        color: rgb(100 116 139 / 0.75) !important;
+        opacity: 1;
+    }
+
+    select option {
+        background-color: #FFFFFF;
+        color: #0f172a;
+    }
+}
+
 @layer base {
     html.dark-mode {
         color-scheme: dark;

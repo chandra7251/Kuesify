@@ -15,9 +15,11 @@ class GamificationService
     public function participantBadges(int $organizationId, int $userId): array
     {
         $definitions = $this->badgeDefinitions();
-        foreach ($definitions as $definition) {
-            Badge::firstOrCreate(['key' => $definition['key']], $definition);
-        }
+        Badge::upsert(
+            array_map(fn (array $d) => array_merge($d, ['created_at' => now(), 'updated_at' => now()]), $definitions),
+            ['key'],
+            ['name', 'description', 'rarity', 'criteria_type', 'criteria_value', 'updated_at'],
+        );
 
         $awards = DB::table('badge_awards')
             ->join('badges', 'badge_awards.badge_id', '=', 'badges.id')
@@ -166,6 +168,13 @@ private function updateMissions(QuizAttempt $attempt): void
         $timezone = $organization?->timezone ?: 'UTC';
         $today = Carbon::now($timezone);
         $definitions = $this->missionDefinitions();
+        Mission::upsert(
+            array_map(fn (array $d) => array_merge($d, ['is_active' => true, 'created_at' => now(), 'updated_at' => now()]), $definitions),
+            ['key'],
+            ['kind', 'title', 'description', 'goal', 'reward_xp', 'is_active', 'updated_at'],
+        );
+
+        $missions = Mission::whereIn('key', collect($definitions)->pluck('key'))->get()->keyBy('key');
 
         $progressRecord = UserProgress::withoutGlobalScopes()->where([
             'organization_id' => $attempt->organization_id,
@@ -175,19 +184,42 @@ private function updateMissions(QuizAttempt $attempt): void
         $isScore80 = $attempt->score >= 80;
         $isPerfectScore = ($attempt->score > 0 && $attempt->score === $attempt->quiz->questions()->sum('points'));
 
-        foreach ($definitions as $definition) {
-            $mission = Mission::firstOrCreate(['key' => $definition['key']], $definition);
+        $periodByMissionId = [];
+        foreach ($missions as $mission) {
             $periodKey = match ($mission->kind) {
                 'daily' => $today->toDateString(),
                 'weekly' => $today->copy()->startOfWeek()->toDateString(),
                 default => 'lifetime',
             };
-            $userMission = UserMission::withoutGlobalScopes()->firstOrCreate([
+
+            $periodByMissionId[$mission->id] = $periodKey;
+        }
+
+        DB::table('user_missions')->insertOrIgnore($missions->map(fn (Mission $mission) => [
+            'organization_id' => $attempt->organization_id,
+            'user_id' => $attempt->participant_id,
+            'mission_id' => $mission->id,
+            'period_key' => $periodByMissionId[$mission->id],
+            'progress' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ])->values()->all());
+
+        $userMissions = UserMission::withoutGlobalScopes()
+            ->where([
                 'organization_id' => $attempt->organization_id,
                 'user_id' => $attempt->participant_id,
-                'mission_id' => $mission->id,
-                'period_key' => $periodKey,
-            ]);
+            ])
+            ->whereIn('mission_id', $missions->pluck('id'))
+            ->whereIn('period_key', array_values($periodByMissionId))
+            ->get()
+            ->keyBy(fn (UserMission $userMission) => $userMission->mission_id.'|'.$userMission->period_key);
+
+        foreach ($missions as $mission) {
+            $userMission = $userMissions->get($mission->id.'|'.$periodByMissionId[$mission->id]);
+            if (! $userMission) {
+                continue;
+            }
 
             if ($userMission->completed_at !== null) {
                 continue;

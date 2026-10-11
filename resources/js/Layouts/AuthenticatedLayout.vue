@@ -50,24 +50,17 @@ const navigationItems = computed(() => {
             { label: 'Lencana', href: '/participant/badges', icon: 'badge' },
             { label: 'Gabung Live', href: '/join', icon: 'live' },
             { label: 'Hasil Belajar', href: '/attempts', icon: 'results' },
-            { label: 'Notifikasi', href: '/notifications', icon: 'notifications' },
         ];
     }
 
     const items = [
         { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
-        { label: 'Question Bank', href: '/questions', icon: 'bank' },
-        {
-            label: 'Creator Bank',
-            href: '/creator/question-bank',
-            icon: 'creatorBank',
-        },
+        { label: 'Bank Soal', href: '/questions', icon: 'bank' },
         { label: 'Quiz Builder', href: '/quizzes', icon: 'builder' },
         { label: 'Live Quiz', href: '/live-sessions', icon: 'live' },
         { label: 'Penilaian Essay', href: '/attempts', icon: 'results' },
         { label: 'Hasil', href: '/reports', icon: 'results' },
-        { label: 'Notifikasi', href: '/notifications', icon: 'notifications' },
-        { label: 'Materi AI', href: '/materials', icon: 'ai' },
+        { label: 'Materi', href: '/materials', icon: 'ai' },
     ];
 
     if (role === 'organization_admin') {
@@ -78,17 +71,7 @@ const navigationItems = computed(() => {
                 href: '/admin/members',
                 icon: 'members',
             },
-            {
-                label: 'Group',
-                href: '/admin/groups',
-                icon: 'groups',
-            },
             { label: 'Laporan Tenant', href: '/reports', icon: 'results' },
-            {
-                label: 'Pengaturan Org',
-                href: '/admin/settings',
-                icon: 'settings',
-            },
         ];
     }
 
@@ -96,24 +79,9 @@ const navigationItems = computed(() => {
         return [
             { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
             {
-                label: 'Platform Admin',
+                label: 'Platform',
                 href: '/admin',
                 icon: 'platform',
-            },
-            {
-                label: 'Tenants',
-                href: '/superadmin/tenants',
-                icon: 'tenants',
-            },
-            {
-                label: 'Kategori',
-                href: '/superadmin/categories',
-                icon: 'categories',
-            },
-            {
-                label: 'AI Monitoring',
-                href: '/superadmin/ai-monitoring',
-                icon: 'monitoring',
             },
             {
                 label: 'Moderasi',
@@ -124,54 +92,6 @@ const navigationItems = computed(() => {
     }
 
     return items;
-});
-
-const mobileNavigation = computed(() => {
-    const base = [
-        {
-            label: 'Beranda',
-            href: '/dashboard',
-            icon: 'm3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z',
-        },
-    ];
-
-    if (currentRole.value === 'participant') {
-        return [
-            ...base,
-            {
-                label: 'Kuis',
-                href: '/participant/quizzes',
-                icon: 'M5 4h14v16H5zM8 8h8M8 12h8M8 16h5',
-            },
-            {
-                label: 'Materi',
-                href: '/participant/materials',
-                icon: 'm12 3 1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3Z',
-            },
-            { label: 'Gabung', href: '/join', icon: 'M8 5v14l11-7z' },
-            {
-                label: 'Hasil',
-                href: '/attempts',
-                icon: 'M5 20V10m7 10V4m7 16v-7',
-            },
-        ];
-    }
-
-    return [
-        ...base,
-        {
-            label: 'Soal',
-            href: '/questions',
-            icon: 'M5 4h14v16H5zM8 8h8M8 12h8M8 16h5',
-        },
-        { label: 'Live', href: '/live-sessions', icon: 'M8 5v14l11-7z' },
-        { label: 'Hasil', href: '/attempts', icon: 'M5 20V10m7 10V4m7 16v-7' },
-        {
-            label: 'Materi AI',
-            href: '/materials',
-            icon: 'm12 3 1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3Z',
-        },
-    ];
 });
 
 function isCurrent(href: string): boolean {
@@ -326,17 +246,9 @@ function closeMobileNav(): void {
                     <!-- Text Label (Visible only when Expanded) -->
                     <span
                         v-if="desktopSidebarExpanded"
-                        class="truncate text-sm flex-1"
+                        class="flex-1 truncate text-sm"
                     >
                         {{ item.label }}
-                    </span>
-                    <!-- Unread Badge indicator for Notifikasi -->
-                    <span
-                        v-if="item.icon === 'notifications' && (page.props.auth?.unreadNotificationsCount ?? 0) > 0"
-                        class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-black text-white shadow-sm"
-                        :class="!desktopSidebarExpanded ? 'absolute -top-1 -right-1' : ''"
-                    >
-                        {{ page.props.auth.unreadNotificationsCount }}
                     </span>
                     <span
                         v-if="!desktopSidebarExpanded"
@@ -350,7 +262,11 @@ function closeMobileNav(): void {
 
             <!-- Middle Helpful Study Widget (Visible when expanded) -->
             <div
-                v-if="desktopSidebarExpanded && currentRole !== 'organization_admin' && currentRole !== 'super_admin'"
+                v-if="
+                    desktopSidebarExpanded &&
+                    currentRole !== 'organization_admin' &&
+                    currentRole !== 'super_admin'
+                "
                 class="mx-3 mb-3 mt-auto rounded-2xl border border-white/15 bg-white/10 p-3.5 backdrop-blur-sm transition-all"
             >
                 <div class="flex items-center gap-3">
@@ -417,7 +333,7 @@ function closeMobileNav(): void {
                                 d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
                             />
                         </svg>
-                        <span>Settings</span>
+                        <span>Profil & Pengaturan</span>
                     </Link>
                     <!-- Logout -->
                     <Link
@@ -439,7 +355,7 @@ function closeMobileNav(): void {
                             <polyline points="16 17 21 12 16 7" />
                             <line x1="21" y1="12" x2="9" y2="12" />
                         </svg>
-                        <span>Logout</span>
+                        <span>Keluar</span>
                     </Link>
                 </div>
                 <!-- Collapsed: Icon only -->
@@ -447,7 +363,7 @@ function closeMobileNav(): void {
                     <Link
                         :href="route('profile.edit')"
                         class="group relative grid h-10 w-10 place-items-center rounded-lg text-white/80 transition hover:bg-white/10 hover:text-brand-secondary"
-                        aria-label="Settings"
+                        aria-label="Profil & Pengaturan"
                     >
                         <svg
                             class="h-5 w-5"
@@ -467,7 +383,7 @@ function closeMobileNav(): void {
                             role="tooltip"
                             class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
                         >
-                            Settings
+                            Profil & Pengaturan
                         </span>
                     </Link>
                     <Link
@@ -475,7 +391,7 @@ function closeMobileNav(): void {
                         method="post"
                         as="button"
                         class="group relative grid h-10 w-10 place-items-center rounded-lg text-white/80 transition hover:bg-white/10 hover:text-brand-secondary"
-                        aria-label="Logout"
+                        aria-label="Keluar"
                     >
                         <svg
                             class="h-5 w-5"
@@ -494,7 +410,7 @@ function closeMobileNav(): void {
                             role="tooltip"
                             class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
                         >
-                            Logout
+                            Keluar
                         </span>
                     </Link>
                 </div>
@@ -508,9 +424,7 @@ function closeMobileNav(): void {
             class="flex min-h-screen min-w-0 flex-col transition-all duration-300 ease-in-out"
             :class="desktopSidebarExpanded ? 'lg:pl-72' : 'lg:pl-20'"
         >
-            <TopNavBar
-                @toggle-mobile-sidebar="mobileSidebarOpen = true"
-            />
+            <TopNavBar @toggle-mobile-sidebar="mobileSidebarOpen = true" />
 
             <!-- Custom Subheader Slot (if page provides one) -->
             <div
@@ -784,13 +698,9 @@ function closeMobileNav(): void {
                                 />
                                 <polyline points="9 12 11 14 15 10" />
                             </svg>
-                            <span class="truncate flex-1">{{ item.label }}</span>
-                            <span
-                                v-if="item.icon === 'notifications' && (page.props.auth?.unreadNotificationsCount ?? 0) > 0"
-                                class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-black text-white shadow-sm"
-                            >
-                                {{ page.props.auth.unreadNotificationsCount }}
-                            </span>
+                            <span class="flex-1 truncate">{{
+                                item.label
+                            }}</span>
                         </Link>
                     </nav>
                 </div>
@@ -840,7 +750,7 @@ function closeMobileNav(): void {
                                         d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
                                     />
                                 </svg>
-                                <span>Settings</span>
+                                <span>Profil & Pengaturan</span>
                             </Link>
                             <!-- Logout -->
                             <Link

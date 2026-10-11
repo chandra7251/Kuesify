@@ -107,6 +107,25 @@ const paginatedMissions = computed(() => {
     return filteredMissions.value.slice(start, start + missionsPerPage);
 });
 
+const questChain = computed(() =>
+    [...props.missions]
+        .sort((a, b) => {
+            const aDone = a.completed_at || a.progress >= a.goal;
+            const bDone = b.completed_at || b.progress >= b.goal;
+            return Number(aDone) - Number(bDone) || b.reward_xp - a.reward_xp;
+        })
+        .slice(0, 4)
+        .map((mission, index) => ({
+            ...mission,
+            step: index + 1,
+            percent: Math.min(
+                100,
+                Math.round((mission.progress / mission.goal) * 100),
+            ),
+            badge: missionBadgeLink[mission.key] ?? 'XP dan progres badge',
+        })),
+);
+
 watch(activeMissionTab, () => {
     missionPage.value = 1;
 });
@@ -560,7 +579,9 @@ onUnmounted(() => {
                             v-else
                             class="mt-4 rounded-xl bg-[#f8fafc] px-4 py-6 text-center text-xs text-[#64748b]"
                         >
-                            Belum ada kuis yang dipublikasikan saat ini.
+                            Belum ada kuis yang dipublikasikan saat ini. Cek
+                            lagi nanti atau masuk sesi Live Quiz dengan PIN
+                            guru.
                         </p>
                     </section>
 
@@ -638,37 +659,37 @@ onUnmounted(() => {
                             >
                                 <button
                                     type="button"
-                                    @click="quizFilter = 'all'"
                                     class="rounded-lg px-2.5 py-1 transition"
                                     :class="
                                         quizFilter === 'all'
                                             ? 'bg-brand-primary text-white'
                                             : 'bg-[#f1f5f9] text-[#475569] hover:bg-slate-200'
                                     "
+                                    @click="quizFilter = 'all'"
                                 >
                                     Semua ({{ availableQuizzes.length }})
                                 </button>
                                 <button
                                     type="button"
-                                    @click="quizFilter = 'unattempted'"
                                     class="rounded-lg px-2.5 py-1 transition"
                                     :class="
                                         quizFilter === 'unattempted'
                                             ? 'bg-brand-primary text-white'
                                             : 'bg-[#f1f5f9] text-[#475569] hover:bg-slate-200'
                                     "
+                                    @click="quizFilter = 'unattempted'"
                                 >
                                     Belum Dicoba
                                 </button>
                                 <button
                                     type="button"
-                                    @click="quizFilter = 'retry'"
                                     class="rounded-lg px-2.5 py-1 transition"
                                     :class="
                                         quizFilter === 'retry'
                                             ? 'bg-brand-primary text-white'
                                             : 'bg-[#f1f5f9] text-[#475569] hover:bg-slate-200'
                                     "
+                                    @click="quizFilter = 'retry'"
                                 >
                                     Bisa Diulang
                                 </button>
@@ -731,7 +752,8 @@ onUnmounted(() => {
                             v-else
                             class="mt-6 rounded-xl bg-[#f8fafc] px-4 py-6 text-center text-xs font-medium text-[#64748b]"
                         >
-                            Tidak ada kuis di kategori ini.
+                            Tidak ada kuis di kategori ini. Pilih kategori lain
+                            atau cek rekomendasi dari guru.
                         </p>
                     </section>
 
@@ -831,6 +853,84 @@ onUnmounted(() => {
                             >
                                 {{ tab.label }}
                             </button>
+                        </div>
+                    </div>
+
+                    <div
+                        v-if="questChain.length"
+                        class="mt-5 rounded-2xl border border-brand-secondary/35 bg-brand-secondary/10 p-4"
+                    >
+                        <div
+                            class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"
+                        >
+                            <div>
+                                <p
+                                    class="text-xs font-black uppercase tracking-[0.18em] text-brand-primary"
+                                >
+                                    Quest chain prioritas
+                                </p>
+                                <h3
+                                    class="mt-1 text-base font-black text-[#0f172a]"
+                                >
+                                    Jalur tercepat buat buka badge berikutnya
+                                </h3>
+                            </div>
+                            <Link
+                                href="/participant/badges"
+                                class="text-xs font-black text-brand-primary hover:underline"
+                            >
+                                Lihat syarat badge
+                            </Link>
+                        </div>
+                        <div class="mt-4 grid gap-3 lg:grid-cols-4">
+                            <article
+                                v-for="mission in questChain"
+                                :key="mission.key"
+                                class="rounded-2xl border border-white/80 bg-white p-3 shadow-sm"
+                            >
+                                <div
+                                    class="flex items-center justify-between gap-2"
+                                >
+                                    <span
+                                        class="grid h-8 w-8 place-items-center rounded-xl bg-brand-primary text-xs font-black text-white"
+                                    >
+                                        {{ mission.step }}
+                                    </span>
+                                    <span
+                                        class="rounded-full bg-brand-accent px-2 py-1 text-[10px] font-black text-brand-primary"
+                                    >
+                                        +{{ mission.reward_xp }} XP
+                                    </span>
+                                </div>
+                                <h4
+                                    class="mt-3 line-clamp-2 text-sm font-black text-slate-950"
+                                >
+                                    {{ mission.title }}
+                                </h4>
+                                <p
+                                    class="mt-1 text-[11px] font-semibold text-slate-500"
+                                >
+                                    Reward: {{ mission.badge }}
+                                </p>
+                                <div
+                                    class="mt-3 h-2 overflow-hidden rounded-full bg-slate-100"
+                                >
+                                    <div
+                                        class="h-full rounded-full bg-brand-secondary"
+                                        :style="{
+                                            width: `${mission.percent}%`,
+                                        }"
+                                    />
+                                </div>
+                                <p
+                                    class="mt-2 text-[11px] font-bold text-slate-500"
+                                >
+                                    {{ mission.progress }}/{{
+                                        mission.goal
+                                    }}
+                                    selesai · {{ mission.percent }}%
+                                </p>
+                            </article>
                         </div>
                     </div>
 
@@ -949,7 +1049,8 @@ onUnmounted(() => {
                         v-else
                         class="mt-5 flex min-h-[240px] items-center justify-center rounded-xl bg-[#f8fafc] px-4 py-6 text-center text-xs font-medium text-[#64748b]"
                     >
-                        Belum ada quest di kategori ini.
+                        Belum ada quest di kategori ini. Pilih kategori lain
+                        untuk melihat misi yang bisa diselesaikan.
                     </p>
 
                     <div
@@ -1023,7 +1124,7 @@ onUnmounted(() => {
                     <ActivityFeed
                         class="mt-4"
                         :items="attemptItems"
-                        empty-text="Belum ada attempt. Mulai dari Quiz of the Day."
+                        empty-text="Belum ada attempt. Mulai dari Quiz of the Day atau gabung Live Quiz dengan PIN guru."
                     />
                 </section>
             </main>

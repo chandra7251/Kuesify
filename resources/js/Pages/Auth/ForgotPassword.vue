@@ -136,9 +136,9 @@ const resend = () => {
                         <button
                             v-if="cooldown === 0"
                             type="button"
-                            @click="resend"
                             :disabled="form.processing"
                             class="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-primary transition hover:text-brand-hover focus-visible:outline-none"
+                            @click="resend"
                         >
                             <RotateCw class="h-3.5 w-3.5" />
                             <span>Kirim ulang tautan sekarang</span>
@@ -158,7 +158,7 @@ const resend = () => {
         </div>
 
         <!-- FORM & INPUT STATE (Empty/Initial, Loading, and Error Recovery) -->
-        <form @submit.prevent="submit" class="space-y-5">
+        <form class="space-y-5" @submit.prevent="submit">
             <div>
                 <div class="flex items-center justify-between">
                     <InputLabel for="email" value="Alamat Email" />
@@ -174,6 +174,7 @@ const resend = () => {
 
                     <TextInput
                         id="email"
+                        v-model="form.email"
                         type="email"
                         class="block w-full pl-10 pr-3 text-sm transition"
                         :class="{
@@ -181,7 +182,6 @@ const resend = () => {
                                 form.errors.email,
                             'bg-slate-50 opacity-70': form.processing,
                         }"
-                        v-model="form.email"
                         required
                         autofocus
                         autocomplete="username"

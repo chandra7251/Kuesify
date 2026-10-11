@@ -3,15 +3,15 @@
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToTenant;
+use App\Services\LiveLeaderboardService;
 use DomainException;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\QueryException;
-use App\Services\LiveLeaderboardService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 #[Fillable(['organization_id', 'quiz_id', 'host_id', 'pin', 'broadcast_token', 'status', 'lobby_locked', 'question_duration', 'speed_multiplier', 'current_question_id', 'question_started_at'])]
 class LiveSession extends Model
@@ -31,18 +31,28 @@ class LiveSession extends Model
 
         $quiz->questions()->firstOrFail();
 
-        return static::create([
-            'organization_id' => $quiz->organization_id,
-            'quiz_id' => $quiz->id,
-            'host_id' => $host->id,
-            'pin' => (string) random_int(100000, 999999),
-            'broadcast_token' => Str::uuid()->toString(),
-            'status' => 'lobby',
-            'question_duration' => $duration,
-            'speed_multiplier' => $speedMultiplier,
-            'current_question_id' => null,
-            'question_started_at' => null,
-        ]);
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            try {
+                return static::create([
+                    'organization_id' => $quiz->organization_id,
+                    'quiz_id' => $quiz->id,
+                    'host_id' => $host->id,
+                    'pin' => (string) random_int(100000, 999999),
+                    'broadcast_token' => Str::uuid()->toString(),
+                    'status' => 'lobby',
+                    'question_duration' => $duration,
+                    'speed_multiplier' => $speedMultiplier,
+                    'current_question_id' => null,
+                    'question_started_at' => null,
+                ]);
+            } catch (QueryException $e) {
+                if (! str_contains($e->getMessage(), '1062') && ! str_contains($e->getMessage(), 'Duplicate entry')) {
+                    throw $e;
+                }
+            }
+        }
+
+        throw new DomainException('Gagal membuat PIN sesi. Coba lagi.');
     }
 
     public function quiz(): BelongsTo
@@ -62,8 +72,8 @@ class LiveSession extends Model
         }
 
         return $this->participants()->create([
-            'alias'          => $alias,
-            'avatar_key'     => $avatarKey,
+            'alias' => $alias,
+            'avatar_key' => $avatarKey,
             'reconnect_token' => Str::uuid()->toString(),
         ]);
     }
@@ -75,35 +85,45 @@ class LiveSession extends Model
 
     public function start(): void
     {
-        if ($this->status !== 'lobby') {
-            throw new DomainException('Only a lobby can start.');
-        }
-
-        $this->update(['status' => 'live', 'current_question_id' => $this->quiz->questions()->firstOrFail()->id, 'question_started_at' => now()]);
+        DB::transaction(function (): void {
+            $session = static::withoutGlobalScopes()->lockForUpdate()->findOrFail($this->id);
+            if ($session->status !== 'lobby') {
+                throw new DomainException('Only a lobby can start.');
+            }
+            $firstQuestion = $this->quiz->questions()->firstOrFail();
+            $attrs = ['status' => 'live', 'current_question_id' => $firstQuestion->id, 'question_started_at' => now()];
+            $session->update($attrs);
+            $this->fill($attrs)->syncOriginal();
+        });
     }
 
     public function nextQuestion(): void
     {
-        if ($this->status !== 'live') {
-            throw new DomainException('Only a live session can change question.');
-        }
-
-        $current = $this->quiz->questions()->whereKey($this->current_question_id)->firstOrFail();
-        $next = $this->quiz->questions()->wherePivot('position', '>', $current->pivot->position)->first();
-
-        $next
-            ? $this->update(['current_question_id' => $next->id, 'question_started_at' => now()])
-            : $this->update(['status' => 'ended', 'current_question_id' => null, 'question_started_at' => null]);
+        DB::transaction(function (): void {
+            $session = static::withoutGlobalScopes()->lockForUpdate()->findOrFail($this->id);
+            if ($session->status !== 'live') {
+                throw new DomainException('Only a live session can change question.');
+            }
+            $current = $this->quiz->questions()->whereKey($session->current_question_id)->firstOrFail();
+            $next = $this->quiz->questions()->wherePivot('position', '>', $current->pivot->position)->first();
+            $attrs = $next
+                ? ['current_question_id' => $next->id, 'question_started_at' => now()]
+                : ['status' => 'ended', 'current_question_id' => null, 'question_started_at' => null];
+            $session->update($attrs);
+            $this->fill($attrs)->syncOriginal();
+        });
     }
 
     public function showIntermission(): void
     {
-        if ($this->status !== 'live') {
-            throw new DomainException('Only a live session can show intermission.');
-        }
-
-        // status tetap 'live' tapi question_started_at = null sebagai sinyal intermission
-        $this->update(['question_started_at' => null]);
+        DB::transaction(function (): void {
+            $session = static::withoutGlobalScopes()->lockForUpdate()->findOrFail($this->id);
+            if ($session->status !== 'live') {
+                throw new DomainException('Only a live session can show intermission.');
+            }
+            $session->update(['question_started_at' => null]);
+            $this->question_started_at = null;
+        });
     }
 
     public function isIntermission(): bool
@@ -134,15 +154,18 @@ class LiveSession extends Model
 
     public function end(): void
     {
-        if ($this->status === 'ended') {
-            return;
-        }
-
-        if (! in_array($this->status, ['lobby', 'live'], true)) {
-            throw new DomainException('Only an open session can end.');
-        }
-
-        $this->update(['status' => 'ended', 'current_question_id' => null, 'question_started_at' => null]);
+        DB::transaction(function (): void {
+            $session = static::withoutGlobalScopes()->lockForUpdate()->findOrFail($this->id);
+            if ($session->status === 'ended') {
+                return;
+            }
+            if (! in_array($session->status, ['lobby', 'live'], true)) {
+                throw new DomainException('Only an open session can end.');
+            }
+            $attrs = ['status' => 'ended', 'current_question_id' => null, 'question_started_at' => null];
+            $session->update($attrs);
+            $this->fill($attrs)->syncOriginal();
+        });
     }
 
     public function kick(LiveParticipant $participant): void

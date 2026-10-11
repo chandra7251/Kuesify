@@ -94,6 +94,39 @@ const activityItems = computed(() =>
     })),
 );
 
+const creatorWorkflow = computed(() => [
+    {
+        label: 'Buat draft kuis',
+        desc: 'Siapkan judul dan tujuan belajar.',
+        href: '/quizzes',
+        done: props.stats.quizzes > 0,
+    },
+    {
+        label: 'Tambahkan soal',
+        desc: 'Masukkan minimal satu soal sebelum publish.',
+        href: '/questions',
+        done: props.stats.questions > 0,
+    },
+    {
+        label: 'Jalankan atau bagikan',
+        desc: 'Buka Live Quiz kelas atau bagikan latihan mandiri.',
+        href: '/live-sessions',
+        done: props.stats.liveSessions > 0 || props.stats.attempts > 0,
+    },
+    {
+        label: 'Baca hasil siswa',
+        desc: 'Cek attempt dan topik lemah untuk tindak lanjut.',
+        href: '/reports',
+        done: props.stats.attempts > 0,
+    },
+]);
+
+const nextCreatorStep = computed(
+    () =>
+        creatorWorkflow.value.find((step) => !step.done) ??
+        creatorWorkflow.value[creatorWorkflow.value.length - 1],
+);
+
 const dateFormatter = new Intl.DateTimeFormat('id-ID', {
     day: '2-digit',
     month: 'short',
@@ -199,6 +232,64 @@ onUnmounted(() => {
 
                 <section
                     data-motion-item
+                    class="rounded-2xl border border-brand-secondary/40 bg-white p-5 shadow-figma"
+                >
+                    <div
+                        class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
+                    >
+                        <div>
+                            <h2
+                                class="text-sm font-black uppercase tracking-[0.14em] text-brand-primary"
+                            >
+                                Alur kerja creator
+                            </h2>
+                            <p class="mt-1 text-xs text-slate-500">
+                                Ikuti urutan ini supaya kuis siap dipakai siswa
+                                tanpa bingung langkah berikutnya.
+                            </p>
+                        </div>
+                        <Link
+                            v-if="nextCreatorStep"
+                            :href="nextCreatorStep.href"
+                            class="inline-flex min-h-10 items-center justify-center rounded-xl bg-brand-primary px-4 text-xs font-black text-white transition hover:bg-brand-hover"
+                        >
+                            Lanjut: {{ nextCreatorStep.label }}
+                        </Link>
+                    </div>
+                    <div class="mt-4 grid gap-3 md:grid-cols-4">
+                        <Link
+                            v-for="(step, index) in creatorWorkflow"
+                            :key="step.label"
+                            :href="step.href"
+                            class="rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:border-brand-secondary"
+                            :class="
+                                step.done
+                                    ? 'border-emerald-200 bg-emerald-50'
+                                    : 'border-slate-200 bg-white'
+                            "
+                        >
+                            <span
+                                class="grid h-9 w-9 place-items-center rounded-xl text-xs font-black"
+                                :class="
+                                    step.done
+                                        ? 'bg-emerald-500 text-white'
+                                        : 'bg-brand-primary/10 text-brand-primary'
+                                "
+                            >
+                                {{ step.done ? '✓' : index + 1 }}
+                            </span>
+                            <p class="mt-3 text-sm font-black text-slate-900">
+                                {{ step.label }}
+                            </p>
+                            <p class="mt-1 text-xs leading-5 text-slate-500">
+                                {{ step.desc }}
+                            </p>
+                        </Link>
+                    </div>
+                </section>
+
+                <section
+                    data-motion-item
                     aria-labelledby="creator-insight"
                     class="grid gap-4 lg:grid-cols-3"
                 >
@@ -211,7 +302,7 @@ onUnmounted(() => {
                         <p
                             class="text-xs font-semibold uppercase tracking-wide text-slate-500"
                         >
-                            Student retention
+                            Tingkat penyelesaian
                         </p>
                         <p class="mt-2 text-3xl font-black text-brand-primary">
                             {{ retentionLabel }}
@@ -309,7 +400,8 @@ onUnmounted(() => {
                             v-else
                             class="mt-6 rounded-xl bg-brand-accent px-4 py-6 text-center text-sm text-slate-600"
                         >
-                            Belum ada kuis. Mulai dari tombol Buat kuis.
+                            Belum ada kuis. Mulai dari tombol Buat kuis,
+                            tambahkan soal, lalu publish saat sudah siap.
                         </p>
                     </section>
 
@@ -343,7 +435,8 @@ onUnmounted(() => {
                             v-else
                             class="mt-4 rounded-xl bg-brand-accent px-4 py-6 text-center text-sm text-slate-600"
                         >
-                            Belum ada jawaban siswa untuk dianalisis.
+                            Belum ada jawaban siswa untuk dianalisis. Bagikan
+                            kuis atau buka Live Quiz agar data muncul.
                         </p>
                     </section>
                 </div>
@@ -357,7 +450,7 @@ onUnmounted(() => {
                     <ActivityFeed
                         class="mt-4"
                         :items="activityItems"
-                        empty-text="Belum ada attempt dari siswa."
+                        empty-text="Belum ada attempt dari siswa. Setelah siswa mengerjakan kuis, aktivitas terbaru muncul di sini."
                     />
                 </section>
             </main>

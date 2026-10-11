@@ -23,96 +23,44 @@ const avatarOptions = Array.from({ length: 13 }, (_, i) => ({
 }));
 
 function goToAvatarStep(): void {
-    // Jika user sudah login dan punya avatar di DB, langsung join saja tanpa perlu langkah 2 pilih avatar temporary
-    if (isAuthenticated.value && user.value?.avatar_key) {
-        if (!form.avatar_key) form.avatar_key = user.value.avatar_key;
-        submitFromAvatarStep();
-        return;
-    }
+    triggerMascotReaction('submit');
+    form.post(route('live-sessions.validate-join'), {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => {
+            if (isAuthenticated.value && user.value?.avatar_key) {
+                if (!form.avatar_key) form.avatar_key = user.value.avatar_key;
+                submitFromAvatarStep();
+                return;
+            }
 
-    step.value = 2;
-    // default ke avatar pertama jika belum pilih
-    if (!form.avatar_key) form.avatar_key = 'profile_1';
-    mascotSpeech.value = 'Pilih avatar jagoanmu buat sesi ini!';
+            step.value = 2;
+            if (!form.avatar_key) form.avatar_key = 'profile_1';
+            mascotSpeech.value = 'Pilih avatar jagoanmu buat sesi ini!';
+        },
+        onError: () => {
+            step.value = 1;
+            mascotSpeech.value =
+                'PIN belum cocok. Cek lagi 6 digit dari gurumu.';
+            currentHint.value = 'PIN salah atau sesi sudah berakhir';
+            triggerMascotReaction('error');
+        },
+    });
 }
 
 function selectAvatar(key: string): void {
     form.avatar_key = key;
 }
 const root = ref<HTMLElement | null>(null);
-const canvasBg = ref<HTMLCanvasElement | null>(null);
 const mascotEl = ref<HTMLElement | null>(null);
 const speechBubbleEl = ref<HTMLElement | null>(null);
 const hiddenInput = ref<HTMLInputElement | null>(null);
 
-const mascotSpeech = ref('Halo jagoan! Masukkan 6 digit Game PIN dari gurumu!');
+const mascotSpeech = ref('Halo! Masukkan 6 digit PIN sesi dari gurumu.');
 const currentHint = ref('Ketik PIN langsung atau gunakan numpad');
 
 let motionMedia: gsap.MatchMedia | null = null;
 let motionContext: gsap.Context | null = null;
-let animFrameId: number | null = null;
-
-// Floating canvas particles background
-interface Particle {
-    x: number;
-    y: number;
-    radius: number;
-    vx: number;
-    vy: number;
-    color: string;
-    alpha: number;
-}
-let particles: Particle[] = [];
-
-function initCanvas(): void {
-    const canvas = canvasBg.value;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const resize = () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    };
-    resize();
-    window.addEventListener('resize', resize);
-
-    const colors = ['#3154D5', '#90CB31', '#60A5FA', '#A3E635', '#38BDF8'];
-    particles = Array.from({ length: 45 }, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        radius: Math.random() * 5 + 2,
-        vx: (Math.random() - 0.5) * 0.8,
-        vy: (Math.random() - 0.5) * 0.8,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        alpha: Math.random() * 0.4 + 0.15,
-    }));
-
-    const canvasEl = canvas;
-    const ctx2d = ctx;
-
-    function loop() {
-        if (!canvasEl || !ctx2d) return;
-        ctx2d.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        for (const p of particles) {
-            p.x += p.vx;
-            p.y += p.vy;
-            if (p.x < 0) p.x = canvasEl.width;
-            if (p.x > canvasEl.width) p.x = 0;
-            if (p.y < 0) p.y = canvasEl.height;
-            if (p.y > canvasEl.height) p.y = 0;
-
-            ctx2d.beginPath();
-            ctx2d.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-            ctx2d.fillStyle = p.color;
-            ctx2d.globalAlpha = p.alpha;
-            ctx2d.fill();
-        }
-        ctx2d.globalAlpha = 1;
-        animFrameId = requestAnimationFrame(loop);
-    }
-    loop();
-}
 
 function sanitizePin(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -139,7 +87,7 @@ function pressKey(key: string): void {
 }
 
 function triggerMascotReaction(
-    type: 'digit' | 'back' | 'clear' | 'complete' | 'submit',
+    type: 'digit' | 'back' | 'clear' | 'complete' | 'submit' | 'error',
 ): void {
     try {
         if (typeof navigator !== 'undefined' && navigator.vibrate) {
@@ -148,8 +96,11 @@ function triggerMascotReaction(
             else if (type === 'complete')
                 navigator.vibrate([20, 60, 30, 60, 40]);
             else if (type === 'submit') navigator.vibrate(30);
+            else if (type === 'error') navigator.vibrate([30, 50, 30]);
         }
-    } catch {}
+    } catch {
+        return;
+    }
 
     if (
         !mascotEl.value ||
@@ -223,6 +174,16 @@ function triggerMascotReaction(
                 duration: 0.5,
                 ease: 'elastic.out(1, 0.3)',
             });
+    } else if (type === 'error') {
+        gsap.timeline()
+            .to(mascotEl.value, { x: -8, rotation: -4, duration: 0.08 })
+            .to(mascotEl.value, { x: 8, rotation: 4, duration: 0.08 })
+            .to(mascotEl.value, {
+                x: 0,
+                rotation: 0,
+                duration: 0.18,
+                ease: 'power2.out',
+            });
     }
 }
 
@@ -231,7 +192,7 @@ watch(
     (val) => {
         if (val.length === 0) {
             mascotSpeech.value =
-                'Halo! Masukkan 6 digit Game PIN dari host kamu!';
+                'Halo! Masukkan 6 digit PIN sesi dari host kamu.';
             currentHint.value =
                 'Ketik PIN langsung atau gunakan numpad interaktif di bawah';
         } else if (val.length < 6) {
@@ -240,8 +201,8 @@ watch(
             currentHint.value =
                 'Angka ke-' + (val.length + 1) + ' sedang ditunggu...';
         } else if (val.length === 6) {
-            mascotSpeech.value = 'PIN lengkap! Sekarang tulis nama pahlawanmu!';
-            currentHint.value = 'Siap untuk masuk ke leaderboard!';
+            mascotSpeech.value = 'PIN lengkap! Sekarang tulis namamu.';
+            currentHint.value = 'Siap masuk ke sesi Live Quiz kelas.';
             triggerMascotReaction('complete');
         }
     },
@@ -286,18 +247,6 @@ onMounted(() => {
                 '-=0.4',
             );
             tl.from(
-                '[data-anim-digit]',
-                {
-                    autoAlpha: 0,
-                    y: 15,
-                    scale: 0.8,
-                    stagger: 0.05,
-                    duration: 0.35,
-                    ease: 'back.out(2)',
-                },
-                '-=0.3',
-            );
-            tl.from(
                 '[data-anim-numpad]',
                 { autoAlpha: 0, y: 20, duration: 0.4 },
                 '-=0.2',
@@ -327,19 +276,24 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-    if (animFrameId) cancelAnimationFrame(animFrameId);
     motionMedia?.revert();
     motionContext?.revert();
 });
 
-function join(): void {
-    triggerMascotReaction('submit');
-    form.post(route('live-sessions.join'));
-}
-
 function submitFromAvatarStep(): void {
     triggerMascotReaction('submit');
-    form.post(route('live-sessions.join'));
+    form.post(route('live-sessions.join'), {
+        preserveScroll: true,
+        preserveState: true,
+        onError: (errors) => {
+            if (errors.pin || errors.alias) {
+                step.value = 1;
+            }
+            mascotSpeech.value =
+                'Belum berhasil masuk. Cek PIN dan nama dulu ya.';
+            triggerMascotReaction('error');
+        },
+    });
 }
 </script>
 
@@ -419,6 +373,7 @@ function submitFromAvatarStep(): void {
 
             <!-- Filled Orbs (Added 4 solid fill orbs) -->
             <div
+                data-anim-glow
                 class="pointer-events-none absolute -left-48 top-[-12rem] h-[34rem] w-[34rem] rounded-full bg-brand-secondary/15"
             ></div>
             <div
@@ -436,6 +391,7 @@ function submitFromAvatarStep(): void {
 
             <!-- Left Panel (Branding / Mascot) -->
             <div
+                data-anim-header
                 class="relative mb-4 flex w-full flex-col items-center text-center lg:mb-0 lg:w-1/2 lg:items-start lg:text-left"
             >
                 <!-- Arena Live Aktif Badge Removed -->
@@ -449,22 +405,23 @@ function submitFromAvatarStep(): void {
                 <p
                     class="mt-3 max-w-sm text-sm text-brand-primary/70 sm:text-base lg:text-lg"
                 >
-                    Minta PIN dari gurumu, masukkan namamu, dan jadilah yang
-                    tercepat di panggung.
+                    Minta PIN dari gurumu, masukkan namamu, lalu jawab soal yang
+                    sama bersama teman sekelas.
                 </p>
 
                 <!-- Mascot -->
                 <div
+                    data-anim-mascot
                     class="absolute left-4 top-full z-20 mt-3 w-20 sm:left-8 sm:w-24 lg:relative lg:left-auto lg:top-auto lg:mt-8 lg:w-[280px]"
                 >
                     <img
+                        ref="mascotEl"
                         :src="
                             form.pin.length === 6
                                 ? '/images/chibi-male-pin-lengkap.png'
                                 : '/images/chibi-male-live-join.png'
                         "
                         alt="Kuesify Mascot"
-                        ref="mascotEl"
                         class="relative z-10 w-full drop-shadow-2xl"
                     />
 
@@ -490,13 +447,19 @@ function submitFromAvatarStep(): void {
             </div>
 
             <!-- Right Panel (Form) -->
-            <div class="relative z-10 mt-24 w-full max-w-sm lg:mt-0 lg:w-1/2 lg:max-w-md">
+            <div
+                class="relative z-10 mt-24 w-full max-w-sm lg:mt-0 lg:w-1/2 lg:max-w-md"
+            >
                 <section
                     data-anim-card
                     class="relative rounded-3xl bg-white p-4 shadow-figma sm:p-6 lg:p-8"
                 >
                     <!-- Step 1: Form PIN + Alias -->
-                    <form v-if="step === 1" @submit.prevent="goToAvatarStep" class="flex flex-col gap-4 sm:gap-5">
+                    <form
+                        v-if="step === 1"
+                        class="flex flex-col gap-4 sm:gap-5"
+                        @submit.prevent="goToAvatarStep"
+                    >
                         <!-- PIN Section -->
                         <div>
                             <div class="mb-3 flex items-center justify-between">
@@ -504,7 +467,7 @@ function submitFromAvatarStep(): void {
                                     for="live-pin-input"
                                     class="text-sm font-black text-brand-primary"
                                 >
-                                    PIN Game <span class="text-red-500">*</span>
+                                    PIN Sesi <span class="text-red-500">*</span>
                                 </label>
                                 <span
                                     class="text-xs font-bold text-brand-primary/60"
@@ -515,30 +478,31 @@ function submitFromAvatarStep(): void {
 
                             <input
                                 id="live-pin-input"
+                                ref="hiddenInput"
                                 type="text"
                                 inputmode="numeric"
                                 autocomplete="off"
                                 :value="form.pin"
-                                @input="sanitizePin"
                                 class="absolute h-0 w-0 opacity-0"
-                                ref="hiddenInput"
+                                @input="sanitizePin"
                             />
 
                             <!-- Custom PIN Dots -->
                             <div
+                                ref="pinContainerEl"
                                 class="flex cursor-text justify-between gap-2 sm:gap-3"
                                 @click="hiddenInput?.focus()"
-                                ref="pinContainerEl"
                             >
                                 <div
                                     v-for="i in 6"
                                     :key="i"
+                                    data-anim-digit
                                     class="flex h-10 w-full items-center justify-center rounded-lg border-2 text-sm font-black transition-all sm:h-12 sm:text-lg lg:h-14 lg:text-xl"
                                     :class="[
                                         form.errors.pin
                                             ? 'border-red-400 bg-red-50 text-red-500 ring-2 ring-red-200'
                                             : form.pin.length >= i
-                                              ? 'border-brand-secondary bg-brand-secondary text-white'
+                                              ? 'border-brand-primary bg-white text-brand-primary shadow-sm'
                                               : form.pin.length === i - 1
                                                 ? 'scale-105 border-brand-secondary bg-brand-secondary/10 text-brand-primary ring-4 ring-brand-secondary/20'
                                                 : 'border-brand-primary/20 bg-brand-accent text-brand-primary/30',
@@ -557,34 +521,37 @@ function submitFromAvatarStep(): void {
                         </div>
 
                         <!-- Numpad -->
-                        <div class="rounded-2xl bg-brand-accent/50 p-3 lg:p-4">
+                        <div
+                            data-anim-numpad
+                            class="rounded-2xl bg-brand-accent/50 p-3 lg:p-4"
+                        >
                             <div class="grid grid-cols-3 gap-2">
                                 <button
                                     v-for="num in [1, 2, 3, 4, 5, 6, 7, 8, 9]"
                                     :key="num"
                                     type="button"
-                                    class="flex h-10 items-center justify-center rounded-lg border border-brand-primary/10 bg-brand-accent text-base font-black text-brand-primary transition hover:bg-brand-primary hover:text-white active:scale-95 sm:h-11 lg:h-13 lg:text-lg"
+                                    class="lg:h-13 flex h-10 items-center justify-center rounded-lg border border-brand-primary/10 bg-brand-accent text-base font-black text-brand-primary transition hover:bg-brand-primary hover:text-white active:scale-95 sm:h-11 lg:text-lg"
                                     @click="pressKey(num.toString())"
                                 >
                                     {{ num }}
                                 </button>
                                 <button
                                     type="button"
-                                    class="flex h-10 items-center justify-center rounded-lg border border-red-100 bg-red-50 text-sm font-black text-red-500 transition hover:bg-red-500 hover:text-white active:scale-95 sm:h-11 lg:h-13"
+                                    class="lg:h-13 flex h-10 items-center justify-center rounded-lg border border-red-100 bg-red-50 text-sm font-black text-red-500 transition hover:bg-red-500 hover:text-white active:scale-95 sm:h-11"
                                     @click="pressKey('clear')"
                                 >
                                     C
                                 </button>
                                 <button
                                     type="button"
-                                    class="flex h-10 items-center justify-center rounded-lg border border-brand-primary/10 bg-brand-accent text-base font-black text-brand-primary transition hover:bg-brand-primary hover:text-white active:scale-95 sm:h-11 lg:h-13 lg:text-lg"
+                                    class="lg:h-13 flex h-10 items-center justify-center rounded-lg border border-brand-primary/10 bg-brand-accent text-base font-black text-brand-primary transition hover:bg-brand-primary hover:text-white active:scale-95 sm:h-11 lg:text-lg"
                                     @click="pressKey('0')"
                                 >
                                     0
                                 </button>
                                 <button
                                     type="button"
-                                    class="flex h-10 items-center justify-center rounded-lg border border-amber-100 bg-amber-50 text-sm font-black text-amber-600 transition hover:bg-amber-500 hover:text-white active:scale-95 sm:h-11 lg:h-13"
+                                    class="lg:h-13 flex h-10 items-center justify-center rounded-lg border border-amber-100 bg-amber-50 text-sm font-black text-amber-600 transition hover:bg-amber-500 hover:text-white active:scale-95 sm:h-11"
                                     @click="pressKey('back')"
                                 >
                                     ⌫
@@ -688,8 +655,20 @@ function submitFromAvatarStep(): void {
                                 </span>
                                 <span v-else class="flex items-center gap-2">
                                     Pilih Avatar
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
-                                        <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2.5"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        class="h-5 w-5"
+                                    >
+                                        <path d="M5 12h14" />
+                                        <path d="m12 5 7 7-7 7" />
                                     </svg>
                                 </span>
                             </button>
@@ -700,43 +679,75 @@ function submitFromAvatarStep(): void {
                     <div v-if="step === 2" class="flex flex-col gap-5">
                         <!-- Header -->
                         <div class="text-center">
-                            <p class="text-xs font-bold uppercase tracking-widest text-brand-primary/50">Langkah 2 dari 2</p>
-                            <h2 class="mt-1 text-xl font-black text-brand-primary sm:text-2xl">Pilih Avatar Kamu</h2>
-                            <p class="mt-1 text-sm text-brand-primary/60">Avatar ini cuma untuk sesi live ini ya!</p>
+                            <p
+                                class="text-xs font-bold uppercase tracking-widest text-brand-primary/50"
+                            >
+                                Langkah 2 dari 2
+                            </p>
+                            <h2
+                                class="mt-1 text-xl font-black text-brand-primary sm:text-2xl"
+                            >
+                                Pilih Avatar Kamu
+                            </h2>
+                            <p class="mt-1 text-sm text-brand-primary/60">
+                                Avatar ini cuma untuk sesi live ini ya!
+                            </p>
                         </div>
 
                         <!-- Preview avatar terpilih + nama -->
-                        <div class="flex items-center gap-4 rounded-2xl border-2 border-brand-secondary/30 bg-brand-secondary/5 px-4 py-3">
+                        <div
+                            class="flex items-center gap-4 rounded-2xl border-2 border-brand-secondary/30 bg-brand-secondary/5 px-4 py-3"
+                        >
                             <img
                                 :src="`/images/photo_profile/${form.avatar_key}.png`"
                                 :alt="form.alias"
                                 class="h-14 w-14 shrink-0 rounded-full border-2 border-brand-secondary object-cover shadow"
                             />
                             <div class="min-w-0">
-                                <p class="truncate text-base font-black text-brand-primary">{{ form.alias }}</p>
-                                <p class="text-xs text-brand-primary/50">PIN: {{ form.pin }}</p>
+                                <p
+                                    class="truncate text-base font-black text-brand-primary"
+                                >
+                                    {{ form.alias }}
+                                </p>
+                                <p class="text-xs text-brand-primary/50">
+                                    PIN: {{ form.pin }}
+                                </p>
                             </div>
                         </div>
 
                         <!-- Grid avatar -->
-                        <div class="grid grid-cols-4 gap-2 sm:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
+                        <div
+                            class="grid grid-cols-4 gap-2 sm:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7"
+                        >
                             <button
                                 v-for="opt in avatarOptions"
                                 :key="opt.key"
                                 type="button"
                                 class="group relative aspect-square overflow-hidden rounded-xl border-2 transition-all duration-150 active:scale-95"
-                                :class="form.avatar_key === opt.key
-                                    ? 'border-brand-secondary ring-4 ring-brand-secondary/30 scale-105'
-                                    : 'border-transparent hover:border-brand-primary/30'"
+                                :class="
+                                    form.avatar_key === opt.key
+                                        ? 'scale-105 border-brand-secondary ring-4 ring-brand-secondary/30'
+                                        : 'border-transparent hover:border-brand-primary/30'
+                                "
                                 @click="selectAvatar(opt.key)"
                             >
-                                <img :src="opt.src" :alt="opt.key" class="h-full w-full object-cover" />
+                                <img
+                                    :src="opt.src"
+                                    :alt="opt.key"
+                                    class="h-full w-full object-cover"
+                                />
                                 <div
                                     v-if="form.avatar_key === opt.key"
                                     class="absolute inset-0 flex items-center justify-center bg-brand-secondary/20"
                                 >
-                                    <svg class="h-6 w-6 text-brand-secondary drop-shadow" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    <svg
+                                        class="h-6 w-6 text-brand-secondary drop-shadow"
+                                        viewBox="0 0 24 24"
+                                        fill="currentColor"
+                                    >
+                                        <path
+                                            d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                        />
                                     </svg>
                                 </div>
                             </button>
@@ -749,8 +760,17 @@ function submitFromAvatarStep(): void {
                                 class="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-brand-primary/20 bg-transparent px-6 text-sm font-black text-brand-primary/70 transition hover:border-brand-primary hover:text-brand-primary active:scale-95 sm:w-auto sm:px-8"
                                 @click="step = 1"
                             >
-                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>
+                                <svg
+                                    class="h-4 w-4"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2.5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path d="M19 12H5" />
+                                    <path d="m12 19-7-7 7-7" />
                                 </svg>
                                 Kembali
                             </button>
@@ -760,20 +780,54 @@ function submitFromAvatarStep(): void {
                                 :disabled="form.processing || !form.avatar_key"
                                 @click="submitFromAvatarStep"
                             >
-                                <span v-if="form.processing" class="flex items-center gap-2">
-                                    <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                                <span
+                                    v-if="form.processing"
+                                    class="flex items-center gap-2"
+                                >
+                                    <svg
+                                        class="h-4 w-4 animate-spin"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                    >
+                                        <circle
+                                            class="opacity-25"
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                            stroke="currentColor"
+                                            stroke-width="4"
+                                        />
+                                        <path
+                                            class="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8v8H4z"
+                                        />
                                     </svg>
                                     Menghubungkan...
                                 </span>
                                 <span v-else class="flex items-center gap-2">
                                     Masuk dan Mulai!
-                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
-                                        <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
-                                        <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
-                                        <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+                                    <svg
+                                        class="h-4 w-4"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2.5"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    >
+                                        <path
+                                            d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+                                        />
+                                        <path
+                                            d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+                                        />
+                                        <path
+                                            d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"
+                                        />
+                                        <path
+                                            d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"
+                                        />
                                     </svg>
                                 </span>
                             </button>

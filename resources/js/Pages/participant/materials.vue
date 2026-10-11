@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Modal from '@/Components/Modal.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { reactive, ref, watch } from 'vue';
 
@@ -42,6 +42,13 @@ const checkDrafts = reactive<
 const expandedMaterials = reactive<Record<number, boolean>>({});
 const actionFeedback = reactive<Record<number, string>>({});
 const actionProcessing = reactive<Record<number, boolean>>({});
+
+function paginationLabel(label: string): string {
+    return label
+        .replace('&laquo;', '‹')
+        .replace('&raquo;', '›')
+        .replace(/<[^>]*>/g, '');
+}
 
 function syncNoteDrafts(): void {
     for (const material of props.materials.data) {
@@ -582,44 +589,64 @@ function saveCheck(material: Material): void {
                             !link.url ? 'pointer-events-none opacity-40' : '',
                         ]"
                     >
-                        <span v-html="link.label" />
+                        <span>{{ paginationLabel(link.label) }}</span>
                     </Link>
                 </nav>
             </section>
         </main>
-    
-    <!-- Delete Note Confirmation Modal -->
-    <Modal :show="showDeleteModal" title="Hapus Catatan Pribadi" @close="showDeleteModal = false">
-        <div class="p-6">
-            <div class="flex items-center gap-3">
-                <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                </span>
-                <div>
-                    <h3 class="text-base font-bold text-slate-900">Hapus Catatan Materi?</h3>
-                    <p class="mt-1 text-xs text-slate-500">Catatan pribadi kamu pada materi ini akan dihapus permanen.</p>
+
+        <!-- Delete Note Confirmation Modal -->
+        <Modal
+            :show="showDeleteModal"
+            title="Hapus Catatan Pribadi"
+            @close="showDeleteModal = false"
+        >
+            <div class="p-6">
+                <div class="flex items-center gap-3">
+                    <span
+                        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600"
+                    >
+                        <svg
+                            class="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                        </svg>
+                    </span>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">
+                            Hapus Catatan Materi?
+                        </h3>
+                        <p class="mt-1 text-xs text-slate-500">
+                            Catatan pribadi kamu pada materi ini akan dihapus
+                            permanen.
+                        </p>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button
+                        type="button"
+                        class="rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                        @click="showDeleteModal = false"
+                    >
+                        Batal
+                    </button>
+                    <button
+                        type="button"
+                        class="rounded-xl bg-red-600 px-4 py-2 text-xs font-black text-white hover:bg-red-700"
+                        @click="confirmDeleteNote"
+                    >
+                        Hapus Catatan
+                    </button>
                 </div>
             </div>
-            <div class="mt-6 flex justify-end gap-3">
-                <button
-                    type="button"
-                    class="rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
-                    @click="showDeleteModal = false"
-                >
-                    Batal
-                </button>
-                <button
-                    type="button"
-                    class="rounded-xl bg-red-600 px-4 py-2 text-xs font-black text-white hover:bg-red-700"
-                    @click="confirmDeleteNote"
-                >
-                    Hapus Catatan
-                </button>
-            </div>
-        </div>
-    </Modal>
-
-</AuthenticatedLayout>
+        </Modal>
+    </AuthenticatedLayout>
 </template>

@@ -87,6 +87,16 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
                             class="inline-flex min-h-11 items-center justify-center rounded-xl bg-brand-secondary px-5 text-sm font-bold text-white shadow-sm transition hover:brightness-105"
                             >Ke Dashboard Eksekutif</Link
                         >
+                        <Link
+                            href="/superadmin/ai-monitoring"
+                            class="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/20 bg-white/10 px-5 text-sm font-semibold text-white transition hover:bg-white/15"
+                            >AI Monitoring</Link
+                        >
+                        <Link
+                            href="/superadmin/categories"
+                            class="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/20 bg-white/10 px-5 text-sm font-semibold text-white transition hover:bg-white/15"
+                            >Kategori</Link
+                        >
                         <span
                             class="inline-flex min-h-11 items-center rounded-xl border border-white/20 bg-white/10 px-4 text-xs font-semibold text-white"
                         >
@@ -147,7 +157,8 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
                             v-else
                             class="mt-4 rounded-xl bg-brand-accent px-4 py-8 text-center text-sm text-slate-600"
                         >
-                            Belum ada organisasi.
+                            Belum ada organisasi. Buat tenant pertama atau
+                            tunggu admin organisasi mendaftar.
                         </p>
                     </section>
 
@@ -210,7 +221,8 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
                                 >
                             </div>
                             <p v-else class="mt-3 text-sm text-slate-500">
-                                Belum ada kategori.
+                                Belum ada kategori. Tambahkan kategori global
+                                agar creator punya pilihan saat publish kuis.
                             </p>
                         </section>
                     </div>

@@ -11,6 +11,7 @@ const props = withDefaults(
     {
         type: 'success',
         duration: 3000,
+        onClose: () => {},
     },
 );
 
@@ -117,8 +118,8 @@ defineExpose({
             <button
                 type="button"
                 class="rounded-lg p-1 hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
-                @click="close"
                 aria-label="Tutup notifikasi"
+                @click="close"
             >
                 <svg
                     class="h-5 w-5"
