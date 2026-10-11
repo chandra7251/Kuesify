@@ -39,6 +39,7 @@ class RegisteredUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'role' => ['required', 'string', 'in:participant,creator,organization_admin'],
+            'organization_name' => ['nullable', 'string', 'max:120'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -52,7 +53,7 @@ class RegisteredUserController extends Controller
             
             $workspaceName = match ($role) {
                 'creator' => $user->name . "'s Class & Workspace",
-                'organization_admin' => $user->name . "'s Institution",
+                'organization_admin' => filled($request->organization_name) ? trim((string) $request->organization_name) : $user->name . "'s Institution",
                 default => $user->name . "'s Learning Space",
             };
 

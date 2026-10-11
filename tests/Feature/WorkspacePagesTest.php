@@ -22,7 +22,7 @@ it('shows a tenant-scoped question bank and exports only active organization que
     app(TenantContext::class)->clear();
 
     $this->actingAs($creator)->post(route('organizations.switch', $organization));
-    $this->get(route('questions.index'))->assertOk()->assertInertia(fn ($page) => $page->component('Workspace')->has('items.data', 1));
+    $this->get(route('questions.index'))->assertOk()->assertInertia(fn ($page) => $page->component('creator/question-bank')->has('questions', 1));
     $this->get(route('questions.export'))->assertOk()->assertHeader('content-type', 'text/csv; charset=UTF-8');
     $xlsx = $this->get(route('questions.export', ['format' => 'xlsx']))
         ->assertOk()

@@ -28,3 +28,12 @@ it('lets a creator open a session and a guest join by PIN', function () {
 
     $this->assertDatabaseHas('live_participants', ['alias' => 'Rani']);
 });
+
+it('validates a guest PIN before avatar selection without joining the session', function () {
+    $this->from(route('live-sessions.join-page'))
+        ->post(route('live-sessions.validate-join'), ['pin' => '123456', 'alias' => 'Rani'])
+        ->assertRedirect(route('live-sessions.join-page'))
+        ->assertSessionHasErrors('pin');
+
+    $this->assertDatabaseMissing('live_participants', ['alias' => 'Rani']);
+});

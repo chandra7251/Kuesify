@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const props = withDefaults(
+withDefaults(
     defineProps<{
         streaks: { date: string; count: number }[];
         label?: string;

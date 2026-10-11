@@ -54,7 +54,11 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $user,
-                'unreadNotificationsCount' => $user ? $user->unreadNotifications()->count() : 0,
+                'unreadNotificationsCount' => $user ? cache()->remember(
+                    "notif_count.{$user->id}",
+                    60,
+                    fn () => $user->unreadNotifications()->count()
+                ) : 0,
             ],
             'currentOrganization' => $currentOrganization,
             'flash' => [

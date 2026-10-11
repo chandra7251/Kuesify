@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppIcon from '@/Components/AppIcon.vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import AvatarIcon from '@/Components/AvatarIcon.vue';
 import type { PageProps } from '@/types';
@@ -90,6 +91,21 @@ const currentRole = computed(
                         <path d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
+                <Link
+                    :href="route('notifications.index')"
+                    aria-label="Buka notifikasi"
+                    class="relative grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 text-brand-secondary ring-2 ring-brand-secondary/30 transition hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
+                >
+                    <AppIcon name="notifications" class="h-5 w-5" />
+                    <span
+                        v-if="
+                            (page.props.auth?.unreadNotificationsCount ?? 0) > 0
+                        "
+                        class="absolute -right-1 -top-1 grid min-h-5 min-w-5 place-items-center rounded-full bg-red-500 px-1 text-[10px] font-black leading-none text-white ring-2 ring-brand-primary"
+                    >
+                        {{ page.props.auth.unreadNotificationsCount }}
+                    </span>
+                </Link>
                 <Link
                     :href="route('profile.edit')"
                     aria-label="Buka profil"

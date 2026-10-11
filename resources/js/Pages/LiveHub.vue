@@ -506,7 +506,7 @@ function openSession(): void {
                                                 class="flex -space-x-1.5 overflow-hidden"
                                             >
                                                 <template
-                                                    v-for="(p, i) in (
+                                                    v-for="p in (
                                                         session.participants as any[]
                                                     ).slice(0, 4)"
                                                     :key="p.id"

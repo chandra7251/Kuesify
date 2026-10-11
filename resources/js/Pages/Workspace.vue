@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { roleLabel } from '@/utils/roleLabel';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 const props = defineProps<{
@@ -53,7 +53,8 @@ const sectionMeta: Record<
     },
     organization: {
         eyebrow: 'Workspace organisasi',
-        description: 'Kelola group dan data organisasi dalam satu ruang kerja.',
+        description:
+            'Kelola anggota dan data organisasi dalam satu ruang kerja.',
         tone: 'bg-brand-primary text-white',
     },
     admin: {
@@ -75,27 +76,6 @@ const meta = computed(
 const isQuestions = computed(() => props.section === 'questions');
 const isReports = computed(() => props.section === 'reports');
 const isOrganization = computed(() => props.section === 'organization');
-const organizationGroups = computed(
-    () =>
-        (Array.isArray(props.summary.groups) ? props.summary.groups : []) as {
-            id: number;
-            name: string;
-        }[],
-);
-const groupForm = useForm({ name: '' });
-const memberGroup = useForm({ user_id: 0 });
-function createGroup(): void {
-    groupForm.post(route('organization.groups.store'), {
-        preserveScroll: true,
-        onSuccess: () => groupForm.reset(),
-    });
-}
-function addMember(groupId: number, userId: number): void {
-    memberGroup.user_id = userId;
-    memberGroup.post(route('organization.groups.members.store', groupId), {
-        preserveScroll: true,
-    });
-}
 const isAdmin = computed(() => props.section === 'admin');
 const isStyledSection = computed(() => isAdmin.value);
 const isBrandHero = computed(() => isQuestions.value || isReports.value);
@@ -307,7 +287,8 @@ const summarySize = (value: unknown) =>
                                 <p
                                     class="mt-2 text-sm font-semibold text-brand-secondary/70"
                                 >
-                                    Belum ada data
+                                    Belum ada attempt. Bagikan kuis dulu agar
+                                    progres kelas bisa dihitung.
                                 </p>
                             </div>
                         </div>
@@ -394,7 +375,8 @@ const summarySize = (value: unknown) =>
                                 <p
                                     class="mt-2 text-sm font-semibold text-brand-secondary/70"
                                 >
-                                    Belum ada data
+                                    Belum ada skor. Data rata-rata muncul
+                                    setelah siswa mengirim jawaban.
                                 </p>
                             </div>
                         </div>
@@ -474,7 +456,8 @@ const summarySize = (value: unknown) =>
                                 <p
                                     class="mt-2 text-sm font-semibold text-brand-secondary/70"
                                 >
-                                    Belum ada data
+                                    Belum ada analisis soal. Jalankan kuis agar
+                                    soal tersulit bisa terlihat.
                                 </p>
                             </div>
                         </div>
@@ -692,7 +675,8 @@ const summarySize = (value: unknown) =>
                                 <p
                                     class="mt-2 text-sm font-semibold text-brand-secondary/70"
                                 >
-                                    Belum ada data
+                                    Belum ada ringkasan soal. Tambahkan soal ke
+                                    bank soal atau quiz terlebih dahulu.
                                 </p>
                             </div>
                         </div>
@@ -708,54 +692,6 @@ const summarySize = (value: unknown) =>
                             {{ value }}
                         </p>
                     </article>
-                </section>
-
-                <section
-                    v-if="isOrganization"
-                    class="grid gap-5 lg:grid-cols-2"
-                >
-                    <form
-                        class="rounded-2xl border border-t-4 border-brand-secondary/40 bg-white p-5 shadow-figma"
-                        @submit.prevent="createGroup"
-                    >
-                        <h2 class="font-extrabold text-slate-900">
-                            Buat group / departemen
-                        </h2>
-                        <div class="mt-3 flex gap-2">
-                            <input
-                                v-model="groupForm.name"
-                                required
-                                class="min-h-11 min-w-0 flex-1 rounded-lg border-slate-300 text-sm"
-                                placeholder="Nama group"
-                            /><button
-                                type="submit"
-                                class="min-h-11 rounded-xl bg-brand-secondary px-4 text-sm font-bold text-brand-dark transition hover:brightness-105"
-                            >
-                                Tambah
-                            </button>
-                        </div>
-                    </form>
-                    <section
-                        class="rounded-2xl border border-t-4 border-brand-secondary/40 bg-white p-5 shadow-figma"
-                    >
-                        <h2 class="font-extrabold text-slate-900">
-                            Group aktif
-                        </h2>
-                        <div
-                            v-if="organizationGroups.length"
-                            class="mt-3 flex flex-wrap gap-2"
-                        >
-                            <span
-                                v-for="group in organizationGroups"
-                                :key="group.id"
-                                class="rounded-full bg-brand-secondary px-3 py-1 text-xs font-bold"
-                                >{{ group.name }}</span
-                            >
-                        </div>
-                        <p v-else class="mt-3 text-sm text-slate-500">
-                            Belum ada group.
-                        </p>
-                    </section>
                 </section>
 
                 <!-- Data Workspace List (Persis Question Bank) -->
@@ -903,39 +839,6 @@ const summarySize = (value: unknown) =>
                                     }}
                                 </span>
                                 <div
-                                    v-if="
-                                        isOrganization &&
-                                        organizationGroups.length
-                                    "
-                                    class="flex flex-wrap items-center gap-2"
-                                >
-                                    <select
-                                        class="min-h-9 rounded-md border-slate-300 text-xs"
-                                        aria-label="Pilih group"
-                                        @change="
-                                            addMember(
-                                                Number(
-                                                    (
-                                                        $event.target as HTMLSelectElement
-                                                    ).value,
-                                                ),
-                                                Number(item.id),
-                                            )
-                                        "
-                                    >
-                                        <option value="">
-                                            Tambah ke group
-                                        </option>
-                                        <option
-                                            v-for="group in organizationGroups"
-                                            :key="group.id"
-                                            :value="group.id"
-                                        >
-                                            {{ group.name }}
-                                        </option>
-                                    </select>
-                                </div>
-                                <div
                                     v-if="isReports"
                                     class="flex flex-col gap-2 sm:flex-row sm:flex-wrap"
                                 >
@@ -988,13 +891,13 @@ const summarySize = (value: unknown) =>
                         <h3
                             class="mt-2 text-sm font-semibold text-brand-secondary/70"
                         >
-                            Belum ada data
+                            Belum ada data di daftar ini
                         </h3>
                         <p
                             class="mx-auto mt-2 max-w-sm text-sm leading-6 text-slate-500"
                         >
-                            Mulai dari langkah kecil. Data baru akan muncul di
-                            halaman ini.
+                            Mulai dari aksi utama di halaman ini. Data baru akan
+                            muncul setelah siswa, quiz, atau group dibuat.
                         </p>
                         <Link
                             href="/dashboard"

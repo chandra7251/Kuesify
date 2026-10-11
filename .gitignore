@@ -26,6 +26,10 @@ Thumbs.db
 /dist
 /test-results
 /dump.rdb
+/.pnpm-store
+/*.docx
+/*.zip
+/generate_*.py
 
 
 # Agent & Codex skills metadata

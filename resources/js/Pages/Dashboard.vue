@@ -82,10 +82,6 @@ const trendCanvas = ref<HTMLCanvasElement | null>(null);
 const rolesCanvas = ref<HTMLCanvasElement | null>(null);
 const topOrgsCanvas = ref<HTMLCanvasElement | null>(null);
 
-let trendChart: Chart | null = null;
-let rolesChart: Chart | null = null;
-let topOrgsChart: Chart | null = null;
-
 onMounted(async () => {
     if (!props.isSuperAdmin || !props.adminAnalytics) return;
 
@@ -93,7 +89,7 @@ onMounted(async () => {
 
     // 1. Line Chart: Tren Pengerjaan & Skor 7 Hari Terakhir
     if (trendCanvas.value) {
-        trendChart = new Chart(trendCanvas.value, {
+        new Chart(trendCanvas.value, {
             type: 'line',
             data: {
                 labels: props.adminAnalytics.charts.attempts_trend.labels,
@@ -191,7 +187,7 @@ onMounted(async () => {
 
     // 2. Doughnut Chart: Distribusi Role Pengguna
     if (rolesCanvas.value) {
-        rolesChart = new Chart(rolesCanvas.value, {
+        new Chart(rolesCanvas.value, {
             type: 'doughnut',
             data: {
                 labels: props.adminAnalytics.charts.role_distribution.labels,
@@ -240,7 +236,7 @@ onMounted(async () => {
 
     // 3. Bar Chart: Top 5 Organisasi Teraktif
     if (topOrgsCanvas.value) {
-        topOrgsChart = new Chart(topOrgsCanvas.value, {
+        new Chart(topOrgsCanvas.value, {
             type: 'bar',
             data: {
                 labels: props.adminAnalytics.charts.top_organizations.labels,
@@ -328,7 +324,7 @@ const statCards = computed(() => [
 
 const shortcuts = [
     {
-        title: 'Question Bank',
+        title: 'Bank Soal',
         description: 'Buat dan kelola koleksi soal',
         href: '/questions',
     },

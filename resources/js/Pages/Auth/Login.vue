@@ -19,6 +19,11 @@ const form = useForm({
     remember: false,
 });
 
+const fillDemo = (email: string) => {
+    form.email = email;
+    form.password = 'password';
+};
+
 const submit = () => {
     form.post(route('login'), {
         onFinish: () => {
@@ -66,11 +71,11 @@ const submit = () => {
                         Peserta / Siswa
                     </span>
                     <h2 class="mt-1 text-sm font-black text-slate-900">
-                        Mau ikut live quiz pakai PIN?
+                        Mau ikut Live Quiz kelas pakai PIN?
                     </h2>
                     <p class="mt-0.5 text-xs text-slate-600">
-                        Tidak perlu login akun jika hanya ingin menjawab kuis
-                        panggung.
+                        Tidak perlu login akun jika hanya ingin menjawab sesi
+                        dari guru.
                     </p>
                 </div>
                 <Link
@@ -82,15 +87,49 @@ const submit = () => {
             </div>
         </div>
 
+        <!-- Quick Demo Fill -->
+        <div
+            class="mb-6 rounded-2xl border border-slate-200 bg-slate-50/90 p-3.5 shadow-sm"
+        >
+            <p
+                class="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-500"
+            >
+                Pilih Akun Demo (1-Klik Isi):
+            </p>
+            <div class="flex flex-wrap gap-2">
+                <button
+                    type="button"
+                    class="rounded-lg border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700 transition hover:bg-indigo-100 active:scale-95"
+                    @click="fillDemo('admin@kuesify.test')"
+                >
+                    🏢 Admin Organisasi
+                </button>
+                <button
+                    type="button"
+                    class="rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 transition hover:bg-emerald-100 active:scale-95"
+                    @click="fillDemo('creator@kuesify.test')"
+                >
+                    👨‍🏫 Guru / Creator
+                </button>
+                <button
+                    type="button"
+                    class="rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 transition hover:bg-amber-100 active:scale-95"
+                    @click="fillDemo('participant@kuesify.test')"
+                >
+                    🎓 Siswa / Peserta
+                </button>
+            </div>
+        </div>
+
         <form @submit.prevent="submit">
             <div>
                 <InputLabel for="email" value="Email" />
 
                 <TextInput
                     id="email"
+                    v-model="form.email"
                     type="email"
                     class="mt-1 block w-full"
-                    v-model="form.email"
                     required
                     autofocus
                     autocomplete="username"
@@ -115,7 +154,7 @@ const submit = () => {
 
             <div class="mt-4 block">
                 <label class="flex items-center">
-                    <Checkbox name="remember" v-model:checked="form.remember" />
+                    <Checkbox v-model:checked="form.remember" name="remember" />
                     <span class="ms-2 text-sm text-gray-600">Ingat saya</span>
                 </label>
             </div>

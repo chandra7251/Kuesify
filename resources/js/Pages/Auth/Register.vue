@@ -33,6 +33,7 @@ const form = useForm({
     name: '',
     email: '',
     role: 'participant',
+    organization_name: '',
     password: '',
     password_confirmation: '',
 });
@@ -294,6 +295,38 @@ const submit = () => {
                             :message="form.errors.password_confirmation"
                         />
                     </div>
+                </div>
+
+                <!-- Nama Organisasi (Khusus Admin Organisasi) -->
+                <div
+                    v-if="form.role === 'organization_admin'"
+                    class="mt-4 rounded-xl border border-brand-primary/20 bg-brand-accent/40 p-3.5 transition-all"
+                >
+                    <div class="flex items-center justify-between">
+                        <InputLabel
+                            for="org_name"
+                            value="Nama Sekolah / Institusi / Organisasi"
+                            class="font-bold text-brand-primary"
+                        />
+                        <span class="text-[11px] font-semibold text-slate-500"
+                            >Opsional</span
+                        >
+                    </div>
+                    <TextInput
+                        id="org_name"
+                        v-model="form.organization_name"
+                        type="text"
+                        placeholder="Contoh: SMA Negeri 1 Jakarta / Bimbel Cerdas"
+                        class="mt-1.5 block w-full bg-white"
+                    />
+                    <p class="mt-1 text-[11px] text-slate-500">
+                        Nama ini akan menjadi ruang belajar bersama guru dan
+                        siswa di bawahmu. Bisa diubah kapan saja.
+                    </p>
+                    <InputError
+                        class="mt-1"
+                        :message="form.errors.organization_name"
+                    />
                 </div>
             </div>
 

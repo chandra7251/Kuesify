@@ -15,10 +15,17 @@ class OrganizationMemberController extends Controller
     {
         $organization = $this->managedOrganization($request);
         $data = $request->validate(['email' => ['required', 'email'], 'role' => ['required', Rule::enum(OrganizationRole::class)]]);
-        $user = User::where('email', $data['email'])->firstOrFail();
+        $user = User::firstOrCreate(
+            ['email' => $data['email']],
+            [
+                'name' => explode('@', (string) $data['email'])[0],
+                'password' => bcrypt(str()->random(16)),
+                'avatar_key' => 'profile_1',
+            ]
+        );
         $organization->members()->syncWithoutDetaching([$user->id => ['role' => $data['role'], 'is_active' => true]]);
 
-        return back();
+        return back()->with('success', "Anggota {$user->name} berhasil ditambahkan ke organisasi.");
     }
 
     public function disable(Request $request, int $user): RedirectResponse
@@ -27,7 +34,7 @@ class OrganizationMemberController extends Controller
         abort_if($user === $request->user()->id, 422, 'Cannot disable your own account.');
         $organization->members()->updateExistingPivot($user, ['is_active' => false]);
 
-        return back();
+        return back()->with('success', 'Anggota berhasil dinonaktifkan.');
     }
 
     private function managedOrganization(Request $request): Organization

@@ -105,14 +105,14 @@ onUnmounted(() => {
     <div class="relative" role="presentation">
         <div
             ref="triggerRef"
-            @click="toggle"
-            @keydown="onTriggerKeyDown"
             role="button"
             aria-haspopup="true"
             aria-controls="dropdown-content"
             :aria-expanded="open"
             tabindex="0"
             class="cursor-pointer"
+            @click="toggle"
+            @keydown="onTriggerKeyDown"
         >
             <slot name="trigger" />
         </div>
@@ -121,8 +121,8 @@ onUnmounted(() => {
         <div
             v-show="open"
             class="fixed inset-0 z-40"
-            @click="close"
             tabindex="-1"
+            @click="close"
         ></div>
 
         <Transition
@@ -139,10 +139,10 @@ onUnmounted(() => {
                 class="absolute z-50 mt-2 rounded-md shadow-lg"
                 :class="[widthClass, alignmentClasses]"
                 style="display: none"
-                @click="close"
                 role="menu"
                 aria-orientation="vertical"
                 tabindex="-1"
+                @click="close"
                 @keydown="onContentKeyDown"
             >
                 <div

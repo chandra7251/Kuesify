@@ -415,6 +415,13 @@ onUnmounted(() => {
                             class="min-h-13 rounded-2xl bg-brand-primary px-6 py-4 text-sm font-black text-white transition hover:bg-brand-hover"
                             >Masuk dengan PIN</Link
                         >
+                        <div
+                            class="flex w-full items-center gap-4 pt-1 text-xs font-semibold text-brand-primary/60"
+                        >
+                            <span>↑ untuk guru &amp; admin</span>
+                            <span class="h-px flex-1 bg-brand-primary/20" />
+                            <span>↑ untuk siswa yang dapat PIN dari guru</span>
+                        </div>
                     </div>
                     <div
                         data-hero-meta
@@ -475,8 +482,8 @@ onUnmounted(() => {
         </section>
 
         <section
-            data-reveal-section
             id="fitur"
+            data-reveal-section
             class="relative min-h-0 overflow-hidden bg-brand-primary px-5 py-20 text-white sm:px-8 lg:min-h-[42rem] lg:px-12 lg:py-24"
         >
             <div
@@ -691,8 +698,8 @@ onUnmounted(() => {
         </section>
 
         <section
-            data-reveal-section
             id="cara-kerja"
+            data-reveal-section
             class="relative min-h-0 overflow-hidden px-5 py-20 sm:px-8 lg:min-h-[42rem] lg:px-12 lg:py-24"
         >
             <div
@@ -909,8 +916,8 @@ onUnmounted(() => {
             </div>
         </section>
         <section
-            data-reveal-section
             id="untuk-siapa"
+            data-reveal-section
             class="relative isolate z-20 -mt-12 min-h-0 overflow-hidden bg-white px-5 py-20 sm:px-8 lg:min-h-[48rem] lg:px-12 lg:py-24"
         >
             <div

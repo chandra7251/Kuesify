@@ -3,7 +3,6 @@
 use App\Http\Controllers\AiGenerationController;
 use App\Http\Controllers\AiQuestionDraftController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\GroupController;
 use App\Http\Controllers\LiveSessionController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\NotificationController;
@@ -79,8 +78,8 @@ Route::middleware(['auth', 'organization.context'])->group(function () {
     Route::put('/superadmin/categories/{category}', [PlatformAdminController::class, 'updateCategory'])->name('superadmin.categories.update');
     Route::delete('/superadmin/categories/{category}', [PlatformAdminController::class, 'destroyCategory'])->name('superadmin.categories.destroy');
 
-    Route::get('/questions', [WorkspaceController::class, 'questions'])->name('questions.index');
-    Route::get('/creator/question-bank', [WorkspaceController::class, 'creatorQuestionBank'])->name('creator.question-bank');
+    Route::get('/questions', [WorkspaceController::class, 'creatorQuestionBank'])->name('questions.index');
+    Route::redirect('/creator/question-bank', '/questions')->name('creator.question-bank');
     Route::get('/questions/export', [WorkspaceController::class, 'exportQuestions'])->name('questions.export');
     Route::get('/quizzes', [WorkspaceController::class, 'quizzes'])->name('quizzes.index');
     Route::get('/live-sessions', [WorkspaceController::class, 'live'])->name('live-sessions.index');
@@ -89,8 +88,8 @@ Route::middleware(['auth', 'organization.context'])->group(function () {
     Route::get('/participant/badges', [WorkspaceController::class, 'participantBadges'])->name('participant.badges.index');
     Route::get('/attempts/export', [WorkspaceController::class, 'exportAttempts'])->name('attempts.export');
     Route::get('/attempts/{attempt}/play', [QuizAttemptController::class, 'play'])->name('attempts.play');
-    Route::get('/organization', [WorkspaceController::class, 'organization'])->name('organization.index');
-    Route::get('/admin/{section}', [WorkspaceController::class, 'organizationAdmin'])->where('section', 'members|groups|settings')->name('organization.admin.section');
+    Route::redirect('/organization', '/admin/members')->name('organization.index');
+    Route::get('/admin/{section}', [WorkspaceController::class, 'organizationAdmin'])->where('section', 'members|settings')->name('organization.admin.section');
     Route::get('/reports', [WorkspaceController::class, 'reports'])->name('reports.index');
     Route::get('/admin', [WorkspaceController::class, 'admin'])->name('platform.admin');
     Route::get('/superadmin/{section}', [WorkspaceController::class, 'platformSection'])->where('section', 'tenants|categories|ai-monitoring')->name('superadmin.section');
@@ -162,15 +161,9 @@ Route::post('/organization/members', [OrganizationMemberController::class, 'stor
 Route::patch('/organization/members/{user}/disable', [OrganizationMemberController::class, 'disable'])
     ->middleware(['auth', 'organization.context'])
     ->name('organization.members.disable');
-Route::post('/organization/groups', [GroupController::class, 'store'])
+Route::patch('/organization', [OrganizationController::class, 'update'])
     ->middleware(['auth', 'organization.context'])
-    ->name('organization.groups.store');
-Route::post('/organization/groups/{group}/members', [GroupController::class, 'attachMember'])
-    ->middleware(['auth', 'organization.context'])
-    ->name('organization.groups.members.store');
-Route::delete('/organization/groups/{group}/members/{user}', [GroupController::class, 'detachMember'])
-    ->middleware(['auth', 'organization.context'])
-    ->name('organization.groups.members.destroy');
+    ->name('organization.update');
 Route::put('/attempts/{attempt}/questions/{question}', [QuizAttemptController::class, 'upsertAnswer'])
     ->middleware(['auth', 'organization.context'])
     ->name('attempts.answers.upsert');
@@ -180,6 +173,7 @@ Route::post('/attempts/{attempt}/submit', [QuizAttemptController::class, 'submit
 Route::post('/attempts/{attempt}/answers/{answer}/grade', [QuizAttemptController::class, 'grade'])
     ->middleware(['auth', 'organization.context'])
     ->name('attempts.answers.grade');
+Route::post('/live-sessions/validate-join', [LiveSessionController::class, 'validateJoin'])->name('live-sessions.validate-join');
 Route::post('/live-sessions/join', [LiveSessionController::class, 'join'])->name('live-sessions.join');
 Route::get('/live-sessions/{session}/reconnect-qr', [LiveSessionController::class, 'reconnectUrl'])->name('live-sessions.reconnect-qr');
 Route::get('/join', [LiveSessionController::class, 'joinPage'])->name('live-sessions.join-page');
@@ -203,6 +197,7 @@ Route::post('/live-sessions/{session}/reconnect', [LiveSessionController::class,
     ->middleware('throttle:10,1')
     ->name('live-sessions.reconnect');
 Route::post('/live-sessions/{session}/answers', [LiveSessionController::class, 'answer'])
+    ->middleware('throttle:30,1')
     ->name('live-sessions.answers.store');
 
 require __DIR__.'/auth.php';

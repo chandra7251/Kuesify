@@ -45,3 +45,19 @@ test('registration requires a valid role', function () {
 
     $response->assertSessionHasErrors('role');
 });
+
+test('registration as organization admin sets custom organization name when provided', function () {
+    $this->post('/register', [
+        'name' => 'Pak Budi',
+        'email' => 'budi@sekolah.id',
+        'role' => 'organization_admin',
+        'organization_name' => 'SMA Teladan Bangsa',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ]);
+
+    $user = \App\Models\User::where('email', 'budi@sekolah.id')->firstOrFail();
+    $org = $user->organizations()->firstOrFail();
+
+    expect($org->name)->toBe('SMA Teladan Bangsa');
+});

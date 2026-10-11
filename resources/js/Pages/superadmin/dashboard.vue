@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import AppIcon from '@/Components/AppIcon.vue';
 import StatCard from '@/Components/StatCard.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import { Chart, registerables } from 'chart.js';
 import { gsap } from 'gsap';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
@@ -84,6 +85,33 @@ const statCards = computed(() => [
         icon: 'live',
     },
 ]);
+
+const riskSignals = computed(() => {
+    const signals: {
+        level: 'danger' | 'warning';
+        label: string;
+        href: string;
+    }[] = [];
+    if (props.health.failed_jobs > 0)
+        signals.push({
+            level: 'danger',
+            label: `${props.health.failed_jobs} job gagal - perlu tindakan segera`,
+            href: '/superadmin/ai-monitoring',
+        });
+    if (props.health.ai_failures > 5)
+        signals.push({
+            level: 'warning',
+            label: `${props.health.ai_failures} AI generation gagal - cek quota Gemini`,
+            href: '/superadmin/ai-monitoring',
+        });
+    if (props.reverbHealth.reverb_status !== 'online')
+        signals.push({
+            level: 'danger',
+            label: 'Reverb offline - Live Quiz tidak bisa berjalan',
+            href: '/dashboard',
+        });
+    return signals;
+});
 
 const trendRef = ref<HTMLCanvasElement | null>(null);
 const roleRef = ref<HTMLCanvasElement | null>(null);
@@ -306,6 +334,43 @@ onBeforeUnmount(() => {
                     </div>
                 </section>
 
+                <!-- Operational risk signals -->
+                <section
+                    v-if="riskSignals.length"
+                    data-motion-item
+                    class="rounded-2xl border border-rose-200 bg-rose-50 p-4 shadow-figma"
+                    role="alert"
+                >
+                    <h2
+                        class="flex items-center gap-2 text-sm font-black text-rose-900"
+                    >
+                        <AppIcon name="moderation" :size="18" />
+                        Prioritas Operasional — Butuh Tindakan
+                    </h2>
+                    <ul class="mt-3 space-y-2">
+                        <li
+                            v-for="sig in riskSignals"
+                            :key="sig.label"
+                            class="flex items-center gap-3"
+                        >
+                            <span
+                                class="h-2.5 w-2.5 shrink-0 rounded-full"
+                                :class="
+                                    sig.level === 'danger'
+                                        ? 'bg-rose-600'
+                                        : 'bg-amber-500'
+                                "
+                            />
+                            <Link
+                                :href="sig.href"
+                                class="text-sm font-semibold text-rose-800 hover:underline"
+                            >
+                                {{ sig.label }}
+                            </Link>
+                        </li>
+                    </ul>
+                </section>
+
                 <!-- KPI -->
                 <section
                     data-motion-item
@@ -477,7 +542,8 @@ onBeforeUnmount(() => {
                                 </div>
                             </div>
                             <p v-else class="mt-3 text-sm text-slate-500">
-                                Belum ada attempt.
+                                Belum ada attempt. Pantau lagi setelah tenant
+                                mulai menjalankan kuis atau Live Quiz.
                             </p>
                         </section>
                     </div>

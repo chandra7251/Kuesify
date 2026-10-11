@@ -73,6 +73,27 @@ class LiveSessionController extends Controller
         return redirect()->route('live-sessions.play', $session);
     }
 
+    public function validateJoin(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'pin' => ['required', 'digits:6'],
+            'alias' => ['required', 'string', 'max:40'],
+        ]);
+
+        $sessionExists = LiveSession::withoutGlobalScopes()
+            ->where('pin', $data['pin'])
+            ->whereIn('status', ['lobby', 'live'])
+            ->exists();
+
+        if (! $sessionExists) {
+            return back()
+                ->withErrors(['pin' => 'Kode PIN tidak ditemukan atau sesi sudah berakhir. Coba cek ulang PIN-nya ya.'])
+                ->withInput();
+        }
+
+        return back()->withInput();
+    }
+
     public function start(Request $request, int $session): RedirectResponse
     {
         $session = LiveSession::findOrFail($session);

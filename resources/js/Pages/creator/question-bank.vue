@@ -11,7 +11,7 @@ type Question = {
     hint?: string | null;
     points: number;
 };
-const props = defineProps<{ questions: Question[] }>();
+defineProps<{ questions: Question[] }>();
 const form = useForm({
     type: 'multiple_choice',
     prompt: '',

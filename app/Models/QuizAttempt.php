@@ -3,14 +3,16 @@
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToTenant;
-use DomainException;
 use App\Services\GamificationService;
+use DomainException;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 
-#[Fillable(['organization_id', 'quiz_id', 'participant_id', 'status', 'score'])]
+#[Fillable(['organization_id', 'quiz_id', 'participant_id', 'attempt_number', 'status', 'score'])]
 class QuizAttempt extends Model
 {
     use BelongsToTenant;
@@ -21,17 +23,38 @@ class QuizAttempt extends Model
             throw new DomainException('The homework deadline has passed.');
         }
 
-        $attempts = static::where('quiz_id', $quiz->id)->where('participant_id', $participant->id)->count();
+        return DB::transaction(function () use ($quiz, $participant): self {
+            // Lock quiz row agar validasi attempt count konsisten di semua concurrent request
+            Quiz::lockForUpdate()->findOrFail($quiz->id);
 
-        if (! $quiz->allow_retry && $attempts > 0) {
-            throw new DomainException('Retry is disabled for this quiz.');
-        }
+            $attempts = static::withoutGlobalScopes()
+                ->where('quiz_id', $quiz->id)
+                ->where('participant_id', $participant->id)
+                ->count();
 
-        if ($quiz->max_attempts !== null && $attempts >= $quiz->max_attempts) {
-            throw new DomainException('Maximum attempts reached.');
-        }
+            if (! $quiz->allow_retry && $attempts > 0) {
+                throw new DomainException('Retry is disabled for this quiz.');
+            }
 
-        return static::create(['organization_id' => $quiz->organization_id, 'quiz_id' => $quiz->id, 'participant_id' => $participant->id, 'status' => 'in_progress']);
+            if ($quiz->max_attempts !== null && $attempts >= $quiz->max_attempts) {
+                throw new DomainException('Maximum attempts reached.');
+            }
+
+            try {
+                return static::create([
+                    'organization_id' => $quiz->organization_id,
+                    'quiz_id' => $quiz->id,
+                    'participant_id' => $participant->id,
+                    'attempt_number' => $attempts + 1,
+                    'status' => 'in_progress',
+                ]);
+            } catch (QueryException $e) {
+                if (str_contains($e->getMessage(), '1062') || str_contains($e->getMessage(), 'Duplicate entry')) {
+                    throw new DomainException('Maximum attempts reached.');
+                }
+                throw $e;
+            }
+        });
     }
 
     public function answers(): HasMany

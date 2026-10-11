@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import AppIcon from "@/Components/AppIcon.vue";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head, useForm, router } from "@inertiajs/vue3";
-import { computed, ref } from "vue";
+import AppIcon from '@/Components/AppIcon.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { Head, router, useForm } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
 type Organization = {
     id: number;
@@ -23,14 +23,14 @@ const props = defineProps<{
     health: Record<string, number>;
 }>();
 
-const searchQuery = ref("");
+const searchQuery = ref('');
 
 const showCreateModal = ref(false);
 const editingCategory = ref<Category | null>(null);
 
 const form = useForm({
-    name: "",
-    theme_key: "",
+    name: '',
+    theme_key: '',
 });
 
 function openCreateModal() {
@@ -43,7 +43,7 @@ function openCreateModal() {
 function openEditModal(category: Category) {
     editingCategory.value = category;
     form.name = category.name;
-    form.theme_key = category.theme_key ?? "";
+    form.theme_key = category.theme_key ?? '';
     form.clearErrors();
     showCreateModal.value = true;
 }
@@ -57,9 +57,12 @@ function closeModal() {
 
 function submitForm() {
     if (editingCategory.value) {
-        form.put(route('superadmin.categories.update', editingCategory.value.id), {
-            onSuccess: () => closeModal(),
-        });
+        form.put(
+            route('superadmin.categories.update', editingCategory.value.id),
+            {
+                onSuccess: () => closeModal(),
+            },
+        );
     } else {
         form.post(route('superadmin.categories.store'), {
             onSuccess: () => closeModal(),
@@ -68,7 +71,11 @@ function submitForm() {
 }
 
 function confirmDelete(category: Category) {
-    if (confirm(`Apakah kamu yakin ingin menghapus kategori "${category.name}"?`)) {
+    if (
+        confirm(
+            `Apakah kamu yakin ingin menghapus kategori "${category.name}"?`,
+        )
+    ) {
         router.delete(route('superadmin.categories.destroy', category.id));
     }
 }
@@ -87,9 +94,7 @@ const themedCount = computed(
     () => props.categories.filter((cat) => Boolean(cat.theme_key)).length,
 );
 
-const totalTenants = computed(
-    () => props.organizations?.data?.length ?? 0,
-);
+const totalTenants = computed(() => props.organizations?.data?.length ?? 0);
 </script>
 
 <template>
@@ -142,17 +147,19 @@ const totalTenants = computed(
                                 class="mt-2 max-w-2xl text-sm leading-relaxed text-white/85 sm:text-base"
                             >
                                 Kelola taksonomi kategori materi dan tema visual
-                                terpadu yang dapat digunakan oleh seluruh kreator
-                                kuis di setiap tenant organisasi.
+                                terpadu yang dapat digunakan oleh seluruh
+                                kreator kuis di setiap tenant organisasi.
                             </p>
                         </div>
 
                         <!-- CTA Tambah Kategori Baru -->
-                        <div class="flex items-center justify-start lg:justify-end">
+                        <div
+                            class="flex items-center justify-start lg:justify-end"
+                        >
                             <button
                                 type="button"
+                                class="inline-flex items-center gap-2 rounded-2xl bg-brand-secondary px-5 py-3 text-sm font-black text-slate-900 shadow-md transition hover:scale-[1.02] hover:bg-brand-secondary/90 active:scale-[0.98]"
                                 @click="openCreateModal"
-                                class="inline-flex items-center gap-2 rounded-2xl bg-brand-secondary px-5 py-3 text-sm font-black text-slate-900 shadow-md transition hover:bg-brand-secondary/90 hover:scale-[1.02] active:scale-[0.98]"
                             >
                                 <AppIcon name="plus" :size="18" />
                                 Tambah Kategori Baru
@@ -175,7 +182,9 @@ const totalTenants = computed(
                             <p class="text-xs font-bold text-slate-500">
                                 Total Kategori
                             </p>
-                            <p class="text-lg font-black text-slate-900 sm:text-xl">
+                            <p
+                                class="text-lg font-black text-slate-900 sm:text-xl"
+                            >
                                 {{ categories.length }}
                             </p>
                         </div>
@@ -193,7 +202,9 @@ const totalTenants = computed(
                             <p class="text-xs font-bold text-slate-500">
                                 Tema Khusus
                             </p>
-                            <p class="text-lg font-black text-slate-900 sm:text-xl">
+                            <p
+                                class="text-lg font-black text-slate-900 sm:text-xl"
+                            >
                                 {{ themedCount }}
                             </p>
                         </div>
@@ -211,7 +222,9 @@ const totalTenants = computed(
                             <p class="text-xs font-bold text-slate-500">
                                 Tenant Terhubung
                             </p>
-                            <p class="text-lg font-black text-slate-900 sm:text-xl">
+                            <p
+                                class="text-lg font-black text-slate-900 sm:text-xl"
+                            >
                                 {{ totalTenants }}
                             </p>
                         </div>
@@ -229,7 +242,9 @@ const totalTenants = computed(
                             <p class="text-xs font-bold text-slate-500">
                                 Sistem Job
                             </p>
-                            <p class="text-lg font-black text-slate-900 sm:text-xl">
+                            <p
+                                class="text-lg font-black text-slate-900 sm:text-xl"
+                            >
                                 {{ health.queued_jobs ?? 0 }}
                             </p>
                         </div>
@@ -282,8 +297,12 @@ const totalTenants = computed(
                             class="group relative flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-primary/50 hover:shadow-figma-sm"
                         >
                             <div class="space-y-3">
-                                <div class="flex items-start justify-between gap-3">
-                                    <div class="flex items-center gap-3 min-w-0">
+                                <div
+                                    class="flex items-start justify-between gap-3"
+                                >
+                                    <div
+                                        class="flex min-w-0 items-center gap-3"
+                                    >
                                         <div
                                             class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-primary transition group-hover:bg-brand-primary group-hover:text-white"
                                         >
@@ -312,20 +331,22 @@ const totalTenants = computed(
                                         ID: {{ item.id }}
                                     </span>
 
-                                    <div class="flex items-center gap-1.5 rounded-xl border border-slate-100 bg-slate-50 p-1">
+                                    <div
+                                        class="flex items-center gap-1.5 rounded-xl border border-slate-100 bg-slate-50 p-1"
+                                    >
                                         <button
                                             type="button"
-                                            @click="openEditModal(item)"
-                                            class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-brand-primary hover:shadow-xs transition"
+                                            class="hover:shadow-xs flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-white hover:text-brand-primary"
                                             title="Edit Kategori"
+                                            @click="openEditModal(item)"
                                         >
                                             <AppIcon name="pencil" :size="15" />
                                         </button>
                                         <button
                                             type="button"
-                                            @click="confirmDelete(item)"
-                                            class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition"
+                                            class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"
                                             title="Hapus Kategori"
+                                            @click="confirmDelete(item)"
                                         >
                                             <AppIcon name="trash" :size="15" />
                                         </button>
@@ -350,7 +371,7 @@ const totalTenants = computed(
                                         </span>
                                         <span
                                             v-else
-                                            class="font-semibold text-slate-400 italic text-[11px]"
+                                            class="text-[11px] font-semibold italic text-slate-400"
                                         >
                                             Tema Standar
                                         </span>
@@ -389,15 +410,15 @@ const totalTenants = computed(
                         <h3 class="mt-3 text-sm font-bold text-slate-800">
                             {{
                                 searchQuery
-                                    ? "Kategori Tidak Ditemukan"
-                                    : "Belum Ada Kategori"
+                                    ? 'Kategori Tidak Ditemukan'
+                                    : 'Belum Ada Kategori'
                             }}
                         </h3>
-                        <p class="mt-1 text-xs text-slate-500 max-w-sm">
+                        <p class="mt-1 max-w-sm text-xs text-slate-500">
                             {{
                                 searchQuery
                                     ? `Tidak ada kategori dengan kata kunci "${searchQuery}". Coba gunakan istilah lain.`
-                                    : "Belum ada kategori global yang ditambahkan ke dalam sistem platform."
+                                    : 'Belum ada kategori global yang ditambahkan ke dalam sistem platform.'
                             }}
                         </p>
                     </div>
@@ -410,23 +431,31 @@ const totalTenants = computed(
             v-if="showCreateModal"
             class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm"
         >
-            <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl space-y-4">
+            <div
+                class="w-full max-w-md space-y-4 rounded-2xl bg-white p-6 shadow-xl"
+            >
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-black text-slate-900">
-                        {{ editingCategory ? "Edit Kategori" : "Tambah Kategori Baru" }}
+                        {{
+                            editingCategory
+                                ? 'Edit Kategori'
+                                : 'Tambah Kategori Baru'
+                        }}
                     </h3>
                     <button
                         type="button"
-                        @click="closeModal"
                         class="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                        @click="closeModal"
                     >
                         ✕
                     </button>
                 </div>
 
-                <form @submit.prevent="submitForm" class="space-y-4">
+                <form class="space-y-4" @submit.prevent="submitForm">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700">Nama Kategori</label>
+                        <label class="block text-xs font-bold text-slate-700"
+                            >Nama Kategori</label
+                        >
                         <input
                             v-model="form.name"
                             type="text"
@@ -434,20 +463,28 @@ const totalTenants = computed(
                             placeholder="Contoh: Matematika Dasar"
                             class="mt-1 w-full rounded-xl border border-slate-200 px-3.5 py-2 text-sm font-semibold text-slate-800 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
                         />
-                        <p v-if="form.errors.name" class="mt-1 text-xs font-semibold text-rose-600">
+                        <p
+                            v-if="form.errors.name"
+                            class="mt-1 text-xs font-semibold text-rose-600"
+                        >
                             {{ form.errors.name }}
                         </p>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-700">Tema Visual (Opsional)</label>
+                        <label class="block text-xs font-bold text-slate-700"
+                            >Tema Visual (Opsional)</label
+                        >
                         <input
                             v-model="form.theme_key"
                             type="text"
                             placeholder="Contoh: math, science, history"
                             class="mt-1 w-full rounded-xl border border-slate-200 px-3.5 py-2 text-sm font-semibold text-slate-800 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
                         />
-                        <p v-if="form.errors.theme_key" class="mt-1 text-xs font-semibold text-rose-600">
+                        <p
+                            v-if="form.errors.theme_key"
+                            class="mt-1 text-xs font-semibold text-rose-600"
+                        >
                             {{ form.errors.theme_key }}
                         </p>
                     </div>
@@ -455,8 +492,8 @@ const totalTenants = computed(
                     <div class="flex justify-end gap-2 pt-2">
                         <button
                             type="button"
-                            @click="closeModal"
                             class="rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50"
+                            @click="closeModal"
                         >
                             Batal
                         </button>
@@ -465,7 +502,13 @@ const totalTenants = computed(
                             :disabled="form.processing"
                             class="rounded-xl bg-brand-primary px-5 py-2 text-xs font-bold text-white hover:bg-brand-primary/90 disabled:opacity-50"
                         >
-                            {{ form.processing ? "Menyimpan..." : (editingCategory ? "Perbarui" : "Simpan") }}
+                            {{
+                                form.processing
+                                    ? 'Menyimpan...'
+                                    : editingCategory
+                                      ? 'Perbarui'
+                                      : 'Simpan'
+                            }}
                         </button>
                     </div>
                 </form>

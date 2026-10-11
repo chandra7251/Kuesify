@@ -22,6 +22,7 @@ class LiveSessionPresenter
             : 0;
 
         $myStats = null;
+        $currentParticipant = null;
         if ($participantId) {
             $participant = $session->participants()->find($participantId);
             if ($participant) {
@@ -34,6 +35,13 @@ class LiveSessionPresenter
                     'correctCount'  => $correctCount,
                     'wrongCount'    => $wrongCount,
                     'totalAnswered' => $totalAnswered,
+                ];
+
+                $currentParticipant = [
+                    'id' => $participant->id,
+                    'alias' => $participant->alias,
+                    'avatar_key' => $participant->avatar_key,
+                    'score' => $participant->score,
                 ];
             }
         }
@@ -61,6 +69,7 @@ class LiveSessionPresenter
             'participants' => $session->participants->whereNull('kicked_at')->values()->map(fn ($participant) => ['id' => $participant->id, 'alias' => $participant->alias, 'avatar_key' => $participant->avatar_key, 'score' => $participant->score]),
             'leaderboard' => app(LiveLeaderboardService::class)->for($session),
             'myStats' => $myStats,
+            'currentParticipant' => $currentParticipant,
         ];
     }
 }

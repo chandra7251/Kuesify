@@ -39,6 +39,10 @@ const activeTab = ref<'pending' | 'history'>('pending');
 const quizzes = ref([...props.quizzes]);
 const historyQuizzes = ref([...(props.history ?? [])]);
 const expandedQuizzes = ref<Record<number, boolean>>({});
+const decisionReceipt = ref<{
+    title: string;
+    action: 'approve' | 'reject';
+} | null>(null);
 
 function toggleExpand(id: number) {
     expandedQuizzes.value[id] = !expandedQuizzes.value[id];
@@ -53,8 +57,10 @@ function decide(id: number, action: 'approve' | 'reject'): void {
             onSuccess: () => {
                 const item = quizzes.value.find((q) => q.id === id);
                 if (item) {
-                    item.status = action === 'approve' ? 'published' : 'rejected';
+                    item.status =
+                        action === 'approve' ? 'published' : 'rejected';
                     historyQuizzes.value.unshift(item);
+                    decisionReceipt.value = { title: item.title, action };
                 }
                 quizzes.value = quizzes.value.filter((quiz) => quiz.id !== id);
             },
@@ -91,39 +97,114 @@ function formatType(type: string): string {
                             <span
                                 class="inline-flex items-center gap-2 rounded-full border border-brand-secondary/30 bg-white/10 px-3 py-1 text-xs font-bold text-brand-secondary backdrop-blur-sm"
                             >
-                                <span class="h-2 w-2 rounded-full bg-brand-secondary" />
+                                <span
+                                    class="h-2 w-2 rounded-full bg-brand-secondary"
+                                />
                                 SUPER ADMIN • MODERASI
                             </span>
                             <span
                                 class="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white/90 backdrop-blur-sm"
                             >
-                                <AppIcon name="moderation" :size="14" class="text-brand-secondary" />
+                                <AppIcon
+                                    name="moderation"
+                                    :size="14"
+                                    class="text-brand-secondary"
+                                />
                                 {{ quizzes.length }} Menunggu Review
                             </span>
                         </div>
 
-                        <h1 class="text-2xl font-black tracking-tight text-white sm:text-3xl lg:text-4xl">
+                        <h1
+                            class="text-2xl font-black tracking-tight text-white sm:text-3xl lg:text-4xl"
+                        >
                             Moderasi Kuis Publik
                         </h1>
-                        <p class="max-w-2xl text-sm leading-relaxed text-white/85 sm:text-base">
-                            Tinjau rincian soal kuis sebelum dipublikasikan atau lihat riwayat moderasi platform Kuesify.
+                        <p
+                            class="max-w-2xl text-sm leading-relaxed text-white/85 sm:text-base"
+                        >
+                            Tinjau rincian soal kuis sebelum dipublikasikan atau
+                            lihat riwayat moderasi platform Kuesify.
                         </p>
                     </div>
                 </section>
 
+                <section
+                    v-if="decisionReceipt"
+                    class="rounded-3xl border p-5 shadow-sm"
+                    :class="
+                        decisionReceipt.action === 'approve'
+                            ? 'border-emerald-200 bg-emerald-50'
+                            : 'border-rose-200 bg-rose-50'
+                    "
+                >
+                    <div class="flex items-start gap-3">
+                        <span
+                            class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-sm font-black text-white"
+                            :class="
+                                decisionReceipt.action === 'approve'
+                                    ? 'bg-emerald-600'
+                                    : 'bg-rose-600'
+                            "
+                        >
+                            {{
+                                decisionReceipt.action === 'approve' ? '✓' : '!'
+                            }}
+                        </span>
+                        <div>
+                            <h2
+                                class="text-sm font-black"
+                                :class="
+                                    decisionReceipt.action === 'approve'
+                                        ? 'text-emerald-950'
+                                        : 'text-rose-950'
+                                "
+                            >
+                                Keputusan moderasi tercatat.
+                            </h2>
+                            <p
+                                class="mt-1 text-xs font-semibold leading-relaxed"
+                                :class="
+                                    decisionReceipt.action === 'approve'
+                                        ? 'text-emerald-800'
+                                        : 'text-rose-800'
+                                "
+                            >
+                                {{ decisionReceipt.title }}
+                                {{
+                                    decisionReceipt.action === 'approve'
+                                        ? 'sekarang tampil publik.'
+                                        : 'ditolak dari publikasi.'
+                                }}
+                                Next: lanjut moderasi antrean berikutnya atau
+                                cek riwayat keputusan.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- Navigation Tabs: Menunggu vs Riwayat -->
-                <div class="flex items-center gap-3 border-b border-slate-200/80 pb-1">
+                <div
+                    class="flex items-center gap-3 border-b border-slate-200/80 pb-1"
+                >
                     <button
                         type="button"
-                        @click="activeTab = 'pending'"
                         class="flex items-center gap-2 border-b-2 px-4 py-2.5 text-xs font-black transition"
-                        :class="activeTab === 'pending' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-slate-500 hover:text-slate-800'"
+                        :class="
+                            activeTab === 'pending'
+                                ? 'border-brand-primary text-brand-primary'
+                                : 'border-transparent text-slate-500 hover:text-slate-800'
+                        "
+                        @click="activeTab = 'pending'"
                     >
                         <AppIcon name="clock" :size="16" />
                         <span>Menunggu Review</span>
                         <span
                             class="rounded-full px-2 py-0.5 text-[10px] font-black"
-                            :class="activeTab === 'pending' ? 'bg-brand-primary/10 text-brand-primary' : 'bg-slate-100 text-slate-600'"
+                            :class="
+                                activeTab === 'pending'
+                                    ? 'bg-brand-primary/10 text-brand-primary'
+                                    : 'bg-slate-100 text-slate-600'
+                            "
                         >
                             {{ quizzes.length }}
                         </span>
@@ -131,15 +212,23 @@ function formatType(type: string): string {
 
                     <button
                         type="button"
-                        @click="activeTab = 'history'"
                         class="flex items-center gap-2 border-b-2 px-4 py-2.5 text-xs font-black transition"
-                        :class="activeTab === 'history' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-slate-500 hover:text-slate-800'"
+                        :class="
+                            activeTab === 'history'
+                                ? 'border-brand-primary text-brand-primary'
+                                : 'border-transparent text-slate-500 hover:text-slate-800'
+                        "
+                        @click="activeTab = 'history'"
                     >
                         <AppIcon name="repeat" :size="16" />
                         <span>Riwayat Moderasi</span>
                         <span
                             class="rounded-full px-2 py-0.5 text-[10px] font-black"
-                            :class="activeTab === 'history' ? 'bg-brand-primary/10 text-brand-primary' : 'bg-slate-100 text-slate-600'"
+                            :class="
+                                activeTab === 'history'
+                                    ? 'bg-brand-primary/10 text-brand-primary'
+                                    : 'bg-slate-100 text-slate-600'
+                            "
                         >
                             {{ historyQuizzes.length }}
                         </span>
@@ -152,14 +241,21 @@ function formatType(type: string): string {
                         v-if="quizzes.length === 0"
                         class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white p-10 text-center shadow-sm"
                     >
-                        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600">
+                        <div
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600"
+                        >
                             <AppIcon name="check" :size="28" />
                         </div>
-                        <h3 class="mt-3 text-base font-extrabold text-slate-800">
+                        <h3
+                            class="mt-3 text-base font-extrabold text-slate-800"
+                        >
                             Tidak Ada Kuis Menunggu Moderasi
                         </h3>
-                        <p class="mt-1 max-w-sm text-xs font-semibold text-slate-500">
-                            Semua pengajuan kuis publik dari kreator telah disetujui atau diproses.
+                        <p
+                            class="mt-1 max-w-sm text-xs font-semibold text-slate-500"
+                        >
+                            Semua pengajuan kuis publik dari kreator telah
+                            disetujui atau diproses.
                         </p>
                     </div>
 
@@ -169,32 +265,51 @@ function formatType(type: string): string {
                         class="overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5 shadow-figma-sm transition sm:p-6"
                     >
                         <!-- Quiz Header Info & Main Actions -->
-                        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                            <div class="space-y-1.5 min-w-0 flex-1">
+                        <div
+                            class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+                        >
+                            <div class="min-w-0 flex-1 space-y-1.5">
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <span class="rounded-md bg-brand-primary/10 px-2.5 py-0.5 text-xs font-bold text-brand-primary">
-                                        {{ quiz.category?.name ?? 'Tanpa Kategori' }}
+                                    <span
+                                        class="rounded-md bg-brand-primary/10 px-2.5 py-0.5 text-xs font-bold text-brand-primary"
+                                    >
+                                        {{
+                                            quiz.category?.name ??
+                                            'Tanpa Kategori'
+                                        }}
                                     </span>
-                                    <span class="rounded-md bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
+                                    <span
+                                        class="rounded-md bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600"
+                                    >
                                         {{ quiz.questions?.length ?? 0 }} Soal
                                     </span>
                                 </div>
 
-                                <h2 class="text-lg font-black text-slate-900 sm:text-xl">
+                                <h2
+                                    class="text-lg font-black text-slate-900 sm:text-xl"
+                                >
                                     {{ quiz.title }}
                                 </h2>
 
                                 <p class="text-xs font-semibold text-slate-500">
-                                    Dibuat oleh <strong class="text-slate-800 font-bold">{{ quiz.creator?.name ?? 'Kreator' }}</strong>
+                                    Dibuat oleh
+                                    <strong class="font-bold text-slate-800">{{
+                                        quiz.creator?.name ?? 'Kreator'
+                                    }}</strong>
                                 </p>
 
-                                <p v-if="quiz.description" class="mt-2 text-xs leading-relaxed text-slate-600 sm:text-sm">
+                                <p
+                                    v-if="quiz.description"
+                                    class="mt-2 text-xs leading-relaxed text-slate-600 sm:text-sm"
+                                >
                                     {{ quiz.description }}
                                 </p>
                             </div>
 
                             <!-- Primary Action Buttons -->
-                            <div class="flex items-center gap-2 shrink-0 pt-2 sm:pt-0">
+                            <div
+                                class="flex shrink-0 items-center gap-2 pt-2 sm:pt-0"
+                            >
                                 <button
                                     type="button"
                                     class="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700 active:scale-95"
@@ -216,14 +331,27 @@ function formatType(type: string): string {
                         </div>
 
                         <!-- Accordion Trigger Button -->
-                        <div class="mt-4 border-t border-slate-100 pt-3 flex items-center justify-between">
+                        <div
+                            class="mt-4 flex items-center justify-between border-t border-slate-100 pt-3"
+                        >
                             <button
                                 type="button"
+                                class="inline-flex items-center gap-2 text-xs font-extrabold text-brand-primary transition hover:text-brand-primary/80"
                                 @click="toggleExpand(quiz.id)"
-                                class="inline-flex items-center gap-2 text-xs font-extrabold text-brand-primary hover:text-brand-primary/80 transition"
                             >
-                                <AppIcon :name="expandedQuizzes[quiz.id] ? 'chevronUp' : 'chevronDown'" :size="16" />
-                                <span>{{ expandedQuizzes[quiz.id] ? 'Sembunyikan Rincian Soal' : 'Lihat Rincian Soal & Jawaban' }}</span>
+                                <AppIcon
+                                    :name="
+                                        expandedQuizzes[quiz.id]
+                                            ? 'chevronUp'
+                                            : 'chevronDown'
+                                    "
+                                    :size="16"
+                                />
+                                <span>{{
+                                    expandedQuizzes[quiz.id]
+                                        ? 'Sembunyikan Rincian Soal'
+                                        : 'Lihat Rincian Soal & Jawaban'
+                                }}</span>
                             </button>
 
                             <span class="text-[11px] font-bold text-slate-400">
@@ -232,12 +360,23 @@ function formatType(type: string): string {
                         </div>
 
                         <!-- Questions Detailed Breakdown Section -->
-                        <div v-if="expandedQuizzes[quiz.id]" class="mt-4 space-y-3 rounded-xl border border-slate-100 bg-slate-50/70 p-4">
-                            <h3 class="text-xs font-black uppercase tracking-wider text-slate-500">
+                        <div
+                            v-if="expandedQuizzes[quiz.id]"
+                            class="mt-4 space-y-3 rounded-xl border border-slate-100 bg-slate-50/70 p-4"
+                        >
+                            <h3
+                                class="text-xs font-black uppercase tracking-wider text-slate-500"
+                            >
                                 Daftar Soal ({{ quiz.questions?.length ?? 0 }})
                             </h3>
 
-                            <div v-if="!quiz.questions || quiz.questions.length === 0" class="text-xs text-slate-400 italic">
+                            <div
+                                v-if="
+                                    !quiz.questions ||
+                                    quiz.questions.length === 0
+                                "
+                                class="text-xs italic text-slate-400"
+                            >
                                 Belum ada soal disematkan pada kuis ini.
                             </div>
 
@@ -245,44 +384,73 @@ function formatType(type: string): string {
                                 <div
                                     v-for="(q, idx) in quiz.questions"
                                     :key="q.id"
-                                    class="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-xs space-y-2"
+                                    class="shadow-xs space-y-2 rounded-xl border border-slate-200/80 bg-white p-3.5"
                                 >
-                                    <div class="flex items-start justify-between gap-3">
+                                    <div
+                                        class="flex items-start justify-between gap-3"
+                                    >
                                         <div class="flex items-center gap-2">
-                                            <span class="flex h-5 w-5 items-center justify-center rounded-full bg-brand-primary text-[10px] font-extrabold text-white">
+                                            <span
+                                                class="flex h-5 w-5 items-center justify-center rounded-full bg-brand-primary text-[10px] font-extrabold text-white"
+                                            >
                                                 {{ idx + 1 }}
                                             </span>
-                                            <span class="text-xs font-bold text-slate-800">
+                                            <span
+                                                class="text-xs font-bold text-slate-800"
+                                            >
                                                 {{ q.prompt }}
                                             </span>
                                         </div>
 
-                                        <div class="flex items-center gap-1.5 shrink-0 text-[10px] font-bold">
-                                            <span class="rounded-md bg-slate-100 px-2 py-0.5 text-slate-600">
+                                        <div
+                                            class="flex shrink-0 items-center gap-1.5 text-[10px] font-bold"
+                                        >
+                                            <span
+                                                class="rounded-md bg-slate-100 px-2 py-0.5 text-slate-600"
+                                            >
                                                 {{ formatType(q.type) }}
                                             </span>
-                                            <span class="rounded-md bg-brand-secondary/20 px-2 py-0.5 text-brand-dark">
+                                            <span
+                                                class="rounded-md bg-brand-secondary/20 px-2 py-0.5 text-brand-dark"
+                                            >
                                                 {{ q.points }} Poin
                                             </span>
                                         </div>
                                     </div>
 
                                     <!-- Options Breakdown if Available -->
-                                    <div v-if="q.options && q.options.length > 0" class="pl-7 grid gap-1.5 sm:grid-cols-2">
+                                    <div
+                                        v-if="q.options && q.options.length > 0"
+                                        class="grid gap-1.5 pl-7 sm:grid-cols-2"
+                                    >
                                         <div
                                             v-for="opt in q.options"
                                             :key="opt.key"
                                             class="flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs font-semibold"
-                                            :class="opt.is_correct ? 'border-emerald-200 bg-emerald-50 text-emerald-900 font-bold' : 'border-slate-100 bg-slate-50 text-slate-600'"
+                                            :class="
+                                                opt.is_correct
+                                                    ? 'border-emerald-200 bg-emerald-50 font-bold text-emerald-900'
+                                                    : 'border-slate-100 bg-slate-50 text-slate-600'
+                                            "
                                         >
                                             <span
                                                 class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-black"
-                                                :class="opt.is_correct ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'"
+                                                :class="
+                                                    opt.is_correct
+                                                        ? 'bg-emerald-600 text-white'
+                                                        : 'bg-slate-200 text-slate-600'
+                                                "
                                             >
                                                 {{ opt.key }}
                                             </span>
-                                            <span class="truncate">{{ opt.text }}</span>
-                                            <span v-if="opt.is_correct" class="ml-auto text-[10px] font-black text-emerald-700">✓ Benar</span>
+                                            <span class="truncate">{{
+                                                opt.text
+                                            }}</span>
+                                            <span
+                                                v-if="opt.is_correct"
+                                                class="ml-auto text-[10px] font-black text-emerald-700"
+                                                >✓ Benar</span
+                                            >
                                         </div>
                                     </div>
                                 </div>
@@ -297,24 +465,33 @@ function formatType(type: string): string {
                         v-if="historyQuizzes.length === 0"
                         class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white p-10 text-center shadow-sm"
                     >
-                        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                        <div
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400"
+                        >
                             <AppIcon name="repeat" :size="28" />
                         </div>
-                        <h3 class="mt-3 text-base font-extrabold text-slate-800">
+                        <h3
+                            class="mt-3 text-base font-extrabold text-slate-800"
+                        >
                             Belum Ada Riwayat Moderasi
                         </h3>
-                        <p class="mt-1 max-w-sm text-xs font-semibold text-slate-500">
-                            Kuis yang telah disetujui atau ditolak akan dicatat di sini.
+                        <p
+                            class="mt-1 max-w-sm text-xs font-semibold text-slate-500"
+                        >
+                            Kuis yang telah disetujui atau ditolak akan dicatat
+                            di sini.
                         </p>
                     </div>
 
                     <article
                         v-for="quiz in historyQuizzes"
                         :key="quiz.id"
-                        class="overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs transition sm:p-6"
+                        class="shadow-xs overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5 transition sm:p-6"
                     >
-                        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                            <div class="space-y-1.5 min-w-0 flex-1">
+                        <div
+                            class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+                        >
+                            <div class="min-w-0 flex-1 space-y-1.5">
                                 <div class="flex flex-wrap items-center gap-2">
                                     <!-- Status Badge -->
                                     <span
@@ -332,33 +509,58 @@ function formatType(type: string): string {
                                         Ditolak
                                     </span>
 
-                                    <span class="rounded-md bg-brand-primary/10 px-2.5 py-0.5 text-xs font-bold text-brand-primary">
-                                        {{ quiz.category?.name ?? 'Tanpa Kategori' }}
+                                    <span
+                                        class="rounded-md bg-brand-primary/10 px-2.5 py-0.5 text-xs font-bold text-brand-primary"
+                                    >
+                                        {{
+                                            quiz.category?.name ??
+                                            'Tanpa Kategori'
+                                        }}
                                     </span>
-                                    <span class="rounded-md bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
+                                    <span
+                                        class="rounded-md bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600"
+                                    >
                                         {{ quiz.questions?.length ?? 0 }} Soal
                                     </span>
                                 </div>
 
-                                <h2 class="text-lg font-black text-slate-900 sm:text-xl">
+                                <h2
+                                    class="text-lg font-black text-slate-900 sm:text-xl"
+                                >
                                     {{ quiz.title }}
                                 </h2>
 
                                 <p class="text-xs font-semibold text-slate-500">
-                                    Dibuat oleh <strong class="text-slate-800 font-bold">{{ quiz.creator?.name ?? 'Kreator' }}</strong>
+                                    Dibuat oleh
+                                    <strong class="font-bold text-slate-800">{{
+                                        quiz.creator?.name ?? 'Kreator'
+                                    }}</strong>
                                 </p>
                             </div>
                         </div>
 
                         <!-- Accordion Trigger Button -->
-                        <div class="mt-4 border-t border-slate-100 pt-3 flex items-center justify-between">
+                        <div
+                            class="mt-4 flex items-center justify-between border-t border-slate-100 pt-3"
+                        >
                             <button
                                 type="button"
+                                class="inline-flex items-center gap-2 text-xs font-extrabold text-brand-primary transition hover:text-brand-primary/80"
                                 @click="toggleExpand(quiz.id)"
-                                class="inline-flex items-center gap-2 text-xs font-extrabold text-brand-primary hover:text-brand-primary/80 transition"
                             >
-                                <AppIcon :name="expandedQuizzes[quiz.id] ? 'chevronUp' : 'chevronDown'" :size="16" />
-                                <span>{{ expandedQuizzes[quiz.id] ? 'Sembunyikan Rincian Soal' : 'Lihat Rincian Soal & Jawaban' }}</span>
+                                <AppIcon
+                                    :name="
+                                        expandedQuizzes[quiz.id]
+                                            ? 'chevronUp'
+                                            : 'chevronDown'
+                                    "
+                                    :size="16"
+                                />
+                                <span>{{
+                                    expandedQuizzes[quiz.id]
+                                        ? 'Sembunyikan Rincian Soal'
+                                        : 'Lihat Rincian Soal & Jawaban'
+                                }}</span>
                             </button>
 
                             <span class="text-[11px] font-bold text-slate-400">
@@ -367,12 +569,23 @@ function formatType(type: string): string {
                         </div>
 
                         <!-- Questions Detailed Breakdown Section -->
-                        <div v-if="expandedQuizzes[quiz.id]" class="mt-4 space-y-3 rounded-xl border border-slate-100 bg-slate-50/70 p-4">
-                            <h3 class="text-xs font-black uppercase tracking-wider text-slate-500">
+                        <div
+                            v-if="expandedQuizzes[quiz.id]"
+                            class="mt-4 space-y-3 rounded-xl border border-slate-100 bg-slate-50/70 p-4"
+                        >
+                            <h3
+                                class="text-xs font-black uppercase tracking-wider text-slate-500"
+                            >
                                 Daftar Soal ({{ quiz.questions?.length ?? 0 }})
                             </h3>
 
-                            <div v-if="!quiz.questions || quiz.questions.length === 0" class="text-xs text-slate-400 italic">
+                            <div
+                                v-if="
+                                    !quiz.questions ||
+                                    quiz.questions.length === 0
+                                "
+                                class="text-xs italic text-slate-400"
+                            >
                                 Belum ada soal disematkan pada kuis ini.
                             </div>
 
@@ -380,44 +593,73 @@ function formatType(type: string): string {
                                 <div
                                     v-for="(q, idx) in quiz.questions"
                                     :key="q.id"
-                                    class="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-xs space-y-2"
+                                    class="shadow-xs space-y-2 rounded-xl border border-slate-200/80 bg-white p-3.5"
                                 >
-                                    <div class="flex items-start justify-between gap-3">
+                                    <div
+                                        class="flex items-start justify-between gap-3"
+                                    >
                                         <div class="flex items-center gap-2">
-                                            <span class="flex h-5 w-5 items-center justify-center rounded-full bg-brand-primary text-[10px] font-extrabold text-white">
+                                            <span
+                                                class="flex h-5 w-5 items-center justify-center rounded-full bg-brand-primary text-[10px] font-extrabold text-white"
+                                            >
                                                 {{ idx + 1 }}
                                             </span>
-                                            <span class="text-xs font-bold text-slate-800">
+                                            <span
+                                                class="text-xs font-bold text-slate-800"
+                                            >
                                                 {{ q.prompt }}
                                             </span>
                                         </div>
 
-                                        <div class="flex items-center gap-1.5 shrink-0 text-[10px] font-bold">
-                                            <span class="rounded-md bg-slate-100 px-2 py-0.5 text-slate-600">
+                                        <div
+                                            class="flex shrink-0 items-center gap-1.5 text-[10px] font-bold"
+                                        >
+                                            <span
+                                                class="rounded-md bg-slate-100 px-2 py-0.5 text-slate-600"
+                                            >
                                                 {{ formatType(q.type) }}
                                             </span>
-                                            <span class="rounded-md bg-brand-secondary/20 px-2 py-0.5 text-brand-dark">
+                                            <span
+                                                class="rounded-md bg-brand-secondary/20 px-2 py-0.5 text-brand-dark"
+                                            >
                                                 {{ q.points }} Poin
                                             </span>
                                         </div>
                                     </div>
 
                                     <!-- Options Breakdown if Available -->
-                                    <div v-if="q.options && q.options.length > 0" class="pl-7 grid gap-1.5 sm:grid-cols-2">
+                                    <div
+                                        v-if="q.options && q.options.length > 0"
+                                        class="grid gap-1.5 pl-7 sm:grid-cols-2"
+                                    >
                                         <div
                                             v-for="opt in q.options"
                                             :key="opt.key"
                                             class="flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs font-semibold"
-                                            :class="opt.is_correct ? 'border-emerald-200 bg-emerald-50 text-emerald-900 font-bold' : 'border-slate-100 bg-slate-50 text-slate-600'"
+                                            :class="
+                                                opt.is_correct
+                                                    ? 'border-emerald-200 bg-emerald-50 font-bold text-emerald-900'
+                                                    : 'border-slate-100 bg-slate-50 text-slate-600'
+                                            "
                                         >
                                             <span
                                                 class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-black"
-                                                :class="opt.is_correct ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'"
+                                                :class="
+                                                    opt.is_correct
+                                                        ? 'bg-emerald-600 text-white'
+                                                        : 'bg-slate-200 text-slate-600'
+                                                "
                                             >
                                                 {{ opt.key }}
                                             </span>
-                                            <span class="truncate">{{ opt.text }}</span>
-                                            <span v-if="opt.is_correct" class="ml-auto text-[10px] font-black text-emerald-700">✓ Benar</span>
+                                            <span class="truncate">{{
+                                                opt.text
+                                            }}</span>
+                                            <span
+                                                v-if="opt.is_correct"
+                                                class="ml-auto text-[10px] font-black text-emerald-700"
+                                                >✓ Benar</span
+                                            >
                                         </div>
                                     </div>
                                 </div>

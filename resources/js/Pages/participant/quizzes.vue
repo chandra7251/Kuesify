@@ -42,6 +42,13 @@ const filters = useForm({
     category: props.filters.category ? String(props.filters.category) : '',
 });
 
+function paginationLabel(label: string): string {
+    return label
+        .replace('&laquo;', '‹')
+        .replace('&raquo;', '›')
+        .replace(/<[^>]*>/g, '');
+}
+
 function applyFilters(): void {
     router.get(
         route('participant.quizzes.index'),
@@ -348,11 +355,10 @@ onUnmounted(() => {
                             !link.url ? 'pointer-events-none opacity-40' : '',
                         ]"
                     >
-                        <span v-html="link.label" />
+                        <span>{{ paginationLabel(link.label) }}</span>
                     </Link>
                 </nav>
             </section>
         </main>
     </AuthenticatedLayout>
 </template>
-

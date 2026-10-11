@@ -81,4 +81,3 @@ const stateCopy = {
         <div class="mt-auto flex flex-col"><slot name="actions" /></div>
     </article>
 </template>
-

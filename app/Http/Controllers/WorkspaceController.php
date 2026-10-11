@@ -14,7 +14,6 @@ use App\Models\Organization;
 use App\Models\Question;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
-use App\Models\Tag;
 use App\Services\ReverbHealthService;
 use App\Support\SimpleXlsx;
 use App\Support\TenantContext;
@@ -33,29 +32,6 @@ class WorkspaceController extends Controller
 
         return Inertia::render('creator/question-bank', [
             'questions' => Question::latest()->get(['id', 'type', 'prompt', 'hint', 'points']),
-        ]);
-    }
-
-    public function questions(Request $request): InertiaResponse
-    {
-        abort_unless($this->canCreate($request), 403);
-
-        $filters = $request->validate([
-            'search' => ['nullable', 'string', 'max:120'],
-            'type' => ['nullable', 'in:multiple_choice,true_false,fill_blank,essay'],
-            'tag' => ['nullable', 'integer'],
-            'category' => ['nullable', 'integer'],
-        ]);
-        $query = Question::query()->with(['category:id,name,theme_key', 'tags:id,name'])->latest();
-        $query->when($filters['search'] ?? null, fn ($query, $search) => $query->where('prompt', 'like', '%'.$search.'%'))
-            ->when($filters['type'] ?? null, fn ($query, $type) => $query->where('type', $type))
-            ->when($filters['category'] ?? null, fn ($query, $category) => $query->where('category_id', $category))
-            ->when($filters['tag'] ?? null, fn ($query, $tag) => $query->whereHas('tags', fn ($tags) => $tags->whereKey($tag)));
-
-        return $this->page('Question Bank', 'questions', $query->paginate(15)->withQueryString(), $filters, [
-            'types' => ['multiple_choice', 'true_false', 'fill_blank', 'essay'],
-            'categories' => Category::orderBy('name')->get(['id', 'name', 'theme_key']),
-            'tags' => Tag::orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -217,9 +193,7 @@ class WorkspaceController extends Controller
         $this->requireAdmin($request);
         $organization = $this->activeOrganization();
 
-        return $this->page('Organisasi', 'organization', $organization->members()->select('users.id', 'users.name', 'users.email', 'organization_user.role', 'organization_user.is_active')->paginate(20), [], [
-            'groups' => $organization->groups()->orderBy('name')->get(['id', 'name']),
-        ]);
+        return $this->page('Organisasi', 'organization', $organization->members()->select('users.id', 'users.name', 'users.email', 'organization_user.role', 'organization_user.is_active')->paginate(20));
     }
 
     public function platformSection(Request $request, string $section): InertiaResponse
@@ -241,13 +215,17 @@ class WorkspaceController extends Controller
     public function organizationAdmin(Request $request, string $section): InertiaResponse
     {
         $this->requireAdmin($request);
-        abort_unless(in_array($section, ['members', 'groups', 'settings'], true), 404);
+        abort_unless(in_array($section, ['members', 'settings'], true), 404);
         $organization = $this->activeOrganization();
 
         return Inertia::render('admin/'.$section, [
             'members' => $organization->members()->select('users.id', 'users.name', 'users.email', 'organization_user.role', 'organization_user.is_active')->get(),
-            'groups' => $organization->groups()->orderBy('name')->get(['id', 'name']),
-            'organization' => ['id' => $organization->id, 'name' => $organization->name],
+            'organization' => [
+                'id' => $organization->id,
+                'name' => $organization->name,
+                'slug' => $organization->slug,
+                'timezone' => $organization->timezone ?? 'Asia/Jakarta',
+            ],
         ]);
     }
 
