@@ -26,11 +26,11 @@ const fillDemo = (email: string) => {
 
 const demoAccounts = [
     {
-        email: 'admin@kuesify.test',
-        title: 'Admin Organisasi',
-        description: 'Kelola workspace dan anggota.',
-        icon: 'M4 20h16M6 20V5h12v15M9 9h.01M12 9h.01M15 9h.01M9 13h.01M12 13h.01M15 13h.01M9 17h.01M12 17h.01M15 17h.01',
-        tone: 'border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100',
+        email: 'participant@kuesify.test',
+        title: 'Siswa / Peserta',
+        description: 'Ikuti kuis dan lihat hasil.',
+        icon: 'M12 5.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM5.5 20a6.5 6.5 0 0 1 13 0',
+        tone: 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100',
     },
     {
         email: 'creator@kuesify.test',
@@ -40,11 +40,11 @@ const demoAccounts = [
         tone: 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100',
     },
     {
-        email: 'participant@kuesify.test',
-        title: 'Siswa / Peserta',
-        description: 'Ikuti kuis dan lihat hasil.',
-        icon: 'M12 5.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM5.5 20a6.5 6.5 0 0 1 13 0',
-        tone: 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100',
+        email: 'admin@kuesify.test',
+        title: 'Admin Organisasi',
+        description: 'Kelola workspace dan anggota.',
+        icon: 'M4 20h16M6 20V5h12v15M9 9h.01M12 9h.01M15 9h.01M9 13h.01M12 13h.01M15 13h.01M9 17h.01M12 17h.01M15 17h.01',
+        tone: 'border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100',
     },
 ] as const;
 
