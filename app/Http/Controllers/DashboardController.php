@@ -143,7 +143,7 @@ class DashboardController extends Controller
         $classAttempts = QuizAttempt::whereIn('quiz_id', $organization->quizzes()->pluck('id'))
             ->where('status', 'completed');
 
-        return Inertia::render('Admin/dashboard', [
+        return Inertia::render('admin/dashboard', [
             'organization' => ['id' => $organization->id, 'name' => $organization->name, 'role' => 'organization_admin'],
             'stats' => $stats,
             'classPerformance' => [
