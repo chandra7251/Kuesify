@@ -41,14 +41,43 @@ function updateOrganization(): void {
 <template>
     <Head title="Pengaturan Organisasi" />
     <AuthenticatedLayout>
-        <div class="min-h-[calc(100vh-4rem)] bg-brand-accent">
-            <main
-                class="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8"
-            >
+        <main class="relative min-h-screen px-4 py-6 sm:px-6 lg:px-8">
+            <div
+                class="pointer-events-none fixed inset-0 -z-0 bg-brand-accent/30"
+                aria-hidden="true"
+            ></div>
+            <div class="relative z-10 mx-auto max-w-5xl space-y-6">
                 <!-- Hero Header -->
                 <section
-                    class="overflow-hidden rounded-2xl bg-brand-primary px-6 py-7 text-white shadow-figma sm:px-8"
+                    class="relative overflow-hidden rounded-xl bg-brand-primary px-6 py-6 text-white shadow-sm sm:px-8 sm:py-7"
                 >
+                    <div class="mb-5 flex items-center justify-between gap-3">
+                        <Link
+                            href="/dashboard"
+                            class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-3 text-xs font-black text-white transition hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary"
+                        >
+                            <svg
+                                class="h-4 w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="2.5"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M15 19l-7-7 7-7"
+                                />
+                            </svg>
+                            Kembali
+                        </Link>
+                        <span
+                            class="hidden rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-brand-secondary sm:inline-flex"
+                        >
+                            Pengaturan organisasi
+                        </span>
+                    </div>
                     <p
                         class="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-white/80"
                     >
@@ -73,7 +102,7 @@ function updateOrganization(): void {
                 <!-- Success Banner -->
                 <div
                     v-if="successMessage || page.props.flash?.success"
-                    class="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-900 shadow-sm transition-all"
+                    class="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-900 shadow-sm transition-all"
                 >
                     <div
                         class="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-emerald-500 text-white"
@@ -100,7 +129,7 @@ function updateOrganization(): void {
                 <div class="grid gap-6 lg:grid-cols-3">
                     <!-- Form Edit Identitas -->
                     <section
-                        class="rounded-2xl border border-slate-200 bg-white p-6 shadow-figma sm:p-7 lg:col-span-2"
+                        class="rounded-xl border border-[#e2e8f0] bg-white p-6 shadow-sm sm:p-7 lg:col-span-2"
                     >
                         <div class="border-b border-slate-100 pb-4">
                             <h2 class="text-lg font-black text-slate-900">
@@ -182,7 +211,7 @@ function updateOrganization(): void {
                     <div class="space-y-6">
                         <!-- Kartu Informasi Ruang Kerja -->
                         <section
-                            class="rounded-2xl border border-slate-200 bg-white p-6 shadow-figma"
+                            class="rounded-xl border border-[#e2e8f0] bg-white p-6 shadow-sm"
                         >
                             <h2
                                 class="text-sm font-black uppercase tracking-wider text-slate-500"
@@ -230,7 +259,7 @@ function updateOrganization(): void {
 
                         <!-- Tautan Cepat -->
                         <section
-                            class="rounded-2xl border border-slate-200 bg-white p-6 shadow-figma"
+                            class="rounded-xl border border-[#e2e8f0] bg-white p-6 shadow-sm"
                         >
                             <h2
                                 class="text-sm font-black uppercase tracking-wider text-slate-500"
@@ -240,7 +269,7 @@ function updateOrganization(): void {
                             <div class="mt-4 grid gap-2.5">
                                 <Link
                                     href="/admin/members"
-                                    class="flex items-center justify-between rounded-xl border border-slate-200 p-3.5 text-sm font-bold text-slate-800 transition hover:border-brand-primary hover:bg-brand-accent/50"
+                                    class="flex items-center justify-between rounded-xl border border-[#e2e8f0] bg-brand-accent/30 p-3.5 text-sm font-bold text-slate-800 transition hover:border-brand-primary hover:bg-brand-accent/50"
                                 >
                                     <span>Kelola Anggota</span>
                                     <svg
@@ -259,7 +288,7 @@ function updateOrganization(): void {
                                 </Link>
                                 <Link
                                     href="/reports"
-                                    class="flex items-center justify-between rounded-xl border border-slate-200 p-3.5 text-sm font-bold text-slate-800 transition hover:border-brand-primary hover:bg-brand-accent/50"
+                                    class="flex items-center justify-between rounded-xl border border-[#e2e8f0] bg-brand-accent/30 p-3.5 text-sm font-bold text-slate-800 transition hover:border-brand-primary hover:bg-brand-accent/50"
                                 >
                                     <span>Pantau Laporan</span>
                                     <svg
@@ -280,7 +309,7 @@ function updateOrganization(): void {
                         </section>
                     </div>
                 </div>
-            </main>
-        </div>
+            </div>
+        </main>
     </AuthenticatedLayout>
 </template>

@@ -24,6 +24,30 @@ const fillDemo = (email: string) => {
     form.password = 'password';
 };
 
+const demoAccounts = [
+    {
+        email: 'admin@kuesify.test',
+        title: 'Admin Organisasi',
+        description: 'Kelola workspace dan anggota.',
+        icon: 'M4 20h16M6 20V5h12v15M9 9h.01M12 9h.01M15 9h.01M9 13h.01M12 13h.01M15 13h.01M9 17h.01M12 17h.01M15 17h.01',
+        tone: 'border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100',
+    },
+    {
+        email: 'creator@kuesify.test',
+        title: 'Guru / Creator',
+        description: 'Buat soal dan kuis live.',
+        icon: 'M4 20h4L19 9l-4-4L4 16v4ZM14.5 6.5l3 3',
+        tone: 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100',
+    },
+    {
+        email: 'participant@kuesify.test',
+        title: 'Siswa / Peserta',
+        description: 'Ikuti kuis dan lihat hasil.',
+        icon: 'M12 5.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM5.5 20a6.5 6.5 0 0 1 13 0',
+        tone: 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100',
+    },
+] as const;
+
 const submit = () => {
     form.post(route('login'), {
         onFinish: () => {
@@ -34,7 +58,7 @@ const submit = () => {
 </script>
 
 <template>
-    <GuestLayout compact>
+    <GuestLayout compact content-class="max-w-xl">
         <Head title="Masuk" />
 
         <div class="mb-7">
@@ -88,39 +112,66 @@ const submit = () => {
         </div>
 
         <!-- Quick Demo Fill -->
-        <div
-            class="mb-6 rounded-2xl border border-slate-200 bg-slate-50/90 p-3.5 shadow-sm"
+        <section
+            class="mb-6 rounded-2xl border border-brand-primary/15 bg-brand-accent/35 p-3.5 shadow-sm sm:p-5"
+            aria-labelledby="demo-account-title"
         >
-            <p
-                class="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-500"
-            >
-                Pilih Akun Demo (1-Klik Isi):
-            </p>
-            <div class="flex flex-wrap gap-2">
-                <button
-                    type="button"
-                    class="rounded-lg border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700 transition hover:bg-indigo-100 active:scale-95"
-                    @click="fillDemo('admin@kuesify.test')"
+            <div class="flex items-start justify-between gap-3">
+                <div>
+                    <p
+                        id="demo-account-title"
+                        class="text-[11px] font-black uppercase tracking-[0.14em] text-brand-primary"
+                    >
+                        Pilih akun demo
+                    </p>
+                    <p class="mt-1 text-[11px] leading-5 text-slate-500">
+                        Isi email dan kata sandi demo dengan satu klik.
+                    </p>
+                </div>
+                <span
+                    class="hidden rounded-full bg-white px-2 py-1 text-[10px] font-bold text-slate-500 sm:inline-flex"
                 >
-                    🏢 Admin Organisasi
-                </button>
+                    1 klik isi
+                </span>
+            </div>
+            <div class="mt-3 grid gap-2 sm:grid-cols-3">
                 <button
+                    v-for="demo in demoAccounts"
+                    :key="demo.email"
                     type="button"
-                    class="rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 transition hover:bg-emerald-100 active:scale-95"
-                    @click="fillDemo('creator@kuesify.test')"
+                    class="group flex min-h-[68px] items-center gap-2 rounded-xl border p-2.5 text-left transition hover:-translate-y-0.5 hover:shadow-sm active:translate-y-0"
+                    :class="demo.tone"
+                    @click="fillDemo(demo.email)"
                 >
-                    👨‍🏫 Guru / Creator
-                </button>
-                <button
-                    type="button"
-                    class="rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 transition hover:bg-amber-100 active:scale-95"
-                    @click="fillDemo('participant@kuesify.test')"
-                >
-                    🎓 Siswa / Peserta
+                    <span
+                        class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/80"
+                        aria-hidden="true"
+                    >
+                        <svg
+                            class="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                :d="demo.icon"
+                            />
+                        </svg>
+                    </span>
+                    <span class="min-w-0">
+                        <span class="block truncate text-[11px] font-black">
+                            {{ demo.title }}
+                        </span>
+                        <span class="mt-0.5 block truncate text-[10px] opacity-75">
+                            {{ demo.description }}
+                        </span>
+                    </span>
                 </button>
             </div>
-        </div>
-
+        </section>
         <form @submit.prevent="submit">
             <div>
                 <InputLabel for="email" value="Email" />

@@ -36,124 +36,183 @@ function disable(id: number): void {
 <template>
     <Head title="Anggota Organisasi" />
     <AuthenticatedLayout>
-        <main class="mx-auto max-w-5xl space-y-5 px-4 py-6 sm:px-6 lg:px-8">
+        <main class="relative min-h-screen px-4 py-6 sm:px-6 lg:px-8">
             <div
-                class="flex items-center gap-2 text-xs font-bold text-slate-500"
-            >
-                <Link
-                    href="/dashboard"
-                    class="transition hover:text-brand-primary"
-                    >Dashboard</Link
+                class="pointer-events-none fixed inset-0 -z-0 bg-brand-accent/30"
+                aria-hidden="true"
+            ></div>
+            <div class="relative z-10 mx-auto max-w-[90rem] space-y-6">
+                <section
+                    class="overflow-hidden rounded-2xl bg-brand-primary p-5 text-white shadow-figma sm:p-7"
                 >
-                <span>/</span>
-                <span class="text-slate-800">Anggota Organisasi</span>
-            </div>
-            <section class="rounded-2xl bg-white p-6 shadow-sm">
-                <h1 class="text-3xl font-extrabold">Anggota Organisasi</h1>
-                <p class="mt-2 text-sm font-semibold text-slate-500">
-                    Tambahkan guru atau siswa ke organisasimu agar mereka dapat
-                    membuat, mengikuti, dan memantau kuis di bawah sekolahmu.
-                </p>
-                <div
-                    v-if="memberReceipt"
-                    class="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4"
-                >
-                    <div class="flex items-start gap-3">
-                        <span
-                            class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-emerald-500 text-sm font-black text-white"
-                        >
-                            ✓
-                        </span>
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                         <div>
-                            <h2 class="text-sm font-black text-emerald-950">
-                                Anggota berhasil ditambahkan.
-                            </h2>
                             <p
-                                class="mt-1 text-xs font-semibold leading-relaxed text-emerald-800"
+                                class="text-xs font-extrabold uppercase tracking-[0.16em] text-brand-secondary"
                             >
-                                {{ memberReceipt.email }} berhasil didaftarkan
-                                sebagai {{ roleLabel(memberReceipt.role) }} di
-                                organisasi ini.
+                                Workspace anggota
+                            </p>
+                            <h1 class="mt-2 text-2xl font-black tracking-tight sm:text-3xl">
+                                Anggota Organisasi
+                            </h1>
+                            <p class="mt-2 max-w-3xl text-sm leading-6 text-white/75">
+                                Tambahkan guru atau siswa untuk membuat, mengikuti,
+                                dan memantau kuis di organisasi ini.
                             </p>
                         </div>
+                        <span
+                            class="inline-flex w-fit items-center rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white"
+                        >
+                            {{ members.length }} anggota
+                        </span>
+                    </div>
+
+                    <form
+                        class="mt-6 grid gap-3 rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur-sm lg:grid-cols-[minmax(0,1fr)_13rem_auto]"
+                        @submit.prevent="addMember"
+                    >
+                        <label for="member-email" class="sr-only"
+                            >Email anggota</label
+                        >
+                        <input
+                            id="member-email"
+                            v-model="invite.email"
+                            required
+                            type="email"
+                            class="min-h-11 w-full rounded-xl border-0 bg-white text-sm text-slate-900 placeholder:text-slate-400 shadow-none focus:ring-2 focus:ring-brand-secondary"
+                            placeholder="Email anggota (guru / siswa)"
+                        />
+                        <label for="member-role" class="sr-only"
+                            >Peran anggota</label
+                        >
+                        <select
+                            id="member-role"
+                            v-model="invite.role"
+                            class="min-h-11 rounded-xl border-0 bg-white text-sm text-slate-900 shadow-none focus:ring-2 focus:ring-brand-secondary"
+                        >
+                            <option value="participant">Siswa / Peserta</option>
+                            <option value="creator">Guru / Pengajar</option>
+                            <option value="organization_admin">
+                                Admin Organisasi
+                            </option>
+                        </select>
+                        <button
+                            type="submit"
+                            class="min-h-11 rounded-xl bg-brand-secondary px-5 text-sm font-black text-white shadow-sm transition hover:brightness-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-secondary disabled:cursor-not-allowed disabled:opacity-50"
+                            :disabled="invite.processing"
+                        >
+                            {{
+                                invite.processing
+                                    ? 'Menambahkan...'
+                                    : 'Tambah anggota'
+                            }}
+                        </button>
+                    </form>
+                    <p
+                        v-if="invite.errors.email"
+                        class="mt-2 text-xs font-semibold text-red-200"
+                    >
+                        {{ invite.errors.email }}
+                    </p>
+                </section>
+
+                <div
+                    v-if="memberReceipt"
+                    class="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900 shadow-sm"
+                >
+                    <span
+                        class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-emerald-500 text-sm font-black text-white"
+                    >
+                        ✓
+                    </span>
+                    <div>
+                        <h2 class="text-sm font-black text-emerald-950">
+                            Anggota berhasil ditambahkan.
+                        </h2>
+                        <p class="mt-1 text-xs font-semibold leading-relaxed text-emerald-800">
+                            {{ memberReceipt.email }} berhasil didaftarkan sebagai
+                            {{ roleLabel(memberReceipt.role) }} di organisasi ini.
+                        </p>
                     </div>
                 </div>
-                <form
-                    class="mt-5 flex flex-wrap gap-2"
-                    @submit.prevent="addMember"
+
+                <section
+                    class="overflow-hidden rounded-2xl border border-brand-primary/20 bg-white shadow-figma"
                 >
-                    <input
-                        v-model="invite.email"
-                        required
-                        type="email"
-                        class="min-h-11 flex-1 rounded-lg border-slate-300"
-                        placeholder="Email anggota (guru / siswa)"
-                    /><select
-                        v-model="invite.role"
-                        class="min-h-11 rounded-lg border-slate-300"
+                    <div
+                        class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-brand-accent/40 px-5 py-4 sm:px-6"
                     >
-                        <option value="participant">Siswa / Peserta</option>
-                        <option value="creator">Guru / Pengajar</option>
-                        <option value="organization_admin">
-                            Admin Organisasi
-                        </option></select
-                    ><button
-                        class="min-h-11 rounded-lg bg-brand-primary px-4 font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
-                        :disabled="invite.processing"
-                    >
-                        {{
-                            invite.processing
-                                ? 'Menambahkan...'
-                                : 'Tambah anggota'
-                        }}
-                    </button>
-                </form>
-                <p
-                    v-if="invite.errors.email"
-                    class="mt-2 text-sm font-semibold text-red-600"
-                >
-                    {{ invite.errors.email }}
-                </p>
-            </section>
-            <section class="rounded-2xl bg-white p-5 shadow-sm">
-                <article
-                    v-for="member in members"
-                    :key="member.id"
-                    class="flex items-center justify-between gap-3 border-b border-slate-100 py-4 last:border-0"
-                >
-                    <div>
-                        <p class="font-bold">{{ member.name }}</p>
-                        <div class="mt-1 flex items-center gap-2">
-                            <span class="text-xs text-slate-500">{{
-                                member.email
-                            }}</span>
-                            <span
-                                class="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-700"
-                                >{{ roleLabel(member.role) }}</span
+                        <div>
+                            <p
+                                class="text-xs font-extrabold uppercase tracking-[0.14em] text-brand-primary"
                             >
-                            <span
-                                v-if="!member.is_active"
-                                class="rounded-md bg-red-100 px-2 py-0.5 text-[11px] font-bold text-red-600"
-                                >Nonaktif</span
-                            >
+                                Daftar anggota
+                            </p>
+                            <h2 class="mt-1 text-lg font-black text-slate-950">
+                                Anggota aktif di organisasi
+                            </h2>
                         </div>
+                        <span
+                            class="rounded-full bg-brand-secondary px-3 py-1 text-xs font-black text-white"
+                        >
+                            {{ members.length }} akun
+                        </span>
                     </div>
-                    <button
-                        v-if="member.is_active"
-                        class="text-sm font-bold text-red-600"
-                        @click="disable(member.id)"
+
+                    <div v-if="members.length" class="divide-y divide-slate-100">
+                        <article
+                            v-for="member in members"
+                            :key="member.id"
+                            class="group flex flex-col gap-4 px-5 py-4 transition hover:bg-brand-accent/30 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+                        >
+                            <div class="flex min-w-0 items-center gap-3">
+                                <span
+                                    class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-primary text-sm font-black text-white"
+                                    aria-hidden="true"
+                                >
+                                    {{ member.name.slice(0, 1).toUpperCase() }}
+                                </span>
+                                <div class="min-w-0">
+                                    <p class="truncate text-sm font-black text-slate-900">
+                                        {{ member.name }}
+                                    </p>
+                                    <div class="mt-1 flex flex-wrap items-center gap-2">
+                                        <span class="truncate text-xs text-slate-500">
+                                            {{ member.email }}
+                                        </span>
+                                        <span
+                                            class="rounded-full bg-brand-accent px-2.5 py-0.5 text-[11px] font-black text-brand-primary"
+                                        >
+                                            {{ roleLabel(member.role) }}
+                                        </span>
+                                        <span
+                                            v-if="!member.is_active"
+                                            class="rounded-full bg-red-100 px-2.5 py-0.5 text-[11px] font-black text-red-700"
+                                        >
+                                            Nonaktif
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button
+                                v-if="member.is_active"
+                                type="button"
+                                class="inline-flex min-h-9 items-center justify-center rounded-lg border border-red-200 px-3 text-xs font-black text-red-600 transition hover:bg-red-50 sm:shrink-0"
+                                @click="disable(member.id)"
+                            >
+                                Nonaktifkan
+                            </button>
+                        </article>
+                    </div>
+                    <p
+                        v-else
+                        class="m-5 rounded-xl bg-brand-accent p-6 text-center text-sm font-semibold text-slate-600"
                     >
-                        Nonaktifkan
-                    </button>
-                </article>
-                <p
-                    v-if="members.length === 0"
-                    class="rounded-2xl bg-slate-50 p-5 text-sm font-semibold text-slate-500"
-                >
-                    Belum ada anggota. Daftarkan siswa atau guru lewat form di
-                    atas untuk menghubungkan mereka dengan organisasimu.
-                </p>
-            </section>
+                        Belum ada anggota. Daftarkan siswa atau guru lewat form
+                        di atas.
+                    </p>
+                </section>
+            </div>
         </main>
     </AuthenticatedLayout>
 </template>

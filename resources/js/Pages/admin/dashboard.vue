@@ -134,12 +134,14 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
 <template>
     <Head title="Admin — Dashboard Organisasi" />
     <AuthenticatedLayout>
-        <div class="min-h-[calc(100vh-4rem)] bg-brand-accent">
-            <main
-                class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8"
-            >
+        <main class="relative min-h-screen px-4 py-6 sm:px-6 lg:px-8">
+            <div
+                class="pointer-events-none fixed inset-0 -z-0 bg-brand-accent/30"
+                aria-hidden="true"
+            ></div>
+            <div class="relative z-10 mx-auto max-w-7xl space-y-8">
                 <section
-                    class="overflow-hidden rounded-2xl bg-brand-primary px-6 py-7 text-white shadow-figma sm:px-8"
+                    class="relative overflow-hidden rounded-xl bg-brand-primary px-6 py-7 text-white shadow-sm sm:px-8"
                 >
                     <p
                         class="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-white/80"
@@ -183,7 +185,7 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
 
                 <section
                     aria-labelledby="org-kpi"
-                    class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"
+                    class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5"
                 >
                     <h2 id="org-kpi" class="sr-only">Ringkasan tenant</h2>
                     <StatCard
@@ -199,7 +201,7 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
                 <section class="grid gap-3 sm:grid-cols-2">
                     <!-- Wizard panel -->
                     <section
-                        class="col-span-full rounded-2xl border border-brand-secondary/40 bg-white p-5 shadow-figma"
+                        class="col-span-full rounded-xl border border-[#e2e8f0] bg-white p-5 shadow-sm"
                     >
                         <div
                             class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
@@ -253,7 +255,7 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
                             <div
                                 v-for="step in wizardSteps"
                                 :key="step.num"
-                                class="p-4.5 flex flex-col justify-between rounded-2xl border shadow-sm transition-all"
+                                class="flex flex-col justify-between rounded-xl border p-4 shadow-sm transition-all"
                                 :class="
                                     step.done
                                         ? 'border-emerald-200/90 bg-emerald-50/40'
@@ -329,7 +331,7 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
                                     <template v-else-if="step.num === 1">
                                         <Link
                                             href="/admin/settings"
-                                            class="inline-flex items-center gap-1 rounded-xl bg-slate-900 px-3 py-2 text-xs font-black text-white shadow-sm transition hover:bg-slate-800 active:scale-95"
+                                            class="inline-flex items-center gap-1 rounded-xl bg-brand-primary px-3 py-2 text-xs font-black text-white shadow-sm transition hover:bg-brand-hover active:scale-95"
                                         >
                                             Atur Nama →
                                         </Link>
@@ -337,7 +339,7 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
                                     <template v-else>
                                         <Link
                                             href="/reports"
-                                            class="inline-flex items-center gap-1 rounded-xl bg-slate-900 px-3 py-2 text-xs font-black text-white shadow-sm transition hover:bg-slate-800 active:scale-95"
+                                            class="inline-flex items-center gap-1 rounded-xl bg-brand-primary px-3 py-2 text-xs font-black text-white shadow-sm transition hover:bg-brand-hover active:scale-95"
                                         >
                                             Buka Laporan →
                                         </Link>
@@ -347,7 +349,7 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
                         </div>
                     </section>
                     <article
-                        class="ui-card-hover rounded-2xl border border-slate-200 bg-white p-5 shadow-figma"
+                        class="ui-card-hover rounded-xl border border-[#e2e8f0] bg-white p-5 shadow-sm"
                     >
                         <p
                             class="text-xs font-semibold uppercase tracking-wide text-slate-500"
@@ -359,7 +361,7 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
                         </p>
                     </article>
                     <article
-                        class="ui-card-hover rounded-2xl border border-slate-200 bg-white p-5 shadow-figma"
+                        class="ui-card-hover rounded-xl border border-[#e2e8f0] bg-white p-5 shadow-sm"
                     >
                         <p
                             class="text-xs font-semibold uppercase tracking-wide text-slate-500"
@@ -375,7 +377,7 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
 
                 <div class="grid gap-6 lg:grid-cols-3">
                     <section
-                        class="ui-card-hover rounded-2xl border border-slate-200 bg-white p-5 shadow-figma lg:col-span-2"
+                        class="ui-card-hover rounded-xl border border-[#e2e8f0] bg-white p-5 shadow-sm lg:col-span-2"
                     >
                         <div class="flex items-center justify-between gap-4">
                             <div>
@@ -426,7 +428,7 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
                         </p>
                     </section>
                     <section
-                        class="ui-card-hover rounded-2xl border border-slate-200 bg-white p-5 shadow-figma"
+                        class="ui-card-hover rounded-xl border border-[#e2e8f0] bg-white p-5 shadow-sm"
                     >
                         <h2 class="text-base font-bold text-slate-900">
                             Aksi cepat Org Admin
@@ -434,131 +436,180 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
                         <div class="mt-4 grid gap-3">
                             <Link
                                 href="/questions"
-                                class="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 hover:border-brand-secondary"
+                                class="flex items-center justify-between rounded-xl border border-[#e2e8f0] bg-brand-accent/50 px-4 py-3 text-sm font-semibold text-slate-800 transition hover:border-brand-secondary hover:bg-brand-accent"
                                 >Bank Soal
                                 <span class="text-brand-primary">→</span></Link
                             >
                             <Link
                                 href="/admin/members"
-                                class="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 transition hover:border-brand-secondary"
+                                class="flex items-center justify-between rounded-xl border border-[#e2e8f0] bg-brand-accent/50 px-4 py-3 text-sm font-semibold text-slate-800 transition hover:border-brand-secondary hover:bg-brand-accent"
                                 >Kelola Anggota
                                 <span class="text-brand-primary">→</span></Link
                             >
                             <Link
                                 href="/reports"
-                                class="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 hover:border-brand-secondary"
+                                class="flex items-center justify-between rounded-xl border border-[#e2e8f0] bg-brand-accent/50 px-4 py-3 text-sm font-semibold text-slate-800 transition hover:border-brand-secondary hover:bg-brand-accent"
                                 >Laporan tenant
                                 <span class="text-brand-primary">→</span></Link
                             >
                         </div>
                     </section>
                 </div>
-            </main>
-        </div>
+            </div>
+        </main>
 
         <Modal
             :show="showInviteModal"
-            max-width="md"
+            max-width="lg"
             @close="showInviteModal = false"
         >
-            <div class="p-6">
+            <section
+                class="overflow-hidden rounded-2xl border border-brand-primary/10 bg-white shadow-2xl"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="invite-member-title"
+            >
                 <div
-                    class="flex items-center justify-between border-b border-slate-100 pb-3"
+                    class="flex items-start justify-between gap-4 border-b border-brand-primary/10 bg-brand-accent/35 px-6 py-5"
                 >
-                    <div class="flex items-center gap-2.5">
-                        <span
-                            class="grid h-10 w-10 place-items-center rounded-xl bg-brand-primary/10 text-brand-primary"
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-primary text-white shadow-sm"
+                            aria-hidden="true"
                         >
-                            <AppIcon name="members" :size="20" />
-                        </span>
+                            <svg
+                                class="h-5 w-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M15 20a6 6 0 0 0-12 0m6-9a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm7-1v6m3-3h-6"
+                                />
+                            </svg>
+                        </div>
                         <div>
-                            <h3 class="text-base font-black text-slate-900">
-                                Undang Anggota
-                            </h3>
-                            <p class="text-xs text-slate-500">
-                                Daftarkan guru atau siswa ke
-                                {{ organization.name }}
+                            <p
+                                class="text-xs font-extrabold uppercase tracking-[0.16em] text-brand-primary"
+                            >
+                                Kelola anggota
                             </p>
+                            <h2
+                                id="invite-member-title"
+                                class="mt-1 text-xl font-black text-slate-950"
+                            >
+                                Undang anggota
+                            </h2>
                         </div>
                     </div>
                     <button
                         type="button"
-                        class="rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                        class="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-slate-400 transition hover:bg-brand-accent hover:text-brand-primary"
+                        aria-label="Tutup undang anggota"
                         @click="showInviteModal = false"
                     >
-                        ✕
+                        <svg
+                            class="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            aria-hidden="true"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M6 6l12 12M18 6L6 18"
+                            />
+                        </svg>
                     </button>
                 </div>
 
-                <div
-                    v-if="inviteSuccess"
-                    class="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-bold text-emerald-800"
-                >
-                    ✓ Anggota berhasil ditambahkan ke organisasi!
-                </div>
-
-                <form class="mt-4 space-y-3.5" @submit.prevent="submitInvite">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700"
-                            >Email Anggota</label
-                        >
-                        <input
-                            v-model="inviteForm.email"
-                            type="email"
-                            required
-                            placeholder="nama@sekolah.sch.id"
-                            class="mt-1 block w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-brand-primary focus:ring-brand-primary"
-                        />
-                        <p
-                            v-if="inviteForm.errors.email"
-                            class="mt-1 text-xs font-bold text-red-600"
-                        >
-                            {{ inviteForm.errors.email }}
-                        </p>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700"
-                            >Peran / Role</label
-                        >
-                        <select
-                            v-model="inviteForm.role"
-                            class="mt-1 block w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-brand-primary focus:ring-brand-primary"
-                        >
-                            <option value="participant">
-                                🎓 Siswa / Peserta
-                            </option>
-                            <option value="creator">👨‍🏫 Guru / Pengajar</option>
-                            <option value="organization_admin">
-                                🏢 Admin Organisasi
-                            </option>
-                        </select>
-                    </div>
+                <div class="space-y-4 px-6 py-5">
+                    <p class="text-sm leading-6 text-slate-600">
+                        Daftarkan guru atau siswa ke
+                        <span class="font-black text-slate-900">{{ organization.name }}</span>.
+                    </p>
 
                     <div
-                        class="mt-5 flex items-center justify-end gap-2 border-t border-slate-100 pt-2"
+                        v-if="inviteSuccess"
+                        class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-bold leading-5 text-emerald-800"
                     >
-                        <button
-                            type="button"
-                            class="rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-600 transition hover:bg-slate-50"
-                            @click="showInviteModal = false"
-                        >
-                            Batal
-                        </button>
-                        <button
-                            type="submit"
-                            :disabled="inviteForm.processing"
-                            class="rounded-xl bg-brand-primary px-4 py-2 text-xs font-black text-white shadow-sm transition hover:bg-brand-hover disabled:opacity-50"
-                        >
-                            {{
-                                inviteForm.processing
-                                    ? 'Menambahkan...'
-                                    : 'Tambah Anggota'
-                            }}
-                        </button>
+                        Anggota berhasil ditambahkan ke organisasi.
                     </div>
-                </form>
-            </div>
+
+                    <form class="space-y-4" @submit.prevent="submitInvite">
+                        <div>
+                            <label
+                                for="invite-email"
+                                class="block text-xs font-black text-slate-700"
+                            >
+                                Email anggota
+                            </label>
+                            <input
+                                id="invite-email"
+                                v-model="inviteForm.email"
+                                type="email"
+                                required
+                                placeholder="nama@sekolah.sch.id"
+                                class="mt-1.5 block min-h-11 w-full rounded-xl border-slate-300 text-sm shadow-none focus:border-brand-primary focus:ring-brand-primary"
+                            />
+                            <p
+                                v-if="inviteForm.errors.email"
+                                class="mt-1 text-xs font-bold text-red-600"
+                            >
+                                {{ inviteForm.errors.email }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <label
+                                for="invite-role"
+                                class="block text-xs font-black text-slate-700"
+                            >
+                                Peran / role
+                            </label>
+                            <select
+                                id="invite-role"
+                                v-model="inviteForm.role"
+                                class="mt-1.5 block min-h-11 w-full rounded-xl border-slate-300 text-sm shadow-none focus:border-brand-primary focus:ring-brand-primary"
+                            >
+                                <option value="participant">Siswa / Peserta</option>
+                                <option value="creator">Guru / Pengajar</option>
+                                <option value="organization_admin">
+                                    Admin Organisasi
+                                </option>
+                            </select>
+                        </div>
+
+                        <div
+                            class="flex flex-col-reverse gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:justify-end"
+                        >
+                            <button
+                                type="button"
+                                class="min-h-11 rounded-xl border border-slate-200 bg-white px-5 text-sm font-black text-slate-600 transition hover:border-slate-300 hover:bg-slate-100"
+                                @click="showInviteModal = false"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                type="submit"
+                                :disabled="inviteForm.processing"
+                                class="min-h-11 rounded-xl bg-brand-primary px-5 text-sm font-black text-white shadow-sm transition hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                {{
+                                    inviteForm.processing
+                                        ? 'Menambahkan...'
+                                        : 'Tambah anggota'
+                                }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
         </Modal>
     </AuthenticatedLayout>
 </template>
