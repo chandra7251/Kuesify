@@ -58,7 +58,7 @@ const submit = () => {
 </script>
 
 <template>
-    <GuestLayout compact content-class="max-w-xl">
+    <GuestLayout compact content-class="max-w-lg">
         <Head title="Masuk" />
 
         <div class="mb-7">
@@ -82,7 +82,7 @@ const submit = () => {
 
         <!-- Quick Live Quiz Access Card -->
         <div
-            class="mb-6 rounded-2xl border-2 border-brand-secondary/40 bg-brand-secondary/10 p-4 transition-all hover:bg-brand-secondary/15 sm:p-5"
+            class="mb-4 rounded-2xl border-2 border-brand-secondary/40 bg-brand-secondary/10 p-3.5 transition-all hover:bg-brand-secondary/15 sm:p-4"
         >
             <div class="flex items-center justify-between gap-3">
                 <div>
@@ -113,7 +113,7 @@ const submit = () => {
 
         <!-- Quick Demo Fill -->
         <section
-            class="mb-6 rounded-2xl border border-brand-primary/15 bg-brand-accent/35 p-3.5 shadow-sm sm:p-5"
+            class="mb-4 rounded-2xl border border-brand-primary/15 bg-brand-accent/35 p-3 shadow-sm sm:p-4"
             aria-labelledby="demo-account-title"
         >
             <div class="flex items-start justify-between gap-3">
@@ -139,7 +139,7 @@ const submit = () => {
                     v-for="demo in demoAccounts"
                     :key="demo.email"
                     type="button"
-                    class="group flex min-h-[68px] items-center gap-2 rounded-xl border p-2.5 text-left transition hover:-translate-y-0.5 hover:shadow-sm active:translate-y-0"
+                    class="group flex min-h-[60px] items-center gap-2 rounded-xl border p-2 text-left transition hover:-translate-y-0.5 hover:shadow-sm active:translate-y-0"
                     :class="demo.tone"
                     @click="fillDemo(demo.email)"
                 >
@@ -189,7 +189,7 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
-            <div class="mt-4">
+            <div class="mt-3">
                 <InputLabel for="password" value="Kata sandi" />
 
                 <PasswordInput
@@ -203,7 +203,7 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
-            <div class="mt-4 block">
+            <div class="mt-3 block">
                 <label class="flex items-center">
                     <Checkbox v-model:checked="form.remember" name="remember" />
                     <span class="ms-2 text-sm text-gray-600">Ingat saya</span>
@@ -211,7 +211,7 @@ const submit = () => {
             </div>
 
             <div
-                class="mt-6 flex flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between"
+                class="mt-4 flex flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between"
             >
                 <Link
                     v-if="canResetPassword"
@@ -230,7 +230,7 @@ const submit = () => {
                 </PrimaryButton>
             </div>
 
-            <p class="mt-6 text-center text-sm text-slate-600">
+            <p class="mt-4 text-center text-sm text-slate-600">
                 Belum punya akun?
                 <Link
                     :href="route('register')"

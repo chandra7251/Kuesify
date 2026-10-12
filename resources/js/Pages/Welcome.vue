@@ -22,8 +22,9 @@ const roleDetails = [
             'Melihat nilai, progress, dan feedback',
             'Mengulang materi sesuai kebutuhan',
         ],
+        mockup: '/images/laptop-siswa-mockup.png',
         image: '/images/study-character-male.png',
-        alt: 'Siswa belajar menggunakan tablet',
+        alt: 'Mockup laptop ruang belajar siswa',
     },
     {
         label: 'WORKSPACE PENGAJAR',
@@ -34,8 +35,9 @@ const roleDetails = [
             'Menjalankan kuis live dengan PIN',
             'Menilai jawaban dan memberi feedback',
         ],
+        mockup: '/images/laptop-creator-mockup.png',
         image: '/images/role-character-female.png',
-        alt: 'Guru mengajar menggunakan laptop',
+        alt: 'Mockup laptop workspace pengajar',
     },
     {
         label: 'RUANG KENDALI ORGANISASI',
@@ -47,8 +49,9 @@ const roleDetails = [
             'Memantau aktivitas pembelajaran',
             'Meninjau ringkasan penggunaan organisasi',
         ],
+        mockup: '/images/laptop-organization-mockup.png',
         image: '/images/role-laptop-mockup.png',
-        alt: 'Dashboard organisasi Kuesify',
+        alt: 'Mockup laptop dashboard organisasi',
     },
 ] as const;
 const activeSection = ref('');
@@ -892,8 +895,8 @@ onUnmounted(() => {
                             class="pointer-events-none absolute inset-8 rounded-[3rem] bg-white/10 blur-3xl"
                         />
                         <img
-                            src="/images/role-laptop-mockup.png"
-                            alt="Laptop workspace Kuesify"
+                            :src="roleDetails[roleIndex].mockup"
+                            :alt="roleDetails[roleIndex].alt"
                             class="relative right-0 z-10 w-[20rem] object-contain drop-shadow-[0_24px_30px_rgba(12,27,92,0.28)] sm:w-[38rem] sm:-translate-y-8 lg:right-[1%] lg:w-[44rem]"
                         />
                         <img
