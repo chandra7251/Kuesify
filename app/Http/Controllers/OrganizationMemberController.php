@@ -32,6 +32,11 @@ class OrganizationMemberController extends Controller
     {
         $organization = $this->managedOrganization($request);
         abort_if($user === $request->user()->id, 422, 'Cannot disable your own account.');
+        abort_if(
+            $organization->members()->wherePivot('role', 'super_admin')->whereKey($user)->exists(),
+            403,
+            'Cannot disable super admin.'
+        );
         $organization->members()->updateExistingPivot($user, ['is_active' => false]);
 
         return back()->with('success', 'Anggota berhasil dinonaktifkan.');

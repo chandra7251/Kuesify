@@ -133,7 +133,7 @@ class DashboardController extends Controller
     private function orgAdminDashboard(Organization $organization, Request $request): Response
     {
         $stats = [
-            'members' => $organization->members()->count(),
+            'members' => $organization->members()->wherePivotNotIn('role', ['super_admin'])->count(),
             'quizzes' => $organization->quizzes()->count(),
             'questions' => Question::count(),
             'liveSessions' => LiveSession::whereIn('status', ['lobby', 'live'])->count(),

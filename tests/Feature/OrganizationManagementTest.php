@@ -24,6 +24,26 @@ it('lets organization admin manage members only', function () {
     $this->get('/admin/groups')->assertNotFound();
 });
 
+it('filters out super_admin from organization members response', function () {
+    $admin = User::factory()->create();
+    $superAdmin = User::factory()->create(['email' => 'super@example.com']);
+    $participant = User::factory()->create(['email' => 'student@example.com']);
+    $organization = Organization::factory()->create();
+    $organization->members()->attach($admin, ['role' => 'organization_admin']);
+    $organization->members()->attach($superAdmin, ['role' => 'super_admin']);
+    $organization->members()->attach($participant, ['role' => 'participant']);
+
+    $this->actingAs($admin)->post(route('organizations.switch', $organization));
+
+    $response = $this->get('/admin/members')->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->component('admin/members')
+        ->has('members', 2)
+        ->where('members.0.email', fn ($email) => $email !== 'super@example.com')
+        ->where('members.1.email', fn ($email) => $email !== 'super@example.com')
+    );
+});
+
 it('blocks creator from organization management', function () {
     $creator = User::factory()->create();
     $participant = User::factory()->create(['email' => 'student@example.com']);

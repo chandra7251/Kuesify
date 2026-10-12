@@ -66,7 +66,11 @@ class WorkspaceController extends Controller
             'quizzes' => $quizzes,
             'questions' => Question::with('category:id,name,theme_key')->latest()->get(['id', 'category_id', 'type', 'prompt', 'points']),
             'categories' => Category::orderBy('name')->get(['id', 'name', 'theme_key']),
-            'members' => $this->activeOrganization()->members()->select('users.id', 'users.name', 'organization_user.role')->wherePivot('is_active', true)->get(),
+            'members' => $this->activeOrganization()->members()
+                ->wherePivotNotIn('role', ['super_admin'])
+                ->select('users.id', 'users.name', 'organization_user.role')
+                ->wherePivot('is_active', true)
+                ->get(),
             'filters' => $filters,
         ]);
     }
@@ -193,7 +197,10 @@ class WorkspaceController extends Controller
         $this->requireAdmin($request);
         $organization = $this->activeOrganization();
 
-        return $this->page('Organisasi', 'organization', $organization->members()->select('users.id', 'users.name', 'users.email', 'organization_user.role', 'organization_user.is_active')->paginate(20));
+        return $this->page('Organisasi', 'organization', $organization->members()
+            ->wherePivotNotIn('role', ['super_admin'])
+            ->select('users.id', 'users.name', 'users.email', 'organization_user.role', 'organization_user.is_active')
+            ->paginate(20));
     }
 
     public function platformSection(Request $request, string $section): InertiaResponse
@@ -219,7 +226,10 @@ class WorkspaceController extends Controller
         $organization = $this->activeOrganization();
 
         return Inertia::render('admin/'.$section, [
-            'members' => $organization->members()->select('users.id', 'users.name', 'users.email', 'organization_user.role', 'organization_user.is_active')->get(),
+            'members' => $organization->members()
+                ->wherePivotNotIn('role', ['super_admin'])
+                ->select('users.id', 'users.name', 'users.email', 'organization_user.role', 'organization_user.is_active')
+                ->get(),
             'organization' => [
                 'id' => $organization->id,
                 'name' => $organization->name,
