@@ -88,7 +88,14 @@ class QuizController extends Controller
     {
         $quiz = Quiz::withoutGlobalScope('organization')->findOrFail($quiz);
         Gate::authorize('update', $quiz);
-        $quiz->publish();
+
+        try {
+            $quiz->publish();
+        } catch (\DomainException $exception) {
+            return back()
+                ->withErrors(['publish' => $exception->getMessage()])
+                ->with('error', $exception->getMessage());
+        }
 
         return back();
     }

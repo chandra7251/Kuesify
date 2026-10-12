@@ -124,3 +124,26 @@ it('lets quiz owners add collaborator creators who can edit the quiz', function 
 
     $this->assertDatabaseHas('quizzes', ['id' => $quiz->id, 'title' => 'Diedit bersama']);
 });
+
+it('prevents publishing a quiz with no questions and returns a friendly error', function () {
+    $organization = Organization::factory()->create();
+    $creator = User::factory()->create();
+    $organization->members()->attach($creator, ['role' => 'creator']);
+
+    app(TenantContext::class)->set($organization);
+    $quiz = Quiz::create([
+        'organization_id' => $organization->id,
+        'creator_id' => $creator->id,
+        'title' => 'Kuis Kosong',
+        'status' => 'draft',
+    ]);
+    app(TenantContext::class)->clear();
+
+    $this->actingAs($creator)->post(route('organizations.switch', $organization));
+    $response = $this->post(route('quizzes.publish', $quiz));
+
+    $response->assertRedirect();
+    $response->assertSessionHasErrors(['publish']);
+    $response->assertSessionHas('error', 'A quiz needs at least one question before publication.');
+    expect($quiz->fresh()->status)->toBe('draft');
+});

@@ -23,12 +23,17 @@ class QuestionController extends Controller
         $data = $request->validated();
 
         DB::transaction(function () use ($data, $request): void {
+            $options = $data['options'] ?? null;
+            if ($data['type'] === 'true_false' && empty($options)) {
+                $options = ['True', 'False'];
+            }
+
             $question = Question::create([
                 'organization_id' => app(TenantContext::class)->id(),
                 'creator_id' => $request->user()->id,
                 'type' => $data['type'],
                 'prompt' => $data['prompt'],
-                'options' => $data['options'] ?? null,
+                'options' => $options,
                 'correct_answer' => $data['correct_answer'] ?? null,
                 'hint' => $data['hint'] ?? null,
                 'points' => $data['points'] ?? 1000,
@@ -48,9 +53,13 @@ class QuestionController extends Controller
         $question = Question::findOrFail($question);
         Gate::authorize('update', $question);
         $data = $request->validated();
+        $options = $data['options'] ?? null;
+        if ($data['type'] === 'true_false' && empty($options)) {
+            $options = ['True', 'False'];
+        }
 
         $question->update([
-            'type' => $data['type'], 'prompt' => $data['prompt'], 'options' => $data['options'] ?? null,
+            'type' => $data['type'], 'prompt' => $data['prompt'], 'options' => $options,
             'correct_answer' => $data['correct_answer'] ?? null, 'hint' => $data['hint'] ?? null, 'points' => $data['points'] ?? $question->points,
         ]);
         $tagIds = collect($data['tags'] ?? [])->map(fn (string $name) => Tag::firstOrCreate(['organization_id' => $question->organization_id, 'name' => trim($name)])->id);

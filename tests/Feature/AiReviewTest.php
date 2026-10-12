@@ -71,3 +71,16 @@ it('lets generation creator edit or reject pending draft only', function () {
     $this->post(route('ai-drafts.reject', $draft))->assertRedirect();
     $this->assertDatabaseHas('ai_question_drafts', ['id' => $draft->id, 'prompt' => 'Baru', 'status' => 'rejected']);
 });
+
+it('ensures true_false draft gets true false options when approved', function () {
+    $organization = Organization::factory()->create();
+    $creator = User::factory()->create();
+    app(TenantContext::class)->set($organization);
+    $material = Material::create(['organization_id' => $organization->id, 'creator_id' => $creator->id, 'disk' => 'local', 'path' => 'x.pdf', 'original_name' => 'x.pdf', 'mime_type' => 'application/pdf', 'size' => 1, 'status' => 'extracted']);
+    $generation = AiGeneration::create(['organization_id' => $organization->id, 'creator_id' => $creator->id, 'material_id' => $material->id, 'status' => 'review', 'question_count' => 5, 'difficulty' => 'medium', 'types' => ['true_false']]);
+    $draft = AiQuestionDraft::create(['ai_generation_id' => $generation->id, 'type' => 'true_false', 'prompt' => 'Bumi itu bulat?', 'options' => null, 'correct_answer' => 'True', 'points' => 1000, 'status' => 'pending']);
+
+    $question = $draft->approve($creator);
+    expect($question->options)->toBe(['True', 'False'])
+        ->and($question->correct_answer)->toBe('True');
+});

@@ -349,11 +349,68 @@ function moveQuestion(index: number, amount: number): void {
     selectedQuestionIds.value = next;
 }
 
-function publish(): void {
+const showUnsavedOrderModal = ref(false);
+const isSavingAndPublishing = ref(false);
+
+const hasUnsavedQuestions = computed(() => {
+    if (!selectedQuiz.value) return false;
+    const savedIds = (selectedQuiz.value.questions ?? []).map((q) => q.id);
+    const currentIds = selectedQuestionIds.value;
+    if (savedIds.length !== currentIds.length) return true;
+    return currentIds.some((id, index) => id !== savedIds[index]);
+});
+
+const hasSavedQuestionsInDb = computed(() => {
+    return (selectedQuiz.value?.questions?.length ?? 0) > 0;
+});
+
+function handlePublishClick(): void {
     if (!selectedQuiz.value) return;
+    if (selectedQuestionIds.value.length === 0) return;
+
+    if (hasUnsavedQuestions.value || !hasSavedQuestionsInDb.value) {
+        showUnsavedOrderModal.value = true;
+        return;
+    }
+
+    publishDirectly();
+}
+
+function publishDirectly(): void {
+    if (!selectedQuiz.value) return;
+    showUnsavedOrderModal.value = false;
     useForm({}).post(route('quizzes.publish', selectedQuiz.value.id), {
         preserveScroll: true,
     });
+}
+
+function saveOrderAndPublish(): void {
+    if (!selectedQuiz.value || selectedQuestionIds.value.length === 0) return;
+    isSavingAndPublishing.value = true;
+    router.put(
+        route('quizzes.questions.sync', selectedQuiz.value.id),
+        { question_ids: selectedQuestionIds.value },
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                isSavingAndPublishing.value = false;
+                showUnsavedOrderModal.value = false;
+                publishDirectly();
+            },
+            onError: () => {
+                isSavingAndPublishing.value = false;
+            },
+        },
+    );
+}
+
+function cancelUnsavedOrderModal(): void {
+    if (isSavingAndPublishing.value) return;
+    showUnsavedOrderModal.value = false;
+}
+
+function publish(): void {
+    handlePublishClick();
 }
 
 function cloneQuiz(): void {
@@ -1402,9 +1459,31 @@ function archiveQuiz(): void {
                                 >
                                     Pilih soal dari bank di sebelah kiri.
                                 </p>
+                                <div
+                                    v-if="hasUnsavedQuestions || !hasSavedQuestionsInDb"
+                                    class="mt-4 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-xs font-bold text-amber-800"
+                                >
+                                    <svg
+                                        class="h-4 w-4 shrink-0 text-amber-600"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <path
+                                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                                        />
+                                        <line x1="12" y1="9" x2="12" y2="13" />
+                                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                                    </svg>
+                                    <span>
+                                        {{ !hasSavedQuestionsInDb ? 'Soal belum disimpan ke kuis. Simpan susunan soal sebelum publish.' : 'Perubahan susunan soal belum disimpan.' }}
+                                    </span>
+                                </div>
                                 <button
                                     type="button"
-                                    class="mt-4 min-h-11 w-full rounded-xl bg-brand-secondary px-4 text-sm font-black text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50"
+                                    class="min-h-11 w-full rounded-xl bg-brand-secondary px-4 text-sm font-black text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50"
+                                    :class="(hasUnsavedQuestions || !hasSavedQuestionsInDb) ? 'mt-3' : 'mt-4'"
                                     :disabled="selectedQuestionIds.length === 0"
                                     @click="publish"
                                 >
@@ -1507,6 +1586,117 @@ function archiveQuiz(): void {
                                 @click="confirmDeleteQuiz"
                             >
                                 Hapus quiz
+                            </button>
+                        </div>
+                    </section>
+                </div>
+            </Transition>
+
+            <Transition name="delete-confirm">
+                <div
+                    v-if="showUnsavedOrderModal && selectedQuiz"
+                    class="fixed inset-0 z-[100] grid place-items-center bg-slate-500/35 px-4 backdrop-blur-sm"
+                    role="presentation"
+                    @click.self="cancelUnsavedOrderModal"
+                >
+                    <section
+                        class="w-full max-w-lg overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-2xl"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="unsaved-order-modal-title"
+                    >
+                        <div
+                            class="flex items-start justify-between gap-4 border-b border-amber-100 bg-amber-50/80 px-6 py-5"
+                        >
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-amber-500 text-white shadow-sm"
+                                    aria-hidden="true"
+                                >
+                                    <svg
+                                        class="h-5 w-5"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <path
+                                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                                        />
+                                        <line x1="12" y1="9" x2="12" y2="13" />
+                                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p
+                                        class="text-xs font-extrabold uppercase tracking-[0.16em] text-amber-700"
+                                    >
+                                        {{ !hasSavedQuestionsInDb ? 'Soal Belum Disimpan' : 'Peringatan Susunan Soal' }}
+                                    </p>
+                                    <h2
+                                        id="unsaved-order-modal-title"
+                                        class="mt-1 text-xl font-black text-slate-950"
+                                    >
+                                        {{ !hasSavedQuestionsInDb ? 'Simpan soal terlebih dahulu' : 'Susunan soal belum disimpan' }}
+                                    </h2>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                class="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-slate-400 transition hover:bg-amber-100 hover:text-amber-700"
+                                aria-label="Tutup peringatan susunan soal"
+                                @click="cancelUnsavedOrderModal"
+                            >
+                                <span class="text-xl leading-none">&times;</span>
+                            </button>
+                        </div>
+                        <div class="px-6 py-5">
+                            <p class="text-base leading-7 text-slate-600">
+                                <template v-if="!hasSavedQuestionsInDb">
+                                    Quiz <span class="font-black text-slate-900">“{{ selectedQuiz.title }}”</span> belum memiliki soal yang tersimpan di server. Anda perlu menyimpan susunan soal yang telah dipilih agar kuis dapat dipublikasikan.
+                                </template>
+                                <template v-else>
+                                    Anda telah mengubah susunan atau pemilihan soal untuk quiz <span class="font-black text-slate-900">“{{ selectedQuiz.title }}”</span>, tetapi belum menekan tombol <strong class="font-bold text-slate-900">“Simpan susunan soal”</strong>.
+                                </template>
+                            </p>
+                            <div
+                                class="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-semibold leading-5 text-amber-800"
+                            >
+                                <span v-if="!hasSavedQuestionsInDb">
+                                    Klik tombol di bawah untuk otomatis menyimpan seluruh soal yang dipilih dan langsung mempublikasikan quiz.
+                                </span>
+                                <span v-else>
+                                    Jika dipublikasikan sekarang tanpa menyimpan, perubahan urutan terbaru tidak akan diterapkan pada kuis yang dikerjakan peserta.
+                                </span>
+                            </div>
+                        </div>
+                        <div
+                            class="flex flex-col-reverse gap-3 border-t border-slate-100 bg-slate-50/70 px-6 py-4 sm:flex-row sm:justify-end"
+                        >
+                            <button
+                                type="button"
+                                class="min-h-11 rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-600 transition hover:border-slate-300 hover:bg-slate-100"
+                                :disabled="isSavingAndPublishing"
+                                @click="cancelUnsavedOrderModal"
+                            >
+                                Kembali ke editor
+                            </button>
+                            <button
+                                v-if="hasSavedQuestionsInDb"
+                                type="button"
+                                class="min-h-11 rounded-xl border border-amber-300 bg-amber-50 px-4 text-sm font-black text-amber-900 transition hover:bg-amber-100"
+                                :disabled="isSavingAndPublishing"
+                                @click="publishDirectly"
+                            >
+                                Tetap publish tanpa simpan
+                            </button>
+                            <button
+                                type="button"
+                                class="min-h-11 rounded-xl bg-brand-primary px-5 text-sm font-black text-white shadow-sm transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary disabled:opacity-50"
+                                :disabled="isSavingAndPublishing"
+                                @click="saveOrderAndPublish"
+                            >
+                                {{ isSavingAndPublishing ? 'Menyimpan & Menerbitkan...' : 'Simpan & Publish Quiz' }}
                             </button>
                         </div>
                     </section>

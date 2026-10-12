@@ -31,8 +31,8 @@ Requirements:
 - Each question object must have this exact structure:
   - "type": string (must be one of: {$typesList})
   - "prompt": string (the question text)
-  - "options": array of strings (required for "multiple_choice", must have 4 distinct options; null or omitted for other types)
-  - "correct_answer": string (the correct answer text matching one of the options for multiple_choice, or "True"/"False" for true_false, or answer text for fill_blank; null or omitted for essay)
+  - "options": array of strings (required for "multiple_choice" [must have 4 distinct options] and for "true_false" [must be exactly ["True", "False"]]; null or omitted for "fill_blank" and "essay")
+  - "correct_answer": string (the correct answer text matching one of the options for multiple_choice, or exactly "True" or "False" for true_false, or answer text for fill_blank; null or omitted for essay)
   - "explanation": string or null (brief explanation of why the answer is correct)
 PROMPT;
 
@@ -82,16 +82,34 @@ PROMPT;
             $options = $question['options'] ?? null;
             $correctAnswer = $question['correct_answer'] ?? $question['answer'] ?? null;
 
-            if (is_bool($correctAnswer)) {
-                $correctAnswer = $correctAnswer ? 'True' : 'False';
-            } elseif (is_numeric($correctAnswer) && is_array($options) && isset($options[$correctAnswer])) {
-                $correctAnswer = (string) $options[$correctAnswer];
-            } elseif ($correctAnswer !== null) {
-                $correctAnswer = (string) $correctAnswer;
-            }
+            if ($type === 'true_false') {
+                $options = ['True', 'False'];
+                if (is_bool($correctAnswer)) {
+                    $correctAnswer = $correctAnswer ? 'True' : 'False';
+                } elseif (is_string($correctAnswer)) {
+                    $lower = strtolower(trim($correctAnswer));
+                    if (in_array($lower, ['true', 'benar', 'b', 't', '1'], true)) {
+                        $correctAnswer = 'True';
+                    } elseif (in_array($lower, ['false', 'salah', 's', 'f', '0'], true)) {
+                        $correctAnswer = 'False';
+                    } else {
+                        $correctAnswer = 'True';
+                    }
+                } else {
+                    $correctAnswer = 'True';
+                }
+            } else {
+                if (is_bool($correctAnswer)) {
+                    $correctAnswer = $correctAnswer ? 'True' : 'False';
+                } elseif (is_numeric($correctAnswer) && is_array($options) && isset($options[$correctAnswer])) {
+                    $correctAnswer = (string) $options[$correctAnswer];
+                } elseif ($correctAnswer !== null) {
+                    $correctAnswer = (string) $correctAnswer;
+                }
 
-            if (is_array($options)) {
-                $options = array_values(array_map('strval', $options));
+                if (is_array($options)) {
+                    $options = array_values(array_map('strval', $options));
+                }
             }
 
             $normalized[] = [
@@ -115,6 +133,7 @@ PROMPT;
                 || ! is_string($question['prompt'] ?? null)
                 || mb_strlen($question['prompt']) > 4000
                 || ($question['type'] === 'multiple_choice' && (! is_array($question['options'] ?? null) || count($question['options']) < 2))
+                || ($question['type'] === 'true_false' && (! is_array($question['options'] ?? null) || count($question['options']) !== 2))
                 || ($question['type'] !== 'essay' && ! is_string($question['correct_answer'] ?? null))) {
                 throw new RuntimeException('Gemini mengembalikan format soal tidak valid. Coba lagi.');
             }

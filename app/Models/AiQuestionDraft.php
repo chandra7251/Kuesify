@@ -26,12 +26,17 @@ class AiQuestionDraft extends Model
             throw new DomainException('AI draft cannot be approved by this user.');
         }
 
+        $options = $this->options;
+        if ($this->type === 'true_false' && empty($options)) {
+            $options = ['True', 'False'];
+        }
+
         $question = Question::create([
             'organization_id' => $this->generation->organization_id,
             'creator_id' => $creator->id,
             'type' => $this->type,
             'prompt' => $this->prompt,
-            'options' => $this->options,
+            'options' => $options,
             'correct_answer' => $this->correct_answer,
             'explanation' => $this->explanation,
             'points' => $this->points,

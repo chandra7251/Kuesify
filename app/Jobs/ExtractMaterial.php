@@ -30,7 +30,7 @@ class ExtractMaterial implements ShouldQueue
             $this->material->update(['status' => 'extracting']);
             $path = Storage::disk($this->material->disk)->path($this->material->path);
             $pages = $this->material->mime_type === 'application/pdf'
-                ? preg_match_all('/\/Type\s*\/Page\b/', (string) file_get_contents($path))
+                ? $this->pdfPageCount($path)
                 : $this->powerPointSlideCount($path);
 
             if ($pages > 50) {
@@ -55,6 +55,40 @@ class ExtractMaterial implements ShouldQueue
         } finally {
             app(\App\Support\TenantContext::class)->clear();
         }
+    }
+
+    private function pdfPageCount(string $path): int
+    {
+        $content = (string) file_get_contents($path);
+
+        $count = preg_match_all('/\/Type\s*\/Page\b/', $content);
+        if ($count > 0) {
+            return $count;
+        }
+
+        if (preg_match('/\/Type\s*\/Pages\b.*?\/Count\s+(\d+)/s', $content, $match)) {
+            return (int) $match[1];
+        }
+
+        if (preg_match_all('/stream[\r\n]+(.*?)[\r\n]+endstream/s', $content, $streamMatches)) {
+            foreach ($streamMatches[1] as $stream) {
+                $decompressed = @gzuncompress($stream);
+                if (! $decompressed) {
+                    continue;
+                }
+
+                if (preg_match('/\/Type\s*\/Pages\b.*?\/Count\s+(\d+)/s', $decompressed, $match)) {
+                    return (int) $match[1];
+                }
+
+                $pageMatches = preg_match_all('/\/Type\s*\/Page\b/', $decompressed);
+                if ($pageMatches > 0) {
+                    return $pageMatches;
+                }
+            }
+        }
+
+        return max(1, $count);
     }
 
     private function powerPointSlideCount(string $path): int
@@ -98,7 +132,7 @@ class ExtractMaterial implements ShouldQueue
 
         ksort($slideTexts);
 
-        return trim(implode("\n\n", array_filter($slideTexts, fn ($t) => $t !== '')));
+        return $this->cleanUtf8(implode("\n\n", array_filter($slideTexts, fn ($t) => $t !== '')));
     }
 
     private function extractPdfText(string $path): string
@@ -108,19 +142,45 @@ class ExtractMaterial implements ShouldQueue
 
         if (preg_match_all('/stream[\r\n]+(.*?)[\r\n]+endstream/s', $content, $streamMatches)) {
             foreach ($streamMatches[1] as $stream) {
-                $data = @gzuncompress($stream) ?: $stream;
-                if (preg_match_all('/\((.*?)\)\s*T[j*]/s', $data, $textMatches)) {
-                    $extracted .= ' '.implode(' ', $textMatches[1]);
-                } elseif (preg_match_all('/\[(.*?)\]\s*TJ/s', $data, $arrayMatches)) {
-                    foreach ($arrayMatches[1] as $arrayContent) {
-                        if (preg_match_all('/\((.*?)\)/s', $arrayContent, $innerTexts)) {
-                            $extracted .= ' '.implode(' ', $innerTexts[1]);
+                $data = @gzuncompress($stream);
+                if ($data === false) {
+                    continue;
+                }
+
+                if (preg_match_all('/(?:\b|^)BT[\s\r\n]+(.*?)[\s\r\n]+ET(?:\b|$)/s', $data, $btMatches)) {
+                    foreach ($btMatches[1] as $btBlock) {
+                        if (preg_match_all('/\((.*?)\)\s*T[j*]/s', $btBlock, $textMatches)) {
+                            $extracted .= ' '.implode(' ', $textMatches[1]);
+                        } elseif (preg_match_all('/\[(.*?)\]\s*TJ/s', $btBlock, $arrayMatches)) {
+                            foreach ($arrayMatches[1] as $arrayContent) {
+                                if (preg_match_all('/\((.*?)\)/s', $arrayContent, $innerTexts)) {
+                                    $extracted .= ' '.implode(' ', $innerTexts[1]);
+                                }
+                            }
                         }
                     }
                 }
             }
         }
 
-        return trim((string) preg_replace('/\s+/', ' ', $extracted));
+        return $this->cleanUtf8($extracted);
+    }
+
+    private function cleanUtf8(string $text): string
+    {
+        if ($text === '') {
+            return '';
+        }
+
+        $text = str_replace("\0", '', $text);
+        $text = mb_convert_encoding($text, 'UTF-8', 'UTF-8');
+        if (function_exists('iconv')) {
+            $text = @iconv('UTF-8', 'UTF-8//IGNORE', $text) ?: $text;
+        }
+
+        $text = (string) preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', ' ', $text);
+        $text = (string) preg_replace('/[^\P{C}\t\n\r]/u', '', $text);
+
+        return trim((string) preg_replace('/\s+/', ' ', $text));
     }
 }

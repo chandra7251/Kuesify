@@ -26,6 +26,9 @@ class AiQuestionDraftController extends Controller
             'options' => ['nullable', 'array'], 'correct_answer' => ['nullable', 'string', 'max:4000'], 'explanation' => ['nullable', 'string', 'max:4000'],
             'points' => ['required', 'integer', 'min:0', 'max:100000'],
         ]);
+        if ($data['type'] === 'true_false' && empty($data['options'])) {
+            $data['options'] = ['True', 'False'];
+        }
         $draft->update($data);
 
         return back();
