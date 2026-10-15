@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppIcon from '@/Components/AppIcon.vue';
+import SuperAdminBreadcrumb from '@/Components/SuperAdminBreadcrumb.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
@@ -102,6 +103,12 @@ const totalTenants = computed(() => props.organizations?.data?.length ?? 0);
     <AuthenticatedLayout>
         <div class="min-h-[calc(100vh-4rem)] bg-brand-accent/20 py-6 sm:py-8">
             <main class="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
+                <SuperAdminBreadcrumb
+                    :items="[
+                        { label: 'Kategori Global', active: true },
+                    ]"
+                />
+
                 <!-- Hero Banner ala Siswa -->
                 <section
                     class="relative overflow-hidden rounded-2xl bg-brand-primary p-6 text-white shadow-figma-sm sm:rounded-3xl sm:p-8"
