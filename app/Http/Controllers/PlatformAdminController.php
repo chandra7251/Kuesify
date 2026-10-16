@@ -110,7 +110,7 @@ class PlatformAdminController extends Controller
         $verifiedCount = User::whereNotNull('email_verified_at')->count();
         $unverifiedCount = User::whereNull('email_verified_at')->count();
 
-        return Inertia::render('Admin/Users', [
+        return Inertia::render('admin/Users', [
             'title' => 'Monitoring Pengguna Platform',
             'users' => $users,
             'filters' => [
