@@ -255,8 +255,7 @@ onUnmounted(() => {
     <Head title="Kuesify — Belajar jadi hidup" />
     <main class="bg-[#f7f7f2] text-slate-900">
         <div
-            :class="isScrolled ? 'shadow-figma' : 'shadow-none'"
-            class="fixed inset-x-0 top-0 z-[9999] bg-brand-primary px-3 py-3 shadow-lg transition-shadow duration-300 sm:px-8 sm:py-4 lg:px-12"
+            class="fixed inset-x-0 top-0 z-[9999] bg-brand-primary px-3 py-3 shadow-[0_2px_10px_rgba(15,23,42,0.2)] sm:px-8 sm:py-4 lg:px-12"
         >
             <nav
                 class="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-4"

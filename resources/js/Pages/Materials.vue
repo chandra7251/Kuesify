@@ -2,7 +2,8 @@
 import AppIcon from '@/Components/AppIcon.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router, useForm } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { gsap } from 'gsap';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 type Draft = {
     id: number;
@@ -109,18 +110,42 @@ function startEdit(draft: Draft): void {
 function sizeKb(bytes: number): string {
     return (bytes / 1024).toFixed(0) + ' KB';
 }
+const motionRoot = ref<HTMLElement | null>(null);
+let gsapCtx: gsap.Context | null = null;
+
+onMounted(() => {
+    const mm = gsap.matchMedia();
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+        gsapCtx = gsap.context(() => {
+            gsap.from('[data-motion-item]', {
+                opacity: 0,
+                y: 22,
+                duration: 0.4,
+                stagger: 0.07,
+                ease: 'power2.out',
+                clearProps: 'all',
+            });
+        }, motionRoot.value ?? undefined);
+    });
+});
+
+onUnmounted(() => {
+    gsapCtx?.revert();
+});
+
 </script>
 
 <template>
     <Head title="Materi AI" />
     <AuthenticatedLayout>
-        <main class="relative min-h-screen px-4 py-6 sm:px-6 lg:px-8">
+        <main ref="motionRoot" data-motion="creator-materials" class="relative min-h-screen px-4 py-6 sm:px-6 lg:px-8">
             <div
                 class="pointer-events-none fixed inset-0 -z-0 bg-brand-accent/30"
                 aria-hidden="true"
             ></div>
             <div class="relative z-10 mx-auto max-w-7xl space-y-6">
                 <section
+                    data-motion-item
                     class="relative overflow-hidden rounded-3xl bg-brand-primary p-6 text-white shadow-figma sm:p-8"
                 >
                     <div
@@ -166,7 +191,7 @@ function sizeKb(bytes: number): string {
                     </div>
                 </section>
 
-                <section class="grid gap-5 lg:grid-cols-2">
+                <section data-motion-item class="grid gap-5 lg:grid-cols-2">
                     <article
                         class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-figma"
                     >
@@ -379,6 +404,7 @@ function sizeKb(bytes: number): string {
                 </section>
 
                 <section
+                    data-motion-item
                     aria-labelledby="materials-title"
                     class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-figma"
                 >
@@ -467,6 +493,7 @@ function sizeKb(bytes: number): string {
                 </section>
 
                 <section
+                    data-motion-item
                     v-for="gen in generations"
                     :key="gen.id"
                     class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"

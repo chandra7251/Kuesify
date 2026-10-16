@@ -5,7 +5,8 @@ import StatCard from '@/Components/StatCard.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { roleLabel } from '@/utils/roleLabel';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { gsap } from 'gsap';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 const props = defineProps<{
     organization: { id: number; name: string; role: string | null };
@@ -129,18 +130,44 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
     month: 'short',
     year: 'numeric',
 });
+
+const motionRoot = ref<HTMLElement | null>(null);
+let gsapCtx: gsap.Context | null = null;
+
+onMounted(() => {
+    const mm = gsap.matchMedia();
+
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+        gsapCtx = gsap.context(() => {
+            gsap.from('[data-motion-item]', {
+                opacity: 0,
+                y: 22,
+                duration: 0.4,
+                stagger: 0.07,
+                ease: 'power2.out',
+                clearProps: 'all',
+            });
+        }, motionRoot.value ?? undefined);
+    });
+
+});
+
+onUnmounted(() => {
+    gsapCtx?.revert();
+});
 </script>
 
 <template>
     <Head title="Admin — Dashboard Organisasi" />
     <AuthenticatedLayout>
-        <main class="relative min-h-screen px-4 py-6 sm:px-6 lg:px-8">
+        <main ref="motionRoot" data-motion="organization-dashboard" class="relative min-h-screen px-4 py-6 sm:px-6 lg:px-8">
             <div
                 class="pointer-events-none fixed inset-0 -z-0 bg-brand-accent/30"
                 aria-hidden="true"
             ></div>
             <div class="relative z-10 mx-auto max-w-7xl space-y-8">
                 <section
+                    data-motion-item
                     class="relative overflow-hidden rounded-xl bg-brand-primary px-6 py-7 text-white shadow-sm sm:px-8"
                 >
                     <p
@@ -184,6 +211,7 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
                 </section>
 
                 <section
+                    data-motion-item
                     aria-labelledby="org-kpi"
                     class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5"
                 >
@@ -201,6 +229,7 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
                 <section class="grid gap-3 sm:grid-cols-2">
                     <!-- Wizard panel -->
                     <section
+                        data-motion-item
                         class="col-span-full rounded-xl border border-[#e2e8f0] bg-white p-5 shadow-sm"
                     >
                         <div
@@ -377,6 +406,7 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
 
                 <div class="grid gap-6 lg:grid-cols-3">
                     <section
+                        data-motion-item
                         class="ui-card-hover rounded-xl border border-[#e2e8f0] bg-white p-5 shadow-sm lg:col-span-2"
                     >
                         <div class="flex items-center justify-between gap-4">
@@ -428,6 +458,7 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
                         </p>
                     </section>
                     <section
+                        data-motion-item
                         class="ui-card-hover rounded-xl border border-[#e2e8f0] bg-white p-5 shadow-sm"
                     >
                         <h2 class="text-base font-bold text-slate-900">

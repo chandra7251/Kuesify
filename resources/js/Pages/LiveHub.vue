@@ -3,7 +3,8 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { gsap } from 'gsap';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 const props = defineProps<{
     sessions: {
@@ -56,6 +57,28 @@ const totalParticipantsCount = computed(() => {
     }, 0);
 });
 
+const motionRoot = ref<HTMLElement | null>(null);
+let gsapCtx: gsap.Context | null = null;
+
+onMounted(() => {
+    const mm = gsap.matchMedia();
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+        gsapCtx = gsap.context(() => {
+            gsap.from('[data-motion-item]', {
+                opacity: 0,
+                y: 22,
+                duration: 0.4,
+                stagger: 0.07,
+                ease: 'power2.out',
+                clearProps: 'all',
+            });
+        }, motionRoot.value ?? undefined);
+    });
+});
+
+onUnmounted(() => {
+    gsapCtx?.revert();
+});
 function openSession(): void {
     form.post(route('live-sessions.store'));
 }
@@ -65,7 +88,7 @@ function openSession(): void {
     <Head title="Live Quiz" />
 
     <AuthenticatedLayout>
-        <main class="relative min-h-screen px-4 py-6 sm:px-6 lg:px-8">
+        <main ref="motionRoot" data-motion="creator-live-quiz" class="relative min-h-screen px-4 py-6 sm:px-6 lg:px-8">
             <div
                 class="pointer-events-none fixed inset-0 -z-0 bg-brand-accent/30"
                 aria-hidden="true"
@@ -73,6 +96,7 @@ function openSession(): void {
             <div class="relative z-10 mx-auto max-w-7xl space-y-5">
                 <!-- Card Host Control: Buka Sesi Baru (Style Card Question Bank) -->
                 <section
+                    data-motion-item
                     class="rounded-2xl border border-brand-primary bg-brand-primary p-6 text-white shadow-figma sm:p-7"
                 >
                     <div
@@ -218,7 +242,7 @@ function openSession(): void {
                 </section>
 
                 <!-- 3 Stat Cards (Persis dengan Card Types, Categories, Tags Question Bank) -->
-                <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <section data-motion-item class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     <!-- Card 1: Status Sesi -->
                     <article
                         class="min-h-52 rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]"
@@ -451,6 +475,7 @@ function openSession(): void {
 
                 <!-- Card Sesi Terbaru (Persis dengan Card Data Workspace Question Bank) -->
                 <section
+                    data-motion-item
                     class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_2px_7px_rgba(15,23,42,0.09)]"
                 >
                     <div

@@ -2,8 +2,11 @@
 import AvatarIcon from '@/Components/AvatarIcon.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import type { PageProps } from '@/types';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+gsap.registerPlugin(ScrollTrigger);
 import DeleteUserForm from './Partials/DeleteUserForm.vue';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm.vue';
@@ -28,6 +31,29 @@ const avatarForm = useForm({
 });
 
 const isAvatarModalOpen = ref(false);
+const profileRoot = ref<HTMLElement | null>(null);
+let gsapCtx: gsap.Context | null = null;
+
+onMounted(() => {
+    const mm = gsap.matchMedia();
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+        gsapCtx = gsap.context(() => {
+            gsap.from('[data-motion-item]', {
+                opacity: 0,
+                y: 20,
+                duration: 0.4,
+                stagger: 0.07,
+                ease: 'power2.out',
+                clearProps: 'all',
+            });
+        }, profileRoot.value ?? undefined);
+    });
+});
+
+onUnmounted(() => {
+    gsapCtx?.revert();
+    ScrollTrigger.getAll().forEach((st) => st.kill());
+});
 
 function selectAvatar(avatarKey: string): void {
     avatarForm.avatar_key = avatarKey;
@@ -47,13 +73,14 @@ function saveAvatar(): void {
     <Head title="Profil" />
 
     <AuthenticatedLayout>
-        <main class="relative min-h-screen px-4 py-6 sm:px-6 lg:px-8">
+        <main ref="profileRoot" class="relative min-h-screen px-4 py-6 sm:px-6 lg:px-8">
             <div
                 class="pointer-events-none fixed inset-0 -z-0 bg-brand-accent/30"
                 aria-hidden="true"
             ></div>
             <div class="relative z-10 mx-auto max-w-7xl space-y-6">
                 <section
+                    data-motion-item
                     class="overflow-hidden rounded-2xl bg-brand-primary p-6 text-white shadow-figma sm:p-8"
                 >
                     <div
@@ -115,6 +142,7 @@ function saveAvatar(): void {
                 </section>
 
                 <section
+                    data-motion-item
                     class="rounded-2xl border border-l-4 border-slate-200 border-l-brand-primary bg-white p-6 shadow-figma-sm sm:p-7"
                 >
                     <UpdateProfileInformationForm
@@ -125,12 +153,14 @@ function saveAvatar(): void {
                 </section>
 
                 <section
+                    data-motion-item
                     class="rounded-2xl border border-l-4 border-slate-200 border-l-brand-primary bg-white p-6 shadow-figma-sm sm:p-7"
                 >
                     <UpdatePasswordForm class="max-w-xl" />
                 </section>
 
                 <section
+                    data-motion-item
                     class="rounded-2xl border border-l-4 border-red-200 border-l-status-danger bg-white p-6 shadow-figma-sm sm:p-7"
                 >
                     <DeleteUserForm class="max-w-xl" />

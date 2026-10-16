@@ -225,7 +225,7 @@ class WorkspaceController extends Controller
         abort_unless(in_array($section, ['members', 'settings'], true), 404);
         $organization = $this->activeOrganization();
 
-        return Inertia::render('admin/'.$section, [
+        return Inertia::render('Admin/'.$section, [
             'members' => $organization->members()
                 ->wherePivotNotIn('role', ['super_admin'])
                 ->select('users.id', 'users.name', 'users.email', 'organization_user.role', 'organization_user.is_active')

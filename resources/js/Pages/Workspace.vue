@@ -2,7 +2,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { roleLabel } from '@/utils/roleLabel';
 import { Head, Link } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { gsap } from 'gsap';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 const props = defineProps<{
     title: string;
@@ -101,6 +102,33 @@ const rows = computed(() =>
 );
 const summarySize = (value: unknown) =>
     typeof value === 'object' && value !== null ? Object.keys(value).length : 0;
+const motionRoot = ref<HTMLElement | null>(null);
+let gsapCtx: gsap.Context | null = null;
+
+onMounted(() => {
+    if (!isReports.value) {
+        return;
+    }
+
+    const mm = gsap.matchMedia();
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+        gsapCtx = gsap.context(() => {
+            gsap.from('[data-motion-item]', {
+                opacity: 0,
+                y: 22,
+                duration: 0.4,
+                stagger: 0.07,
+                ease: 'power2.out',
+                clearProps: 'all',
+            });
+        }, motionRoot.value ?? undefined);
+    });
+});
+
+onUnmounted(() => {
+    gsapCtx?.revert();
+});
+
 </script>
 
 <template>
@@ -127,7 +155,7 @@ const summarySize = (value: unknown) =>
             </div>
         </template>
 
-        <main class="relative min-h-screen px-4 py-6 sm:px-6 lg:px-8">
+        <main ref="motionRoot" data-motion="creator-reports" class="relative min-h-screen px-4 py-6 sm:px-6 lg:px-8">
             <div
                 class="pointer-events-none fixed inset-0 -z-0 bg-brand-accent/30"
                 aria-hidden="true"
@@ -214,6 +242,7 @@ const summarySize = (value: unknown) =>
                 >
                     <!-- Card 1: Total Penyelesaian -->
                     <article
+                        data-motion-item
                         class="rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]"
                     >
                         <div class="flex items-center justify-between gap-3">
@@ -296,6 +325,7 @@ const summarySize = (value: unknown) =>
 
                     <!-- Card 2: Rata-rata Skor -->
                     <article
+                        data-motion-item
                         class="rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]"
                     >
                         <div class="flex items-center justify-between gap-3">
@@ -384,6 +414,7 @@ const summarySize = (value: unknown) =>
 
                     <!-- Card 3: Analisis Soal -->
                     <article
+                        data-motion-item
                         class="rounded-xl border-brand-primary bg-brand-primary p-5 text-white shadow-[0_4px_14px_rgba(47,69,171,0.22)]"
                     >
                         <div class="flex items-center justify-between gap-3">
@@ -696,6 +727,7 @@ const summarySize = (value: unknown) =>
 
                 <!-- Data Workspace List (Persis Question Bank) -->
                 <section
+                    data-motion-item
                     class="overflow-hidden border bg-white"
                     :class="
                         isStyledSection
@@ -744,7 +776,7 @@ const summarySize = (value: unknown) =>
                         <article
                             v-for="item in rows"
                             :key="String(item.id)"
-                            class="group flex min-h-20 gap-3 transition-colors duration-150"
+                            class="group flex min-h-20 w-full min-w-0 gap-3 transition-colors duration-150"
                             :class="
                                 isStyledSection
                                     ? 'question-row items-center border-l-4 border-l-transparent bg-white px-6 py-5 hover:bg-slate-50'
@@ -754,7 +786,7 @@ const summarySize = (value: unknown) =>
                             "
                         >
                             <div
-                                class="min-w-0 flex-1"
+                                class="w-full min-w-0 flex-1"
                                 :class="
                                     isStyledSection &&
                                     'sm:flex sm:items-center sm:justify-between sm:gap-6'
@@ -802,7 +834,11 @@ const summarySize = (value: unknown) =>
                             </div>
                             <div
                                 class="flex items-center gap-2"
-                                :class="isStyledSection && 'ml-auto'"
+                                :class="[
+                                    isStyledSection && 'ml-auto',
+                                    isReports &&
+                                        'w-full flex-col items-stretch sm:w-auto sm:flex-row sm:items-center',
+                                ]"
                             >
                                 <span
                                     v-if="

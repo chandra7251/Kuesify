@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import AppIcon from '@/Components/AppIcon.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Head, router } from '@inertiajs/vue3';
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
+gsap.registerPlugin(ScrollTrigger);
 
 type NotificationItem = {
     id: string;
@@ -13,6 +16,8 @@ type NotificationItem = {
 };
 const items = ref<NotificationItem[]>([]);
 const unreadCount = ref(0);
+const motionRoot = ref<HTMLElement | null>(null);
+let gsapCtx: gsap.Context | null = null;
 const loading = ref(true);
 function title(item: NotificationItem): string {
     return String(
@@ -55,20 +60,40 @@ function markRead(item: NotificationItem): void {
         router.get(route('attempts.index'));
     }
 }
-onMounted(load);
+onMounted(() => {
+    load();
+    const mm = gsap.matchMedia();
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+        gsapCtx = gsap.context(() => {
+            gsap.from('[data-motion-item]', {
+                opacity: 0,
+                y: 20,
+                duration: 0.4,
+                stagger: 0.07,
+                ease: 'power2.out',
+                clearProps: 'all',
+            });
+        }, motionRoot.value ?? undefined);
+    });
+});
+
+onUnmounted(() => {
+    gsapCtx?.revert();
+    ScrollTrigger.getAll().forEach((st) => st.kill());
+});
 </script>
 
 <template>
     <Head title="Notifikasi" />
     <AuthenticatedLayout>
-        <main class="relative min-h-screen px-4 py-6 sm:px-6 lg:px-8">
+        <main ref="motionRoot" class="relative min-h-screen px-4 py-6 sm:px-6 lg:px-8">
             <div
                 class="pointer-events-none fixed inset-0 -z-0 bg-brand-accent/30"
                 aria-hidden="true"
             ></div>
             <div class="relative z-10 mx-auto max-w-4xl space-y-5">
                 <section
-                    class="relative overflow-hidden rounded-3xl bg-brand-primary p-6 text-white shadow-figma sm:p-8"
+                    data-motion-item class="relative overflow-hidden rounded-3xl bg-brand-primary p-6 text-white shadow-figma sm:p-8"
                 >
                     <div
                         class="pointer-events-none absolute -right-10 -top-12 h-36 w-36 rounded-full bg-brand-secondary/20"
@@ -100,7 +125,7 @@ onMounted(load);
                 </section>
 
                 <section
-                    class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-figma"
+                    data-motion-item class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-figma"
                 >
                     <div
                         class="flex items-center justify-between border-b border-slate-100 px-5 py-4"

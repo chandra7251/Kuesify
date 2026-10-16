@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { gsap } from 'gsap';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { computed, reactive } from 'vue';
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 
 type Attempt = {
     id: number;
@@ -100,6 +101,64 @@ function statusClass(status: string): string {
     );
 }
 
+const motionRoot = ref<HTMLElement | null>(null);
+let gsapCtx: gsap.Context | null = null;
+let motionMedia: gsap.MatchMedia | null = null;
+
+onMounted(() => {
+    motionMedia = gsap.matchMedia();
+    motionMedia.add('(prefers-reduced-motion: no-preference)', () => {
+        gsapCtx = gsap.context(() => {
+            const timeline = gsap.timeline({
+                defaults: { ease: 'power2.out' },
+            });
+            const hero = motionRoot.value?.querySelector('[data-motion-hero]');
+            const sections = motionRoot.value?.querySelectorAll(
+                '[data-motion-section]',
+            );
+            const cards = motionRoot.value?.querySelectorAll('[data-motion-card]');
+
+            if (hero)
+                timeline.from(hero, {
+                    opacity: 0,
+                    y: 20,
+                    duration: 0.4,
+                    clearProps: 'all',
+                });
+            if (sections?.length)
+                timeline.from(
+                    sections,
+                    {
+                        opacity: 0,
+                        y: 20,
+                        duration: 0.4,
+                        stagger: 0.07,
+                        clearProps: 'all',
+                    },
+                    '-=0.2',
+                );
+            if (cards?.length)
+                timeline.from(
+                    cards,
+                    {
+                        opacity: 0,
+                        y: 20,
+                        duration: 0.4,
+                        stagger: 0.07,
+                        clearProps: 'all',
+                    },
+                    '-=0.2',
+                );
+
+            return () => timeline.kill();
+        }, motionRoot.value ?? undefined);
+    });
+});
+
+onUnmounted(() => {
+    motionMedia?.revert();
+    gsapCtx?.revert();
+});
 function formatDate(value: string): string {
     return dateFormatter.format(new Date(value));
 }
@@ -113,8 +172,11 @@ function formatDate(value: string): string {
                 class="pointer-events-none fixed inset-0 -z-0 bg-brand-accent/30"
                 aria-hidden="true"
             ></div>
-            <div class="relative z-10 mx-auto max-w-7xl space-y-6">
-                <header
+            <div
+                ref="motionRoot"
+                class="relative z-10 mx-auto max-w-7xl space-y-6"
+            >
+                <header data-motion-hero
                     class="flex flex-col gap-5 rounded-2xl bg-brand-primary p-6 text-white shadow-figma sm:flex-row sm:items-end sm:justify-between"
                 >
                     <div>
@@ -152,7 +214,7 @@ function formatDate(value: string): string {
                 </header>
 
                 <template v-if="!gradebook">
-                    <section
+                    <section data-motion-section
                         class="rounded-2xl bg-brand-primary p-5 text-white shadow-figma sm:p-7"
                     >
                         <div
@@ -186,11 +248,11 @@ function formatDate(value: string): string {
                         </div>
                     </section>
 
-                    <section
+                    <section data-motion-section
                         aria-label="Ringkasan hasil"
                         class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
                     >
-                        <article
+                        <article data-motion-card
                             class="rounded-2xl border border-slate-200 bg-white p-5 shadow-figma-sm"
                         >
                             <p
@@ -205,7 +267,7 @@ function formatDate(value: string): string {
                                 Semua kuis yang pernah dikerjakan
                             </p>
                         </article>
-                        <article
+                        <article data-motion-card
                             class="rounded-2xl border border-slate-200 bg-white p-5 shadow-figma-sm"
                         >
                             <p
@@ -222,7 +284,7 @@ function formatDate(value: string): string {
                                 Capaian yang sudah tersimpan
                             </p>
                         </article>
-                        <article
+                        <article data-motion-card
                             class="rounded-2xl border border-slate-200 bg-white p-5 shadow-figma-sm"
                         >
                             <p
@@ -239,7 +301,7 @@ function formatDate(value: string): string {
                                 Dari kuis yang selesai
                             </p>
                         </article>
-                        <article
+                        <article data-motion-card
                             class="rounded-2xl border border-slate-200 bg-white p-5 shadow-figma-sm"
                         >
                             <p
@@ -256,7 +318,7 @@ function formatDate(value: string): string {
                         </article>
                     </section>
 
-                    <section>
+                    <section data-motion-section>
                         <div class="flex items-end justify-between gap-4">
                             <div>
                                 <p
@@ -281,7 +343,7 @@ function formatDate(value: string): string {
                             v-if="publishedQuizzes.length"
                             class="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3"
                         >
-                            <article
+                            <article data-motion-card
                                 v-for="quiz in publishedQuizzes.slice(0, 3)"
                                 :key="quiz.id"
                                 class="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-figma-sm transition hover:-translate-y-0.5 hover:shadow-figma"
@@ -347,7 +409,7 @@ function formatDate(value: string): string {
                         </div>
                     </section>
 
-                    <section
+                    <section data-motion-section
                         class="rounded-2xl border border-slate-200 bg-white p-5 shadow-figma-sm sm:p-6"
                     >
                         <div class="flex items-end justify-between gap-4">
@@ -375,7 +437,7 @@ function formatDate(value: string): string {
                             latihan di atas.
                         </div>
                         <div v-else class="mt-5 divide-y divide-slate-100">
-                            <article
+                            <article data-motion-card
                                 v-for="attempt in attempts.data"
                                 :key="attempt.id"
                                 class="flex flex-col gap-4 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
@@ -439,7 +501,7 @@ function formatDate(value: string): string {
                 </template>
 
                 <template v-else>
-                    <section
+                    <section data-motion-section
                         aria-labelledby="results-summary-title"
                         class="overflow-hidden rounded-2xl border border-brand-primary/20 bg-white shadow-figma"
                     >
@@ -477,7 +539,7 @@ function formatDate(value: string): string {
                             </div>
                         </div>
                     </section>
-                    <section
+                    <section data-motion-section
                         class="overflow-hidden rounded-2xl border border-brand-primary/20 bg-white shadow-figma"
                     >
                         <div
@@ -511,7 +573,7 @@ function formatDate(value: string): string {
                             </p>
                         </div>
                         <div v-else class="divide-y divide-slate-200">
-                            <article
+                            <article data-motion-card
                                 v-for="attempt in attempts.data"
                                 :key="attempt.id"
                                 class="px-5 py-5 sm:px-6"

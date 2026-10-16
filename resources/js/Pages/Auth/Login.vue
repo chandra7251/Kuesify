@@ -7,6 +7,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 defineProps<{
     canResetPassword?: boolean;
@@ -19,9 +20,12 @@ const form = useForm({
     remember: false,
 });
 
+const demoMenu = ref<HTMLDetailsElement | null>(null);
+
 const fillDemo = (email: string) => {
     form.email = email;
     form.password = 'password';
+    demoMenu.value?.removeAttribute('open');
 };
 
 const demoAccounts = [
@@ -134,7 +138,63 @@ const submit = () => {
                     1 klik isi
                 </span>
             </div>
-            <div class="mt-3 grid gap-2 sm:grid-cols-3">
+            <details ref="demoMenu" class="relative mt-3 sm:hidden">
+                <summary
+                    class="flex min-h-12 cursor-pointer list-none items-center justify-between rounded-xl border border-brand-primary/20 bg-white px-3.5 text-sm font-bold text-slate-800 shadow-sm marker:hidden"
+                >
+                    <span>Pilih role akun demo</span>
+                    <svg
+                        class="h-4 w-4 text-brand-primary transition-transform duration-200 [details[open]_&]:rotate-180"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        aria-hidden="true"
+                    >
+                        <path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </summary>
+                <div
+                    class="absolute inset-x-0 top-[calc(100%+0.5rem)] z-20 grid gap-2 rounded-xl border border-brand-primary/15 bg-white p-2 shadow-lg"
+                >
+                    <button
+                        v-for="demo in demoAccounts"
+                        :key="demo.email + '-mobile'"
+                        type="button"
+                        class="flex min-h-11 items-center gap-2 rounded-lg border px-2.5 py-2 text-left transition hover:shadow-sm active:scale-[0.99]"
+                        :class="demo.tone"
+                        @click="fillDemo(demo.email)"
+                    >
+                        <span
+                            class="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-white/80"
+                            aria-hidden="true"
+                        >
+                            <svg
+                                class="h-3.5 w-3.5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    :d="demo.icon"
+                                />
+                            </svg>
+                        </span>
+                        <span class="min-w-0">
+                            <span class="block truncate text-[11px] font-black">
+                                {{ demo.title }}
+                            </span>
+                            <span class="block truncate text-[10px] opacity-75">
+                                {{ demo.description }}
+                            </span>
+                        </span>
+                    </button>
+                </div>
+            </details>
+            <div class="mt-3 hidden gap-2 sm:grid sm:grid-cols-3">
                 <button
                     v-for="demo in demoAccounts"
                     :key="demo.email"

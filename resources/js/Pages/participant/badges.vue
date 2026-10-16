@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import AppIcon from '@/Components/AppIcon.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { gsap } from 'gsap';
 import { Head, Link } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 type BadgeItem = {
     key: string;
@@ -34,6 +35,73 @@ const inspectedBadge = ref<BadgeItem | null>(null);
 const copySuccess = ref(false);
 const equipSuccess = ref(false);
 const equippedTitle = ref<string>('');
+const motionRoot = ref<HTMLElement | null>(null);
+let gsapCtx: gsap.Context | null = null;
+let motionMedia: gsap.MatchMedia | null = null;
+
+onMounted(() => {
+    motionMedia = gsap.matchMedia();
+    motionMedia.add('(prefers-reduced-motion: no-preference)', () => {
+        gsapCtx = gsap.context(() => {
+            const timeline = gsap.timeline({
+                defaults: { ease: 'power2.out' },
+            });
+            const hero = motionRoot.value?.querySelector('[data-motion-hero]');
+            const search = motionRoot.value?.querySelector('[data-motion-search]');
+            const results = motionRoot.value?.querySelector('[data-motion-results]');
+            const cards = motionRoot.value?.querySelectorAll('[data-motion-card]');
+
+            if (hero)
+                timeline.from(hero, {
+                    opacity: 0,
+                    y: 20,
+                    duration: 0.4,
+                    clearProps: 'all',
+                });
+            if (search)
+                timeline.from(
+                    search,
+                    {
+                        opacity: 0,
+                        y: 20,
+                        duration: 0.4,
+                        clearProps: 'all',
+                    },
+                    '-=0.2',
+                );
+            if (results)
+                timeline.from(
+                    results,
+                    {
+                        opacity: 0,
+                        y: 20,
+                        duration: 0.4,
+                        clearProps: 'all',
+                    },
+                    '-=0.15',
+                );
+            if (cards?.length)
+                timeline.from(
+                    cards,
+                    {
+                        opacity: 0,
+                        y: 20,
+                        duration: 0.4,
+                        stagger: 0.07,
+                        clearProps: 'all',
+                    },
+                    '-=0.3',
+                );
+
+            return () => timeline.kill();
+        }, motionRoot.value ?? undefined);
+    });
+});
+
+onUnmounted(() => {
+    motionMedia?.revert();
+    gsapCtx?.revert();
+});
 
 if (typeof window !== 'undefined') {
     equippedTitle.value = localStorage.getItem('kuesify_equipped_title') || '';
@@ -274,10 +342,13 @@ function copyProof(): void {
     <AuthenticatedLayout>
         <div class="min-h-[calc(100vh-4rem)]">
             <main
+                ref="motionRoot"
+                data-motion="participant-badges"
                 class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8"
             >
                 <!-- Header Hero RPG Style -->
                 <section
+                    data-motion-hero
                     class="rounded-2xl bg-brand-primary px-6 py-7 text-white shadow-figma sm:px-8"
                 >
                     <div
@@ -352,11 +423,12 @@ function copyProof(): void {
 
                 <!-- Filter Controls -->
                 <div
-                    class="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3.5 shadow-figma-sm sm:flex-row sm:items-center sm:justify-between"
+                    data-motion-search
+                    class="flex flex-row items-center gap-3 overflow-x-auto rounded-xl border border-slate-200 bg-white p-3.5 shadow-figma-sm"
                 >
                     <!-- Status Filter Tabs -->
                     <div
-                        class="flex flex-wrap items-center gap-1.5 text-xs font-bold"
+                        class="flex shrink-0 flex-nowrap items-center gap-1.5 whitespace-nowrap text-xs font-bold"
                     >
                         <button
                             type="button"
@@ -403,7 +475,7 @@ function copyProof(): void {
                     </div>
 
                     <!-- Rarity Filter -->
-                    <div class="flex items-center gap-2">
+                    <div class="ml-auto flex shrink-0 items-center gap-2 whitespace-nowrap">
                         <label
                             for="rarity-select"
                             class="text-xs font-semibold text-slate-500"
@@ -424,14 +496,71 @@ function copyProof(): void {
                     </div>
                 </div>
 
+                <!-- Learning Motivation & Guidelines Card -->
+                <section
+                    data-motion-card
+                    class="rounded-2xl border border-brand-primary/20 bg-brand-accent p-6 shadow-figma-sm"
+                >
+                    <div class="flex items-center gap-2">
+                        <AppIcon
+                            name="trophy"
+                            :size="20"
+                            class="text-brand-primary"
+                        />
+                        <h2 class="text-base font-black text-brand-dark">
+                            Cara Menaklukkan Lencana Mythic & Legendary
+                        </h2>
+                    </div>
+                    <div class="mt-4 grid gap-4 sm:grid-cols-3">
+                        <div class="shadow-xs rounded-xl bg-white p-4">
+                            <p class="text-xs font-bold text-brand-primary">
+                                1. Disiplin Streak 30 Hari
+                            </p>
+                            <p
+                                class="mt-1 text-xs leading-relaxed text-slate-600"
+                            >
+                                Lencana Mythic [Eternal Titan] hanya bisa diraih
+                                oleh petualang yang tidak pernah melewatkan 1
+                                hari pun tanpa kuis selama 30 hari.
+                            </p>
+                        </div>
+                        <div class="shadow-xs rounded-xl bg-white p-4">
+                            <p class="text-xs font-bold text-brand-primary">
+                                2. Akurasi 100% (Flawless)
+                            </p>
+                            <p
+                                class="mt-1 text-xs leading-relaxed text-slate-600"
+                            >
+                                Untuk lencana Legendary [Flawless Mastery],
+                                pelajari materi terlebih dahulu dan manfaatkan
+                                tombol ulangi kuis sampai seluruh jawaban benar.
+                            </p>
+                        </div>
+                        <div class="shadow-xs rounded-xl bg-white p-4">
+                            <p class="text-xs font-bold text-brand-primary">
+                                3. Panen XP Melalui Misi
+                            </p>
+                            <p
+                                class="mt-1 text-xs leading-relaxed text-slate-600"
+                            >
+                                Selesaikan setiap misi mingguan untuk membuka
+                                gelar Mythic [Sovereign of Wisdom] 10.000 XP
+                                lebih cepat dari yang lain.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- Badges Detailed Grid -->
                 <div
                     v-if="filteredBadges.length"
+                    data-motion-results
                     class="grid gap-5 md:grid-cols-2"
                 >
                     <article
                         v-for="badge in filteredBadges"
                         :key="badge.key"
+                        data-motion-card
                         class="group relative flex flex-col justify-between overflow-hidden rounded-xl border bg-[#ffffff] p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md"
                         :class="[
                             badge.earned
@@ -634,6 +763,7 @@ function copyProof(): void {
 
                 <div
                     v-else
+                    data-motion-results
                     class="rounded-2xl border border-slate-200 bg-white p-8 text-center"
                 >
                     <p class="text-sm font-semibold text-slate-500">
@@ -643,59 +773,7 @@ function copyProof(): void {
                     </p>
                 </div>
 
-                <!-- Learning Motivation & Guidelines Card -->
-                <section
-                    class="rounded-2xl border border-brand-primary/20 bg-brand-accent p-6 shadow-figma-sm"
-                >
-                    <div class="flex items-center gap-2">
-                        <AppIcon
-                            name="trophy"
-                            :size="20"
-                            class="text-brand-primary"
-                        />
-                        <h2 class="text-base font-black text-brand-dark">
-                            Cara Menaklukkan Lencana Mythic & Legendary
-                        </h2>
-                    </div>
-                    <div class="mt-4 grid gap-4 sm:grid-cols-3">
-                        <div class="shadow-xs rounded-xl bg-white p-4">
-                            <p class="text-xs font-bold text-brand-primary">
-                                1. Disiplin Streak 30 Hari
-                            </p>
-                            <p
-                                class="mt-1 text-xs leading-relaxed text-slate-600"
-                            >
-                                Lencana Mythic [Eternal Titan] hanya bisa diraih
-                                oleh petualang yang tidak pernah melewatkan 1
-                                hari pun tanpa kuis selama 30 hari.
-                            </p>
-                        </div>
-                        <div class="shadow-xs rounded-xl bg-white p-4">
-                            <p class="text-xs font-bold text-brand-primary">
-                                2. Akurasi 100% (Flawless)
-                            </p>
-                            <p
-                                class="mt-1 text-xs leading-relaxed text-slate-600"
-                            >
-                                Untuk lencana Legendary [Flawless Mastery],
-                                pelajari materi terlebih dahulu dan manfaatkan
-                                tombol ulangi kuis sampai seluruh jawaban benar.
-                            </p>
-                        </div>
-                        <div class="shadow-xs rounded-xl bg-white p-4">
-                            <p class="text-xs font-bold text-brand-primary">
-                                3. Panen XP Melalui Misi
-                            </p>
-                            <p
-                                class="mt-1 text-xs leading-relaxed text-slate-600"
-                            >
-                                Selesaikan setiap misi mingguan untuk membuka
-                                gelar Mythic [Sovereign of Wisdom] 10.000 XP
-                                lebih cepat dari yang lain.
-                            </p>
-                        </div>
-                    </div>
-                </section>
+
             </main>
         </div>
 

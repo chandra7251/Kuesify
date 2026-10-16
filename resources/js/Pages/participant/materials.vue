@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import Modal from '@/Components/Modal.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { gsap } from 'gsap';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { reactive, ref, watch } from 'vue';
+import { onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 
 type Material = {
     id: number;
@@ -42,6 +43,73 @@ const checkDrafts = reactive<
 const expandedMaterials = reactive<Record<number, boolean>>({});
 const actionFeedback = reactive<Record<number, string>>({});
 const actionProcessing = reactive<Record<number, boolean>>({});
+const motionRoot = ref<HTMLElement | null>(null);
+let gsapCtx: gsap.Context | null = null;
+let motionMedia: gsap.MatchMedia | null = null;
+
+onMounted(() => {
+    motionMedia = gsap.matchMedia();
+    motionMedia.add('(prefers-reduced-motion: no-preference)', () => {
+        gsapCtx = gsap.context(() => {
+            const timeline = gsap.timeline({
+                defaults: { ease: 'power2.out' },
+            });
+            const hero = motionRoot.value?.querySelector('[data-motion-hero]');
+            const search = motionRoot.value?.querySelector('[data-motion-search]');
+            const results = motionRoot.value?.querySelector('[data-motion-results]');
+            const cards = motionRoot.value?.querySelectorAll('[data-motion-card]');
+
+            if (hero)
+                timeline.from(hero, {
+                    opacity: 0,
+                    y: 20,
+                    duration: 0.4,
+                    clearProps: 'all',
+                });
+            if (search)
+                timeline.from(
+                    search,
+                    {
+                        opacity: 0,
+                        y: 20,
+                        duration: 0.4,
+                        clearProps: 'all',
+                    },
+                    '-=0.2',
+                );
+            if (results)
+                timeline.from(
+                    results,
+                    {
+                        opacity: 0,
+                        y: 20,
+                        duration: 0.4,
+                        clearProps: 'all',
+                    },
+                    '-=0.15',
+                );
+            if (cards?.length)
+                timeline.from(
+                    cards,
+                    {
+                        opacity: 0,
+                        y: 20,
+                        duration: 0.4,
+                        stagger: 0.07,
+                        clearProps: 'all',
+                    },
+                    '-=0.2',
+                );
+
+            return () => timeline.kill();
+        }, motionRoot.value ?? undefined);
+    });
+});
+
+onUnmounted(() => {
+    motionMedia?.revert();
+    gsapCtx?.revert();
+});
 
 function paginationLabel(label: string): string {
     return label
@@ -237,8 +305,13 @@ function saveCheck(material: Material): void {
     <Head title="Materi Belajar" />
 
     <AuthenticatedLayout>
-        <main class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+        <main
+            ref="motionRoot"
+            data-motion="participant-materials"
+            class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8"
+        >
             <section
+                data-motion-hero
                 class="rounded-2xl bg-brand-primary p-6 text-white shadow-figma sm:p-8"
             >
                 <p
@@ -270,6 +343,7 @@ function saveCheck(material: Material): void {
             </section>
 
             <section
+                data-motion-search
                 class="rounded-2xl border border-slate-200 bg-white p-5 shadow-figma"
             >
                 <form
@@ -312,7 +386,7 @@ function saveCheck(material: Material): void {
                 </form>
             </section>
 
-            <section class="space-y-4">
+            <section data-motion-results class="space-y-4">
                 <p class="text-sm font-semibold text-slate-600">
                     Menampilkan {{ materials.from ?? 0 }}–{{
                         materials.to ?? 0
@@ -327,6 +401,7 @@ function saveCheck(material: Material): void {
                     <article
                         v-for="material in materials.data"
                         :key="material.id"
+                        data-motion-card
                         class="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-figma"
                     >
                         <div class="flex items-start justify-between gap-3">

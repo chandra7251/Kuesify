@@ -9,6 +9,11 @@ import { computed } from 'vue';
 
 const page = usePage<PageProps>();
 
+defineProps<{
+    desktopSidebarExpanded: boolean;
+    desktopSidebarAnimating: boolean;
+}>();
+
 const emit = defineEmits<{ toggleMobileSidebar: [] }>();
 
 const currentRole = computed(
@@ -17,11 +22,20 @@ const currentRole = computed(
         (page.props as any).organization?.role ||
         'creator',
 );
+
 </script>
 
 <template>
     <header
-        class="sticky top-0 z-20 w-full border-b border-brand-hover bg-brand-primary text-white shadow-sm"
+        class="fixed inset-x-0 top-0 z-40 border-b border-brand-hover bg-brand-primary text-white shadow-sm lg:right-auto"
+        :class="[
+            desktopSidebarExpanded
+                ? 'lg:left-72 lg:w-[calc(100%-18rem)]'
+                : 'lg:left-20 lg:w-[calc(100%-5rem)]',
+            desktopSidebarAnimating
+                ? 'transition-[left,width] duration-300 ease-in-out'
+                : '',
+        ]"
     >
         <div
             class="relative flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8"

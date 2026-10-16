@@ -2,7 +2,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { roleLabel } from '@/utils/roleLabel';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { gsap } from 'gsap';
+import { onMounted, onUnmounted, ref } from 'vue';
 type Member = {
     id: number;
     name: string;
@@ -15,6 +16,28 @@ defineProps<{
 }>();
 const invite = useForm({ email: '', role: 'participant' });
 const memberReceipt = ref<{ email: string; role: string } | null>(null);
+const motionRoot = ref<HTMLElement | null>(null);
+let gsapCtx: gsap.Context | null = null;
+
+onMounted(() => {
+    const mm = gsap.matchMedia();
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+        gsapCtx = gsap.context(() => {
+            gsap.from('[data-motion-item]', {
+                opacity: 0,
+                y: 22,
+                duration: 0.4,
+                stagger: 0.07,
+                ease: 'power2.out',
+                clearProps: 'all',
+            });
+        }, motionRoot.value ?? undefined);
+    });
+});
+
+onUnmounted(() => {
+    gsapCtx?.revert();
+});
 function addMember(): void {
     const email = invite.email;
     const role = invite.role;
@@ -36,13 +59,14 @@ function disable(id: number): void {
 <template>
     <Head title="Anggota Organisasi" />
     <AuthenticatedLayout>
-        <main class="relative min-h-screen px-4 py-6 sm:px-6 lg:px-8">
+        <main ref="motionRoot" data-motion="organization-members" class="relative min-h-screen px-4 py-6 sm:px-6 lg:px-8">
             <div
                 class="pointer-events-none fixed inset-0 -z-0 bg-brand-accent/30"
                 aria-hidden="true"
             ></div>
             <div class="relative z-10 mx-auto max-w-[90rem] space-y-6">
                 <section
+                    data-motion-item
                     class="overflow-hidden rounded-2xl bg-brand-primary p-5 text-white shadow-figma sm:p-7"
                 >
                     <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -118,6 +142,7 @@ function disable(id: number): void {
 
                 <div
                     v-if="memberReceipt"
+                    data-motion-item
                     class="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900 shadow-sm"
                 >
                     <span
@@ -137,6 +162,7 @@ function disable(id: number): void {
                 </div>
 
                 <section
+                    data-motion-item
                     class="overflow-hidden rounded-2xl border border-brand-primary/20 bg-white shadow-figma"
                 >
                     <div

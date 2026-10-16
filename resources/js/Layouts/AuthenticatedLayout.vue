@@ -6,12 +6,14 @@ import TopNavBar from '@/Components/TopNavBar.vue';
 import type { PageProps } from '@/types';
 import { roleLabel } from '@/utils/roleLabel';
 import { Link, usePage } from '@inertiajs/vue3';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 const page = usePage<PageProps>();
 
 // Desktop sidebar starts expanded (w-72), can be collapsed to mini-bar (w-20)
 const desktopSidebarExpanded = ref(true);
+const desktopSidebarAnimating = ref(false);
+let desktopSidebarAnimationTimer: ReturnType<typeof setTimeout> | undefined;
 
 onMounted(() => {
     const savedState = window.localStorage.getItem('kuesify.sidebar-expanded');
@@ -23,6 +25,12 @@ onMounted(() => {
 
 watch(desktopSidebarExpanded, (expanded) => {
     window.localStorage.setItem('kuesify.sidebar-expanded', String(expanded));
+});
+
+onBeforeUnmount(() => {
+    if (desktopSidebarAnimationTimer) {
+        clearTimeout(desktopSidebarAnimationTimer);
+    }
 });
 // Mobile slide-over drawer state
 const mobileSidebarOpen = ref(false);
@@ -119,7 +127,16 @@ function isCurrent(href: string): boolean {
 }
 
 function toggleDesktopSidebar(): void {
+    desktopSidebarAnimating.value = true;
     desktopSidebarExpanded.value = !desktopSidebarExpanded.value;
+
+    if (desktopSidebarAnimationTimer) {
+        clearTimeout(desktopSidebarAnimationTimer);
+    }
+
+    desktopSidebarAnimationTimer = setTimeout(() => {
+        desktopSidebarAnimating.value = false;
+    }, 300);
 }
 
 function closeMobileNav(): void {
@@ -137,8 +154,13 @@ function closeMobileNav(): void {
         <!-- ========================================================================= -->
         <aside
             id="desktop-sidebar"
-            class="hidden select-none bg-brand-primary text-white shadow-xl transition-all duration-300 ease-in-out lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:flex lg:flex-col"
-            :class="desktopSidebarExpanded ? 'lg:w-72' : 'lg:w-20'"
+            class="hidden select-none bg-brand-primary text-white shadow-xl lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:flex lg:flex-col"
+            :class="[
+                desktopSidebarExpanded ? 'lg:w-72' : 'lg:w-20',
+                desktopSidebarAnimating
+                    ? 'transition-[width] duration-300 ease-in-out'
+                    : '',
+            ]"
             aria-label="Navigasi samping"
         >
             <!-- Top Header: Logo & Expand/Collapse Toggle -->
@@ -227,7 +249,7 @@ function closeMobileNav(): void {
                     v-for="item in navigationItems"
                     :key="item.label"
                     :href="item.href"
-                    class="group relative flex min-h-11 w-full items-center rounded-xl transition-all duration-150"
+                    class="group relative flex min-h-11 w-full items-center rounded-xl"
                     :class="[
                         desktopSidebarExpanded
                             ? 'gap-3.5 px-3.5'
@@ -267,7 +289,7 @@ function closeMobileNav(): void {
                     currentRole !== 'organization_admin' &&
                     currentRole !== 'super_admin'
                 "
-                class="mx-3 mb-3 mt-auto rounded-2xl border border-white/15 bg-white/10 p-3.5 backdrop-blur-sm transition-all"
+                class="mx-3 mb-3 mt-auto rounded-2xl border border-white/15 bg-white/10 p-3.5 backdrop-blur-sm"
             >
                 <div class="flex items-center gap-3">
                     <img
@@ -421,21 +443,33 @@ function closeMobileNav(): void {
         <!-- 2. MAIN VIEWPORT WRAPPER (Offset by sidebar width on desktop)              -->
         <!-- ========================================================================= -->
         <div
-            class="flex min-h-screen min-w-0 flex-col transition-all duration-300 ease-in-out"
-            :class="desktopSidebarExpanded ? 'lg:pl-72' : 'lg:pl-20'"
+            class="flex min-h-screen min-w-0 flex-col"
+            :class="[
+                desktopSidebarExpanded ? 'lg:pl-72' : 'lg:pl-20',
+                desktopSidebarAnimating
+                    ? 'transition-[padding-left] duration-300 ease-in-out'
+                    : '',
+            ]"
         >
-            <TopNavBar @toggle-mobile-sidebar="mobileSidebarOpen = true" />
+            <TopNavBar
+                :desktop-sidebar-expanded="desktopSidebarExpanded"
+                :desktop-sidebar-animating="desktopSidebarAnimating"
+                @toggle-mobile-sidebar="mobileSidebarOpen = true"
+            />
 
             <!-- Custom Subheader Slot (if page provides one) -->
             <div
                 v-if="$slots.header"
-                class="border-b border-slate-200 bg-white px-4 py-4 sm:px-8"
+                class="border-b border-slate-200 bg-white px-4 pb-4 pt-20 sm:px-8 sm:pt-20"
             >
                 <slot name="header" />
             </div>
 
             <!-- Main Body: Scrolls naturally while Sidebar & Navbar stay completely pinned! -->
-            <main class="flex-1 pb-8 lg:pb-12">
+            <main
+                class="flex-1 pb-8 lg:pb-12"
+                :class="{ 'pt-16': !$slots.header }"
+            >
                 <Transition name="page" mode="out-in">
                     <div :key="$page.url" class="page-content">
                         <slot />

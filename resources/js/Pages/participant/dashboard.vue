@@ -246,73 +246,30 @@ function quizState(quiz: QuizSummary): 'new' | 'retry' | 'done' | 'locked' {
 
 const motionRoot = ref<HTMLElement | null>(null);
 let gsapCtx: gsap.Context | null = null;
-let motionMedia: gsap.MatchMedia | null = null;
 
 onMounted(() => {
     equippedTitle.value = localStorage.getItem('kuesify_equipped_title') || '';
     window.addEventListener('kuesify-title-equipped', ((e: CustomEvent) => {
         equippedTitle.value = e.detail?.title || '';
     }) as EventListener);
-    motionMedia = gsap.matchMedia();
-    motionMedia.add('(prefers-reduced-motion: no-preference)', () => {
+    const mm = gsap.matchMedia();
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
         gsapCtx = gsap.context(() => {
-            const timeline = gsap.timeline({
-                defaults: { ease: 'power3.out' },
+            gsap.from('[data-motion-item]', {
+                opacity: 0,
+                y: 20,
+                duration: 0.4,
+                stagger: 0.07,
+                ease: 'power2.out',
+                clearProps: 'all',
             });
-            const hero = motionRoot.value?.querySelector('[data-motion-hero]');
-            const items = motionRoot.value?.querySelectorAll(
-                '[data-motion-item]:not([data-motion-hero])',
-            );
-            const sections = motionRoot.value?.querySelectorAll(
-                '[data-motion-section]',
-            );
-
-            if (hero)
-                timeline.from(hero, {
-                    autoAlpha: 0,
-                    y: 16,
-                    duration: 0.45,
-                    clearProps: 'all',
-                });
-            if (items?.length)
-                timeline.from(
-                    items,
-                    {
-                        autoAlpha: 0,
-                        y: 14,
-                        duration: 0.35,
-                        stagger: 0.05,
-                        clearProps: 'all',
-                    },
-                    '-=0.2',
-                );
-            if (sections?.length) {
-                gsap.from(sections, {
-                    autoAlpha: 0,
-                    y: 20,
-                    duration: 0.45,
-                    stagger: 0.06,
-                    ease: 'power2.out',
-                    clearProps: 'all',
-                    scrollTrigger: {
-                        trigger: sections[0],
-                        start: 'top 88%',
-                        once: true,
-                    },
-                });
-            }
-
-            return () => timeline.kill();
         }, motionRoot.value ?? undefined);
     });
 });
 
 onUnmounted(() => {
-    motionMedia?.revert();
     gsapCtx?.revert();
-    ScrollTrigger.getAll().forEach((st) => {
-        if (st.trigger && motionRoot.value?.contains(st.trigger)) st.kill();
-    });
+    ScrollTrigger.getAll().forEach((st) => st.kill());
 });
 </script>
 
@@ -328,7 +285,7 @@ onUnmounted(() => {
             >
                 <!-- Hero Section: Clean, Purposeful, Educational -->
                 <section
-                    data-motion-hero
+                    data-motion-hero data-motion-item
                     class="relative overflow-hidden rounded-xl bg-brand-primary px-6 py-7 text-white shadow-sm sm:px-8"
                 >
                     <div class="flex items-center justify-between">
@@ -445,7 +402,7 @@ onUnmounted(() => {
                 </section>
 
                 <!-- Quiz of the Day & Streak Heatmap -->
-                <div data-motion-section class="grid gap-6 lg:grid-cols-3">
+                <div data-motion-section data-motion-item class="grid gap-6 lg:grid-cols-3">
                     <!-- Quiz of the Day Card -->
                     <section
                         class="flex flex-col rounded-xl border border-[#e2e8f0] bg-[#ffffff] p-5 shadow-sm lg:col-span-2"
@@ -793,7 +750,7 @@ onUnmounted(() => {
 
                 <!-- Misi Belajar (RPG Guild Quest Board) -->
                 <section
-                    data-motion-section
+                    data-motion-section data-motion-item
                     class="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-figma sm:p-6 xl:min-h-[800px]"
                 >
                     <div
@@ -1055,13 +1012,13 @@ onUnmounted(() => {
 
                     <div
                         v-if="missionPageCount > 1"
-                        class="mt-5 flex items-center justify-between border-t border-slate-100 pt-4"
+                        class="mt-5 flex w-full flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between"
                     >
                         <p class="text-xs font-semibold text-[#64748b]">
                             Halaman {{ missionPage }} dari
                             {{ missionPageCount }}
                         </p>
-                        <div class="flex items-center gap-2">
+                        <div class="flex w-full flex-wrap items-center justify-start gap-2 sm:w-auto sm:justify-end">
                             <button
                                 v-for="page in missionPageCount"
                                 :key="page"
@@ -1100,7 +1057,7 @@ onUnmounted(() => {
                 </section>
                 <!-- Riwayat Attempt Terbaru -->
                 <section
-                    data-motion-section
+                    data-motion-section data-motion-item
                     class="flex flex-col rounded-xl border border-[#e2e8f0] bg-[#ffffff] p-5 shadow-sm"
                 >
                     <div class="flex items-center justify-between">
