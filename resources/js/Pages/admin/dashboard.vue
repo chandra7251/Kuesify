@@ -466,12 +466,6 @@ onUnmounted(() => {
                         </h2>
                         <div class="mt-4 grid gap-3">
                             <Link
-                                href="/questions"
-                                class="flex items-center justify-between rounded-xl border border-[#e2e8f0] bg-brand-accent/50 px-4 py-3 text-sm font-semibold text-slate-800 transition hover:border-brand-secondary hover:bg-brand-accent"
-                                >Bank Soal
-                                <span class="text-brand-primary">→</span></Link
-                            >
-                            <Link
                                 href="/admin/members"
                                 class="flex items-center justify-between rounded-xl border border-[#e2e8f0] bg-brand-accent/50 px-4 py-3 text-sm font-semibold text-slate-800 transition hover:border-brand-secondary hover:bg-brand-accent"
                                 >Kelola Anggota
