@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { roleLabel } from '@/utils/roleLabel';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+
 type Member = {
     id: number;
     name: string;
@@ -11,9 +12,14 @@ type Member = {
     role: string;
     is_active: boolean;
 };
+
 defineProps<{
     members: Member[];
 }>();
+
+const page = usePage();
+const currentUserId = computed(() => (page.props.auth as any)?.user?.id);
+
 const invite = useForm({ email: '', role: 'participant' });
 const memberReceipt = ref<{ email: string; role: string } | null>(null);
 const motionRoot = ref<HTMLElement | null>(null);
@@ -237,29 +243,34 @@ function removeMember(id: number, name: string): void {
                                 </div>
                             </div>
                             <div class="flex items-center gap-2 sm:shrink-0">
-                                <button
-                                    v-if="!member.is_active"
-                                    type="button"
-                                    class="inline-flex min-h-9 items-center justify-center rounded-lg border border-emerald-300 bg-emerald-50 px-3 text-xs font-black text-emerald-700 transition hover:bg-emerald-100"
-                                    @click="restore(member.id)"
-                                >
-                                    Aktifkan
-                                </button>
-                                <button
-                                    v-else
-                                    type="button"
-                                    class="inline-flex min-h-9 items-center justify-center rounded-lg border border-amber-200 bg-amber-50 px-3 text-xs font-black text-amber-700 transition hover:bg-amber-100"
-                                    @click="disable(member.id)"
-                                >
-                                    Nonaktifkan
-                                </button>
-                                <button
-                                    type="button"
-                                    class="inline-flex min-h-9 items-center justify-center rounded-lg border border-red-200 bg-red-50 px-3 text-xs font-black text-red-600 transition hover:bg-red-100"
-                                    @click="removeMember(member.id, member.name)"
-                                >
-                                    Hapus
-                                </button>
+                                <template v-if="member.id !== currentUserId">
+                                    <button
+                                        v-if="!member.is_active"
+                                        type="button"
+                                        class="inline-flex min-h-9 items-center justify-center rounded-lg border border-emerald-300 bg-emerald-50 px-3 text-xs font-black text-emerald-700 transition hover:bg-emerald-100"
+                                        @click="restore(member.id)"
+                                    >
+                                        Aktifkan
+                                    </button>
+                                    <button
+                                        v-else
+                                        type="button"
+                                        class="inline-flex min-h-9 items-center justify-center rounded-lg border border-amber-200 bg-amber-50 px-3 text-xs font-black text-amber-700 transition hover:bg-amber-100"
+                                        @click="disable(member.id)"
+                                    >
+                                        Nonaktifkan
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="inline-flex min-h-9 items-center justify-center rounded-lg border border-red-200 bg-red-50 px-3 text-xs font-black text-red-600 transition hover:bg-red-100"
+                                        @click="removeMember(member.id, member.name)"
+                                    >
+                                        Hapus
+                                    </button>
+                                </template>
+                                <span v-else class="text-[11px] font-bold text-slate-400 italic px-2">
+                                    (Akun Anda)
+                                </span>
                             </div>
                         </article>
                     </div>
