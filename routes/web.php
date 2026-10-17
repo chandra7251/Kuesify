@@ -167,6 +167,12 @@ Route::post('/organization/members', [OrganizationMemberController::class, 'stor
 Route::patch('/organization/members/{user}/disable', [OrganizationMemberController::class, 'disable'])
     ->middleware(['auth', 'organization.context'])
     ->name('organization.members.disable');
+Route::patch('/organization/members/{user}/restore', [OrganizationMemberController::class, 'restore'])
+    ->middleware(['auth', 'organization.context'])
+    ->name('organization.members.restore');
+Route::delete('/organization/members/{user}', [OrganizationMemberController::class, 'destroy'])
+    ->middleware(['auth', 'organization.context'])
+    ->name('organization.members.destroy');
 Route::patch('/organization', [OrganizationController::class, 'update'])
     ->middleware(['auth', 'organization.context'])
     ->name('organization.update');

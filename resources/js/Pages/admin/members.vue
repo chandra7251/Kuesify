@@ -50,9 +50,25 @@ function addMember(): void {
     });
 }
 function disable(id: number): void {
-    useForm({}).patch(route('organization.members.disable', id), {
+    if (confirm('Yakin ingin menonaktifkan akun anggota ini dari organisasi?')) {
+        useForm({}).patch(route('organization.members.disable', id), {
+            preserveScroll: true,
+        });
+    }
+}
+
+function restore(id: number): void {
+    useForm({}).patch(route('organization.members.restore', id), {
         preserveScroll: true,
     });
+}
+
+function removeMember(id: number, name: string): void {
+    if (confirm(`Yakin ingin menghapus ${name} dari organisasi ini?`)) {
+        useForm({}).delete(route('organization.members.destroy', id), {
+            preserveScroll: true,
+        });
+    }
 }
 </script>
 
@@ -220,14 +236,31 @@ function disable(id: number): void {
                                     </div>
                                 </div>
                             </div>
-                            <button
-                                v-if="member.is_active"
-                                type="button"
-                                class="inline-flex min-h-9 items-center justify-center rounded-lg border border-red-200 px-3 text-xs font-black text-red-600 transition hover:bg-red-50 sm:shrink-0"
-                                @click="disable(member.id)"
-                            >
-                                Nonaktifkan
-                            </button>
+                            <div class="flex items-center gap-2 sm:shrink-0">
+                                <button
+                                    v-if="!member.is_active"
+                                    type="button"
+                                    class="inline-flex min-h-9 items-center justify-center rounded-lg border border-emerald-300 bg-emerald-50 px-3 text-xs font-black text-emerald-700 transition hover:bg-emerald-100"
+                                    @click="restore(member.id)"
+                                >
+                                    Aktifkan
+                                </button>
+                                <button
+                                    v-else
+                                    type="button"
+                                    class="inline-flex min-h-9 items-center justify-center rounded-lg border border-amber-200 bg-amber-50 px-3 text-xs font-black text-amber-700 transition hover:bg-amber-100"
+                                    @click="disable(member.id)"
+                                >
+                                    Nonaktifkan
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex min-h-9 items-center justify-center rounded-lg border border-red-200 bg-red-50 px-3 text-xs font-black text-red-600 transition hover:bg-red-100"
+                                    @click="removeMember(member.id, member.name)"
+                                >
+                                    Hapus
+                                </button>
+                            </div>
                         </article>
                     </div>
                     <p

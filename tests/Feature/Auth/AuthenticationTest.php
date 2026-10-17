@@ -39,3 +39,19 @@ test('users can logout', function () {
     $this->assertGuest();
     $response->assertRedirect('/');
 });
+
+test('users whose memberships are all disabled cannot login and see clear message', function () {
+    $user = User::factory()->create();
+    $organization = \App\Models\Organization::factory()->create();
+    $organization->members()->attach($user, ['role' => 'participant', 'is_active' => false]);
+
+    $response = $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+
+    $this->assertGuest();
+    $response->assertSessionHasErrors([
+        'email' => 'Akun Anda telah dinonaktifkan oleh administrator organisasi. Silakan hubungi admin sekolah atau organisasi Anda.',
+    ]);
+});

@@ -61,6 +61,29 @@ class OrganizationMemberController extends Controller
         return back()->with('success', 'Anggota berhasil dinonaktifkan.');
     }
 
+    public function restore(Request $request, int $user): RedirectResponse
+    {
+        $organization = $this->managedOrganization($request);
+        $organization->members()->updateExistingPivot($user, ['is_active' => true]);
+
+        return back()->with('success', 'Anggota berhasil diaktifkan kembali.');
+    }
+
+    public function destroy(Request $request, int $user): RedirectResponse
+    {
+        $organization = $this->managedOrganization($request);
+        abort_if($user === $request->user()->id, 422, 'Cannot remove your own account from the organization.');
+        abort_if(
+            $organization->members()->wherePivot('role', 'super_admin')->whereKey($user)->exists(),
+            403,
+            'Cannot remove super admin.'
+        );
+
+        $organization->members()->detach($user);
+
+        return back()->with('success', 'Anggota berhasil dihapus dari organisasi.');
+    }
+
     private function managedOrganization(Request $request): Organization
     {
         $organization = Organization::findOrFail($request->session()->get('organization_id'));

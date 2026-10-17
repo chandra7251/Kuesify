@@ -26,6 +26,29 @@ it('lets organization admin manage members only', function () {
     $this->get('/admin/groups')->assertNotFound();
 });
 
+it('lets organization admin restore and remove members', function () {
+    $admin = User::factory()->create();
+    $participant = User::factory()->create();
+    $organization = Organization::factory()->create();
+    $organization->members()->attach($admin, ['role' => 'organization_admin']);
+    $organization->members()->attach($participant, ['role' => 'participant', 'is_active' => false]);
+    $this->actingAs($admin)->post(route('organizations.switch', $organization));
+
+    // Test Restore
+    $this->patch(route('organization.members.restore', $participant->id))
+        ->assertRedirect()
+        ->assertSessionHas('success', 'Anggota berhasil diaktifkan kembali.');
+
+    expect($organization->members()->whereKey($participant->id)->first()->pivot->is_active)->toBe(1);
+
+    // Test Destroy
+    $this->delete(route('organization.members.destroy', $participant->id))
+        ->assertRedirect()
+        ->assertSessionHas('success', 'Anggota berhasil dihapus dari organisasi.');
+
+    expect($organization->members()->whereKey($participant->id)->exists())->toBeFalse();
+});
+
 it('sends invitation notification with temporary password when adding a new user', function () {
     Notification::fake();
 

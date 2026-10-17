@@ -50,6 +50,23 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // Check if user belongs to any active organization membership
+        // (Super admins bypass this check)
+        $hasActiveMembership = $user->organizations()->wherePivot('is_active', true)->exists();
+        $isSuperAdmin = $user->organizations()->wherePivot('role', 'super_admin')->exists();
+
+        if (! $hasActiveMembership && ! $isSuperAdmin && $user->organizations()->exists()) {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'Akun Anda telah dinonaktifkan oleh administrator organisasi. Silakan hubungi admin sekolah atau organisasi Anda.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 
