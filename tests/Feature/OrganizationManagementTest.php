@@ -2,6 +2,8 @@
 
 use App\Models\Organization;
 use App\Models\User;
+use App\Notifications\MemberInvitedNotification;
+use Illuminate\Support\Facades\Notification;
 
 it('lets organization admin manage members only', function () {
     $admin = User::factory()->create();
@@ -22,6 +24,27 @@ it('lets organization admin manage members only', function () {
     $this->get('/admin/members')->assertOk();
     $this->get('/admin/settings')->assertOk();
     $this->get('/admin/groups')->assertNotFound();
+});
+
+it('sends invitation notification with temporary password when adding a new user', function () {
+    Notification::fake();
+
+    $admin = User::factory()->create();
+    $organization = Organization::factory()->create();
+    $organization->members()->attach($admin, ['role' => 'organization_admin']);
+    $this->actingAs($admin)->post(route('organizations.switch', $organization));
+
+    $this->post(route('organization.members.store'), ['email' => 'newstudent@example.com', 'role' => 'participant'])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors()
+        ->assertSessionHas('success');
+
+    $newUser = User::where('email', 'newstudent@example.com')->first();
+    expect($newUser)->not->toBeNull();
+
+    Notification::assertSentTo($newUser, MemberInvitedNotification::class, function ($notification) {
+        return ! empty($notification->temporaryPassword) && $notification->role === 'participant';
+    });
 });
 
 it('filters out super_admin from organization members response', function () {
