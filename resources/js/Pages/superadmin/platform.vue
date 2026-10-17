@@ -98,6 +98,11 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
                             >Kategori</Link
                         >
                         <Link
+                            href="/superadmin/users"
+                            class="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/20 bg-white/10 px-5 text-sm font-semibold text-white transition hover:bg-white/15"
+                            >Pengguna</Link
+                        >
+                        <Link
                             href="/superadmin/logs"
                             class="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/20 bg-white/10 px-5 text-sm font-semibold text-white transition hover:bg-white/15"
                             >System Logs</Link

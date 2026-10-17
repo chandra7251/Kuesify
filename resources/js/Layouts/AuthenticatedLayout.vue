@@ -92,6 +92,11 @@ const navigationItems = computed(() => {
                 icon: 'platform',
             },
             {
+                label: 'Pengguna',
+                href: '/superadmin/users',
+                icon: 'users',
+            },
+            {
                 label: 'Moderasi',
                 href: '/admin/moderation',
                 icon: 'moderation',

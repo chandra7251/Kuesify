@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'avatar_key', 'locale', 'preferences'])]
+#[Fillable(['name', 'email', 'password', 'avatar_key', 'locale', 'preferences', 'is_banned', 'banned_reason', 'banned_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -31,6 +31,8 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'preferences' => 'array',
+            'is_banned' => 'boolean',
+            'banned_at' => 'datetime',
         ];
     }
 
@@ -42,6 +44,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function groups(): BelongsToMany
     {
         return $this->belongsToMany(Group::class)->withTimestamps();
+    }
+
+    public function createdQuizzes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Quiz::class, 'creator_id');
+    }
+
+    public function quizAttempts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(QuizAttempt::class, 'participant_id');
     }
 
     public function collaborativeQuizzes(): BelongsToMany

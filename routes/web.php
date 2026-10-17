@@ -75,6 +75,9 @@ Route::post('/quizzes/{quiz}/cover', [QuizController::class, 'cover'])
     ->name('quizzes.cover');
 
 Route::middleware(['auth', 'organization.context'])->group(function () {
+    Route::get('/superadmin/users', [PlatformAdminController::class, 'users'])->name('superadmin.users');
+    Route::patch('/superadmin/users/{user}/ban', [PlatformAdminController::class, 'toggleBan'])->name('superadmin.users.ban');
+    Route::delete('/superadmin/users/{user}', [PlatformAdminController::class, 'destroyUser'])->name('superadmin.users.destroy');
     Route::post('/superadmin/categories', [PlatformAdminController::class, 'storeCategory'])->name('superadmin.categories.store');
     Route::put('/superadmin/categories/{category}', [PlatformAdminController::class, 'updateCategory'])->name('superadmin.categories.update');
     Route::delete('/superadmin/categories/{category}', [PlatformAdminController::class, 'destroyCategory'])->name('superadmin.categories.destroy');

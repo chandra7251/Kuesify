@@ -82,7 +82,7 @@ class PlatformAdminController extends Controller
         $query = User::with(['organizations' => function ($q) {
             $q->select('organizations.id', 'organizations.name');
         }])
-            ->withCount(['createdQuizzes', 'attempts'])
+            ->withCount(['createdQuizzes', 'quizAttempts as attempts_count'])
             ->latest();
 
         if ($search !== '') {
@@ -125,6 +125,52 @@ class PlatformAdminController extends Controller
                 'total_organizations' => Organization::count(),
             ],
         ]);
+    }
+
+    public function toggleBan(Request $request, User $user): RedirectResponse
+    {
+        $this->requireSuperAdmin($request);
+
+        // Guard: Prevent banning oneself or other super admins
+        abort_if($user->id === $request->user()->id, 422, 'Tidak dapat memblokir akun sendiri.');
+        abort_if(
+            $user->organizations()->wherePivot('role', 'super_admin')->exists(),
+            403,
+            'Tidak dapat memblokir akun Super Admin.'
+        );
+
+        $newStatus = ! $user->is_banned;
+        $reason = $newStatus ? $request->input('reason', 'Pelanggaran ketentuan platform.') : null;
+
+        $user->update([
+            'is_banned' => $newStatus,
+            'banned_reason' => $reason,
+            'banned_at' => $newStatus ? now() : null,
+        ]);
+
+        $message = $newStatus
+            ? "Akun {$user->name} berhasil diblokir (banned)."
+            : "Blokir akun {$user->name} telah dicabut (unbanned).";
+
+        return back()->with('status', $message);
+    }
+
+    public function destroyUser(Request $request, User $user): RedirectResponse
+    {
+        $this->requireSuperAdmin($request);
+
+        // Guard: Prevent deleting oneself or other super admins
+        abort_if($user->id === $request->user()->id, 422, 'Tidak dapat menghapus akun sendiri.');
+        abort_if(
+            $user->organizations()->wherePivot('role', 'super_admin')->exists(),
+            403,
+            'Tidak dapat menghapus akun Super Admin.'
+        );
+
+        $userName = $user->name;
+        $user->delete();
+
+        return back()->with('status', "Akun pengguna {$userName} berhasil dihapus permanen dari platform.");
     }
 
     public function storeCategory(Request $request): RedirectResponse

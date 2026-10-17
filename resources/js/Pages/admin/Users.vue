@@ -20,6 +20,9 @@ interface UserItem {
     email: string;
     email_verified_at: string | null;
     avatar?: string | null;
+    is_banned?: boolean;
+    banned_reason?: string | null;
+    banned_at?: string | null;
     created_at: string;
     organizations: Organization[];
     created_quizzes_count: number;
@@ -55,6 +58,49 @@ const roleFilter = ref(props.filters.role ?? 'all');
 const statusFilter = ref(props.filters.status ?? 'all');
 
 const selectedUser = ref<UserItem | null>(null);
+
+function isSuperAdminUser(user: UserItem): boolean {
+    return user.organizations?.some((org) => org.pivot?.role === 'super_admin') ?? false;
+}
+
+function toggleBanUser(user: UserItem) {
+    const actionLabel = user.is_banned ? 'mencabut blokir (unban)' : 'memblokir (ban)';
+    const reasonPrompt = user.is_banned
+        ? null
+        : prompt('Masukkan alasan pemblokiran akun ini:', 'Pelanggaran ketentuan platform.') ?? null;
+
+    if (!user.is_banned && reasonPrompt === null) {
+        return; // Dibatalkan pengguna
+    }
+
+    if (confirm(`Yakin ingin ${actionLabel} akun ${user.name}?`)) {
+        router.patch(
+            `/superadmin/users/${user.id}/ban`,
+            { reason: reasonPrompt },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    if (selectedUser.value && selectedUser.value.id === user.id) {
+                        selectedUser.value.is_banned = !selectedUser.value.is_banned;
+                    }
+                },
+            },
+        );
+    }
+}
+
+function deleteUserPermanently(user: UserItem) {
+    if (confirm(`PERINGATAN: Yakin ingin menghapus permanen akun ${user.name} (${user.email})? Semua data terkait pengguna ini akan terhapus!`)) {
+        router.delete(`/superadmin/users/${user.id}`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                if (selectedUser.value && selectedUser.value.id === user.id) {
+                    closeDetail();
+                }
+            },
+        });
+    }
+}
 
 function applyFilters() {
     router.get(
@@ -412,6 +458,12 @@ function formatRoleName(role?: string) {
                                                     class="font-bold text-slate-800"
                                                 >
                                                     {{ user.name }}
+                                                    <span
+                                                        v-if="user.is_banned"
+                                                        class="ml-2 inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-black text-rose-700"
+                                                    >
+                                                        BANNED
+                                                    </span>
                                                 </div>
                                                 <div
                                                     class="text-xs text-slate-400"
@@ -514,13 +566,28 @@ function formatRoleName(role?: string) {
 
                                     <!-- Aksi -->
                                     <td class="px-4 py-3.5 text-right">
-                                        <button
-                                            type="button"
-                                            class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 shadow-sm transition hover:bg-slate-50"
-                                            @click="openDetail(user)"
-                                        >
-                                            Detail
-                                        </button>
+                                        <div class="flex items-center justify-end gap-1.5">
+                                            <button
+                                                type="button"
+                                                class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 shadow-sm transition hover:bg-slate-50"
+                                                @click="openDetail(user)"
+                                            >
+                                                Detail
+                                            </button>
+                                            <button
+                                                v-if="!isSuperAdminUser(user)"
+                                                type="button"
+                                                class="rounded-xl border px-3 py-1.5 text-xs font-bold shadow-sm transition"
+                                                :class="
+                                                    user.is_banned
+                                                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                                                        : 'border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100'
+                                                "
+                                                @click="toggleBanUser(user)"
+                                            >
+                                                {{ user.is_banned ? 'Unban' : 'Ban' }}
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr v-if="!users.data?.length">
@@ -582,11 +649,22 @@ function formatRoleName(role?: string) {
                         }}</span>
                     </div>
                     <div>
-                        <div class="text-base font-bold text-slate-900">
-                            {{ selectedUser.name }}
+                        <div class="flex items-center gap-2">
+                            <span class="text-base font-bold text-slate-900">
+                                {{ selectedUser.name }}
+                            </span>
+                            <span
+                                v-if="selectedUser.is_banned"
+                                class="rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-black text-rose-700"
+                            >
+                                BANNED
+                            </span>
                         </div>
                         <div class="font-mono text-xs text-slate-500">
                             {{ selectedUser.email }}
+                        </div>
+                        <div v-if="selectedUser.is_banned && selectedUser.banned_reason" class="mt-1 text-xs text-rose-600 font-semibold">
+                            Alasan Ban: {{ selectedUser.banned_reason }}
                         </div>
                         <div class="mt-0.5 text-xs text-slate-400">
                             Terdaftar sejak
@@ -654,7 +732,29 @@ function formatRoleName(role?: string) {
                     </div>
                 </div>
 
-                <div class="flex justify-end pt-2">
+                <div class="flex items-center justify-between pt-2">
+                    <div v-if="!isSuperAdminUser(selectedUser)" class="flex items-center gap-2">
+                        <button
+                            type="button"
+                            class="rounded-xl border px-3 py-2 text-xs font-bold transition"
+                            :class="
+                                selectedUser.is_banned
+                                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                                    : 'border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100'
+                            "
+                            @click="toggleBanUser(selectedUser)"
+                        >
+                            {{ selectedUser.is_banned ? 'Buka Blokir (Unban)' : 'Blokir Pengguna (Ban)' }}
+                        </button>
+                        <button
+                            type="button"
+                            class="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-100"
+                            @click="deleteUserPermanently(selectedUser)"
+                        >
+                            Hapus Akun
+                        </button>
+                    </div>
+                    <div v-else></div>
                     <button
                         type="button"
                         class="rounded-xl bg-slate-900 px-5 py-2 text-xs font-bold text-white transition hover:bg-slate-800"

@@ -40,6 +40,23 @@ test('users can logout', function () {
     $response->assertRedirect('/');
 });
 
+test('users who are banned globally cannot login and see clear ban message', function () {
+    $user = User::factory()->create([
+        'is_banned' => true,
+        'banned_reason' => 'Melanggar ketentuan komunitas',
+    ]);
+
+    $response = $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+
+    $this->assertGuest();
+    $response->assertSessionHasErrors([
+        'email' => 'Akun Anda telah dinonaktifkan/diblokir oleh Super Admin Platform. Alasan: Melanggar ketentuan komunitas. Silakan hubungi pengelola sistem.',
+    ]);
+});
+
 test('users whose memberships are all disabled cannot login and see clear message', function () {
     $user = User::factory()->create();
     $organization = \App\Models\Organization::factory()->create();

@@ -53,6 +53,20 @@ class LoginRequest extends FormRequest
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
+        // Check if user is banned globally by Super Admin
+        if ($user->is_banned) {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey());
+
+            $reasonMsg = $user->banned_reason
+                ? " Alasan: {$user->banned_reason}."
+                : '';
+
+            throw ValidationException::withMessages([
+                'email' => "Akun Anda telah dinonaktifkan/diblokir oleh Super Admin Platform.{$reasonMsg} Silakan hubungi pengelola sistem.",
+            ]);
+        }
+
         // Check if user belongs to any active organization membership
         // (Super admins bypass this check)
         $hasActiveMembership = $user->organizations()->wherePivot('is_active', true)->exists();
