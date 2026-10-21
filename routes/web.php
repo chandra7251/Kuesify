@@ -108,6 +108,7 @@ Route::middleware(['auth', 'organization.context'])->group(function () {
     Route::get('/materials', [WorkspaceController::class, 'materials'])->name('materials.index');
     Route::get('/participant/materials', [WorkspaceController::class, 'participantMaterials'])->name('participant.materials.index');
     Route::get('/participant/materials/{material}/print', [WorkspaceController::class, 'printMaterial'])->name('participant.materials.print');
+    Route::get('/participant/materials/{material}', [WorkspaceController::class, 'participantMaterial'])->name('participant.materials.show');
     Route::post('/participant/materials/{material}/read', [WorkspaceController::class, 'markMaterialRead'])->name('participant.materials.read');
     Route::put('/participant/materials/{material}/note', [WorkspaceController::class, 'saveMaterialNote'])->name('participant.materials.note.save');
     Route::delete('/participant/materials/{material}/note', [WorkspaceController::class, 'deleteMaterialNote'])->name('participant.materials.note.delete');

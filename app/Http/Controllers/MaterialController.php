@@ -38,7 +38,11 @@ class MaterialController extends Controller
             'visibility' => $data['visibility'] ?? 'organization',
         ]);
 
-        ExtractMaterial::dispatch($material);
+        if (app()->environment('local')) {
+            ExtractMaterial::dispatchSync($material);
+        } else {
+            ExtractMaterial::dispatch($material);
+        }
 
         return back();
     }

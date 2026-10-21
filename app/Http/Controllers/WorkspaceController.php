@@ -354,7 +354,7 @@ class WorkspaceController extends Controller
                 });
             })
             ->latest()
-            ->paginate(12)
+            ->paginate(6)
             ->withQueryString();
 
         return Inertia::render('participant/materials', [
@@ -415,6 +415,42 @@ class WorkspaceController extends Controller
         return back();
     }
 
+    public function participantMaterial(Request $request, int $material): InertiaResponse
+    {
+        abort_unless($this->activeOrganization()->roleFor($request->user()) === 'participant', 403);
+
+        $material = $this->visibleParticipantMaterial($material, $this->activeOrganization()->id)
+            ->load('creator:id,name');
+        $note = MaterialNote::withoutGlobalScopes()
+            ->where('material_id', $material->id)
+            ->where('user_id', $request->user()->id)
+            ->value('body');
+        $check = MaterialCheck::withoutGlobalScopes()
+            ->where('material_id', $material->id)
+            ->where('user_id', $request->user()->id)
+            ->first(['answer', 'confidence']);
+        $readCount = MaterialProgress::withoutGlobalScopes()
+            ->where('material_id', $material->id)
+            ->where('user_id', $request->user()->id)
+            ->count();
+
+        return Inertia::render('participant/material-detail', [
+            'material' => [
+                'id' => $material->id,
+                'original_name' => $material->original_name,
+                'visibility' => $material->visibility,
+                'version' => $material->version,
+                'page_count' => $material->page_count,
+                'size' => $material->size,
+                'extracted_text' => $material->extracted_text,
+                'updated_at' => $material->updated_at?->toISOString(),
+                'creator' => $material->creator?->only(['id', 'name']),
+            ],
+            'note' => $note,
+            'check' => $check?->only(['answer', 'confidence']),
+            'isRead' => $readCount > 0,
+        ]);
+    }
     public function printMaterial(Request $request, int $material): InertiaResponse
     {
         abort_unless($this->activeOrganization()->roleFor($request->user()) === 'participant', 403);

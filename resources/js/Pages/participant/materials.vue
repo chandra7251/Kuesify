@@ -112,10 +112,11 @@ onUnmounted(() => {
 });
 
 function paginationLabel(label: string): string {
-    return label
-        .replace('&laquo;', '‹')
-        .replace('&raquo;', '›')
-        .replace(/<[^>]*>/g, '');
+    if (label.includes('Previous') || label.includes('&laquo;')) return '‹';
+    if (label.includes('Next') || label.includes('&raquo;')) return '›';
+    if (label.includes('...')) return '…';
+
+    return label.replace(/<[^>]*>/g, '');
 }
 
 function syncNoteDrafts(): void {
@@ -402,227 +403,37 @@ function saveCheck(material: Material): void {
                         v-for="material in materials.data"
                         :key="material.id"
                         data-motion-card
-                        class="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-figma"
+                        class="group flex min-h-[300px] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-figma transition duration-200 hover:-translate-y-0.5 hover:border-brand-primary/30 hover:shadow-lg"
                     >
-                        <div class="flex items-start justify-between gap-3">
-                            <div>
-                                <p
-                                    class="text-xs font-bold uppercase tracking-[0.18em] text-brand-primary"
-                                >
-                                    {{
-                                        material.visibility === 'public'
-                                            ? 'Publik'
-                                            : 'Organisasi'
-                                    }}
-                                </p>
-                                <h2
-                                    class="mt-2 line-clamp-2 text-lg font-black text-slate-900"
-                                >
-                                    {{ material.original_name }}
-                                </h2>
-                            </div>
-                            <span
-                                class="rounded-full px-3 py-1 text-xs font-bold"
-                                :class="
-                                    material.read_count > 0
-                                        ? 'bg-brand-secondary text-brand-primary'
-                                        : 'bg-brand-accent text-brand-primary'
-                                "
-                            >
-                                {{
-                                    material.read_count > 0
-                                        ? 'Selesai'
-                                        : 'Materi'
-                                }}
-                            </span>
-                        </div>
-                        <p
-                            class="mt-3 line-clamp-3 text-sm leading-6 text-slate-600"
-                        >
-                            {{ excerpt(material) }}
-                        </p>
-                        <div
-                            class="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-slate-500"
-                        >
-                            <span>{{ formatSize(material.size) }}</span>
-                            <span>Versi {{ material.version }}</span>
-                            <span
-                                >Diperbarui
-                                {{ formatDate(material.updated_at) }}</span
-                            >
-                            <span v-if="material.page_count"
-                                >{{ material.page_count }} halaman</span
-                            >
-                            <span v-if="material.creator"
-                                >Oleh {{ material.creator.name }}</span
-                            >
-                        </div>
-                        <p
-                            v-if="actionFeedback[material.id]"
-                            class="mt-4 rounded-xl bg-brand-accent px-3 py-2 text-sm font-semibold text-brand-primary"
-                            role="status"
-                        >
-                            {{ actionFeedback[material.id] }}
-                        </p>
-                        <button
-                            type="button"
-                            class="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-bold text-slate-700 hover:bg-slate-50"
-                            :aria-expanded="
-                                Boolean(expandedMaterials[material.id])
-                            "
-                            :aria-controls="`material-tools-${material.id}`"
-                            @click="toggleLearningTools(material)"
-                        >
-                            {{
-                                expandedMaterials[material.id]
-                                    ? 'Tutup alat belajar'
-                                    : 'Buka alat belajar'
-                            }}
-                        </button>
-                        <div
-                            v-if="expandedMaterials[material.id]"
-                            :id="`material-tools-${material.id}`"
-                            class="mt-4 space-y-4"
-                        >
-                            <div class="rounded-xl bg-slate-50 p-3">
-                                <label
-                                    :for="`note-${material.id}`"
-                                    class="text-xs font-bold uppercase tracking-[0.14em] text-slate-600"
-                                >
-                                    Catatan pribadi
-                                </label>
-                                <textarea
-                                    :id="`note-${material.id}`"
-                                    v-model="noteDrafts[material.id]"
-                                    rows="3"
-                                    maxlength="5000"
-                                    class="mt-2 w-full rounded-lg border-slate-300 text-sm focus:border-brand-primary focus:ring-brand-primary"
-                                    placeholder="Tulis ringkasan atau hal penting…"
-                                />
-                                <div class="mt-2 flex flex-wrap gap-2">
-                                    <button
-                                        type="button"
-                                        class="min-h-9 rounded-lg bg-white px-3 text-xs font-bold text-brand-primary ring-1 ring-slate-200 hover:bg-brand-accent disabled:opacity-50"
-                                        :disabled="
-                                            actionProcessing[material.id]
-                                        "
-                                        @click="saveNote(material)"
-                                    >
-                                        {{
-                                            actionProcessing[material.id]
-                                                ? 'Menyimpan…'
-                                                : 'Simpan catatan'
-                                        }}
-                                    </button>
-                                    <button
-                                        v-if="material.notes.length"
-                                        type="button"
-                                        class="min-h-9 rounded-lg px-3 text-xs font-bold text-red-700 hover:bg-red-50 disabled:opacity-50"
-                                        :disabled="
-                                            actionProcessing[material.id]
-                                        "
-                                        @click="promptDeleteNote(material)"
-                                    >
-                                        Hapus
-                                    </button>
+                        <div class="flex flex-1 flex-col p-5 sm:p-6">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="min-w-0">
+                                    <p class="text-[11px] font-black uppercase tracking-[0.2em] text-brand-primary">
+                                        {{ material.visibility === 'public' ? 'Publik' : 'Organisasi' }}
+                                    </p>
+                                    <h2 class="mt-2 line-clamp-2 min-h-[3rem] overflow-hidden text-ellipsis text-lg font-black leading-7 text-slate-950" :title="material.original_name">
+                                        {{ material.original_name }}
+                                    </h2>
                                 </div>
+                                <span class="shrink-0 rounded-full px-3 py-1.5 text-xs font-bold" :class="material.read_count > 0 ? 'bg-brand-secondary/20 text-brand-primary' : 'bg-brand-accent text-brand-primary'">
+                                    {{ material.read_count > 0 ? 'Selesai' : 'Materi' }}
+                                </span>
                             </div>
-                            <div class="rounded-xl border border-slate-200 p-3">
-                                <label
-                                    :for="`check-${material.id}`"
-                                    class="text-xs font-bold uppercase tracking-[0.14em] text-brand-primary"
-                                >
-                                    Cek pemahaman
-                                </label>
-                                <p class="mt-1 text-xs text-slate-500">
-                                    Tulis satu hal utama yang kamu pahami dari
-                                    materi ini.
-                                </p>
-                                <textarea
-                                    :id="`check-${material.id}`"
-                                    v-model="checkDrafts[material.id].answer"
-                                    rows="2"
-                                    maxlength="1000"
-                                    class="mt-2 w-full rounded-lg border-slate-300 text-sm focus:border-brand-primary focus:ring-brand-primary"
-                                    placeholder="Contoh: inti materi ini adalah…"
-                                />
-                                <div
-                                    class="mt-2 flex flex-wrap items-center gap-2"
-                                >
-                                    <label
-                                        :for="`confidence-${material.id}`"
-                                        class="text-xs font-semibold text-slate-600"
-                                        >Yakin</label
-                                    >
-                                    <select
-                                        :id="`confidence-${material.id}`"
-                                        v-model.number="
-                                            checkDrafts[material.id].confidence
-                                        "
-                                        class="min-h-9 rounded-lg border-slate-300 text-xs focus:border-brand-primary focus:ring-brand-primary"
-                                    >
-                                        <option
-                                            v-for="level in [1, 2, 3, 4, 5]"
-                                            :key="level"
-                                            :value="level"
-                                        >
-                                            {{ level }}/5
-                                        </option>
-                                    </select>
-                                    <button
-                                        type="button"
-                                        class="min-h-9 rounded-lg bg-brand-primary px-3 text-xs font-bold text-white hover:bg-brand-hover disabled:opacity-50"
-                                        :disabled="
-                                            actionProcessing[material.id]
-                                        "
-                                        @click="saveCheck(material)"
-                                    >
-                                        {{
-                                            actionProcessing[material.id]
-                                                ? 'Menyimpan…'
-                                                : 'Simpan cek'
-                                        }}
-                                    </button>
-                                </div>
+                            <p class="mt-2 line-clamp-2 min-h-[3rem] overflow-hidden text-ellipsis text-sm leading-6 text-slate-500">{{ excerpt(material) }}</p>
+                            <div class="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-slate-500">
+                                <span class="rounded-lg bg-slate-100 px-2.5 py-1.5">{{ formatSize(material.size) }}</span>
+                                <span class="rounded-lg bg-slate-100 px-2.5 py-1.5">Versi {{ material.version }}</span>
+                                <span v-if="material.page_count" class="rounded-lg bg-slate-100 px-2.5 py-1.5">{{ material.page_count }} halaman</span>
                             </div>
-                        </div>
-                        <div class="mt-5 grid gap-2 sm:grid-cols-3">
-                            <button
-                                type="button"
-                                class="inline-flex min-h-10 items-center justify-center rounded-xl px-4 text-sm font-bold"
-                                :class="
-                                    material.read_count > 0
-                                        ? 'bg-slate-100 text-slate-500'
-                                        : 'bg-brand-secondary text-brand-primary hover:bg-brand-secondary/80'
-                                "
-                                :disabled="
-                                    material.read_count > 0 ||
-                                    actionProcessing[material.id]
-                                "
-                                @click="markRead(material)"
-                            >
-                                {{
-                                    material.read_count > 0
-                                        ? 'Sudah selesai'
-                                        : 'Tandai selesai'
-                                }}
-                            </button>
-                            <a
-                                :href="route('materials.download', material.id)"
-                                class="inline-flex min-h-10 items-center justify-center rounded-xl bg-brand-primary px-4 text-sm font-bold text-white hover:bg-brand-hover"
-                            >
-                                Unduh
-                            </a>
-                            <Link
-                                :href="
-                                    route(
-                                        'participant.materials.print',
-                                        material.id,
-                                    )
-                                "
-                                class="inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-bold text-slate-700 hover:bg-slate-50"
-                            >
-                                Cetak
+                            <div class="mt-4 flex min-h-10 items-center gap-2 text-xs text-slate-500">
+                                <span class="h-2 w-2 shrink-0 rounded-full bg-brand-secondary"></span>
+                                <span class="truncate">Diperbarui {{ formatDate(material.updated_at) }}</span>
+                                <span v-if="material.creator" class="truncate">· {{ material.creator.name }}</span>
+                            </div>
+                            <p v-if="actionFeedback[material.id]" class="mt-4 rounded-xl bg-brand-accent px-3 py-2 text-sm font-semibold text-brand-primary" role="status">{{ actionFeedback[material.id] }}</p>
+                            <Link :href="route('participant.materials.show', material.id)" class="mt-auto inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-brand-primary px-4 py-3.5 text-sm font-black text-brand-secondary transition hover:bg-brand-hover">
+                                Lihat Detail Materi
+                                <svg class="ml-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6" /></svg>
                             </Link>
                         </div>
                     </article>
@@ -648,15 +459,15 @@ function saveCheck(material: Material): void {
                 </div>
 
                 <nav
-                    v-if="materials.links.length > 3"
-                    class="flex flex-wrap gap-2"
+                    v-if="materials.total > 0"
+                    class="flex flex-wrap justify-start gap-2"
                     aria-label="Navigasi halaman materi belajar"
                 >
                     <Link
                         v-for="link in materials.links"
                         :key="link.label"
                         :href="link.url ?? '#'"
-                        class="rounded-lg border px-3 py-2 text-sm font-semibold"
+                        class="inline-flex h-12 w-12 items-center justify-center rounded-lg border p-0 text-sm font-semibold leading-normal"
                         :class="[
                             link.active
                                 ? 'border-brand-primary bg-brand-primary text-white'
